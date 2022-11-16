@@ -3,4 +3,5 @@ Chess in pygame
 
 
 # Resources
-- sprites : https://silverm.itch.io/chess-pixel-art 
+- sprites : https://dani-maccari.itch.io/pixel-chess
+		  
