@@ -3,6 +3,8 @@ import asset as ASSETS
 import chess as CHESS
 
 
+from random import choice
+
 
 
 
@@ -18,10 +20,12 @@ scale_factor = 3
 
 
 game = CHESS.GAME(
-		board_asset = ASSETS.BOARDS.BOARD_PLAIN2,
-		piece_set = ASSETS.PIECE_SET.NORMAL16x32,
+		board_asset = choice(list(ASSETS.BOARDS)),
+		piece_set = choice(list(ASSETS.PIECE_SET)),
 		scale = scale_factor 
 	)
+
+game.board.pos_rect.center = window_size / 2
 
 
 while not done:
@@ -31,7 +35,8 @@ while not done:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: done = True
 
-	pygame.display.get_surface().blit(game.board.sprite.surface, game.board.pos_rect)
+	CHESS.render( game )
+
 
 	pygame.display.flip()
 
