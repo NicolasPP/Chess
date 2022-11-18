@@ -14,13 +14,14 @@ done = False
 scale_factor = 3
 
 
+
+
+
 game = CHESS.GAME(
 		board_asset = ASSETS.BOARDS.BOARD_PLAIN2,
 		piece_set = ASSETS.PIECE_SET.NORMAL16x32,
 		scale = scale_factor 
 	)
-
-white_p, black_p = game.pieces
 
 
 while not done:
@@ -31,13 +32,6 @@ while not done:
 		if event.type == pygame.QUIT: done = True
 
 	pygame.display.get_surface().blit(game.board.sprite.surface, game.board.pos_rect)
-
-	CHESS.test_grid(game.board.grid)
-
-	a = 7 * scale_factor
-	for sprite in black_p:
-		game.board.sprite.surface.blit(sprite.surface, (a, 7 * scale_factor))
-		a += 16 * scale_factor
 
 	pygame.display.flip()
 

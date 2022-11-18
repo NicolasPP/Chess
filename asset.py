@@ -98,4 +98,3 @@ def load_piece_set( piece_set : Piece_Set, factor : float) -> tuple[list[Sprite]
 # -------------------------------------
 
 
-
