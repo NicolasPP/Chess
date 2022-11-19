@@ -28,7 +28,7 @@ def PLAYER( *,
 		board_asset : ASSETS.BOARDS,
 		scale : float,
 	) -> Player:
-	board = CHESS.get_board(board_asset.value, scale)
+	board = CHESS.get_board(board_asset.value, side, scale)
 	pieces = CHESS.get_peices(piece_set.value, scale)
 	player = Player( side, board, pieces )
 	if side is CHESS.SIDE.WHITE: player.state = STATE.PICK_PIECE
