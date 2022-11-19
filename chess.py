@@ -7,6 +7,7 @@ from typing import Callable, Generator
 
 from config import *
 
+
 # -- Classes and Enums --
 @dataclass
 class Board:
@@ -22,13 +23,6 @@ class Piece:
 	is_white 	: Callable = lambda piece : piece.FEN_val.islower()
 	is_black	: Callable = lambda piece : piece.FEN_val.isupper()
 
-@dataclass
-class Game:
-	board 			: Board
-	pieces 			: dict[str, Piece]
-	FEN_notation 	: str
-
-
 class Piece_Info(Enum):
 	P 	: int =  0
 	N 	: int =  1
@@ -36,59 +30,16 @@ class Piece_Info(Enum):
 	B 	: int =  3
 	Q 	: int =  4
 	K 	: int =  5
+
+class SIDE(Enum):
+	WHITE : int = 0
+	BLACK : int = 1
+
 # -----------------------
 
 
 
-
-# -- Get Game Object --
-def GAME( 
-	*,
-	board_asset : ASSETS.BOARDS,
-	piece_set : ASSETS.PIECE_SET,
-	scale : float,
-	fen_notation : str = GAME_START_FEN
-	) -> Game:
-	board = get_board(board_asset.value, scale)
-	pieces = get_peices(piece_set.value, scale)
-	return Game(board, pieces, fen_notation)
-# --------------------- 
-
-
-
-# -- Game Render and Update --
-def render( game : Game ) -> None:
-	board_offset = pygame.math.Vector2(game.board.pos_rect.topleft)
-	pygame.display.get_surface().blit( game.board.sprite.surface, game.board.pos_rect )
-	for piece, rect in decode_game_FEN( game ):
-		piece_rect = piece.sprite.surface.get_rect(topleft = rect.topleft)
-		piece_rect.bottom = rect.bottom
-		peice_pos = pygame.math.Vector2(piece_rect.x, piece_rect.y)
-		pygame.display.get_surface().blit( piece.sprite.surface, peice_pos + board_offset )
-# ----------------------------
-
-
-
-# -- FEN notation --
-
-def iterate_FEN( game ):
-	for fen_row in game.FEN_notation.split('/'):
-		for piece_fen in fen_row: yield piece_fen 
-
-def decode_game_FEN( game : Game
-	)-> Generator[tuple[Piece, pygame.rect.Rect], None, None]:
-	count = 0
-	for piece_fen in iterate_FEN( game ):
-		if piece_fen.isnumeric(): count += int( piece_fen ) -1
-		else: yield game.pieces[piece_fen], game.board.grid[count]
-		count += 1
-
-# ------------------
-
-
-
-
-# -- Creating Game Object -- 
+# -- getting assets --
 def get_grid_surface_size( board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
 	offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
 	board_size = pygame.math.Vector2(board_sprite.surface.get_size())
@@ -131,20 +82,3 @@ def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect) -> li
 		grid.append(pygame.rect.Rect(pos + board_offset + grid_offset, size))
 	return grid
 # --------------------------
-
-
-
-
-
-# -- Tests --
-def test_grid( game : Game) -> None:
-	count = 0
-	for rect in game.board.grid:
-		surface = pygame.Surface(rect.size)
-		surface.set_alpha(30)
-		surface.fill('red')
-		pos = rect.x + game.board.pos_rect.x, rect.y + game.board.pos_rect.y
-		pygame.display.get_surface().blit(surface, pos)
-		count += 1 
-# -----------
-
