@@ -33,7 +33,7 @@ black_player = PLAYER.PLAYER(
 	)
 
 
-game = GAME.GAME(white_player, black_player)
+game = GAME.GAME(white_player, black_player, fen_notation ='rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R')
 
 white_player.board.pos_rect.center = window_size / 2
 black_player.board.pos_rect.center = window_size / 2

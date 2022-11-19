@@ -45,7 +45,7 @@ def render_board( game : Game, player : PLAYER.Player ) -> None:
 def render_pieces( game : Game, player : PLAYER.Player ) -> None:
 	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
 	grid = player.board.grid
-	if player.side is CHESS.SIDE.WHITE: grid = grid[::-1]
+	if player.side is CHESS.SIDE.BLACK: grid = grid[::-1]
 	for board_square in grid:
 		if not board_square.FEN_val: continue
 		piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)

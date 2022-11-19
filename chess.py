@@ -27,9 +27,6 @@ class Board:
 class Piece:
 	sprite 		: ASSETS.Sprite
 	FEN_val 	: str
-	valid_move 	: Callable = lambda : False
-	is_white 	: Callable = lambda piece : piece.FEN_val.islower()
-	is_black	: Callable = lambda piece : piece.FEN_val.isupper()
 
 class Piece_Info(Enum):
 	P 	: int =  0
@@ -62,9 +59,7 @@ def board_square_info( side ) -> Generator[tuple[int, int, str], None, None]:
 
 def get_board(board_asset : ASSETS.Asset, side : SIDE, scale : float) -> Board:
 	sprite = ASSETS.load_board(board_asset, scale)
-	if side is SIDE.BLACK:
-		sprite.surface = pygame.transform.rotate( sprite.surface, 180)
-		sprite.surface = pygame.transform.flip( sprite.surface, True, False)
+	if side is SIDE.BLACK: sprite.surface = pygame.transform.flip(sprite.surface, True, True)
 
 	pos_rect = sprite.surface.get_rect()
 	grid = create_grid(sprite, pos_rect, side)
@@ -75,8 +70,8 @@ def get_peices(piece_set : ASSETS.Piece_Set, scale : float) -> list[Piece]:
 	assert len(white_sprites) == len(black_sprites)
 	pieces = {}
 	''' get fen value from name of Piece_Info(Enum) '''
-	get_white_fen = lambda name : name.lower()
-	get_black_fen = lambda name : name
+	get_white_fen = lambda name : name
+	get_black_fen = lambda name : name.lower()
 
 	for i in range( len(white_sprites) ):
 		white_fen = get_white_fen(Piece_Info(i).name)
@@ -96,6 +91,6 @@ def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side 
 		pos = pygame.math.Vector2(col * size.x, row * size.y)
 		rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
 		grid.append( Board_Square(rect, AN_cordinates) )
-	if side is SIDE.WHITE: grid = grid[::-1]
+	if side is SIDE.BLACK: grid = grid[::-1]
 	return grid
 # --------------------------
