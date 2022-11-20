@@ -1,10 +1,11 @@
-import pygame
+import pygame, string
 from dataclasses import dataclass
 from config import * 
 from typing import Generator
 from enum import Enum 
 import player as PLAYER
 import chess as CHESS
+import commands as CMD
 
 
 @dataclass
@@ -23,17 +24,51 @@ def GAME(
 
 
 # -- FEN notation --
-def iterate_FEN( game : Game, player : PLAYER.Player ):
-	for fen_row in game.FEN_notation.split('/'):
+def iterate_FEN( game : Game ):
+	for fen_row in game.FEN_notation.split(FEN_SPLIT):
 		for piece_fen in fen_row: yield piece_fen 
 
 def decode_game_FEN( game : Game, player : PLAYER.Player
 	)-> Generator[tuple[CHESS.Piece, pygame.rect.Rect], None, None]:
 	count = 0
-	for piece_fen in iterate_FEN( game, player ):
+	for piece_fen in iterate_FEN( game ):
 		if piece_fen.isnumeric(): count += int( piece_fen ) -1
 		else: yield player.pieces[piece_fen], player.board.grid[count]
 		count += 1
+
+def set_blank_fen( fen_notation : str, blank_count : int) -> tuple[str, int]:
+	if blank_count > 0:
+		fen_notation += str(blank_count)
+		blank_count = 0
+	return fen_notation, blank_count
+
+def expand_fen( game : Game, fen = '' ) -> str:
+	for piece_fen in iterate_FEN( game ):
+		if piece_fen.isnumeric(): fen += (int( piece_fen ) * FEN_BLANK)
+		elif piece_fen == FEN_SPLIT: continue
+		else: fen += piece_fen
+	return list(fen)
+
+def format_expanded_fen( unpacked_fen ) -> str:
+	FEN_notation, blank_count = set_blank_fen( '', 0)
+	for index in range(len( unpacked_fen )):
+		if index % BOARD_SIZE == 0 and index > 0:
+			FEN_notation, blank_count = set_blank_fen( FEN_notation, blank_count) 
+			FEN_notation += FEN_SPLIT
+		if unpacked_fen[index] == FEN_BLANK: blank_count += 1
+		else:
+			FEN_notation, blank_count = set_blank_fen( FEN_notation, blank_count) 
+			FEN_notation += unpacked_fen[index]
+
+	return FEN_notation
+
+def process_move( command : CMD.Move, game : Game):
+	index = lambda fen : ((BOARD_SIZE - int(fen[0])) * BOARD_SIZE) + string.ascii_lowercase.index(fen[1])
+	dest_c, from_c = command.dest_coords, command.from_coords
+	expanded_fen = expand_fen(game)
+	expanded_fen[index(dest_c)] = expanded_fen[index(from_c)]
+	expanded_fen[index(from_c)] = FEN_BLANK
+	game.FEN_notation = format_expanded_fen( expanded_fen )
 # ------------------
 
 
@@ -54,10 +89,12 @@ def render_pieces( game : Game, player : PLAYER.Player ) -> None:
 
 def update_pieces_location( game, player ) -> None:
 	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
+	for board_square in player.board.grid:
+		board_square.FEN_val = ''
+		board_square.piece_surface = None
 	for piece, board_square in decode_game_FEN( game, player ):
 		board_square.FEN_val = piece.FEN_val
 		board_square.piece_surface = piece.sprite.surface.copy()
-
 # ----------------------------
 
 def get_piece_render_pos( board_square : CHESS.Board_Square, player : PLAYER.Player ) -> tuple[int, int]:
@@ -70,17 +107,16 @@ def get_piece_render_pos( board_square : CHESS.Board_Square, player : PLAYER.Pla
 		piece_pos = piece_rect.x, piece_rect.y
 	return piece_pos
 
-# -- Tests --
-def test_grid( player : PLAYER.Player) -> None:
-	count = 0
-	for board_square in player.board.grid:
-		surface = pygame.Surface(board_square.rect.size)
-		surface.set_alpha(30)
-		surface.fill('red')
-		pos = board_square.rect.x + player.board.pos_rect.x, board_square.rect.y + player.board.pos_rect.y
-		pygame.display.get_surface().blit(surface, pos)
-		count += 1 
-# -----------
+
+def exec_player_command( game : Game, *players: PLAYER.Player  ) -> None:
+	command = CMD.get_command()
+	if command is None: return
+	process_move(command, game)
+	next_turn( *players )
+	for player in players: update_pieces_location( game, player )
 
 
-
+def next_turn( *players : PLAYER.Player  ) -> None:
+	for player in players: player.turn = not player.turn
+	p1, p2 = players
+	assert p1.turn != p2.turn
