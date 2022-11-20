@@ -20,20 +20,20 @@ scale_factor = 4
 
 white_player = PLAYER.PLAYER(
 	side = CHESS.SIDE.WHITE,
-	piece_set = ASSETS.PIECE_SET.NORMAL16x32,
+	piece_set = choice(list(ASSETS.PIECE_SET)),
 	board_asset = choice(list(ASSETS.BOARDS)),
 	scale = scale_factor
 	)
 
 black_player = PLAYER.PLAYER(
 	side = CHESS.SIDE.BLACK,
-	piece_set = ASSETS.PIECE_SET.NORMAL16x32,
+	piece_set = choice(list(ASSETS.PIECE_SET)),
 	board_asset = choice(list(ASSETS.BOARDS)),
 	scale = scale_factor
 	)
 
 
-game = GAME.GAME(white_player, black_player, fen_notation ='rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R')
+game = GAME.GAME(white_player, black_player)
 
 white_player.board.pos_rect.center = window_size / 2
 black_player.board.pos_rect.center = window_size / 2
@@ -49,7 +49,7 @@ while not done:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: done = True
 		if event.type == pygame.KEYDOWN: is_white =  not is_white
-		GAME.parse_player_input( event, player )
+		PLAYER.parse_player_input( event, player, game.FEN_notation )
 
 
 	GAME.render_board( game, player )

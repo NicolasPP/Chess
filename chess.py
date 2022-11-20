@@ -1,20 +1,20 @@
 import pygame, string
 from dataclasses import dataclass
-import asset as ASSETS
-
 from enum import Enum
 from typing import Callable, Generator
 
+import asset as ASSETS
 from config import *
 
 
-# -- Classes and Enums --
+# -- Classes --
 @dataclass
 class Board_Square:
 	rect 				: pygame.rect.Rect
 	AN_coordinates	 	: str 
 	piece_surface 		: None | pygame.Surface = None
 	FEN_val 			: str = ''
+	picked_up			: bool = False
 
 @dataclass
 class Board:
@@ -27,7 +27,8 @@ class Board:
 class Piece:
 	sprite 		: ASSETS.Sprite
 	FEN_val 	: str
-
+# -------------
+# -- Enums --
 class Piece_Info(Enum):
 	P 	: int =  0
 	N 	: int =  1
@@ -39,10 +40,7 @@ class Piece_Info(Enum):
 class SIDE(Enum):
 	WHITE : int = 0
 	BLACK : int = 1
-
-# -----------------------
-
-
+# -----------
 
 # -- getting assets --
 def get_grid_surface_size( board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
@@ -94,3 +92,34 @@ def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side 
 	if side is SIDE.BLACK: grid = grid[::-1]
 	return grid
 # --------------------------
+
+
+# -- Class Helpers -- 
+def set_picked_up(board_square : Board_Square, board : Board) -> None:
+	reset_picked_up( board )
+	board_square.picked_up = True
+
+def reset_picked_up( board : Board ) -> None:
+	for sqr in board.grid: sqr.picked_up = False
+
+def is_picked_up( board : Board) -> bool:
+	for sqr in board.grid:
+		if sqr.picked_up: return True
+	return False
+
+def get_picked_up( board : Board) -> Board_Square:
+	for sqr in board.grid:
+		if sqr.picked_up: return sqr
+	raise Exception( ' no peices picked up ' )
+# ------------------- 
+
+
+# -- Checking if Move is Valid --
+def is_move_valid(
+	from_square : Board_Square,
+	dest_square : Board_Square,
+	game_FEN 	: str 
+	) -> bool:
+	return True
+# -------------------------------
+
