@@ -3,6 +3,7 @@ import asset as ASSETS
 import chess as CHESS
 import player as PLAYER
 import game as GAME
+import commands as CMD
 
 from random import choice
 
@@ -52,6 +53,7 @@ while not done:
 		PLAYER.parse_player_input( event, player, game.FEN_notation )
 
 
+	GAME.exec_player_command( game, white_player, black_player ) 
 	GAME.render_board( game, player )
 	GAME.render_pieces( game, player )
 
