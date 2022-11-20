@@ -49,9 +49,12 @@ def get_grid_surface_size( board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
 	return board_size - (offset * 2)
 
 def board_square_info( side ) -> Generator[tuple[int, int, str], None, None]:
+	ranks = string.ascii_lowercase[:BOARD_SIZE]
+	ranks = ranks[::-1] if side is SIDE.BLACK else ranks
 	for row in range(BOARD_SIZE):
-		for col, rank in zip( range(BOARD_SIZE), string.ascii_lowercase ):
+		for col, rank in zip( range(BOARD_SIZE), ranks ):
 			num = BOARD_SIZE - row if side is SIDE.WHITE else row + 1
+
 			AN_coordinates = str(num) + rank 
 			yield row, col, AN_coordinates
 
@@ -85,7 +88,6 @@ def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side 
 	board_offset = pygame.math.Vector2(pos_rect.topleft)
 	grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
 	for row, col, AN_cordinates in board_square_info( side ):
-		# print( AN_cordinates )
 		pos = pygame.math.Vector2(col * size.x, row * size.y)
 		rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
 		grid.append( Board_Square(rect, AN_cordinates) )
