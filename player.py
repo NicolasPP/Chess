@@ -5,6 +5,7 @@ from config import *
 import chess as CHESS
 from typing import Generator
 import asset as ASSETS
+import commands as CMD
 
 
 class MOUSECLICK(Enum):
@@ -15,17 +16,16 @@ class MOUSECLICK(Enum):
 	SCROLL_DOWN : int = 5
 
 class STATE(Enum):
-	IDLE 		: int = 0 # waiting your turn 
-	PICK_PIECE 	: int = 1 #  picking a piece 
-	DROP_PIECE 	: int = 2 # dropping the piece 
+	PICK_PIECE 	: int = 0 #  picking a piece 
+	DROP_PIECE 	: int = 1 # dropping the piece 
 
 @dataclass
 class Player:
 	side   : CHESS.SIDE
 	board  : CHESS.Board
 	pieces : dict[str, CHESS.Piece]
-	state  : STATE = STATE.IDLE
-	
+	turn   : bool
+	state  : STATE = STATE.PICK_PIECE
 
 
 
@@ -37,15 +37,16 @@ def PLAYER( *,
 	) -> Player:
 	board = CHESS.get_board(board_asset.value, side, scale)
 	pieces = CHESS.get_peices(piece_set.value, scale)
-	player = Player( side, board, pieces )
-	if side is CHESS.SIDE.WHITE: player.state = STATE.PICK_PIECE
+	player = Player( side, board, pieces, False )
+	if side is CHESS.SIDE.WHITE:
+		player.state = STATE.PICK_PIECE
+		player.turn = True
 	return player
 
 def next_state( player : Player ) -> None:
 	next_state = player.state.value + 1
 	state_amount = len( list(STATE) )
 	player.state = STATE( next_state % state_amount )
-
 
 
 
@@ -71,16 +72,21 @@ def board_collided_rects( player : Player
 
 def handle_mouse_down_left( player : Player ) -> None:
 	for board_square, rect in board_collided_rects( player ):
-		if player.state is STATE.IDLE: return
+		if not player.turn: return
+		if player.state is not STATE.PICK_PIECE: return
 		if not board_square.FEN_val: return
 		if board_square.FEN_val.islower() and\
 			player.side is CHESS.SIDE.WHITE: return
 		if board_square.FEN_val.isupper() and\
 			player.side is CHESS.SIDE.BLACK: return
-		CHESS.set_picked_up( board_square, player.board ) 
+		CHESS.set_picked_up( board_square, player.board )
+		next_state( player )
+
 
 def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
 	for board_square, rect in board_collided_rects( player ):
+		if not player.turn: return
+		if player.state is not STATE.DROP_PIECE: return
 		if board_square.FEN_val.islower() and\
 			player.side is CHESS.SIDE.BLACK: break
 		if board_square.FEN_val.isupper() and\
@@ -88,10 +94,12 @@ def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
 		if not CHESS.is_picked_up( player.board ) : break
 		if CHESS.is_move_valid(
 			CHESS.get_picked_up( player.board ),
-			board_square,
-			game_FEN,
-		 ): print ( ' move ' )
-
+			board_square,game_FEN):
+			move_command = CMD.Move( 
+					CHESS.get_picked_up(player.board).AN_coordinates,
+					board_square.AN_coordinates)
+			CMD.send_command( move_command )
+	next_state( player )
 
 	CHESS.reset_picked_up( player.board )
 # ------------------
