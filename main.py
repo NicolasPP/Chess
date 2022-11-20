@@ -13,7 +13,6 @@ from random import choice
 pygame.init()
 window_size = pygame.math.Vector2(1040, 650)
 pygame.display.set_mode(window_size)
-bg_color = 'green'
 done = False
 scale_factor = 4
 
@@ -42,6 +41,8 @@ black_player.board.pos_rect.center = window_size / 2
 is_white = True
 
 while not done:
+
+	bg_color = white_player.side.name.lower() if white_player.turn else black_player.side.name.lower()
 	
 	pygame.display.get_surface().fill(bg_color)
 
