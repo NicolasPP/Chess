@@ -61,7 +61,8 @@ def scale(surface : pygame.Surface, factor : float) -> pygame.Surface:
 def sheet_surface_gen(asset : Asset, surface_size : tuple[int, int]):
 	for r in range(asset.rows):
 		for c in range(asset.cols):
-			surface = pygame.Surface(surface_size).convert()
+			surface = pygame.Surface(surface_size)
+			surface.set_colorkey( PIECE_BG )
 			index 	= pygame.math.Vector2(c, r).elementwise()
 			yield surface, index
 

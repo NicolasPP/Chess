@@ -94,7 +94,6 @@ def update_pieces_location( game, player ) -> None:
 	for piece, board_square in decode_game_FEN( game, player ):
 		board_square.FEN_val = piece.FEN_val
 		board_square.piece_surface = piece.sprite.surface.copy()
-		board_square.piece_surface.set_colorkey( (0,0,0) )
 # ----------------------------
 
 def get_piece_render_pos( board_square : CHESS.Board_Square, player : PLAYER.Player, board_offset : pygame.math.Vector2 ) -> tuple[int, int]:
