@@ -5,6 +5,7 @@ from typing import Callable, Generator
 
 import asset as ASSETS
 
+
 from config import *
 
 
@@ -14,7 +15,7 @@ class Board_Square:
 	rect 				: pygame.rect.Rect
 	AN_coordinates	 	: str 
 	piece_surface 		: None | pygame.surface.Surface = NO_SURFACE
-	FEN_val 			: str = FEN_BLANK
+	FEN_val 			: str = FEN.BLANK_PIECE
 	picked_up			: bool = False
 
 @dataclass
@@ -116,7 +117,7 @@ def get_picked_up( board : Board) -> Board_Square:
 
 def reset_board_grid( board : Board ):
 	for board_square in board.grid:
-		board_square.FEN_val = FEN_BLANK
+		board_square.FEN_val = FEN.BLANK_PIECE
 		board_square.piece_surface = NO_SURFACE
 # ------------------- 
 

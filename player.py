@@ -7,6 +7,7 @@ from typing import Generator
 import asset as ASSETS
 import chess as CHESS
 import commands as CMD
+import FEN_notation as FENN
 
 
 class MOUSECLICK(Enum):
@@ -51,6 +52,45 @@ def next_state( player : Player ) -> None:
 
 
 
+
+# -- Game Render and Update --
+def render_board( player : Player ) -> None:
+	pygame.display.get_surface().blit( player.board.sprite.surface, player.board.pos_rect )
+
+def render_pieces( player : Player ) -> None:
+	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
+	grid = player.board.grid
+	if player.side is CHESS.SIDE.BLACK: grid = grid[::-1]
+	for board_square in grid:
+		if board_square.FEN_val is FEN.BLANK_PIECE:
+			continue
+		assert board_square.piece_surface is not NO_SURFACE
+		pygame.display.get_surface().blit( 
+			board_square.piece_surface, 
+			get_piece_render_pos( board_square, board_offset )
+			)
+
+def update_pieces_location( player : Player, fen : FENN.Fen ) -> None:
+	CHESS.reset_board_grid( player.board )
+	for piece, board_square in FENN.decode_game_FEN( fen, player.pieces, player.board.grid ):
+		board_square.FEN_val = piece.FEN_val
+		board_square.piece_surface = piece.sprite.surface.copy()
+
+def get_piece_render_pos( board_square : CHESS.Board_Square, board_offset : pygame.math.Vector2 ) -> tuple[float, float]:
+	assert board_square.piece_surface is not NO_SURFACE
+	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
+	piece_rect.bottom = board_square.rect.bottom
+	pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
+	piece_pos = pos.x, pos.y
+	if board_square.picked_up: 
+		piece_rect.midbottom = pygame.mouse.get_pos()
+		piece_pos = piece_rect.x, piece_rect.y
+	return piece_pos
+# ----------------------------
+
+
+
+
 # -- player input --
 def parse_player_input( 
 	event : pygame.event.Event, 
@@ -76,7 +116,7 @@ def handle_mouse_down_left( player : Player ) -> None:
 	for board_square, rect in board_collided_rects( player ):
 		if not player.turn: return
 		if player.state is not STATE.PICK_PIECE: return
-		if board_square.FEN_val is FEN_BLANK: return
+		if board_square.FEN_val is FEN.BLANK_PIECE: return
 		if board_square.FEN_val.islower() and\
 			player.side is CHESS.SIDE.WHITE: return
 		if board_square.FEN_val.isupper() and\
