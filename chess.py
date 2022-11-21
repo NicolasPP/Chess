@@ -12,7 +12,7 @@ from config import *
 class Board_Square:
 	rect 				: pygame.rect.Rect
 	AN_coordinates	 	: str 
-	piece_surface 		: None | pygame.Surface = NO_SURFACE
+	piece_surface 		: None | pygame.surface.Surface = NO_SURFACE
 	FEN_val 			: str = FEN_BLANK
 	picked_up			: bool = False
 
