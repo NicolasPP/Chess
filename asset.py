@@ -21,7 +21,7 @@ class Asset:
 
 @dataclass
 class Sprite:
-	surface : pygame.Surface
+	surface : pygame.surface.Surface
 	factor : float
 
 @dataclass
@@ -54,14 +54,14 @@ class PIECE_SET(Enum):
 
 
 # -- helper functions --
-def scale(surface : pygame.Surface, factor : float) -> pygame.Surface:
+def scale(surface : pygame.surface.Surface, factor : float) -> pygame.surface.Surface:
 	size = pygame.math.Vector2(surface.get_size()) * factor
 	return pygame.transform.scale(surface, (round(size.x), round(size.y)))
 
-def sheet_surface_gen(asset : Asset, surface_size : tuple[int, int]):
+def sheet_surface_gen(asset : Asset, surface_size : pygame.math.Vector2):
 	for r in range(asset.rows):
 		for c in range(asset.cols):
-			surface = pygame.Surface(surface_size)
+			surface = pygame.surface.Surface(surface_size)
 			surface.set_colorkey( PIECE_BG )
 			index 	= pygame.math.Vector2(c, r).elementwise()
 			yield surface, index
