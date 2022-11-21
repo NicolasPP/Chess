@@ -2,9 +2,10 @@ import pygame
 from dataclasses import dataclass
 from enum import Enum
 from config import *
-import chess as CHESS
 from typing import Generator
+
 import asset as ASSETS
+import chess as CHESS
 import commands as CMD
 
 

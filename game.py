@@ -3,8 +3,9 @@ from dataclasses import dataclass
 from config import * 
 from typing import Generator
 from enum import Enum 
-import player as PLAYER
+
 import chess as CHESS
+import player as PLAYER
 import commands as CMD
 
 
@@ -86,7 +87,7 @@ def render_pieces( game : Game, player : PLAYER.Player ) -> None:
 		assert board_square.piece_surface is not NO_SURFACE
 		pygame.display.get_surface().blit( 
 			board_square.piece_surface, 
-			get_piece_render_pos( board_square, player, board_offset )
+			get_piece_render_pos( board_square, board_offset )
 			)
 
 def update_pieces_location( game, player ) -> None:
@@ -96,7 +97,7 @@ def update_pieces_location( game, player ) -> None:
 		board_square.piece_surface = piece.sprite.surface.copy()
 # ----------------------------
 
-def get_piece_render_pos( board_square : CHESS.Board_Square, player : PLAYER.Player, board_offset : pygame.math.Vector2 ) -> tuple[float, float]:
+def get_piece_render_pos( board_square : CHESS.Board_Square, board_offset : pygame.math.Vector2 ) -> tuple[float, float]:
 	assert board_square.piece_surface is not NO_SURFACE
 	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
 	piece_rect.bottom = board_square.rect.bottom
