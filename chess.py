@@ -12,8 +12,8 @@ from config import *
 class Board_Square:
 	rect 				: pygame.rect.Rect
 	AN_coordinates	 	: str 
-	piece_surface 		: None | pygame.Surface = None
-	FEN_val 			: str = ''
+	piece_surface 		: None | pygame.Surface = NO_SURFACE
+	FEN_val 			: str = FEN_BLANK
 	picked_up			: bool = False
 
 @dataclass
@@ -112,6 +112,11 @@ def get_picked_up( board : Board) -> Board_Square:
 	for sqr in board.grid:
 		if sqr.picked_up: return sqr
 	raise Exception( ' no peices picked up ' )
+
+def reset_board_grid( board : Board ):
+	for board_square in board.grid:
+		board_square.FEN_val = FEN_BLANK
+		board_square.piece_surface = NO_SURFACE
 # ------------------- 
 
 

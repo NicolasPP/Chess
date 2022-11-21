@@ -74,7 +74,7 @@ def handle_mouse_down_left( player : Player ) -> None:
 	for board_square, rect in board_collided_rects( player ):
 		if not player.turn: return
 		if player.state is not STATE.PICK_PIECE: return
-		if not board_square.FEN_val: return
+		if board_square.FEN_val is FEN_BLANK: return
 		if board_square.FEN_val.islower() and\
 			player.side is CHESS.SIDE.WHITE: return
 		if board_square.FEN_val.isupper() and\

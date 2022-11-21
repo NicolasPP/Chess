@@ -42,6 +42,7 @@ black_player.board.pos_rect.center = window_size / 2
 
 is_white = True
 
+
 while not done:
 
 	bg_color = white_player.side.name.lower() if white_player.turn else black_player.side.name.lower()
