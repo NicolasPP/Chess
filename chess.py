@@ -65,7 +65,7 @@ def get_board(board_asset : ASSETS.Asset, side : SIDE, scale : float) -> Board:
 	grid = create_grid(sprite, pos_rect, side)
 	return Board(sprite, pos_rect, grid)
 
-def get_peices(piece_set : ASSETS.Piece_Set, scale : float) -> list[Piece]: 
+def get_peices(piece_set : ASSETS.Piece_Set, scale : float) -> dict[str, Piece]: 
 	white_sprites, black_sprites = ASSETS.load_piece_set(piece_set, scale)
 	assert len(white_sprites) == len(black_sprites)
 	pieces = {}
@@ -74,14 +74,14 @@ def get_peices(piece_set : ASSETS.Piece_Set, scale : float) -> list[Piece]:
 	get_black_fen = lambda name : name.lower()
 
 	for i in range( len(white_sprites) ):
-		white_fen = get_white_fen(Piece_Info(i).name)
-		black_fen = get_black_fen(Piece_Info(i).name)
+		white_fen : str = get_white_fen(Piece_Info(i).name)
+		black_fen : str = get_black_fen(Piece_Info(i).name)
 		pieces[white_fen] = Piece(white_sprites[i], white_fen) 
 		pieces[black_fen] = Piece(black_sprites[i], black_fen) 
 
 	return pieces
 
-def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side : SIDE) -> list[pygame.rect.Rect]:
+def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side : SIDE) -> list[Board_Square]:
 	grid = []
 	size = get_grid_surface_size(board_sprite) / BOARD_SIZE
 	board_offset = pygame.math.Vector2(pos_rect.topleft)
