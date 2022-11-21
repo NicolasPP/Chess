@@ -37,8 +37,10 @@ black_player = PLAYER.PLAYER(
 
 game = GAME.GAME(white_player, black_player)
 
-white_player.board.pos_rect.center = window_size / 2
-black_player.board.pos_rect.center = window_size / 2
+screen_center = window_size / 2
+
+white_player.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
+black_player.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
 
 is_white = True
 
