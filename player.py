@@ -66,7 +66,8 @@ def board_collided_rects( player : Player
 	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
 	for board_square in player.board.grid:
 		rect = board_square.rect.copy()
-		rect.topleft = board_offset + rect.topleft
+		topleft = board_offset + pygame.math.Vector2(rect.topleft)
+		rect.topleft = int(topleft.x), int(topleft.y)
 		if rect.collidepoint( pygame.mouse.get_pos() ):
 			yield board_square, rect
 
