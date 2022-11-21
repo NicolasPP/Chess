@@ -1,12 +1,13 @@
 import pygame, string
 from dataclasses import dataclass
 from typing import Callable
+from config import *
+
 import asset as ASSETS
 import player as PLAYER
 import FEN_notation as FENN
 import chess as CHESS
 import commands as CMD
-from config import *
 
 @dataclass
 class Match:
