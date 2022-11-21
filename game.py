@@ -29,7 +29,7 @@ def iterate_FEN( game : Game ):
 		for piece_fen in fen_row: yield piece_fen 
 
 def decode_game_FEN( game : Game, player : PLAYER.Player
-	)-> Generator[tuple[CHESS.Piece, pygame.rect.Rect], None, None]:
+	)-> Generator[tuple[CHESS.Piece, CHESS.Board_Square], None, None]:
 	count = 0
 	for piece_fen in iterate_FEN( game ):
 		if piece_fen.isnumeric(): count += int( piece_fen ) -1
@@ -42,7 +42,7 @@ def set_blank_fen( fen_notation : str, blank_count : int) -> tuple[str, int]:
 		blank_count = 0
 	return fen_notation, blank_count
 
-def expand_fen( game : Game, fen = '' ) -> str:
+def expand_fen( game : Game, fen = '' ) -> list[str]:
 	for piece_fen in iterate_FEN( game ):
 		if piece_fen.isnumeric(): fen += (int( piece_fen ) * FEN_BLANK)
 		elif piece_fen == FEN_SPLIT: continue
@@ -82,8 +82,8 @@ def render_pieces( game : Game, player : PLAYER.Player ) -> None:
 	grid = player.board.grid
 	if player.side is CHESS.SIDE.BLACK: grid = grid[::-1]
 	for board_square in grid:
-		if board_square.FEN_val is FEN_BLANK or\
-			board_square.piece_surface is NO_SURFACE: continue
+		if board_square.FEN_val is FEN_BLANK: continue
+		assert board_square.piece_surface is not NO_SURFACE
 		pygame.display.get_surface().blit( 
 			board_square.piece_surface, 
 			get_piece_render_pos( board_square, player, board_offset )
@@ -96,10 +96,12 @@ def update_pieces_location( game, player ) -> None:
 		board_square.piece_surface = piece.sprite.surface.copy()
 # ----------------------------
 
-def get_piece_render_pos( board_square : CHESS.Board_Square, player : PLAYER.Player, board_offset : pygame.math.Vector2 ) -> tuple[int, int]:
+def get_piece_render_pos( board_square : CHESS.Board_Square, player : PLAYER.Player, board_offset : pygame.math.Vector2 ) -> tuple[float, float]:
+	assert board_square.piece_surface is not NO_SURFACE
 	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
 	piece_rect.bottom = board_square.rect.bottom
-	piece_pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
+	pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
+	piece_pos = pos.x, pos.y
 	if board_square.picked_up: 
 		piece_rect.midbottom = pygame.mouse.get_pos()
 		piece_pos = piece_rect.x, piece_rect.y
