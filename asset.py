@@ -61,7 +61,7 @@ def scale(surface : pygame.Surface, factor : float) -> pygame.Surface:
 def sheet_surface_gen(asset : Asset, surface_size : tuple[int, int]):
 	for r in range(asset.rows):
 		for c in range(asset.cols):
-			surface = pygame.Surface(surface_size).convert_alpha()
+			surface = pygame.Surface(surface_size).convert()
 			index 	= pygame.math.Vector2(c, r).elementwise()
 			yield surface, index
 
@@ -81,7 +81,7 @@ def load_sprite_sheet(asset : Asset, factor : float) -> list[Sprite]:
 	return sprites
 
 def load_sprite( file : str, factor : float ) -> Sprite:
-	surface = pygame.image.load(file).convert_alpha()
+	surface = pygame.image.load(file).convert()
 	surface = scale(surface, factor)
 	return Sprite(surface, factor)
 # ----------------------
