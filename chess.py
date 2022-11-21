@@ -54,7 +54,6 @@ def board_square_info( side ) -> Generator[tuple[int, int, str], None, None]:
 	for row in range(BOARD_SIZE):
 		for col, rank in zip( range(BOARD_SIZE), ranks ):
 			num = BOARD_SIZE - row if side is SIDE.WHITE else row + 1
-
 			AN_coordinates = str(num) + rank 
 			yield row, col, AN_coordinates
 

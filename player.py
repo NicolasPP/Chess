@@ -99,6 +99,7 @@ def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
 					CHESS.get_picked_up(player.board).AN_coordinates,
 					board_square.AN_coordinates)
 			CMD.send_command( move_command )
+			print( player.pieces[CHESS.get_picked_up(player.board).FEN_val] )
 	next_state( player )
 
 	CHESS.reset_picked_up( player.board )

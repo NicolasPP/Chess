@@ -4,6 +4,7 @@ import chess as CHESS
 import player as PLAYER
 import game as GAME
 import commands as CMD
+from utils import debug
 
 from random import choice
 
@@ -15,6 +16,7 @@ window_size = pygame.math.Vector2(1040, 650)
 pygame.display.set_mode(window_size)
 done = False
 scale_factor = 4
+clock = pygame.time.Clock()
 
 
 
@@ -58,7 +60,9 @@ while not done:
 	GAME.render_board( game, player )
 	GAME.render_pieces( game, player )
 
+	debug(round(clock.get_fps()))
 	pygame.display.flip()
+	clock.tick()
 
 pygame.quit()
 sys.exit()
