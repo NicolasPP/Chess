@@ -48,7 +48,7 @@ is_white = True
 while not done:
 
 	bg_color = white_player.side.name.lower() if white_player.turn else black_player.side.name.lower()
-	
+	font_color = white_player.side.name.lower() if not white_player.turn else black_player.side.name.lower()
 	pygame.display.get_surface().fill(bg_color)
 
 	player = white_player if is_white else black_player
@@ -63,7 +63,7 @@ while not done:
 	GAME.render_board( game, player )
 	GAME.render_pieces( game, player )
 
-	debug(round(clock.get_fps()))
+	debug(round(clock.get_fps()), font_color)
 	pygame.display.flip()
 	clock.tick()
 
