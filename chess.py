@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Callable, Generator
 
 import asset as ASSETS
-
+import FEN_notation as FENN
 
 from config import *
 
@@ -123,11 +123,24 @@ def reset_board_grid( board : Board ):
 
 
 # -- Checking if Move is Valid --
-def is_move_valid(
-	from_square : Board_Square,
-	dest_square : Board_Square,
-	game_FEN 	: str 
-	) -> bool:
+def is_move_valid( from_coords : str, dest_coords : str, fen : FENN.Fen) -> bool:
+	if is_same(from_coords, dest_coords): return False
+	if dest_coords not in get_possible_moves( dest_coords, fen ): return False
+	if is_same_team( from_coords, dest_coords, fen ): return False
 	return True
+
+def get_possible_moves( from_coords, fen ) -> list[str]:
+	expanded_fen = FENN.expand_fen(fen)
+	return [from_coords]
+
+def is_same(from_coords : str, dest_coords: str) -> bool:
+	return from_coords == dest_coords
+	
+def is_same_team( from_coords : str, dest_coords : str, fen : FENN.Fen ):
+	expanded_fen = FENN.expand_fen(fen)
+	piece_from = expanded_fen[FENN.fen_index(from_coords)]
+	piece_dest = expanded_fen[FENN.fen_index(dest_coords)]
+	if piece_dest == FEN.BLANK_PIECE: return False
+	return piece_from.islower() == piece_dest.islower()
 # -------------------------------
 
