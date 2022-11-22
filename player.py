@@ -11,10 +11,10 @@ import FEN_notation as FENN
 
 
 class MOUSECLICK(Enum):
-	LEFT : int = 1
-	MIDDLE : int = 2
-	RIGHT : int = 3
-	SCROLL_UP : int = 4
+	LEFT 		: int = 1
+	MIDDLE 		: int = 2
+	RIGHT 		: int = 3
+	SCROLL_UP 	: int = 4
 	SCROLL_DOWN : int = 5
 
 class STATE(Enum):
@@ -62,8 +62,7 @@ def render_pieces( player : Player ) -> None:
 	grid = player.board.grid
 	if player.side is CHESS.SIDE.BLACK: grid = grid[::-1]
 	for board_square in grid:
-		if board_square.FEN_val is FEN.BLANK_PIECE:
-			continue
+		if board_square.FEN_val is FEN.BLANK_PIECE: continue
 		assert board_square.piece_surface is not NO_SURFACE
 		pygame.display.get_surface().blit( 
 			board_square.piece_surface, 

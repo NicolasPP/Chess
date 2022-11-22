@@ -39,7 +39,6 @@ def expand_fen( fen : Fen, expanded_fen : str = FEN.BLANK ) -> list[str]:
 
 def format_expanded_fen( unpacked_fen : list[str] ) -> Fen:
 	fen, blank_count = set_blank_fen(Fen(FEN.BLANK))
-	print( fen.notation )
 	for index in range(len( unpacked_fen )):
 		if index % BOARD_SIZE == 0 and index > 0:
 			fen, blank_count = set_blank_fen( fen, blank_count) 
@@ -48,5 +47,4 @@ def format_expanded_fen( unpacked_fen : list[str] ) -> Fen:
 		else:
 			fen, blank_count = set_blank_fen( fen, blank_count) 
 			fen.notation += unpacked_fen[index]
-	print( fen.notation )
 	return fen
