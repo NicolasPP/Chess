@@ -114,7 +114,7 @@ def handle_mouse_down_left( player : Player ) -> None:
 		if board_square.FEN_val.islower() and\
 			player.side is CHESS.SIDE.WHITE: return
 		if board_square.FEN_val.isupper() and\
-			player.side is CHESS.SIDE.BLACK: return
+			player.side is CHESS.SIDE.BLACK: return		
 		CHESS.set_picked_up( board_square, player.board )
 		next_state( player )
 
@@ -123,11 +123,7 @@ def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
 	for board_square, rect in board_collided_rects( player ):
 		if not player.turn: return
 		if player.state is not STATE.DROP_PIECE: return
-		if board_square.FEN_val.islower() and\
-			player.side is CHESS.SIDE.BLACK: break
-		if board_square.FEN_val.isupper() and\
-			player.side is CHESS.SIDE.WHITE: break
-		if not CHESS.is_picked_up( player.board ) : break
+		CHESS.reset_board_grid( player.board )
 		from_coords = CHESS.get_picked_up(player.board).AN_coordinates
 		dest_coords = board_square.AN_coordinates
 		CMD.send_to( CMD.MATCH, CMD.move( from_coords, dest_coords ) )
@@ -135,6 +131,7 @@ def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
 	CHESS.reset_picked_up( player.board )
 # ------------------
 
+# -- Exec Match Commands --
 def next_turn( *players : Player ) -> None:
 	for player in players: player.turn = not player.turn
 	p1, p2 = players
@@ -142,7 +139,7 @@ def next_turn( *players : Player ) -> None:
 
 def update_pieces_location( player : Player, fen : FENN.Fen ) -> None:
 	CHESS.reset_board_grid( player.board )
-	for piece, board_square in FENN.decode_game_FEN( fen, player.pieces, player.board.grid ):
+	for piece, board_square in decode_game_FEN( fen, player ):
 		board_square.FEN_val = piece.FEN_val
 		board_square.piece_surface = piece.sprite.surface.copy()
 
@@ -154,3 +151,14 @@ def exec_match_command( white_player : Player, black_player : Player, fen: FENN.
 		update_pieces_location( black_player, fen )
 	elif command.info == PLAYER_COMMANDS.NEXT_TURN:
 		next_turn(white_player, black_player)
+# -------------------------
+
+def decode_game_FEN( 
+		fen : FENN.Fen, 
+		player : Player
+	)-> Generator[tuple[CHESS.Piece, CHESS.Board_Square], None, None]:
+	count = 0
+	for piece_fen in FENN.iterate_FEN( fen ):
+		if piece_fen.isnumeric(): count += int( piece_fen ) -1
+		else: yield player.pieces[piece_fen], player.board.grid[count]
+		count += 1
