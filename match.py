@@ -29,4 +29,4 @@ def process_move( command : CMD.Command, match : Match ) -> None:
 	if CHESS.is_move_valid( from_c, dest_c, match.fen):
 		match.fen = FENN.make_move( from_c, dest_c, match.fen )
 		CMD.send_to( CMD.PLAYER, CMD.next_turn() )
-		CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
+	CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
