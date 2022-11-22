@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import Callable
 from config import *
 
-import asset as ASSETS
 import FEN_notation as FENN
 import chess as CHESS
 import commands as CMD
@@ -19,21 +18,15 @@ def MATCH( *,
 	CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
 	return Match(fen, [] )
 
-
-def process_move( command : CMD.Command, match : Match):
-	index = lambda fen : ((BOARD_SIZE - int(fen[0])) * BOARD_SIZE) + string.ascii_lowercase.index(fen[1])
-	from_c, dest_c = command.info.split(CMD.C_SPLIT)
-	expanded_fen = FENN.expand_fen(match.fen)
-	expanded_fen[index(dest_c)] = expanded_fen[index(from_c)]
-	expanded_fen[index(from_c)] = FEN.BLANK_PIECE
-	match.fen = FENN.format_expanded_fen( expanded_fen )
-
-
 def exec_player_command( match : Match) -> None:
 	command = CMD.read_from(CMD.MATCH)
 	if command is None: return
 	process_move(command, match)
-	CMD.send_to( CMD.PLAYER, CMD.next_turn() )
-	CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
 
-	
+# --
+def process_move( command : CMD.Command, match : Match ) -> None:
+	from_c, dest_c = command.info.split(CMD.C_SPLIT)
+	if CHESS.is_move_valid( from_c, dest_c, match.fen):
+		match.fen = FENN.make_move( from_c, dest_c, match.fen )
+		CMD.send_to( CMD.PLAYER, CMD.next_turn() )
+		CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
