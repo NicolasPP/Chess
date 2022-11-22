@@ -69,11 +69,6 @@ def render_pieces( player : Player ) -> None:
 			get_piece_render_pos( board_square, board_offset )
 			)
 
-def update_pieces_location( player : Player, fen : FENN.Fen ) -> None:
-	CHESS.reset_board_grid( player.board )
-	for piece, board_square in FENN.decode_game_FEN( fen, player.pieces, player.board.grid ):
-		board_square.FEN_val = piece.FEN_val
-		board_square.piece_surface = piece.sprite.surface.copy()
 
 def get_piece_render_pos( board_square : CHESS.Board_Square, board_offset : pygame.math.Vector2 ) -> tuple[float, float]:
 	assert board_square.piece_surface is not NO_SURFACE
@@ -133,15 +128,29 @@ def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
 		if board_square.FEN_val.isupper() and\
 			player.side is CHESS.SIDE.WHITE: break
 		if not CHESS.is_picked_up( player.board ) : break
-		if CHESS.is_move_valid(
-			CHESS.get_picked_up( player.board ),
-			board_square,game_FEN):
-			move_command = CMD.Move( 
-					CHESS.get_picked_up(player.board).AN_coordinates,
-					board_square.AN_coordinates)
-			CMD.send_command( move_command )
-			print( player.pieces[CHESS.get_picked_up(player.board).FEN_val] )
+		from_coords = CHESS.get_picked_up(player.board).AN_coordinates
+		dest_coords = board_square.AN_coordinates
+		CMD.send_to( CMD.MATCH, CMD.move( from_coords, dest_coords ) )
 	next_state( player )
-
 	CHESS.reset_picked_up( player.board )
 # ------------------
+
+def next_turn( *players : Player ) -> None:
+	for player in players: player.turn = not player.turn
+	p1, p2 = players
+	assert p1.turn != p2.turn
+
+def update_pieces_location( player : Player, fen : FENN.Fen ) -> None:
+	CHESS.reset_board_grid( player.board )
+	for piece, board_square in FENN.decode_game_FEN( fen, player.pieces, player.board.grid ):
+		board_square.FEN_val = piece.FEN_val
+		board_square.piece_surface = piece.sprite.surface.copy()
+
+def exec_match_command( white_player : Player, black_player : Player, fen: FENN.Fen ) -> None:
+	command = CMD.read_from(CMD.PLAYER)
+	if command is None: return
+	if command.info == PLAYER_COMMANDS.UPDATE_POS:
+		update_pieces_location( white_player, fen )
+		update_pieces_location( black_player, fen )
+	elif command.info == PLAYER_COMMANDS.NEXT_TURN:
+		next_turn(white_player, black_player)

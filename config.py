@@ -8,3 +8,7 @@ class FEN:
 	SPLIT 		: str = '/'
 	BLANK 		: str = ''
 	GAME_START_FEN : str = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+
+class PLAYER_COMMANDS:
+	UPDATE_POS 	: str = 'update_pos'
+	NEXT_TURN 	: str = 'next_turn'
