@@ -4,7 +4,6 @@ from typing import Generator
 
 from config import *
 
-
 '''
 could be interesting to add
 __getitem__
@@ -56,8 +55,9 @@ def pack_fen( unpacked_fen : list[str] ) -> Fen:
 			fen.notation += unpacked_fen[index]
 	return fen
 
-def make_move( from_coords, dest_coords, fen : Fen ) -> Fen:
+def make_move( cmd_info : str, fen : Fen ) -> Fen:
+	from_c, dest_c, player = cmd_info.split(C_SPLIT)
 	expanded_fen = expand_fen(fen)
-	expanded_fen[fen[dest_coords]] = expanded_fen[fen[from_coords]]
-	expanded_fen[fen[from_coords]] = FEN.BLANK_PIECE
+	expanded_fen[fen[dest_c]] = expanded_fen[fen[from_c]]
+	expanded_fen[fen[from_c]] = FEN.BLANK_PIECE
 	return pack_fen( expanded_fen )

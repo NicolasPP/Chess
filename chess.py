@@ -124,18 +124,19 @@ def reset_board_grid( board : Board ):
 
 # -- Checking if Move is Valid --
 #todo add check same player as turn as picked up piece
-def is_move_valid( from_coords : str, dest_coords : str, fen : FENN.Fen, is_white : bool) -> bool:
+def is_move_valid( cmd_info : str, fen : FENN.Fen, is_white_turn : bool) -> bool:
+	from_c, dest_c, player = cmd_info.split(C_SPLIT)
 	exp_fen = FENN.expand_fen(fen)
-	from_index = fen[from_coords]
-	dest_index = fen[dest_coords]
-	if not picked_correct_side(exp_fen[from_index], is_white): return False
+	from_index = fen[from_c]
+	dest_index = fen[dest_c]
+	if not picked_correct_side(exp_fen[from_index], is_white_turn): return False
 	if is_from_blank( exp_fen[from_index] ): return False
 	if is_same(from_index, dest_index): return False
-	if dest_coords not in get_possible_moves( dest_coords, fen ): return False
+	if dest_c not in get_possible_moves( dest_c, fen ): return False
 	if is_same_team(exp_fen[from_index], exp_fen[dest_index]): return False
 	return True
 
-def picked_correct_side( from_piece, is_white : bool ):
+def picked_correct_side( from_piece, is_white : bool):
 	if is_white: return from_piece.isupper()
 	return from_piece.islower() 
 
