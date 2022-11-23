@@ -1,15 +1,11 @@
-import pygame, sys
+import pygame, sys, random
 from random import choice
 
 import asset as ASSETS
 import chess as CHESS
 import player as PLAYER
-import commands as CMD
 import match as MATCH
-from utils import debug
-
-
-
+import utils as UTILS
 
 
 
@@ -23,15 +19,15 @@ clock = pygame.time.Clock()
 match = MATCH.MATCH()
 white_player = PLAYER.PLAYER(
 		side =CHESS.SIDE.WHITE,
-		piece_set = choice(list(ASSETS.PIECE_SET)),
-		board_asset = choice(list(ASSETS.BOARDS)),
+		piece_set = random.choice(list(ASSETS.PIECE_SET)),
+		board_asset = random.choice(list(ASSETS.BOARDS)),
 		scale = scale_factor
 	)
 
 black_player = PLAYER.PLAYER(
 		side = CHESS.SIDE.BLACK,
-		piece_set = choice(list(ASSETS.PIECE_SET)),
-		board_asset = choice(list(ASSETS.BOARDS)),
+		piece_set = random.choice(list(ASSETS.PIECE_SET)),
+		board_asset = random.choice(list(ASSETS.BOARDS)),
 		scale = scale_factor
 	)
 
@@ -46,7 +42,8 @@ is_white = True
 
 
 while not done:
-
+	
+	fps = round(clock.get_fps())
 	bg_color = white_player.side.name.lower() if white_player.turn else black_player.side.name.lower()
 	font_color = white_player.side.name.lower() if not white_player.turn else black_player.side.name.lower()
 	pygame.display.get_surface().fill(bg_color)
@@ -66,7 +63,7 @@ while not done:
 	PLAYER.render_board( player )
 	PLAYER.render_pieces( player )
 
-	debug(round(clock.get_fps()), font_color)
+	UTILS.debug(fps, font_color)
 	pygame.display.flip()
 	clock.tick()
 

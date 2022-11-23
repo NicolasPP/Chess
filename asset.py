@@ -1,41 +1,37 @@
-from dataclasses import dataclass	
-from enum import Enum
-import pygame
+import pygame, dataclasses, enum	
 
 from config import *
 
 
-
-
 # -- Classes and Enums --
-class TYPE(Enum):
+class TYPE(enum.Enum):
 	SPRITE 	: int = 0
 	SHEET 	: int = 1
 
-@dataclass
+@dataclasses.dataclass
 class Asset:
 	file : str
 	a_type : TYPE
 	rows : int = 1
 	cols : int = 6
 
-@dataclass
+@dataclasses.dataclass
 class Sprite:
 	surface : pygame.surface.Surface
 	factor : float
 
-@dataclass
+@dataclasses.dataclass
 class Piece_Set:
 	white_asset : Asset
 	black_asset : Asset 
 
-class BOARDS(Enum):
+class BOARDS(enum.Enum):
 	PLAIN1 : Asset = Asset('assets/boards/board_plain_01.png', TYPE.SPRITE)
 	PLAIN2 : Asset = Asset('assets/boards/board_plain_02.png', TYPE.SPRITE)
 	PLAIN3 : Asset = Asset('assets/boards/board_plain_03.png', TYPE.SPRITE)
 	PLAIN4 : Asset = Asset('assets/boards/board_plain_04.png', TYPE.SPRITE)
 
-class PIECE_SET(Enum):
+class PIECE_SET(enum.Enum):
 	SIMPLE16x16 : Piece_Set = Piece_Set(
 			white_asset = Asset('assets/pieces-16-16/WhitePieces_Simplified.png', TYPE.SHEET),
 			black_asset = Asset('assets/pieces-16-16/BlackPieces_Simplified.png', TYPE.SHEET)

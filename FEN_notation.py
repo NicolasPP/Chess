@@ -1,6 +1,4 @@
-import string
-from dataclasses import dataclass
-from typing import Generator
+import string, dataclasses, typing
 
 from config import *
 
@@ -11,7 +9,7 @@ __getitem__
 you pass in AN_coords like 2a and it returns the FEN_val at that position
 '''
 
-@dataclass
+@dataclasses.dataclass
 class Fen:
 	notation : str = FEN.GAME_START_FEN
 
@@ -26,7 +24,7 @@ class Fen:
 		return ((BOARD_SIZE - col_num) * BOARD_SIZE) + ascii_str.index(row_str)
 		
 
-def iterate_FEN( fen : Fen ) -> Generator[str, None, None]:
+def iterate_FEN( fen : Fen ) -> typing.Generator[str, None, None]:
 	for fen_row in fen.notation.split(FEN.SPLIT):
 		for piece_fen in fen_row: yield piece_fen 
 

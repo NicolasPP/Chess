@@ -1,13 +1,12 @@
-import pygame, string
-from dataclasses import dataclass
-from typing import Callable
-from config import *
+import pygame, dataclasses
 
 import FEN_notation as FENN
 import chess as CHESS
 import commands as CMD
 
-@dataclass
+from config import *
+
+@dataclasses.dataclass
 class Match:
 	fen				: FENN.Fen
 	moves		 	: list[str]

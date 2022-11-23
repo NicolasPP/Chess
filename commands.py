@@ -1,21 +1,21 @@
-from queue import Queue
-from dataclasses import dataclass
+import queue, dataclasses
+
 from config import *
 
-@dataclass
+@dataclasses.dataclass
 class Command:
 	info : str = ''
 
-MATCH : Queue[Command]= Queue()
-PLAYER : Queue[Command]= Queue()
+MATCH : queue.Queue[Command]= queue.Queue()
+PLAYER : queue.Queue[Command]= queue.Queue()
 
 EMPTY_Q : None  = None
 
 
-def send_to( dest : Queue, command : Command ) -> None: 
+def send_to( dest : queue.Queue, command : Command ) -> None: 
 	dest.put( command )
 
-def read_from(command_q : Queue) -> Command | None:
+def read_from(command_q : queue.Queue) -> Command | None:
 	if command_q.empty(): return EMPTY_Q
 	return command_q.get()
 

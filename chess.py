@@ -131,7 +131,7 @@ def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bo
 	# if dest_index not in available_moves: return False
 	return True 
 
-def get_name_from_fen( FEN_val ) -> PIECES:
+def get_name_from_fen( FEN_val ) -> str:
 	for piece in list(PIECES):
 		if piece.FEN_val == FEN_val.upper(): return piece.name
 	raise Exception( f'FEN_val : {FEN_val} not found' )
