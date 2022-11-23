@@ -8,6 +8,9 @@ import FEN_notation as FENN
 from config import *
 
 
+
+
+# -- Enums --
 class MOUSECLICK(enum.Enum):
 	LEFT 		: int = 1
 	MIDDLE 		: int = 2
@@ -18,12 +21,12 @@ class MOUSECLICK(enum.Enum):
 class STATE(enum.Enum):
 	PICK_PIECE 	: int = 0 #  picking a piece 
 	DROP_PIECE 	: int = 1 # dropping the piece 
+# -----------
 
 
-'''
-FIXEME : turn currently doesnt need to be a member,
-	 	 maybe I'll need it later on so I wont remove it
-'''
+
+
+# -- Classes --
 @dataclasses.dataclass
 class Player:
 	side   : CHESS.SIDE
@@ -31,8 +34,10 @@ class Player:
 	pieces : dict[str, CHESS.Piece]
 	turn   : bool
 	state  : STATE = STATE.PICK_PIECE
-
-
+'''
+FIXEME : turn currently doesnt need to be a member,
+	 	 maybe I'll need it later on so I wont remove it
+'''
 
 def PLAYER( *,
 		side : CHESS.SIDE,
@@ -47,16 +52,28 @@ def PLAYER( *,
 		player.state = STATE.PICK_PIECE
 		player.turn = True
 	return player
+# -------------
+
+
+
+
+# -- Class Helpers --
+def update_pieces_location( player : Player, fen : FENN.Fen ) -> None:
+	CHESS.reset_board_grid( player.board )
+	for piece, board_square in fen_to_piece_board_square( fen, player ):
+		board_square.FEN_val = piece.FEN_val
+		board_square.piece_surface = piece.sprite.surface.copy()
 
 def next_state( player : Player ) -> None:
 	next_state = player.state.value + 1
 	state_amount = len( list(STATE) )
 	player.state = STATE( next_state % state_amount )
+# -------------------
 
 
 
 
-# -- Game Render --
+# -- Render Board and Pieces --
 def render_board( player : Player ) -> None:
 	pygame.display.get_surface().blit( player.board.sprite.surface, player.board.pos_rect )
 
@@ -71,7 +88,7 @@ def render_pieces( player : Player ) -> None:
 			board_square.piece_surface, 
 			get_piece_render_pos( board_square, board_offset )
 			)
-# -----------------
+# -----------------------------
 
 
 
@@ -151,11 +168,6 @@ def next_turn( *players : Player ) -> None:
 	p1, p2 = players
 	assert p1.turn != p2.turn
 
-def update_pieces_location( player : Player, fen : FENN.Fen ) -> None:
-	CHESS.reset_board_grid( player.board )
-	for piece, board_square in fen_to_piece_board_square( fen, player ):
-		board_square.FEN_val = piece.FEN_val
-		board_square.piece_surface = piece.sprite.surface.copy()
 
 def exec_match_command( white_player : Player, black_player : Player, fen: FENN.Fen ) -> None:
 	command = CMD.read_from(CMD.PLAYER)
@@ -166,3 +178,6 @@ def exec_match_command( white_player : Player, black_player : Player, fen: FENN.
 	elif command.info == PLAYER_COMMANDS.NEXT_TURN:
 		next_turn(white_player, black_player)
 # -------------------------
+
+
+

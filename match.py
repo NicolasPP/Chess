@@ -7,6 +7,10 @@ import commands as CMD
 
 from config import *
 
+
+
+
+# -- Classes --
 @dataclasses.dataclass
 class Match:
 	fen				: FENN.Fen
@@ -17,13 +21,17 @@ def MATCH( *,
 	) -> Match:
 	CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
 	return Match(fen, [] )
+# -------------
 
+
+
+
+# -- Exec Match Commands --
 def exec_player_command( match : Match) -> None:
 	command = CMD.read_from(CMD.MATCH)
 	if command is None: return
 	process_move(command, match)
 
-# --
 def process_move( command : CMD.Command, match : Match ) -> None:
 	fc, dc, cmd_dest = command.info.split(C_SPLIT)
 	if is_valid_command_dest(cmd_dest, is_white_turn(match)):
@@ -42,3 +50,7 @@ def is_valid_command_dest( cmd_dest : str , is_white : bool) -> bool:
 	if cmd_dest == CHESS.SIDE.BLACK.name and \
 		not is_white: return True
 	return False
+# -------------------------
+
+
+

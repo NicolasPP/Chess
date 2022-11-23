@@ -2,12 +2,8 @@ import string, dataclasses, typing
 
 from config import *
 
-'''
-could be interesting to add
-__getitem__
 
-you pass in AN_coords like 2a and it returns the FEN_val at that position
-'''
+
 
 @dataclasses.dataclass
 class Fen:
@@ -24,6 +20,9 @@ class Fen:
 		return ((BOARD_SIZE - col_num) * BOARD_SIZE) + ascii_str.index(row_str)
 		
 
+
+
+# -- Fen Helpers -- 
 def iterate_FEN( fen : Fen ) -> typing.Generator[str, None, None]:
 	for fen_row in fen.notation.split(FEN.SPLIT):
 		for piece_fen in fen_row: yield piece_fen 
@@ -59,3 +58,7 @@ def make_move( cmd_info : str, fen : Fen ) -> Fen:
 	expanded_fen[fen[dest_c]] = expanded_fen[fen[from_c]]
 	expanded_fen[fen[from_c]] = FEN.BLANK_PIECE
 	return pack_fen( expanded_fen )
+# -----------------
+
+
+

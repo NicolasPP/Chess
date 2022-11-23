@@ -3,6 +3,8 @@ import pygame, dataclasses, enum
 from config import *
 
 
+
+
 # -- Classes and Enums --
 class TYPE(enum.Enum):
 	SPRITE 	: int = 0
@@ -93,5 +95,6 @@ def load_board(asset : Asset, factor : float) -> Sprite:
 def load_piece_set( piece_set : Piece_Set, factor : float) -> tuple[list[Sprite], list[Sprite]]:
 	return load_sprite_sheet(piece_set.white_asset, factor), load_sprite_sheet(piece_set.black_asset, factor)
 # -------------------------------------
+
 
 

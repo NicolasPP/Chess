@@ -6,6 +6,30 @@ import FEN_notation as FENN
 from config import *
 
 
+
+
+# -- Enums --
+class PIECES(enum.Enum):
+	PAWN	: int =  0
+	KNIGHT 	: int =  1
+	ROOK	: int =  2
+	BISHOP 	: int =  3
+	QUEEN 	: int =  4
+	KING 	: int =  5
+
+	def set_moves( self, func : typing.Callable) -> None: 
+		self.available_moves : typing.Callable = func
+	def set_fen( self, FEN_val : str) -> None: 
+		self.FEN_val : str = FEN_val
+
+class SIDE(enum.Enum):
+	WHITE : int = 0
+	BLACK : int = 1
+# -----------
+
+
+
+
 # -- Classes --
 @dataclasses.dataclass
 class Board_Square:
@@ -27,24 +51,34 @@ class Piece:
 	sprite 		: ASSETS.Sprite
 	FEN_val 	: str
 # -------------
-# -- Enums --
-class PIECES(enum.Enum):
-	PAWN	: int =  0
-	KNIGHT 	: int =  1
-	ROOK	: int =  2
-	BISHOP 	: int =  3
-	QUEEN 	: int =  4
-	KING 	: int =  5
 
-	def set_moves( self, func : typing.Callable) -> None: 
-		self.available_moves : typing.Callable = func
-	def set_fen( self, FEN_val : str) -> None: 
-		self.FEN_val : str = FEN_val
 
-class SIDE(enum.Enum):
-	WHITE : int = 0
-	BLACK : int = 1
-# -----------
+
+
+# -- Class Helpers -- 
+def set_picked_up(board_square : Board_Square, board : Board) -> None:
+	reset_picked_up( board )
+	board_square.picked_up = True
+
+def reset_picked_up( board : Board ) -> None:
+	for sqr in board.grid: sqr.picked_up = False
+
+def is_picked_up( board : Board) -> bool:
+	for sqr in board.grid:
+		if sqr.picked_up: return True
+	return False
+
+def get_picked_up( board : Board) -> Board_Square:
+	for sqr in board.grid:
+		if sqr.picked_up: return sqr
+	raise Exception( ' no peices picked up ' )
+
+def reset_board_grid( board : Board ):
+	for board_square in board.grid:
+		board_square.FEN_val = FEN.BLANK_PIECE
+		board_square.piece_surface = NO_SURFACE
+# ------------------- 
+
 
 
 
@@ -97,32 +131,6 @@ def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side 
 	if side is  SIDE.BLACK: grid = grid[::-1]
 	return grid
 # --------------------------
-
-
-# -- Class Helpers -- 
-def set_picked_up(board_square : Board_Square, board : Board) -> None:
-	reset_picked_up( board )
-	board_square.picked_up = True
-
-def reset_picked_up( board : Board ) -> None:
-	for sqr in board.grid: sqr.picked_up = False
-
-def is_picked_up( board : Board) -> bool:
-	for sqr in board.grid:
-		if sqr.picked_up: return True
-	return False
-
-def get_picked_up( board : Board) -> Board_Square:
-	for sqr in board.grid:
-		if sqr.picked_up: return sqr
-	raise Exception( ' no peices picked up ' )
-
-def reset_board_grid( board : Board ):
-	for board_square in board.grid:
-		board_square.FEN_val = FEN.BLANK_PIECE
-		board_square.piece_surface = NO_SURFACE
-# ------------------- 
-
 
 
 

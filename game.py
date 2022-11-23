@@ -2,6 +2,10 @@ import typing
 import chess as CHESS
 
 from config import *
+
+
+
+
 # -- Defining Movement --
 '''
 this decorator creates a variable " self.available_moves() "
@@ -41,6 +45,8 @@ def KING_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
 # -----------------------
 
 
+
+
 # -- Checking if Move is Valid --
 def is_move_valid(from_index : int, dest_index: int, exp_fen : list[str], is_white_turn : bool) -> bool:
 	if not is_from_valid(exp_fen[from_index], is_white_turn): return False
@@ -77,3 +83,6 @@ def is_same_team( from_piece : str, dest_piece: str):
 	if dest_piece == FEN.BLANK_PIECE: return False
 	return from_piece.islower() == dest_piece.islower()
 # -------------------------------
+
+
+
