@@ -2,6 +2,8 @@ GRID_OFFSET : int = 7
 BOARD_SIZE : int = 8
 NO_SURFACE : None = None
 PIECE_BG : tuple[int, int, int] = 0,0,0
+C_SPLIT = '-'
+
 
 class FEN:
 	BLANK_PIECE : str = "@"
