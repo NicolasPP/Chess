@@ -5,9 +5,27 @@ from typing import Generator
 from config import *
 
 
+'''
+could be interesting to add
+__getitem__
+
+you pass in AN_coords like 2a and it returns the FEN_val at that position
+'''
+
 @dataclass
 class Fen:
 	notation : str = FEN.GAME_START_FEN
+
+	def __getitem__(self, AN_C : str) -> int:
+		'''
+		returns the index of the expanded fen
+		which corresponds with the passed AN_C (algebraic notation coordinates)
+		'''
+		col_num = int(AN_C[0])
+		row_str = AN_C[1]
+		ascii_str = string.ascii_lowercase
+		return ((BOARD_SIZE - col_num) * BOARD_SIZE) + ascii_str.index(row_str)
+		
 
 def iterate_FEN( fen : Fen ) -> Generator[str, None, None]:
 	for fen_row in fen.notation.split(FEN.SPLIT):
@@ -38,12 +56,8 @@ def pack_fen( unpacked_fen : list[str] ) -> Fen:
 			fen.notation += unpacked_fen[index]
 	return fen
 
-def make_move( from_coords, dest_coords, fen : Fen ) -> None:
+def make_move( from_coords, dest_coords, fen : Fen ) -> Fen:
 	expanded_fen = expand_fen(fen)
-	expanded_fen[fen_index(dest_coords)] = expanded_fen[fen_index(from_coords)]
-	expanded_fen[fen_index(from_coords)] = FEN.BLANK_PIECE
+	expanded_fen[fen[dest_coords]] = expanded_fen[fen[from_coords]]
+	expanded_fen[fen[from_coords]] = FEN.BLANK_PIECE
 	return pack_fen( expanded_fen )
-
-def fen_index( AN_coords ) -> int:
-	return ((BOARD_SIZE - int(AN_coords[0])) * BOARD_SIZE) + string.ascii_lowercase.index(AN_coords[1])
-
