@@ -125,7 +125,7 @@ def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
 		CHESS.reset_board_grid( player.board )
 		from_coords = CHESS.get_picked_up(player.board).AN_coordinates
 		dest_coords = board_square.AN_coordinates
-		CMD.send_to( CMD.MATCH, CMD.move( from_coords, dest_coords ) )
+		CMD.send_to( CMD.MATCH, CMD.move( from_coords, dest_coords, player.side.name ) )
 	next_state( player )
 	CHESS.reset_picked_up( player.board )
 # ------------------
