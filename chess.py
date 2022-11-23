@@ -31,18 +31,60 @@ class Piece:
 	FEN_val 	: str
 # -------------
 # -- Enums --
-class Piece_Info(Enum):
-	P 	: int =  0
-	N 	: int =  1
-	R	: int =  2
-	B 	: int =  3
-	Q 	: int =  4
-	K 	: int =  5
+class PIECES(Enum):
+	PAWN	: int =  0
+	KNIGHT 	: int =  1
+	ROOK	: int =  2
+	BISHOP 	: int =  3
+	QUEEN 	: int =  4
+	KING 	: int =  5
+
+	def set_moves( self, func : Callable) -> None: self.available_moves : Callable = func
+	def set_fen( self, FEN_val : str) -> None: self.FEN_val : str = FEN_val
 
 class SIDE(Enum):
 	WHITE : int = 0
 	BLACK : int = 1
 # -----------
+
+# -- Defining Movement --
+'''
+this decorator creates a variable " self.available_moves() "
+inside the Piece_Info(Enum) object passed.
+The function will return all possible moves for that Piece 
+'''
+def set_info_for(piece : PIECES, FEN_val : str):
+	def set_valid_move(get_moves : Callable):
+		piece.set_moves(get_moves)
+		piece.set_fen( FEN_val )
+		return get_moves
+	return set_valid_move
+
+@set_info_for(PIECES.PAWN, 'P') 
+def PAWN_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+	print(f'getting available moves for : {PIECES.PAWN.name}')
+
+@set_info_for(PIECES.KNIGHT, 'N') 
+def KNIGHT_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+	print(f'getting available moves for : {PIECES.KNIGHT.name}')
+
+@set_info_for(PIECES.ROOK, 'R') 
+def ROOK_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+	print(f'getting available moves for : {PIECES.ROOK.name}')
+
+@set_info_for(PIECES.BISHOP, 'B') 
+def BISHOP_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+	print(f'getting available moves for : {PIECES.BISHOP.name}')
+
+@set_info_for(PIECES.QUEEN, 'Q') 
+def QUENN_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+	print(f'getting available moves for : {PIECES.QUEEN.name}')
+
+@set_info_for(PIECES.KING, 'K') 
+def KING_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+	print(f'getting available moves for : {PIECES.KING.name}')
+# -----------------------
+
 
 # -- getting assets --
 def get_grid_surface_size( board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
@@ -71,13 +113,11 @@ def get_peices(piece_set : ASSETS.Piece_Set, scale : float) -> dict[str, Piece]:
 	white_sprites, black_sprites = ASSETS.load_piece_set(piece_set, scale)
 	assert len(white_sprites) == len(black_sprites)
 	pieces = {}
-	''' get fen value from name of Piece_Info(Enum) '''
-	get_white_fen = lambda name : name
-	get_black_fen = lambda name : name.lower()
+	''' get fen value from name of PIECES(Enum) '''
 
 	for i in range( len(white_sprites) ):
-		white_fen : str = get_white_fen(Piece_Info(i).name)
-		black_fen : str = get_black_fen(Piece_Info(i).name)
+		white_fen : str = PIECES(i).FEN_val
+		black_fen : str = PIECES(i).FEN_val.lower()
 		pieces[white_fen] = Piece(white_sprites[i], white_fen) 
 		pieces[black_fen] = Piece(black_sprites[i], black_fen) 
 
@@ -139,15 +179,18 @@ def is_side_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bo
 	if is_same_team( exp_fen[from_index], exp_fen[dest_index]): return False
 	return True 
 def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bool:
-	available_moves = get_possible_moves( from_index, exp_fen  )
+	piece = get_name_from_fen(exp_fen[from_index])
+	PIECES[piece].available_moves(from_index, exp_fen)
 	# if dest_index not in available_moves: return False
 	return True 
 
+def get_name_from_fen( FEN_val ) -> PIECES:
+	for piece in list(PIECES):
+		if piece.FEN_val == FEN_val.upper(): return piece.name
+	raise Exception( f'FEN_val : {FEN_val} not found' )
 def is_from_correct_side( from_piece, is_white : bool):
 	if is_white: return from_piece.isupper()
 	return from_piece.islower() 
-def get_possible_moves( from_index : int, exp_fen : list[str] ) -> list[int]:
-	return []
 def is_same(from_index : int, dest_index: int) -> bool:
 	return from_index == dest_index
 def is_from_blank( from_piece : str) -> bool: return from_piece == FEN.BLANK_PIECE
