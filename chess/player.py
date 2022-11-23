@@ -1,9 +1,9 @@
 import pygame, enum, dataclasses, typing
 
-import asset as ASSETS
-import chess as CHESS
-import commands as CMD
-import FEN_notation as FENN
+from utils import asset as ASSETS
+from utils import commands as CMD
+from utils import FEN_notation as FENN
+from chess import chess_data as CHESS
 
 from config import *
 

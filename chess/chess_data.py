@@ -1,7 +1,7 @@
 import pygame, dataclasses, enum, typing, string
 
-import asset as ASSETS
-import FEN_notation as FENN
+from utils import asset as ASSETS
+from utils import FEN_notation as FENN
 
 from config import *
 

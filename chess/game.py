@@ -1,5 +1,6 @@
 import typing
-import chess as CHESS
+
+from chess import chess_data as CHESS
 
 from config import *
 

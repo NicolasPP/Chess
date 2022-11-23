@@ -1,11 +1,12 @@
 import pygame, sys, random
+
 from random import choice
 
-import asset as ASSETS
-import chess as CHESS
-import player as PLAYER
-import match as MATCH
-import utils as UTILS
+from utils import asset as ASSETS
+from utils import debug as DB
+from chess import chess_data as CHESS
+from chess import player as PLAYER
+from chess import match as MATCH
 
 
 
@@ -63,7 +64,7 @@ while not done:
 	PLAYER.render_board( player )
 	PLAYER.render_pieces( player )
 
-	UTILS.debug(fps, font_color)
+	DB.debug(fps, font_color)
 	pygame.display.flip()
 	clock.tick()
 
