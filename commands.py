@@ -2,12 +2,10 @@ from queue import Queue
 from dataclasses import dataclass
 from config import *
 
-
 @dataclass
 class Command:
 	info : str = ''
 
-C_SPLIT = '-'
 MATCH : Queue[Command]= Queue()
 PLAYER : Queue[Command]= Queue()
 
@@ -22,8 +20,8 @@ def read_from(command_q : Queue) -> Command | None:
 	return command_q.get()
 
 
-def move( from_coords, dest_coords ) -> Command:
-	return Command(from_coords + C_SPLIT + dest_coords)
+def move( from_coords : str, dest_coords : str, cmd_source : str ) -> Command:
+	return Command(from_coords + C_SPLIT + dest_coords + C_SPLIT + cmd_source)
 
 def update_pieces_pos() -> Command:
 	return Command( PLAYER_COMMANDS.UPDATE_POS )
