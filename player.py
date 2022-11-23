@@ -21,6 +21,11 @@ class STATE(Enum):
 	PICK_PIECE 	: int = 0 #  picking a piece 
 	DROP_PIECE 	: int = 1 # dropping the piece 
 
+
+'''
+FIXEME : turn currently doesnt need to be a member,
+	 	 maybe I'll need it later on so I wont remove it
+'''
 @dataclass
 class Player:
 	side   : CHESS.SIDE
@@ -108,21 +113,15 @@ def board_collided_rects( player : Player
 
 def handle_mouse_down_left( player : Player ) -> None:
 	for board_square, rect in board_collided_rects( player ):
-		if not player.turn: return
 		if player.state is not STATE.PICK_PIECE: return
 		if board_square.FEN_val is FEN.BLANK_PIECE: return
-		if board_square.FEN_val.islower() and\
-			player.side is CHESS.SIDE.WHITE: return
-		if board_square.FEN_val.isupper() and\
-			player.side is CHESS.SIDE.BLACK: return		
 		CHESS.set_picked_up( board_square, player.board )
 		next_state( player )
 
 
 def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
+	if player.state is not STATE.DROP_PIECE: return
 	for board_square, rect in board_collided_rects( player ):
-		if not player.turn: return
-		if player.state is not STATE.DROP_PIECE: return
 		CHESS.reset_board_grid( player.board )
 		from_coords = CHESS.get_picked_up(player.board).AN_coordinates
 		dest_coords = board_square.AN_coordinates

@@ -123,24 +123,33 @@ def reset_board_grid( board : Board ):
 
 
 # -- Checking if Move is Valid --
-def is_move_valid( from_coords : str, dest_coords : str, fen : FENN.Fen) -> bool:
-	if is_same(from_coords, dest_coords): return False
+#todo add check same player as turn as picked up piece
+def is_move_valid( from_coords : str, dest_coords : str, fen : FENN.Fen, is_white : bool) -> bool:
+	exp_fen = FENN.expand_fen(fen)
+	from_index = fen[from_coords]
+	dest_index = fen[dest_coords]
+	if not picked_correct_side(exp_fen[from_index], is_white): return False
+	if is_from_blank( exp_fen[from_index] ): return False
+	if is_same(from_index, dest_index): return False
 	if dest_coords not in get_possible_moves( dest_coords, fen ): return False
-	if is_same_team( from_coords, dest_coords, fen ): return False
+	if is_same_team(exp_fen[from_index], exp_fen[dest_index]): return False
 	return True
+
+def picked_correct_side( from_piece, is_white : bool ):
+	if is_white: return from_piece.isupper()
+	return from_piece.islower() 
 
 def get_possible_moves( from_coords, fen ) -> list[str]:
 	expanded_fen = FENN.expand_fen(fen)
 	return [from_coords]
 
-def is_same(from_coords : str, dest_coords: str) -> bool:
-	return from_coords == dest_coords
+def is_same(from_index : int, dest_index: int) -> bool:
+	return from_index == dest_index
+
+def is_from_blank( from_piece : str) -> bool: return from_piece == FEN.BLANK_PIECE
 	
-def is_same_team( from_coords : str, dest_coords : str, fen : FENN.Fen ):
-	expanded_fen = FENN.expand_fen(fen)
-	piece_from = expanded_fen[FENN.fen_index(from_coords)]
-	piece_dest = expanded_fen[FENN.fen_index(dest_coords)]
-	if piece_dest == FEN.BLANK_PIECE: return False
-	return piece_from.islower() == piece_dest.islower()
+def is_same_team( from_piece : str, dest_piece: str):
+	if dest_piece == FEN.BLANK_PIECE: return False
+	return from_piece.islower() == dest_piece.islower()
 # -------------------------------
 
