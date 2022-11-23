@@ -25,8 +25,9 @@ def exec_player_command( match : Match) -> None:
 
 # --
 def process_move( command : CMD.Command, match : Match ) -> None:
-	if is_valid_command_dest(command.info, is_white_turn(match)):
-		if CHESS.is_move_valid( command.info, match.fen, is_white_turn( match )):
+	fc, dc, cmd_dest = command.info.split(C_SPLIT)
+	if is_valid_command_dest(cmd_dest, is_white_turn(match)):
+		if CHESS.is_move_valid(match.fen[fc],match.fen[dc],FENN.expand_fen(match.fen),is_white_turn(match)):
 			match.fen = FENN.make_move( command.info, match.fen )
 			CMD.send_to( CMD.PLAYER, CMD.next_turn() )
 			match.moves.append( command.info )
@@ -35,10 +36,9 @@ def process_move( command : CMD.Command, match : Match ) -> None:
 def is_white_turn( match : Match ):
 	return len( match.moves ) % 2 == 0
 
-def is_valid_command_dest( cmd_info : str , is_white : bool) -> bool:
-	fc, dc, command_dest = cmd_info.split(C_SPLIT)
-	if command_dest == CHESS.SIDE.WHITE.name and \
+def is_valid_command_dest( cmd_dest : str , is_white : bool) -> bool:
+	if cmd_dest == CHESS.SIDE.WHITE.name and \
 		is_white: return True
-	if command_dest == CHESS.SIDE.BLACK.name and \
+	if cmd_dest == CHESS.SIDE.BLACK.name and \
 		not is_white: return True
 	return False
