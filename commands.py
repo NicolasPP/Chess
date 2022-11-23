@@ -1,6 +1,4 @@
-from enum import Enum
 from queue import Queue
-from typing import TypeAlias
 from dataclasses import dataclass
 from config import *
 
@@ -19,7 +17,7 @@ EMPTY_Q : None  = None
 def send_to( dest : Queue, command : Command ) -> None: 
 	dest.put( command )
 
-def read_from(command_q : Queue) -> Command | EMPTY_Q:
+def read_from(command_q : Queue) -> Command | None:
 	if command_q.empty(): return EMPTY_Q
 	return command_q.get()
 
