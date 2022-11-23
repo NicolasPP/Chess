@@ -26,7 +26,12 @@ def exec_player_command( match : Match) -> None:
 # --
 def process_move( command : CMD.Command, match : Match ) -> None:
 	from_c, dest_c = command.info.split(CMD.C_SPLIT)
-	if CHESS.is_move_valid( from_c, dest_c, match.fen):
+	if CHESS.is_move_valid( from_c, dest_c, match.fen, is_white_turn( match )):
 		match.fen = FENN.make_move( from_c, dest_c, match.fen )
 		CMD.send_to( CMD.PLAYER, CMD.next_turn() )
+		match.moves.append( command.info )
 	CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
+
+def is_white_turn( match : Match ):
+	return len( match.moves ) % 2 == 0
+
