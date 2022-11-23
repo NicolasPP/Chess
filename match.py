@@ -1,6 +1,7 @@
 import pygame, dataclasses
 
 import FEN_notation as FENN
+import game as GAME
 import chess as CHESS
 import commands as CMD
 
@@ -26,7 +27,7 @@ def exec_player_command( match : Match) -> None:
 def process_move( command : CMD.Command, match : Match ) -> None:
 	fc, dc, cmd_dest = command.info.split(C_SPLIT)
 	if is_valid_command_dest(cmd_dest, is_white_turn(match)):
-		if CHESS.is_move_valid(match.fen[fc],match.fen[dc],FENN.expand_fen(match.fen),is_white_turn(match)):
+		if GAME.is_move_valid(match.fen[fc],match.fen[dc],FENN.expand_fen(match.fen),is_white_turn(match)):
 			match.fen = FENN.make_move( command.info, match.fen )
 			CMD.send_to( CMD.PLAYER, CMD.next_turn() )
 			match.moves.append( command.info )

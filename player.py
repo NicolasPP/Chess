@@ -1,4 +1,4 @@
-import pygame, string, enum, dataclasses, typing
+import pygame, enum, dataclasses, typing
 
 import asset as ASSETS
 import chess as CHESS
@@ -40,8 +40,8 @@ def PLAYER( *,
 		board_asset : ASSETS.BOARDS,
 		scale : float,
 	) -> Player:
-	board = get_board(board_asset.value, side, scale)
-	pieces = get_peices(piece_set.value, scale)
+	board = CHESS.get_board(board_asset.value, side, scale)
+	pieces = CHESS.get_peices(piece_set.value, scale)
 	player = Player( side, board, pieces, False )
 	if side is CHESS.SIDE.WHITE:
 		player.state = STATE.PICK_PIECE
@@ -72,58 +72,6 @@ def render_pieces( player : Player ) -> None:
 			get_piece_render_pos( board_square, board_offset )
 			)
 # -----------------
-
-
-
-# -- getting assets --
-def get_grid_surface_size( board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
-	offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
-	board_size = pygame.math.Vector2(board_sprite.surface.get_size())
-	return board_size - (offset * 2)
-
-def board_square_info( side ) -> typing.Generator[tuple[int, int, str], None, None]:
-	ranks = string.ascii_lowercase[:BOARD_SIZE]
-	ranks = ranks[::-1] if side is  CHESS.SIDE.BLACK else ranks
-	for row in range(BOARD_SIZE):
-		for col, rank in zip( range(BOARD_SIZE), ranks ):
-			num = BOARD_SIZE - row if side is  CHESS.SIDE.WHITE else row + 1
-			AN_coordinates = str(num) + rank 
-			yield row, col, AN_coordinates
-
-def get_board(board_asset : ASSETS.Asset, side : CHESS.SIDE, scale : float) -> CHESS.Board:
-	sprite = ASSETS.load_board(board_asset, scale)
-	if side is CHESS.SIDE.BLACK: sprite.surface = pygame.transform.flip(sprite.surface, True, True)
-
-	pos_rect = sprite.surface.get_rect()
-	grid = create_grid(sprite, pos_rect, side)
-	return  CHESS.Board(sprite, pos_rect, grid)
-
-def get_peices(piece_set : ASSETS.Piece_Set, scale : float) -> dict[str,  CHESS.Piece]: 
-	white_sprites, black_sprites = ASSETS.load_piece_set(piece_set, scale)
-	assert len(white_sprites) == len(black_sprites)
-	pieces = {}
-	''' get fen value from name of PIECES(Enum) '''
-
-	for i in range( len(white_sprites) ):
-		white_fen : str = CHESS.PIECES(i).FEN_val
-		black_fen : str = CHESS.PIECES(i).FEN_val.lower()
-		pieces[white_fen] = CHESS.Piece(white_sprites[i], white_fen) 
-		pieces[black_fen] = CHESS.Piece(black_sprites[i], black_fen) 
-
-	return pieces
-
-def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side :  CHESS.SIDE) -> list[ CHESS.Board_Square]:
-	grid = []
-	size = get_grid_surface_size(board_sprite) / BOARD_SIZE
-	board_offset = pygame.math.Vector2(pos_rect.topleft)
-	grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
-	for row, col, AN_cordinates in board_square_info( side ):
-		pos = pygame.math.Vector2(col * size.x, row * size.y)
-		rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
-		grid.append( CHESS.Board_Square(rect, AN_cordinates) )
-	if side is  CHESS.SIDE.BLACK: grid = grid[::-1]
-	return grid
-# --------------------------
 
 
 
@@ -194,6 +142,9 @@ def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
 	CHESS.reset_picked_up( player.board )
 # ------------------
 
+
+
+
 # -- Exec Match Commands --
 def next_turn( *players : Player ) -> None:
 	for player in players: player.turn = not player.turn
@@ -215,5 +166,3 @@ def exec_match_command( white_player : Player, black_player : Player, fen: FENN.
 	elif command.info == PLAYER_COMMANDS.NEXT_TURN:
 		next_turn(white_player, black_player)
 # -------------------------
-
-
