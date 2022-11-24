@@ -4,6 +4,8 @@ NO_SURFACE : None = None
 PIECE_BG : tuple[int, int, int] = 0,0,0
 C_SPLIT = '-'
 EMPTY_Q : None  = None
+AVAILABLE_MOVE_COLOR = 'green'
+AVAILABLE_ALPHA = 70
 
 
 
