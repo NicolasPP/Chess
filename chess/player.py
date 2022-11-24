@@ -4,6 +4,7 @@ from utils import asset as ASSETS
 from utils import commands as CMD
 from utils import FEN_notation as FENN
 from chess import chess_data as CHESS
+from chess import game as GAME
 
 from config import *
 
@@ -88,6 +89,30 @@ def render_pieces( player : Player ) -> None:
 			board_square.piece_surface, 
 			get_piece_render_pos( board_square, board_offset )
 			)
+
+def render_player_state( player : Player, fen : FENN.Fen ) -> None:
+	if not player.turn: return 
+	if player.state is STATE.DROP_PIECE: show_available_moves( player, fen)
+		
+
+def show_available_moves( player, fen ) -> None:
+	exp_fen = FENN.expand_fen( fen )
+	picked_board_square = CHESS.get_picked_up( player.board )
+	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
+	is_white_turn = True if player.side is CHESS.SIDE.WHITE else False
+	piece_name = GAME.get_name_from_fen( picked_board_square.FEN_val )
+	piece = CHESS.PIECES[piece_name]
+	available_moves_index = piece.available_moves(
+		fen[picked_board_square.AN_coordinates], 
+		exp_fen, is_white_turn)
+
+	for index in available_moves_index:
+		board_square = player.board.grid[index]
+		pos = board_square.rect.topleft
+		available_surface = pygame.Surface(board_square.rect.size)
+		available_surface.fill(AVAILABLE_MOVE_COLOR)
+		available_surface.set_alpha(AVAILABLE_ALPHA)
+		pygame.display.get_surface().blit(available_surface, board_offset + pos)
 # -----------------------------
 
 
