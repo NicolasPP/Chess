@@ -62,6 +62,7 @@ while not done:
 	PLAYER.exec_match_command( white_player, black_player, match.fen ) 
 	
 	PLAYER.render_board( player )
+	PLAYER.render_player_state( player, match.fen )
 	PLAYER.render_pieces( player )
 
 	DB.debug(fps, font_color)
