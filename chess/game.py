@@ -21,30 +21,56 @@ def set_info_for(piece : CHESS.PIECES, FEN_val : str):
 	return set_valid_move
 
 @set_info_for(CHESS.PIECES.PAWN, 'P') 
-def PAWN_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
-	print(f'getting available moves for : {CHESS.PIECES.PAWN.name}')
+def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
+	possible_moves_index = [
+	get_fen_offset_index( is_white_turn, from_index, 1, 0 ),	#up
+	get_fen_offset_index( is_white_turn, from_index, 1, 1 ),	#up right
+	get_fen_offset_index( is_white_turn, from_index, 1, -1 )	#up left
+	]
+	return possible_moves_index
 
 @set_info_for(CHESS.PIECES.KNIGHT, 'N') 
-def KNIGHT_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+def KNIGHT_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
 	print(f'getting available moves for : {CHESS.PIECES.KNIGHT.name}')
 
 @set_info_for(CHESS.PIECES.ROOK, 'R') 
-def ROOK_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+def ROOK_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
 	print(f'getting available moves for : {CHESS.PIECES.ROOK.name}')
 
 @set_info_for(CHESS.PIECES.BISHOP, 'B') 
-def BISHOP_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+def BISHOP_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
 	print(f'getting available moves for : {CHESS.PIECES.BISHOP.name}')
 
 @set_info_for(CHESS.PIECES.QUEEN, 'Q') 
-def QUENN_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+def QUENN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
 	print(f'getting available moves for : {CHESS.PIECES.QUEEN.name}')
 
 @set_info_for(CHESS.PIECES.KING, 'K') 
-def KING_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
+def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
 	print(f'getting available moves for : {CHESS.PIECES.KING.name}')
 # -----------------------
 
+
+
+
+# -- Piece Move Helpers --
+def get_fen_offset_index( is_white_turn : bool, from_index : int, row_offset : int, col_offset : int ) -> int:
+	row, col = get_fen_col_row( from_index )
+	if is_white_turn:
+		row_offset = row_offset * -1
+		col_offset = col_offset * -1
+	index = get_fen_index( row + row_offset, col + col_offset )
+	return index
+
+def get_fen_col_row( index: int ) -> tuple[int,int]:
+	row = index % BOARD_SIZE
+	col = index - (row * BOARD_SIZE)
+	return row, col
+
+def get_fen_index( row, col ):
+	return (row * BOARD_SIZE) + col
+
+# ------------------------
 
 
 
@@ -52,7 +78,7 @@ def KING_available_moves(from_index : int, exp_fen : list[str]) -> list[str]:
 def is_move_valid(from_index : int, dest_index: int, exp_fen : list[str], is_white_turn : bool) -> bool:
 	if not is_from_valid(exp_fen[from_index], is_white_turn): return False
 	if not is_side_valid(from_index, dest_index, exp_fen): return False
-	if not is_dest_valid(from_index, dest_index, exp_fen): return False
+	if not is_dest_valid(from_index, dest_index, exp_fen, is_white_turn): return False
 	return True
 
 	# -- helpers --
@@ -64,9 +90,9 @@ def is_side_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bo
 	if is_same( from_index, dest_index): return False
 	if is_same_team( exp_fen[from_index], exp_fen[dest_index]): return False
 	return True 
-def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bool:
+def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str], is_white_turn : bool) -> bool:
 	piece = get_name_from_fen(exp_fen[from_index])
-	CHESS.PIECES[piece].available_moves(from_index, exp_fen)
+	available_moves = CHESS.PIECES[piece].available_moves(from_index, exp_fen, is_white_turn)
 	# if dest_index not in available_moves: return False
 	return True 
 
