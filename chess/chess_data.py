@@ -38,6 +38,7 @@ class Board_Square:
 	piece_surface 		: None | pygame.surface.Surface = NO_SURFACE
 	FEN_val 			: str = FEN.BLANK_PIECE
 	picked_up			: bool = False
+	picked_up_moves		: list[int] | None = NO_SURFACE
 
 @dataclasses.dataclass
 class Board:
@@ -56,12 +57,20 @@ class Piece:
 
 
 # -- Class Helpers -- 
-def set_picked_up(board_square : Board_Square, board : Board) -> None:
+def set_picked_up(board_square : Board_Square, board : Board, fen : FENN.Fen, p_side : SIDE) -> None:
+	if board_square.FEN_val == FEN.BLANK_PIECE: return 
 	reset_picked_up( board )
+	exp_fen = FENN.expand_fen( fen )
+	is_white_turn = True if p_side is SIDE.WHITE else False
+	name = get_name_from_fen( board_square.FEN_val )
+	moves = PIECES[name].available_moves(fen[board_square.AN_coordinates], exp_fen, is_white_turn)
+	board_square.picked_up_moves = moves
 	board_square.picked_up = True
 
 def reset_picked_up( board : Board ) -> None:
-	for sqr in board.grid: sqr.picked_up = False
+	for sqr in board.grid: 
+		sqr.picked_up = False
+		sqr.picked_up_moves = NO_SURFACE
 
 def is_picked_up( board : Board) -> bool:
 	for sqr in board.grid:
@@ -77,6 +86,23 @@ def reset_board_grid( board : Board ):
 	for board_square in board.grid:
 		board_square.FEN_val = FEN.BLANK_PIECE
 		board_square.piece_surface = NO_SURFACE
+		board_square.picked_up_moves = NO_SURFACE
+
+def get_name_from_fen( FEN_val ) -> str:
+	for piece in list(PIECES):
+		if piece.FEN_val == FEN_val.upper(): return piece.name
+	raise Exception( f'FEN_val : {FEN_val} not found' )
+
+def get_available_surface( picked : Board_Square, board : Board
+	) -> typing.Generator[tuple[pygame.surface.Surface, pygame.math.Vector2], None, None]:
+	board_offset = pygame.math.Vector2(board.pos_rect.topleft)
+	for index in picked.picked_up_moves:
+		board_square = board.grid[index]
+		pos = board_square.rect.topleft
+		available_surface = pygame.surface.Surface(board_square.rect.size)
+		available_surface.fill(AVAILABLE_MOVE_COLOR)
+		available_surface.set_alpha(AVAILABLE_ALPHA)
+		yield available_surface, board_offset + pos
 # ------------------- 
 
 
