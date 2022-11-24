@@ -77,10 +77,11 @@ def next_state( player : Player ) -> None:
 # -- Render Board and Pieces --
 def render_board( player : Player ) -> None:
 	pygame.display.get_surface().blit( player.board.sprite.surface, player.board.pos_rect )
+	if player.state is STATE.DROP_PIECE: show_available_moves( player )
 
 def render_pieces( player : Player ) -> None:
-	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
 	grid = player.board.grid
+	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
 	if player.side is CHESS.SIDE.BLACK: grid = grid[::-1]
 	for board_square in grid:
 		if board_square.FEN_val is FEN.BLANK_PIECE: continue
@@ -90,29 +91,16 @@ def render_pieces( player : Player ) -> None:
 			get_piece_render_pos( board_square, board_offset )
 			)
 
-def render_player_state( player : Player, fen : FENN.Fen ) -> None:
-	if not player.turn: return 
-	if player.state is STATE.DROP_PIECE: show_available_moves( player, fen)
-		
-
-def show_available_moves( player, fen ) -> None:
-	exp_fen = FENN.expand_fen( fen )
-	picked_board_square = CHESS.get_picked_up( player.board )
+def show_available_moves( player ) -> None:
+	picked = CHESS.get_picked_up( player.board )
+	if not player.turn: return
+	if player.side is CHESS.SIDE.WHITE:
+		if picked.FEN_val.islower(): return
+	if player.side is CHESS.SIDE.BLACK:
+		if picked.FEN_val.isupper(): return
 	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
-	is_white_turn = True if player.side is CHESS.SIDE.WHITE else False
-	piece_name = GAME.get_name_from_fen( picked_board_square.FEN_val )
-	piece = CHESS.PIECES[piece_name]
-	available_moves_index = piece.available_moves(
-		fen[picked_board_square.AN_coordinates], 
-		exp_fen, is_white_turn)
-
-	for index in available_moves_index:
-		board_square = player.board.grid[index]
-		pos = board_square.rect.topleft
-		available_surface = pygame.Surface(board_square.rect.size)
-		available_surface.fill(AVAILABLE_MOVE_COLOR)
-		available_surface.set_alpha(AVAILABLE_ALPHA)
-		pygame.display.get_surface().blit(available_surface, board_offset + pos)
+	for surface, pos in CHESS.get_available_surface( picked, player.board):
+		pygame.display.get_surface().blit(surface, pos)
 # -----------------------------
 
 
@@ -148,12 +136,12 @@ def get_piece_render_pos( board_square : CHESS.Board_Square, board_offset : pyga
 def parse_player_input( 
 	event : pygame.event.Event, 
 	player : Player,
-	game_FEN : str
+	fen : FENN.Fen
 	) -> None:
 	if event.type == pygame.MOUSEBUTTONDOWN:
-		if event.button == MOUSECLICK.LEFT.value: handle_mouse_down_left( player )
+		if event.button == MOUSECLICK.LEFT.value: handle_mouse_down_left( player, fen )
 	if event.type == pygame.MOUSEBUTTONUP:
-		if event.button == MOUSECLICK.LEFT.value: handle_mouse_up_left( player, game_FEN )
+		if event.button == MOUSECLICK.LEFT.value: handle_mouse_up_left( player )
 		
 def board_collided_rects( player : Player 
 	) -> typing.Generator[tuple[CHESS.Board_Square,pygame.rect.Rect], None, None]:
@@ -165,15 +153,15 @@ def board_collided_rects( player : Player
 		if rect.collidepoint( pygame.mouse.get_pos() ):
 			yield board_square, rect
 
-def handle_mouse_down_left( player : Player ) -> None:
+def handle_mouse_down_left( player : Player, fen : FENN.Fen ) -> None:
 	for board_square, rect in board_collided_rects( player ):
 		if player.state is not STATE.PICK_PIECE: return
-		if board_square.FEN_val is FEN.BLANK_PIECE: return
-		CHESS.set_picked_up( board_square, player.board )
+		if board_square.FEN_val is FEN.BLANK_PIECE: return 
+		CHESS.set_picked_up( board_square, player.board, fen, player.side )
 		next_state( player )
 
 
-def handle_mouse_up_left( player : Player, game_FEN : str) -> None:
+def handle_mouse_up_left( player : Player) -> None:
 	if player.state is not STATE.DROP_PIECE: return
 	for board_square, rect in board_collided_rects( player ):
 		CHESS.reset_board_grid( player.board )
