@@ -82,13 +82,23 @@ def render_board( player : Player ) -> None:
 def render_pieces( player : Player ) -> None:
 	grid = player.board.grid
 	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
+	picked = None
 	if player.side is CHESS.SIDE.BLACK: grid = grid[::-1]
 	for board_square in grid:
 		if board_square.FEN_val is FEN.BLANK_PIECE: continue
+		if board_square.picked_up:
+			picked = board_square 
+			continue
 		assert board_square.piece_surface is not NO_SURFACE
 		pygame.display.get_surface().blit( 
 			board_square.piece_surface, 
 			get_piece_render_pos( board_square, board_offset )
+			)
+
+	if picked is not None:
+		pygame.display.get_surface().blit( 
+			picked.piece_surface, 
+			get_picked_up_render_pos( board_square, board_offset )
 			)
 
 def show_available_moves( player ) -> None:
@@ -98,6 +108,7 @@ def show_available_moves( player ) -> None:
 		if picked.FEN_val.islower(): return
 	if player.side is CHESS.SIDE.BLACK:
 		if picked.FEN_val.isupper(): return
+	if picked.picked_up_moves is None: return
 	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
 	for surface, pos in CHESS.get_available_surface( picked, player.board):
 		pygame.display.get_surface().blit(surface, pos)
@@ -123,9 +134,13 @@ def get_piece_render_pos( board_square : CHESS.Board_Square, board_offset : pyga
 	piece_rect.bottom = board_square.rect.bottom
 	pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
 	piece_pos = pos.x, pos.y
-	if board_square.picked_up: 
-		piece_rect.midbottom = pygame.mouse.get_pos()
-		piece_pos = piece_rect.x, piece_rect.y
+	return piece_pos
+
+def get_picked_up_render_pos( board_square : CHESS.Board_Square, board_offset : pygame.math.Vector2 ) -> tuple[float, float]:
+	piece_pos = get_piece_render_pos(board_square, board_offset)
+	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
+	piece_rect.midbottom = pygame.mouse.get_pos()
+	piece_pos = piece_rect.x, piece_rect.y
 	return piece_pos
 # ---------------
 
