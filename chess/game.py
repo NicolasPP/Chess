@@ -59,25 +59,34 @@ def KNIGHT_available_moves(from_index : int, exp_fen : list[str], is_white_turn 
 def ROOK_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
 	moves = []
 	# f - fowards b - backwards
-	horizontal_offsets_f = [ (0, index) for index in range(BOARD_SIZE) ]
-	horizontal_offsets_b = [ (0, -index) for index in range(BOARD_SIZE) ]
-	vertical_offsets_f = [ (index, 0) for index in range(BOARD_SIZE) ]
-	vertical_offsets_b = [ (-index, 0) for index in range(BOARD_SIZE) ]
+	up, down, right, left = get_flat_offsets()
 
-	moves += move_until_friendly(horizontal_offsets_f, from_index, exp_fen, is_white_turn)
-	moves += move_until_friendly(horizontal_offsets_b, from_index, exp_fen, is_white_turn)
-	moves += move_until_friendly(vertical_offsets_f, from_index, exp_fen, is_white_turn)
-	moves += move_until_friendly(vertical_offsets_b, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(left, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(right, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(up, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(down, from_index, exp_fen, is_white_turn)
 
 	return moves
 
 @set_info_for(CHESS.PIECES.BISHOP, 'B') 
 def BISHOP_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
-	print(f'getting available moves for : {CHESS.PIECES.BISHOP.name}')
+	moves = []
 
+	up_right, down_right, up_left, down_left = get_diagonal_offsets()
+
+	moves += move_until_friendly(up_right, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(down_right, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(up_left, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(down_left, from_index, exp_fen, is_white_turn)
+
+	return moves
 @set_info_for(CHESS.PIECES.QUEEN, 'Q') 
 def QUENN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
-	print(f'getting available moves for : {CHESS.PIECES.QUEEN.name}')
+	moves = []
+	moves += BISHOP_available_moves(from_index, exp_fen, is_white_turn)
+	moves += ROOK_available_moves(from_index, exp_fen, is_white_turn)
+	return moves
+
 
 @set_info_for(CHESS.PIECES.KING, 'K') 
 def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
@@ -124,22 +133,35 @@ def get_fen_row_col( index: int ) -> tuple[int,int]:
 def get_fen_index( row : int , col : int ) -> int:
 	return (row * BOARD_SIZE) + col
 
+def get_diagonal_offsets(
+	) -> tuple[list[tuple[int,int]], list[tuple[int,int]], list[tuple[int,int]], list[tuple[int,int]]]:
+	up_right = [(index, -index) for index in range(BOARD_SIZE)]
+	down_right = [(-index, -index) for index in range(BOARD_SIZE)]
+	up_left = [(index, index) for index in range(BOARD_SIZE)]
+	down_left = [(-index, index) for index in range(BOARD_SIZE)]
+	return up_right, down_right, up_left, down_left
+
+def get_flat_offsets(
+	)-> tuple[list[tuple[int,int]], list[tuple[int,int]], list[tuple[int,int]], list[tuple[int,int]]]:
+	left = [ (0, index) for index in range(BOARD_SIZE) ]
+	right = [ (0, -index) for index in range(BOARD_SIZE) ]
+	up = [ (index, 0) for index in range(BOARD_SIZE) ]
+	down = [ (-index, 0) for index in range(BOARD_SIZE) ]
+	return up, down, right, left
+
 def move_until_friendly( moves_offset : list[tuple[int,int]], from_index :int, exp_fen : list[str] , is_white_turn : bool ) -> list[int]:
 	moves = []
 	for offset in moves_offset:
 		move = get_fen_offset_index( is_white_turn, from_index, *offset)
 		if move is None: continue
 		if move == from_index: continue
-		
 		if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
 		elif is_white_turn:
 			if exp_fen[move].islower(): moves.append(move)
 			break
-		
 		else: 
 			if exp_fen[move].isupper(): moves.append(move)
 			break
-			
 	return moves
 
 def move_fixed_amount( moves_offset : list[tuple[int,int]], from_index :int, exp_fen : list[str] , is_white_turn : bool ) -> list[int]:
@@ -152,7 +174,6 @@ def move_fixed_amount( moves_offset : list[tuple[int,int]], from_index :int, exp
 			if exp_fen[move].islower(): moves.append(move)
 		else:
 		 	if exp_fen[move].isupper(): moves.append(move)	
-			
 	return moves
 # ------------------------
 
