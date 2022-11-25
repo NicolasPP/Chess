@@ -64,7 +64,6 @@ def update_pieces_location( player : Player, fen : FENN.Fen ) -> None:
 	for piece, board_square in fen_to_piece_board_square( fen, player ):
 		board_square.FEN_val = piece.FEN_val
 		board_square.piece_surface = piece.sprite.surface.copy()
-
 def next_state( player : Player ) -> None:
 	next_state = player.state.value + 1
 	state_amount = len( list(STATE) )
@@ -98,7 +97,7 @@ def render_pieces( player : Player ) -> None:
 	if picked is not None:
 		pygame.display.get_surface().blit( 
 			picked.piece_surface, 
-			get_picked_up_render_pos( board_square, board_offset )
+			get_picked_up_render_pos( picked, board_offset )
 			)
 
 def show_available_moves( player ) -> None:
@@ -108,7 +107,6 @@ def show_available_moves( player ) -> None:
 		if picked.FEN_val.islower(): return
 	if player.side is CHESS.SIDE.BLACK:
 		if picked.FEN_val.isupper(): return
-	if picked.picked_up_moves is None: return
 	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
 	for surface, pos in CHESS.get_available_surface( picked, player.board):
 		pygame.display.get_surface().blit(surface, pos)
@@ -166,10 +164,10 @@ def board_collided_rects( player : Player
 		topleft = board_offset + pygame.math.Vector2(rect.topleft)
 		rect.topleft = int(topleft.x), int(topleft.y)
 		if rect.collidepoint( pygame.mouse.get_pos() ):
-			yield board_square, rect
+			yield board_square
 
 def handle_mouse_down_left( player : Player, fen : FENN.Fen ) -> None:
-	for board_square, rect in board_collided_rects( player ):
+	for board_square in board_collided_rects( player ):
 		if player.state is not STATE.PICK_PIECE: return
 		if board_square.FEN_val is FEN.BLANK_PIECE: return 
 		CHESS.set_picked_up( board_square, player.board, fen, player.side )
@@ -178,7 +176,7 @@ def handle_mouse_down_left( player : Player, fen : FENN.Fen ) -> None:
 
 def handle_mouse_up_left( player : Player) -> None:
 	if player.state is not STATE.DROP_PIECE: return
-	for board_square, rect in board_collided_rects( player ):
+	for board_square in board_collided_rects( player ):
 		CHESS.reset_board_grid( player.board )
 		from_coords = CHESS.get_picked_up(player.board).AN_coordinates
 		dest_coords = board_square.AN_coordinates
