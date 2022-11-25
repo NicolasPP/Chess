@@ -22,7 +22,7 @@ def set_info_for(piece : CHESS.PIECES, FEN_val : str):
 	return set_valid_move
 
 @set_info_for(CHESS.PIECES.PAWN, 'P') 
-def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
+def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
 	up = get_fen_offset_index( is_white_turn, from_index, 1, 0 )	#up
 	up_right = get_fen_offset_index( is_white_turn, from_index, 1, 1 )	#up right
@@ -39,7 +39,7 @@ def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 	return moves
 
 @set_info_for(CHESS.PIECES.KNIGHT, 'N') 
-def KNIGHT_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
+def KNIGHT_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
 	moves_offset = [
 		(2,  -1),		#up_right 	
@@ -57,7 +57,7 @@ def KNIGHT_available_moves(from_index : int, exp_fen : list[str], is_white_turn 
 	return moves
 
 @set_info_for(CHESS.PIECES.ROOK, 'R') 
-def ROOK_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
+def ROOK_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
 	# f - fowards b - backwards
 	up, down, right, left = get_flat_offsets()
@@ -70,7 +70,7 @@ def ROOK_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 	return moves
 
 @set_info_for(CHESS.PIECES.BISHOP, 'B') 
-def BISHOP_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
+def BISHOP_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
 
 	up_right, down_right, up_left, down_left = get_diagonal_offsets()
@@ -82,7 +82,7 @@ def BISHOP_available_moves(from_index : int, exp_fen : list[str], is_white_turn 
 
 	return moves
 @set_info_for(CHESS.PIECES.QUEEN, 'Q') 
-def QUENN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
+def QUENN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
 	moves += BISHOP_available_moves(from_index, exp_fen, is_white_turn)
 	moves += ROOK_available_moves(from_index, exp_fen, is_white_turn)
@@ -90,7 +90,7 @@ def QUENN_available_moves(from_index : int, exp_fen : list[str], is_white_turn :
 
 
 @set_info_for(CHESS.PIECES.KING, 'K') 
-def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
+def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
 	moves_offset = [
 		(1,  -1),		#up_right 	
