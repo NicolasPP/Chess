@@ -10,6 +10,7 @@ from config import *
 # -- Defining Movement --
 '''
 this decorator creates a variable " self.available_moves() "
+and "FEN_val"
 inside the Piece_Info(Enum) object passed.
 The function will return all possible moves for that Piece 
 '''
@@ -198,7 +199,7 @@ def is_side_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bo
 def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str], is_white_turn : bool) -> bool:
 	piece = CHESS.get_name_from_fen(exp_fen[from_index])
 	available_moves = CHESS.PIECES[piece].available_moves(from_index, exp_fen, is_white_turn)
-	# if dest_index not in available_moves: return False
+	if dest_index not in available_moves: return False
 	return True 
 
 
