@@ -74,15 +74,25 @@ def QUENN_available_moves(from_index : int, exp_fen : list[str], is_white_turn :
 @set_info_for(CHESS.PIECES.KING, 'K') 
 def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
 	moves = []
-	up_right 	= get_fen_offset_index(is_white_turn, from_index, 1, -1)
-	up_left 	= get_fen_offset_index(is_white_turn, from_index, 1, 1)
-	down_right	= get_fen_offset_index(is_white_turn, from_index, -1, -1)
-	down_left 	= get_fen_offset_index(is_white_turn, from_index, -1, 1)
+	is_black_turn = not is_white_turn
+	moves_offset = [
+		(1,  -1),		#up_right 	
+		(1,   1),		#up_left 	
+		(-1, -1),		#down_right	
+		(-1,  1),		#down_left 	
+		(1,   0),		#up 	
+		(0,  -1),		#right 	
+		(-1,  0),		#down 	
+		(0,   1),		#left 	
+	]	 	
 
-	if up_right: moves.append(up_right)
-	if up_left: moves.append(up_left)
-	if down_right: moves.append(down_right)
-	if down_left: moves.append(down_left)
+	for offset in moves_offset:
+		move = get_fen_offset_index( is_white_turn, from_index, *offset)
+		if move:
+			if is_white_turn and exp_fen[move].islower(): moves.append(move)
+			if is_black_turn and exp_fen[move].isupper(): moves.append(move)
+			if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
+
 	return moves
 # -----------------------
 
