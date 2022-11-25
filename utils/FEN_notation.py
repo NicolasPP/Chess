@@ -27,7 +27,7 @@ def iterate_FEN( fen : Fen ) -> typing.Generator[str, None, None]:
 	for fen_row in fen.notation.split(FEN.SPLIT):
 		for piece_fen in fen_row: yield piece_fen 
 
-def set_blank_fen( fen : Fen = Fen(FEN.BLANK), blank_count : int = 0) -> tuple[Fen, int]:
+def set_blank_fen( fen : Fen, blank_count : int = 0) -> tuple[Fen, int]:
 	if blank_count > 0:
 		fen.notation += str(blank_count)
 		blank_count = 0
@@ -38,6 +38,7 @@ def expand_fen( fen : Fen, expanded_fen : str = FEN.BLANK ) -> list[str]:
 		if piece_fen.isnumeric(): expanded_fen += (int( piece_fen ) * FEN.BLANK_PIECE)
 		elif piece_fen == FEN.SPLIT: continue
 		else: expanded_fen += piece_fen
+	
 	return list(expanded_fen)
 
 def pack_fen( unpacked_fen : list[str] ) -> Fen:
@@ -50,6 +51,8 @@ def pack_fen( unpacked_fen : list[str] ) -> Fen:
 		else:
 			fen, blank_count = set_blank_fen( fen, blank_count) 
 			fen.notation += unpacked_fen[index]
+
+		fen, blank_count = set_blank_fen(fen, blank_count)
 	return fen
 
 def make_move( cmd_info : str, fen : Fen ) -> Fen:
@@ -57,6 +60,9 @@ def make_move( cmd_info : str, fen : Fen ) -> Fen:
 	expanded_fen = expand_fen(fen)
 	expanded_fen[fen[dest_c]] = expanded_fen[fen[from_c]]
 	expanded_fen[fen[from_c]] = FEN.BLANK_PIECE
+
+	assert len( expanded_fen ) == BOARD_SIZE * BOARD_SIZE
+
 	return pack_fen( expanded_fen )
 # -----------------
 
