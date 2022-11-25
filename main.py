@@ -57,7 +57,6 @@ while not done:
 		PLAYER.parse_player_input( event, player, match.fen )
 
 
-
 	MATCH.exec_player_command( match ) 
 	PLAYER.exec_match_command( white_player, black_player, match.fen ) 
 	
