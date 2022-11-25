@@ -95,15 +95,15 @@ def get_name_from_fen( FEN_val ) -> str:
 
 def get_available_surface( picked : Board_Square, board : Board
 	) -> typing.Generator[tuple[pygame.surface.Surface, pygame.math.Vector2], None, None]:
+	assert picked.picked_up_moves is not None
 	board_offset = pygame.math.Vector2(board.pos_rect.topleft)
-	if picked.picked_up_moves is not None:
-		for index in picked.picked_up_moves:
-			board_square = board.grid[index]
-			pos = pygame.math.Vector2(board_square.rect.topleft)
-			available_surface = pygame.surface.Surface(board_square.rect.size)
-			available_surface.fill(AVAILABLE_MOVE_COLOR)
-			available_surface.set_alpha(AVAILABLE_ALPHA)
-			yield available_surface, board_offset + pos
+	for index in picked.picked_up_moves:
+		board_square = board.grid[index]
+		pos = pygame.math.Vector2(board_square.rect.topleft)
+		available_surface = pygame.surface.Surface(board_square.rect.size)
+		available_surface.fill(AVAILABLE_MOVE_COLOR)
+		available_surface.set_alpha(AVAILABLE_ALPHA)
+		yield available_surface, board_offset + pos
 # ------------------- 
 
 

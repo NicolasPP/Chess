@@ -95,6 +95,7 @@ def render_pieces( player : Player ) -> None:
 			)
 
 	if picked is not None:
+		if picked.piece_surface is NO_SURFACE: return
 		pygame.display.get_surface().blit( 
 			picked.piece_surface, 
 			get_picked_up_render_pos( picked, board_offset )
@@ -135,6 +136,7 @@ def get_piece_render_pos( board_square : CHESS.Board_Square, board_offset : pyga
 	return piece_pos
 
 def get_picked_up_render_pos( board_square : CHESS.Board_Square, board_offset : pygame.math.Vector2 ) -> tuple[float, float]:
+	assert board_square.piece_surface is not NO_SURFACE
 	piece_pos = get_piece_render_pos(board_square, board_offset)
 	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
 	piece_rect.midbottom = pygame.mouse.get_pos()
@@ -157,7 +159,7 @@ def parse_player_input(
 		if event.button == MOUSECLICK.LEFT.value: handle_mouse_up_left( player )
 		
 def board_collided_rects( player : Player 
-	) -> typing.Generator[tuple[CHESS.Board_Square,pygame.rect.Rect], None, None]:
+	) -> typing.Generator[CHESS.Board_Square, None, None]:
 	board_offset = pygame.math.Vector2(player.board.pos_rect.topleft)
 	for board_square in player.board.grid:
 		rect = board_square.rect.copy()
