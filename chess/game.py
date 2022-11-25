@@ -26,18 +26,19 @@ def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 	up = get_fen_offset_index( is_white_turn, from_index, 1, 0 )	#up
 	up_right = get_fen_offset_index( is_white_turn, from_index, 1, 1 )	#up right
 	up_left = get_fen_offset_index( is_white_turn, from_index, 1, -1 )	#up left
-	is_black_turn = not is_white_turn
 
-	if up and exp_fen[up] == FEN.BLANK_PIECE: moves.append(up)
+	if up is not None and exp_fen[up] == FEN.BLANK_PIECE: moves.append(up)
 	for move in [up_right, up_left]:
-		if move and exp_fen[move] != FEN.BLANK_PIECE:
-			if is_white_turn and exp_fen[move].islower():moves.append(move)
-			if is_black_turn and exp_fen[move].isupper(): moves.append(move)
+		if move is None: continue
+		elif is_white_turn:
+			if exp_fen[move].islower(): moves.append(move)
+		else:
+		 	if exp_fen[move].isupper(): moves.append(move) 	
+
 	return moves
 
 @set_info_for(CHESS.PIECES.KNIGHT, 'N') 
 def KNIGHT_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
-	is_black_turn = not is_white_turn
 	moves = []
 	moves_offset = [
 		(2,  -1),		#up_right 	
@@ -50,18 +51,25 @@ def KNIGHT_available_moves(from_index : int, exp_fen : list[str], is_white_turn 
 		(1,   2)		#left_up 	
 	]	 	
 
-	for offset in moves_offset:
-		move = get_fen_offset_index( is_white_turn, from_index, *offset)
-		if move:
-			if is_white_turn and exp_fen[move].islower(): moves.append(move)
-			if is_black_turn and exp_fen[move].isupper(): moves.append(move)
-			if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
+	moves += move_fixed_amount( moves_offset, from_index, exp_fen, is_white_turn ) 	
 
 	return moves
 
 @set_info_for(CHESS.PIECES.ROOK, 'R') 
 def ROOK_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
-	print(f'getting available moves for : {CHESS.PIECES.ROOK.name}')
+	moves = []
+	# f - fowards b - backwards
+	horizontal_offsets_f = [ (0, index) for index in range(BOARD_SIZE) ]
+	horizontal_offsets_b = [ (0, -index) for index in range(BOARD_SIZE) ]
+	vertical_offsets_f = [ (index, 0) for index in range(BOARD_SIZE) ]
+	vertical_offsets_b = [ (-index, 0) for index in range(BOARD_SIZE) ]
+
+	moves += move_until_friendly(horizontal_offsets_f, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(horizontal_offsets_b, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(vertical_offsets_f, from_index, exp_fen, is_white_turn)
+	moves += move_until_friendly(vertical_offsets_b, from_index, exp_fen, is_white_turn)
+
+	return moves
 
 @set_info_for(CHESS.PIECES.BISHOP, 'B') 
 def BISHOP_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
@@ -74,7 +82,6 @@ def QUENN_available_moves(from_index : int, exp_fen : list[str], is_white_turn :
 @set_info_for(CHESS.PIECES.KING, 'K') 
 def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[str]:
 	moves = []
-	is_black_turn = not is_white_turn
 	moves_offset = [
 		(1,  -1),		#up_right 	
 		(1,   1),		#up_left 	
@@ -84,14 +91,9 @@ def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 		(0,  -1),		#right 	
 		(-1,  0),		#down 	
 		(0,   1),		#left 	
-	]	 	
+	]
 
-	for offset in moves_offset:
-		move = get_fen_offset_index( is_white_turn, from_index, *offset)
-		if move:
-			if is_white_turn and exp_fen[move].islower(): moves.append(move)
-			if is_black_turn and exp_fen[move].isupper(): moves.append(move)
-			if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
+	moves += move_fixed_amount( moves_offset, from_index, exp_fen, is_white_turn ) 	
 
 	return moves
 # -----------------------
@@ -101,18 +103,20 @@ def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 
 # -- Piece Move Helpers --
 def get_fen_offset_index( is_white_turn : bool, from_index : int, row_offset : int, col_offset : int ) -> int | None:
-	row, col = get_fen_col_row( from_index )
+	row, col = get_fen_row_col( from_index )
 	if is_white_turn:
 		row_offset = row_offset * -1
 		col_offset = col_offset * -1
-	if row + row_offset < 0 or \
-		row + row_offset > BOARD_SIZE - 1: return None
-	if col + col_offset < 0 or \
-		col + col_offset > BOARD_SIZE -1: return None
-	index = get_fen_index( row + row_offset, col + col_offset )
+	new_row = row + row_offset
+	new_col = col + col_offset
+	if new_row < 0 or \
+		new_row > BOARD_SIZE -1: return None
+	if new_col < 0 or \
+		new_col > BOARD_SIZE -1: return None
+	index = get_fen_index( new_row, new_col )
 	return index
 
-def get_fen_col_row( index: int ) -> tuple[int,int]:
+def get_fen_row_col( index: int ) -> tuple[int,int]:
 	row = index // BOARD_SIZE
 	col = index - (row * BOARD_SIZE)
 	return row, col
@@ -120,6 +124,36 @@ def get_fen_col_row( index: int ) -> tuple[int,int]:
 def get_fen_index( row : int , col : int ) -> int:
 	return (row * BOARD_SIZE) + col
 
+def move_until_friendly( moves_offset : list[tuple[int,int]], from_index :int, exp_fen : list[str] , is_white_turn : bool ) -> list[int]:
+	moves = []
+	for offset in moves_offset:
+		move = get_fen_offset_index( is_white_turn, from_index, *offset)
+		if move is None: continue
+		if move == from_index: continue
+		
+		if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
+		elif is_white_turn:
+			if exp_fen[move].islower(): moves.append(move)
+			break
+		
+		else: 
+			if exp_fen[move].isupper(): moves.append(move)
+			break
+			
+	return moves
+
+def move_fixed_amount( moves_offset : list[tuple[int,int]], from_index :int, exp_fen : list[str] , is_white_turn : bool ) -> list[int]:
+	moves = []
+	for offset in moves_offset:
+		move = get_fen_offset_index( is_white_turn, from_index, *offset)
+		if move is None: continue
+		if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
+		elif is_white_turn:
+			if exp_fen[move].islower(): moves.append(move)
+		else:
+		 	if exp_fen[move].isupper(): moves.append(move)	
+			
+	return moves
 # ------------------------
 
 
