@@ -11,7 +11,7 @@ r = ''
 while not done:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: done = True
-		if event.type == pygame.MOUSEBUTTONDOWN: r = n.send('its the client')
+		if event.type == pygame.MOUSEBUTTONDOWN: r = n.send(f'its client {n.id}')
 	
 	pygame.display.flip()
 
