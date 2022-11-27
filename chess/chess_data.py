@@ -86,7 +86,7 @@ def reset_board_grid( board : Board ):
 	for board_square in board.grid:
 		board_square.FEN_val = FEN.BLANK_PIECE
 		board_square.piece_surface = NO_SURFACE
-		board_square.picked_up_moves = NO_SURFACE
+		# board_square.picked_up_moves = NO_SURFACE
 
 def get_name_from_fen( FEN_val ) -> str:
 	for piece in list(PIECES):

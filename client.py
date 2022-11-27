@@ -57,17 +57,16 @@ while not done:
 	pygame.display.get_surface().fill(bg_color)
 
 	fen = network.send(NO_MOVE)
-	print( fen )
 	match_fen.notation = fen
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: done = True
 		PLAYER.parse_player_input( event, player, match_fen, network )
 
-	PLAYER.update_pieces_location(player, match_fen)
 
 	PLAYER.render_board( player )
 	PLAYER.render_pieces( player )
+	PLAYER.update_pieces_location(player, match_fen)
 
 	DB.debug(fps, font_color)
 	pygame.display.flip()
