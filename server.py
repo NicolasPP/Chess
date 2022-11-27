@@ -1,21 +1,36 @@
-import socket
+import socket as SKT
 import _thread as thread
+import network as NET
 
 
-server = "192.168.1.44"
-port = 5555
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-try:
-	s.bind((server, port))
-except socket.error as e:
-	str(e)
+class Server(NET.Net):
+	def __init__(self):
+		super().__init__()
 
-s.listen(2)
-print("Waiting for a connection, Server Started")
+	def start(self):
+		try:
+			self.socket.bind(self.address)
+		except SKT.error as e:
+			print( f'error binding : {e}')
+
+		self.socket.listen()
+
+		print("Waiting for a connection, Server Started")
+
+	def run(self):
+		self.start()
+		while True:
+			conn, addr = self.socket.accept()
+			print("Connected to:", addr)
+			thread.start_new_thread(threaded_client, (conn, self))
 
 
-def threaded_client(conn):
+
+
+
+
+def threaded_client(conn, server):
 	conn.send(str.encode("Connected"))
 	reply = ""
 	while True:
@@ -29,7 +44,7 @@ def threaded_client(conn):
 			else:
 				print("Received: ", reply)
 
-			conn.sendall(str.encode('its me'))
+			conn.send(str.encode('its me'))
 		except:
 			break
 
@@ -37,8 +52,9 @@ def threaded_client(conn):
 	conn.close()
 
 
-while True:
-	conn, addr = s.accept()
-	print("Connected to:", addr)
+if __name__ == '__main__':
+	Server().run()
 
-	thread.start_new_thread(threaded_client, (conn,))
+
+
+
