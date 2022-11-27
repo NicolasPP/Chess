@@ -103,7 +103,7 @@ def render_pieces( player : Player ) -> None:
 
 def show_available_moves( player ) -> None:
 	picked = CHESS.get_picked_up( player.board )
-	if not player.turn: return
+	# if not player.turn: return
 	if player.side is CHESS.SIDE.WHITE:
 		if picked.FEN_val.islower(): return
 	if player.side is CHESS.SIDE.BLACK:
@@ -151,12 +151,13 @@ def get_picked_up_render_pos( board_square : CHESS.Board_Square, board_offset : 
 def parse_player_input( 
 	event : pygame.event.Event, 
 	player : Player,
-	fen : FENN.Fen
+	fen : FENN.Fen,
+	network,
 	) -> None:
 	if event.type == pygame.MOUSEBUTTONDOWN:
 		if event.button == MOUSECLICK.LEFT.value: handle_mouse_down_left( player, fen )
 	if event.type == pygame.MOUSEBUTTONUP:
-		if event.button == MOUSECLICK.LEFT.value: handle_mouse_up_left( player )
+		if event.button == MOUSECLICK.LEFT.value: handle_mouse_up_left( player, network, fen )
 		
 def board_collided_rects( player : Player 
 	) -> typing.Generator[CHESS.Board_Square, None, None]:
@@ -176,36 +177,19 @@ def handle_mouse_down_left( player : Player, fen : FENN.Fen ) -> None:
 		next_state( player )
 
 
-def handle_mouse_up_left( player : Player) -> None:
+def handle_mouse_up_left( player : Player, network, fen) -> None:
 	if player.state is not STATE.DROP_PIECE: return
 	for board_square in board_collided_rects( player ):
 		CHESS.reset_board_grid( player.board )
 		from_coords = CHESS.get_picked_up(player.board).AN_coordinates
 		dest_coords = board_square.AN_coordinates
-		CMD.send_to( CMD.MATCH, CMD.move( from_coords, dest_coords, player.side.name ) )
+
+		# send server move info and update pieces location
+		fen.notation = network.send(CMD.move( from_coords, dest_coords, player.side.name ).info)
+		update_pieces_location( player, fen )
+
 	next_state( player )
 	CHESS.reset_picked_up( player.board )
 # ------------------
-
-
-
-
-# -- Exec Match Commands --
-def next_turn( *players : Player ) -> None:
-	for player in players: player.turn = not player.turn
-	p1, p2 = players
-	assert p1.turn != p2.turn
-
-
-def exec_match_command( white_player : Player, black_player : Player, fen: FENN.Fen ) -> None:
-	command = CMD.read_from(CMD.PLAYER)
-	if command is None: return
-	if command.info == PLAYER_COMMANDS.UPDATE_POS:
-		update_pieces_location( white_player, fen )
-		update_pieces_location( black_player, fen )
-	elif command.info == PLAYER_COMMANDS.NEXT_TURN:
-		next_turn(white_player, black_player)
-# -------------------------
-
 
 
