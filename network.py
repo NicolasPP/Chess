@@ -4,11 +4,9 @@ import socket as SKT
 class Net:
 	def __init__(self):
 		self.socket = SKT.socket(SKT.AF_INET, SKT.SOCK_STREAM)
-		self.server = '192.168.1.44'
+		self.server = '192.168.1.57'
 		self.port = 5555
 		self.address = (self.server, self.port)
-
-	
 		
 
 class Network(Net):

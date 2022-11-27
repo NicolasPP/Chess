@@ -54,6 +54,7 @@ def threaded_client(conn, server):
 			if data != NO_MOVE: 
 				print( data )
 				processed_move = MATCH.process_move( data, server.match )
+			
 			conn.send(str.encode(server.match.fen.notation))
 		except:
 			break
