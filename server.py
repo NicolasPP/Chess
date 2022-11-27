@@ -1,13 +1,21 @@
 import socket as SKT
 import _thread as thread
 import network as NET
+from config import *
+from chess import match as MATCH
+from chess import game as GAME
 
 
+'''
+[Errno 48] Address already in use
+you can get the process ID with port with this command : sudo lsof -i:PORT
+'''
 
 class Server(NET.Net):
 	def __init__(self):
 		super().__init__()
 		self.client_id = -1
+		self.match = MATCH.MATCH(fen = FEN.GAME_START_FEN)
 
 	def start(self):
 		try:
@@ -24,7 +32,7 @@ class Server(NET.Net):
 		while True:
 			conn, addr = self.socket.accept()
 			print("Connected to:", addr)
-			thread.start_new_thread(threaded_client, (conn, self))
+			thread.start_new_thread(threaded_client, (conn, self,))
 
 	def get_id(self):
 		self.client_id += 1
@@ -34,26 +42,23 @@ class Server(NET.Net):
 
 
 
-
 def threaded_client(conn, server):
-	conn.send(str.encode(server.get_id()))
-	reply = ""
+	conn_id = server.get_id()
+	conn.send(str.encode(conn_id))
 	while True:
 		try:
-			data = conn.recv(2048)
-			reply = data.decode("utf-8")
+			data = conn.recv(2048).decode("utf-8")
 
-			if not data:
-				print("Disconnected")
-				break
-			else:
-				print("Received: ", reply)
-
-			conn.send(str.encode('its me'))
+			if not data: break
+			
+			if data != NO_MOVE: 
+				print( data )
+				processed_move = MATCH.process_move( data, server.match )
+			conn.send(str.encode(server.match.fen.notation))
 		except:
 			break
 
-	print("Lost connection")
+	print(f"Lost connection to id : {conn_id}")
 	conn.close()
 
 
