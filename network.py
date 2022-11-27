@@ -14,7 +14,7 @@ class Net:
 class Network(Net):
 	def __init__(self):
 		super().__init__()
-		self.id = self.connect()
+		self.id = int(self.connect())
 
 	def connect(self):
 		try:
