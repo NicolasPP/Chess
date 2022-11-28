@@ -13,10 +13,10 @@ import network as NET
 from config import NO_MOVE
 
 pygame.init()
-window_size = pygame.math.Vector2(1040, 650)
+window_size = pygame.math.Vector2(500, 500)
 pygame.display.set_mode(window_size)
 done = False
-scale_factor = 4
+scale_factor = 3.5
 clock = pygame.time.Clock()
 network = NET.Network()
 
