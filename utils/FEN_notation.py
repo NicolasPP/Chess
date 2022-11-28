@@ -44,15 +44,15 @@ def expand_fen( fen : Fen, expanded_fen : str = FEN.BLANK ) -> list[str]:
 def pack_fen( unpacked_fen : list[str] ) -> Fen:
 	fen, blank_count = set_blank_fen(Fen(FEN.BLANK))
 	for index in range(len( unpacked_fen )):
-		if index % BOARD_SIZE == 0 and index > 0:
-			fen, blank_count = set_blank_fen( fen, blank_count) 
-			fen.notation += FEN.SPLIT
 		if unpacked_fen[index] == FEN.BLANK_PIECE: blank_count += 1
 		else:
 			fen, blank_count = set_blank_fen( fen, blank_count) 
 			fen.notation += unpacked_fen[index]
 
-		fen, blank_count = set_blank_fen(fen, blank_count)
+		if index % BOARD_SIZE == 0 and index > 0:
+			fen, blank_count = set_blank_fen( fen, blank_count) 
+			fen.notation += FEN.SPLIT
+
 	return fen
 
 def make_move( cmd_info : str, fen : Fen ) -> Fen:
