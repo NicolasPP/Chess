@@ -14,10 +14,10 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 class Server(NET.Net):
 	def __init__(self):
 		super().__init__()
-		self.client_id = -1
-		self.match = MATCH.MATCH(fen = FEN.GAME_START_FEN)
+		self.client_id : int = -1
+		self.match : MATCH.Match = MATCH.MATCH()
 
-	def start(self):
+	def start(self) -> None:
 		try:
 			self.socket.bind(self.address)
 		except SKT.error as e:
@@ -27,14 +27,14 @@ class Server(NET.Net):
 
 		print("Waiting for a connection, Server Started")
 
-	def run(self):
+	def run(self) -> None:
 		self.start()
 		while True:
 			conn, addr = self.socket.accept()
 			print("Connected to:", addr)
 			thread.start_new_thread(threaded_client, (conn, self,))
 
-	def get_id(self):
+	def get_id(self) -> str:
 		self.client_id += 1
 		return str(self.client_id)
 
@@ -42,19 +42,18 @@ class Server(NET.Net):
 
 
 
-def threaded_client(conn, server):
+def threaded_client(conn : SKT.socket, server : Server):
 	conn_id = server.get_id()
 	conn.send(str.encode(conn_id))
 	while True:
 		try:
 			data = conn.recv(2048).decode("utf-8")
-
 			if not data: break
 			
 			if data != NO_MOVE: 
-				print( data )
 				processed_move = MATCH.process_move( data, server.match )
-			
+				if processed_move: print( data )
+
 			conn.send(str.encode(server.match.fen.notation))
 		except:
 			break
