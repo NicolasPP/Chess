@@ -1,4 +1,4 @@
-import pygame, dataclasses
+import dataclasses
 
 from utils import FEN_notation as FENN
 from utils import commands as CMD
