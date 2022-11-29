@@ -31,7 +31,16 @@ def MATCH( *,
 def exec_player_command( match : Match) -> None:
 	command = CMD.read_from(CMD.MATCH)
 	if command is None: return
-	process_move(command, match)
+	process_local_move(command, match)
+
+def process_local_move( command : CMD.Command, match : Match ) -> None:
+	fc, dc, cmd_dest = command.info.split(C_SPLIT)
+	if is_valid_command_dest(cmd_dest, is_white_turn(match)):
+		if GAME.is_move_valid(match.fen[fc],match.fen[dc],FENN.expand_fen(match.fen),is_white_turn(match)):
+			match.fen = FENN.make_move( command.info, match.fen )
+			CMD.send_to( CMD.PLAYER, CMD.next_turn() )
+			match.moves.append( command.info )
+	CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
 
 
 def process_move( command_info : str, match : Match ) -> bool:
