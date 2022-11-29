@@ -5,7 +5,7 @@ import socket as SKT
 class Net:
 	def __init__(self):
 		self.socket : SKT.socket = SKT.socket(SKT.AF_INET, SKT.SOCK_STREAM)
-		self.server : str = '10.237.2.3'
+		self.server : str = '10.237.1.224'
 		self.port : int = 5555
 		self.address : tuple[str, int]= (self.server, self.port)
 		
