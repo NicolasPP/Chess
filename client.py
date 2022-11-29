@@ -7,7 +7,7 @@ from utils import debug as DB
 from chess import chess_data as CHESS
 from chess import player as PLAYER
 from utils import FEN_notation as FENN
-import network as NET
+from utils import network as NET
 
 
 from config import NO_MOVE

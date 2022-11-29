@@ -1,10 +1,11 @@
 import socket as SKT
 import _thread as thread
-import network as NET
-from config import *
+
+from utils import network as NET
 from chess import match as MATCH
 from chess import game as GAME
 
+from config import *
 
 '''
 [Errno 48] Address already in use
