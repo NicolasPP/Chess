@@ -1,7 +1,10 @@
 import socket as SKT
 import _thread as thread
 
+import logging
+
 from utils import network as NET
+from utils import commands as CMD
 from chess import match as MATCH
 from chess import game as GAME
 
@@ -12,60 +15,81 @@ from config import *
 you can get the process ID with port with this command : sudo lsof -i:PORT
 '''
 
+
+logging.basicConfig(
+	filename='log/server.log',
+	encoding='utf-8',
+	level=logging.DEBUG,
+	filemode='w',
+	format='%(asctime)s\t%(levelname)s\t%(message)s'
+)
+
+
 class Server(NET.Net):
 	def __init__(self):
 		super().__init__()
 		self.client_id : int = -1
 		self.match : MATCH.Match = MATCH.MATCH()
+		self.client_sockets : list[SKT.socket] = []
 
 	def start(self) -> None:
+		logging.info('Server started')
 		try:
+			self.socket.setsockopt(SKT.SOL_SOCKET, SKT.SO_REUSEADDR, 1)
 			self.socket.bind(self.address)
 		except SKT.error as e:
-			print( f'error binding : {e}')
+			logging.debug("error binding : %s", e )
 
 		self.socket.listen()
 
-		print("Waiting for a connection, Server Started")
+		logging.info("Waiting for clients to connect")
 
 	def run(self) -> None:
 		self.start()
+		thread.start_new_thread(game_logic, (self,))
 		while True:
-			conn, addr = self.socket.accept()
-			print("Connected to:", addr)
-			thread.start_new_thread(threaded_client, (conn, self,))
+			client_socket, addr = self.socket.accept()
+			logging.info("Connected to address : %s", addr)
+
+
+			self.client_sockets.append(client_socket)
+			thread.start_new_thread(client_listener, (client_socket, self,))
 
 	def get_id(self) -> str:
 		self.client_id += 1
 		return str(self.client_id)
 
+	def send_all_clients(self, data : str):
+		for client_socket in self.client_sockets:
+			client_socket.send(str.encode(data))
 
 
-
-
-def threaded_client(conn : SKT.socket, server : Server):
-	conn_id = server.get_id()
-	conn.send(str.encode(conn_id))
+def game_logic(server : Server):
 	while True:
-		try:
-			data = conn.recv(2048).decode("utf-8")
+		if server.match.update_pos:
+			server.match.commands.append(END_MARKER)
+			server.send_all_clients(INFO_SPLIT.join(server.match.commands))
+			server.match.update_pos = False
+			server.match.commands = []
+
+def client_listener(client_socket: SKT.socket, server : Server):
+	with client_socket:
+		p_id = server.get_id()
+		client_socket.send(str.encode(p_id))
+		while True:
+			data : bytes = client_socket.recv(DATA_SIZE)
 			if not data: break
-			
-			if data != NO_MOVE: 
-				processed_move = MATCH.process_move( data, server.match )
-				if processed_move: print( data )
+			commands = []
+			move_info = data.decode('utf-8')
+			logging.debug("client : %s, sent move %s to server", p_id, move_info)
+			if MATCH.process_move(move_info, server.match):
+				next_turn = C_SPLIT.join([CMD.get_next_turn().info, NO_INFO])
+				commands.append(next_turn)
+			update_pos = C_SPLIT.join([CMD.get_update_pieces_pos().info, server.match.fen.notation])
+			commands.append(update_pos)
+			server.match.commands = commands
+			server.match.update_pos = True
+		server.client_sockets.remove(client_socket)
+		logging.info("client : %s  disconnected", p_id)
 
-			conn.send(str.encode(server.match.fen.notation))
-		except:
-			break
-
-	print(f"Lost connection to id : {conn_id}")
-	conn.close()
-
-
-if __name__ == '__main__':
-	Server().run()
-
-
-
-
+if __name__ == '__main__': Server().run()
