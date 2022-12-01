@@ -30,13 +30,13 @@ def read_from(command_q : queue.Queue) -> Command | None:
 
 
 # -- Command Getters --
-def move( from_coords : str, dest_coords : str, cmd_source : str ) -> Command:
+def get_move( from_coords : str, dest_coords : str, cmd_source : str ) -> Command:
 	return Command(from_coords + C_SPLIT + dest_coords + C_SPLIT + cmd_source)
 
-def update_pieces_pos() -> Command:
+def get_update_pieces_pos() -> Command:
 	return Command( PLAYER_COMMANDS.UPDATE_POS )
 
-def next_turn() -> Command:
+def get_next_turn() -> Command:
 	return Command( PLAYER_COMMANDS.NEXT_TURN )
 # ---------------------
 
