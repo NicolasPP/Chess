@@ -1,12 +1,14 @@
 import pygame, sys, random
 
-from random import choice
+from chess import game as GAME
 
 from utils import asset as ASSETS
 from utils import debug as DB
 from chess import chess_data as CHESS
 from chess import player as PLAYER
 from chess import match as MATCH
+
+from config import *
 
 
 

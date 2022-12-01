@@ -88,7 +88,7 @@ def reset_board_grid( board : Board ):
 		board_square.piece_surface = NO_SURFACE
 		# board_square.picked_up_moves = NO_SURFACE
 
-def get_name_from_fen( FEN_val ) -> str:
+def get_name_from_fen( FEN_val : str ) -> str:
 	for piece in list(PIECES):
 		if piece.FEN_val == FEN_val.upper(): return piece.name
 	raise Exception( f'FEN_val : {FEN_val} not found' )
@@ -115,7 +115,7 @@ def get_grid_surface_size( board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
 	board_size = pygame.math.Vector2(board_sprite.surface.get_size())
 	return board_size - (offset * 2)
 
-def board_square_info( side ) -> typing.Generator[tuple[int, int, str], None, None]:
+def board_square_info( side : SIDE ) -> typing.Generator[tuple[int, int, str], None, None]:
 	ranks = string.ascii_lowercase[:BOARD_SIZE]
 	ranks = ranks[::-1] if side is  SIDE.BLACK else ranks
 	for row in range(BOARD_SIZE):

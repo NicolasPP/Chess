@@ -34,7 +34,7 @@ def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 		elif is_white_turn:
 			if exp_fen[move].islower(): moves.append(move)
 		else:
-		 	if exp_fen[move].isupper(): moves.append(move) 	
+			if exp_fen[move].isupper(): moves.append(move) 	
 
 	return moves
 
@@ -174,7 +174,7 @@ def move_fixed_amount( moves_offset : list[tuple[int,int]], from_index :int, exp
 		elif is_white_turn:
 			if exp_fen[move].islower(): moves.append(move)
 		else:
-		 	if exp_fen[move].isupper(): moves.append(move)	
+			if exp_fen[move].isupper(): moves.append(move)	
 	return moves
 # ------------------------
 

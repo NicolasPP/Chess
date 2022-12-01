@@ -1,6 +1,6 @@
 import pygame, sys, random, logging
 
-from random import choice
+from chess import game as GAME
 
 from utils import asset as ASSETS
 from utils import debug as DB
@@ -36,10 +36,10 @@ def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fe
 	with server_socket:
 		prev_data_tail = ''
 		while True:
-			data : bytes = server_socket.recv(DATA_SIZE)
-			if not data: break
+			data_b : bytes = server_socket.recv(DATA_SIZE)
+			if not data_b: break
 			prev_data_tail = ''
-			data, prev_data_tail = correct_data(data.decode('utf-8'), prev_data_tail)
+			data, prev_data_tail = correct_data(data_b.decode('utf-8'), prev_data_tail)
 			for command_info in data[:-1].split(INFO_SPLIT):
 				command, info = command_info.split(C_SPLIT)
 				logging.debug("recieved %s from server", command)
