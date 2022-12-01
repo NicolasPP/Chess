@@ -15,13 +15,15 @@ from config import *
 class Match:
 	fen				: FENN.Fen
 	moves		 	: list[str]
+	commands 		: list[str]
+	update_pos		: bool = False
 
 def MATCH( *,
 		fen : FENN.Fen = FENN.Fen()
 	) -> Match:
-	CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
+	CMD.send_to( CMD.PLAYER, CMD.get_update_pieces_pos() )
 	fen = FENN.Fen()
-	return Match(fen, [] )
+	return Match(fen, [], [] )
 # -------------
 
 
@@ -38,9 +40,9 @@ def process_local_move( command : CMD.Command, match : Match ) -> None:
 	if is_valid_command_dest(cmd_dest, is_white_turn(match)):
 		if GAME.is_move_valid(match.fen[fc],match.fen[dc],FENN.expand_fen(match.fen),is_white_turn(match)):
 			match.fen = FENN.make_move( command.info, match.fen )
-			CMD.send_to( CMD.PLAYER, CMD.next_turn() )
+			CMD.send_to( CMD.PLAYER, CMD.get_next_turn() )
 			match.moves.append( command.info )
-	CMD.send_to( CMD.PLAYER, CMD.update_pieces_pos() )
+	CMD.send_to( CMD.PLAYER, CMD.get_update_pieces_pos() )
 
 
 def process_move( command_info : str, match : Match ) -> bool:
