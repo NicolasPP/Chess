@@ -2,11 +2,11 @@ GRID_OFFSET : int = 7
 BOARD_SIZE : int = 8
 NO_SURFACE : None = None
 PIECE_BG : tuple[int, int, int] = 0,0,0
-C_SPLIT = '-'
 EMPTY_Q : None  = None
-AVAILABLE_MOVE_COLOR = 'green'
-AVAILABLE_ALPHA = 70
-
+AVAILABLE_MOVE_COLOR : str = 'green'
+AVAILABLE_ALPHA : int = 70
+BOARD_SCALE : float = 3.5
+WINDOW_SIZE : tuple[int,int] = 570, 570
 
 
 
@@ -23,6 +23,8 @@ class PLAYER_COMMANDS:
 	UPDATE_POS 	: str = 'update_pos'
 	NEXT_TURN 	: str = 'next_turn'
 
-END_MARKER = '#'
-NO_INFO = '<>'
-INFO_SPLIT = '%'
+END_MARKER : str = '#'
+NO_INFO : str = '<>'
+C_SPLIT : str = '-'
+INFO_SPLIT : str = '%'
+DATA_SIZE : int = 4096
