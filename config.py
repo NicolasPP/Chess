@@ -23,5 +23,6 @@ class PLAYER_COMMANDS:
 	UPDATE_POS 	: str = 'update_pos'
 	NEXT_TURN 	: str = 'next_turn'
 
-
-NO_MOVE = '<>'
+END_MARKER = '#'
+NO_INFO = '<>'
+INFO_SPLIT = '%'
