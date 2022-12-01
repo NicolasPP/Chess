@@ -1,4 +1,4 @@
-import pygame, enum, dataclasses, typing
+import pygame, enum, dataclasses, typing, time
 
 from utils import asset as ASSETS
 from utils import commands as CMD
@@ -68,6 +68,9 @@ def next_state( player : Player ) -> None:
 	next_state = player.state.value + 1
 	state_amount = len( list(STATE) )
 	player.state = STATE( next_state % state_amount )
+
+def next_turn( player : Player ) -> None:
+	player.turn = not player.turn
 # -------------------
 
 
@@ -183,10 +186,8 @@ def handle_mouse_up_left( player : Player, network, fen : FENN.Fen) -> None:
 		CHESS.reset_board_grid( player.board )
 		from_coords = CHESS.get_picked_up(player.board).AN_coordinates
 		dest_coords = board_square.AN_coordinates
-
-		# send server move info and update pieces location
-		fen.notation = network.send(CMD.move( from_coords, dest_coords, player.side.name ).info)
-		update_pieces_location( player, fen )
+		move = CMD.get_move(from_coords, dest_coords, player.side.name)
+		network.socket.send(str.encode(move.info))
 
 	next_state( player )
 	CHESS.reset_picked_up( player.board )
@@ -210,11 +211,11 @@ def handle_local_mouse_up_left( player : Player) -> None:
 		CHESS.reset_board_grid( player.board )
 		from_coords = CHESS.get_picked_up(player.board).AN_coordinates
 		dest_coords = board_square.AN_coordinates
-		CMD.send_to( CMD.MATCH, CMD.move( from_coords, dest_coords, player.side.name ) )
+		CMD.send_to( CMD.MATCH, CMD.get_move( from_coords, dest_coords, player.side.name ) )
 	next_state( player )
 	CHESS.reset_picked_up( player.board )
 
-def next_turn( *players : Player ) -> None:
+def next_turn_players( *players : Player ) -> None:
 	for player in players: player.turn = not player.turn
 	p1, p2 = players
 	assert p1.turn != p2.turn
@@ -227,6 +228,6 @@ def exec_match_command( white_player : Player, black_player : Player, fen: FENN.
 		update_pieces_location( white_player, fen )
 		update_pieces_location( black_player, fen )
 	elif command.info == PLAYER_COMMANDS.NEXT_TURN:
-		next_turn(white_player, black_player)
+		next_turn_players(white_player, black_player)
 # -----------------
 
