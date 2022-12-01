@@ -13,7 +13,7 @@ class Net:
 class Network(Net):
 	def __init__(self):
 		super().__init__()
-		self.id : int = int(self.connect())
+		self.id = int(self.connect())
 
 	def connect(self) -> str:
 		try:
@@ -23,18 +23,6 @@ class Network(Net):
 			print( f'error connecting : {e}')
 			return 'error'
 
-	def send(self, data) -> str:
-		try:
-			self.socket.send(str.encode(data))
-			return self.read()
-		except SKT.error as e:
-			print( f'error sending : {e}')
-			return 'error'
-
 	def read(self) -> str:
 		return self.socket.recv(2048).decode()
-
-	
-
-	
 
