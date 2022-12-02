@@ -3,16 +3,16 @@ import socket as SKT
 
 
 class Net:
-	def __init__(self):
+	def __init__(self, server_ip):
+		self.server = server_ip
 		self.socket : SKT.socket = SKT.socket(SKT.AF_INET, SKT.SOCK_STREAM)
-		self.server : str = '192.168.1.44'
 		self.port : int = 5555
 		self.address : tuple[str, int]= (self.server, self.port)
 		
 
 class Network(Net):
-	def __init__(self):
-		super().__init__()
+	def __init__(self, server_ip : str):
+		super().__init__(server_ip)
 		self.id = int(self.connect())
 
 	def connect(self) -> str:

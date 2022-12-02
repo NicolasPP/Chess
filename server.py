@@ -1,7 +1,7 @@
+import logging, click
+
 import socket as SKT
 import _thread as thread
-
-import logging
 
 from utils import network as NET
 from utils import commands as CMD
@@ -25,14 +25,15 @@ logging.basicConfig(
 
 
 class Server(NET.Net):
-	def __init__(self):
-		super().__init__()
+	def __init__(self, server_ip : str):
+		super().__init__(server_ip)
 		self.client_id : int = -1
 		self.match : MATCH.Match = MATCH.MATCH()
 		self.client_sockets : list[SKT.socket] = []
 
 	def start(self) -> None:
 		logging.info('Server started')
+		print(f'server started at {self.server}')
 		try:
 			self.socket.setsockopt(SKT.SOL_SOCKET, SKT.SO_REUSEADDR, 1)
 			self.socket.bind(self.address)
@@ -91,4 +92,10 @@ def client_listener(client_socket: SKT.socket, server : Server):
 		server.client_sockets.remove(client_socket)
 		logging.info("client : %s  disconnected", p_id)
 
-if __name__ == '__main__': Server().run()
+@click.command()
+@click.option('--ip', default = '127.0.0.1')
+def start_server(ip : str) -> None: 
+	Server(ip).run()
+
+if __name__ == '__main__': 
+	start_server()
