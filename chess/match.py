@@ -1,5 +1,3 @@
-import dataclasses
-
 from utils import FEN_notation as FENN
 from utils import commands as CMD
 from chess import chess_data as CHESS
@@ -8,25 +6,15 @@ from chess import game as GAME
 from config import *
 
 
-
-
 # -- Classes --
-@dataclasses.dataclass
 class Match:
-	fen				: FENN.Fen
-	moves		 	: list[str]
-	commands 		: list[str]
-	update_pos		: bool = False
-
-def MATCH( *,
-		fen : FENN.Fen = FENN.Fen()
-	) -> Match:
-	CMD.send_to( CMD.PLAYER, CMD.get_update_pieces_pos() )
-	fen = FENN.Fen()
-	return Match(fen, [], [] )
+	def __init__(self):
+		self.fen				: FENN.Fen = FENN.Fen()
+		self.moves		 		: list[str] = []
+		self.commands 			: list[str] = []
+		self.update_pos			: bool = False
+		CMD.send_to( CMD.PLAYER, CMD.get_update_pieces_pos() )
 # -------------
-
-
 
 
 # -- Exec Match Commands --

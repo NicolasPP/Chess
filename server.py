@@ -28,7 +28,7 @@ class Server(NET.Net):
 	def __init__(self, server_ip : str):
 		super().__init__(server_ip)
 		self.client_id : int = -1
-		self.match : MATCH.Match = MATCH.MATCH()
+		self.match : MATCH.Match = MATCH.Match()
 		self.client_sockets : list[SKT.socket] = []
 
 	def start(self) -> None:

@@ -18,7 +18,7 @@ pygame.display.set_mode(window_size)
 done = False
 clock = pygame.time.Clock()
 
-match = MATCH.MATCH()
+match = MATCH.Match()
 white_player = PLAYER.PLAYER(
 		side =CHESS.SIDE.WHITE,
 		piece_set = random.choice(list(ASSETS.PIECE_SET)),
