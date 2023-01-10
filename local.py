@@ -63,7 +63,7 @@ while not done:
 		PLAYER.parse_local_player_input( event, player, match.fen )
 
 	update_window_caption(white_player, black_player)
-	MATCH.exec_player_command( match ) 
+	match.process_local_move()
 	PLAYER.exec_match_command( white_player, black_player, match.fen ) 
 	
 	PLAYER.render_board( player )

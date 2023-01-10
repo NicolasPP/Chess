@@ -82,7 +82,7 @@ def client_listener(client_socket: SKT.socket, server : Server):
 			commands = []
 			move_info = data.decode('utf-8')
 			logging.debug("client : %s, sent move %s to server", p_id, move_info)
-			if MATCH.process_move(move_info, server.match):
+			if server.match.process_move(move_info):
 				next_turn = C_SPLIT.join([CMD.get_next_turn().info, NO_INFO])
 				commands.append(next_turn)
 			update_pos = C_SPLIT.join([CMD.get_update_pieces_pos().info, server.match.fen.notation])
