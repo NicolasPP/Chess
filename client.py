@@ -66,7 +66,7 @@ def update_window_caption(player: PLAYER.Player) -> None:
  	
 def get_player(network: SKT.socket) -> PLAYER.Player:
 	side = CHESS.SIDE.WHITE if network.id % 2 == 0 else CHESS.SIDE.BLACK
-	player = PLAYER.PLAYER(
+	player = PLAYER.Player(
 		side =side,
 		piece_set = random.choice(list(ASSETS.PIECE_SET)),
 		board_asset = random.choice(list(ASSETS.BOARDS)),

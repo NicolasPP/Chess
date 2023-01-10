@@ -1,4 +1,4 @@
-import pygame, enum, dataclasses, typing, time
+import pygame, enum, typing
 
 from utils import asset as ASSETS
 from utils import commands as CMD
@@ -27,31 +27,17 @@ class STATE(enum.Enum):
 
 
 # -- Classes --
-@dataclasses.dataclass
 class Player:
-	side   : CHESS.SIDE
-	board  : CHESS.Board
-	pieces : dict[str, CHESS.Piece]
-	turn   : bool
-	state  : STATE = STATE.PICK_PIECE
-'''
-FIXEME : turn currently doesnt need to be a member,
-	 	 maybe I'll need it later on so I wont remove it
-'''
-
-def PLAYER( *,
+	def __init__(self,
 		side : CHESS.SIDE,
 		piece_set : ASSETS.PIECE_SET,
 		board_asset : ASSETS.BOARDS,
-		scale : float,
-	) -> Player:
-	board = CHESS.get_board(board_asset.value, side, scale)
-	pieces = CHESS.get_peices(piece_set.value, scale)
-	player = Player( side, board, pieces, False )
-	if side is CHESS.SIDE.WHITE:
-		player.state = STATE.PICK_PIECE
-		player.turn = True
-	return player
+		scale : float):
+		self.side = side
+		self.board = CHESS.get_board(board_asset.value, side, scale)
+		self.pieces = CHESS.get_peices(piece_set.value, scale)
+		self.turn = side is CHESS.SIDE.WHITE
+		self.state = STATE.PICK_PIECE
 # -------------
 
 
