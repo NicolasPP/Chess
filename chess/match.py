@@ -35,7 +35,7 @@ class Match:
 
 
 # -- Match Helpers --
-def is_command_dest_valid( cmd_dest : str , is_white : bool) -> bool:
+def is_command_dest_valid(cmd_dest : str , is_white : bool) -> bool:
 	if cmd_dest == CHESS.SIDE.WHITE.name and \
 		is_white: return True
 	if cmd_dest == CHESS.SIDE.BLACK.name and \
