@@ -59,41 +59,51 @@ class Piece:
 # -- Class Helpers -- 
 def set_picked_up(board_square : Board_Square, board : Board, fen : FENN.Fen, p_side : SIDE) -> None:
 	if board_square.FEN_val == FEN.BLANK_PIECE: return 
-	reset_picked_up( board )
-	exp_fen = FENN.expand_fen( fen )
+	reset_picked_up(board)
+	exp_fen = FENN.expand_fen(fen)
 	is_white_turn = True if p_side is SIDE.WHITE else False
-	name = get_name_from_fen( board_square.FEN_val )
+	name = get_name_from_fen(board_square.FEN_val)
 	moves = PIECES[name].available_moves(fen[board_square.AN_coordinates], exp_fen, is_white_turn)
 	board_square.picked_up_moves = moves
 	board_square.picked_up = True
 
-def reset_picked_up( board : Board ) -> None:
+def reset_picked_up(board : Board) -> None:
 	for sqr in board.grid: 
 		sqr.picked_up = False
 		sqr.picked_up_moves = NO_SURFACE
 
-def is_picked_up( board : Board) -> bool:
+def is_picked_up(board : Board) -> bool:
 	for sqr in board.grid:
 		if sqr.picked_up: return True
 	return False
 
-def get_picked_up( board : Board) -> Board_Square:
+def get_picked_up(board : Board) -> Board_Square:
 	for sqr in board.grid:
 		if sqr.picked_up: return sqr
 	raise Exception( ' no peices picked up ' )
 
-def reset_board_grid( board : Board ):
+def reset_board_grid(board : Board) -> None:
 	for board_square in board.grid:
 		board_square.FEN_val = FEN.BLANK_PIECE
 		board_square.piece_surface = NO_SURFACE
-		# board_square.picked_up_moves = NO_SURFACE
+		board_square.picked_up_moves = NO_SURFACE
 
-def get_name_from_fen( FEN_val : str ) -> str:
+def get_collided_board_square(board : Board) -> Board_Square | None:
+	board_offset = pygame.math.Vector2(board.pos_rect.topleft)
+	for board_square in board.grid:
+		rect = board_square.rect.copy()
+		topleft = board_offset + pygame.math.Vector2(rect.topleft)
+		rect.topleft = int(topleft.x), int(topleft.y)
+		if rect.collidepoint( pygame.mouse.get_pos() ):
+			return board_square
+	return None
+
+def get_name_from_fen(FEN_val : str) -> str:
 	for piece in list(PIECES):
 		if piece.FEN_val == FEN_val.upper(): return piece.name
-	raise Exception( f'FEN_val : {FEN_val} not found' )
+	raise Exception(f'FEN_val : {FEN_val} not found')
 
-def get_available_surface( picked : Board_Square, board : Board
+def get_available_moves_surface( picked : Board_Square, board : Board
 	) -> typing.Generator[tuple[pygame.surface.Surface, pygame.math.Vector2], None, None]:
 	assert picked.picked_up_moves is not None
 	board_offset = pygame.math.Vector2(board.pos_rect.topleft)
@@ -104,18 +114,37 @@ def get_available_surface( picked : Board_Square, board : Board
 		available_surface.fill(AVAILABLE_MOVE_COLOR)
 		available_surface.set_alpha(AVAILABLE_ALPHA)
 		yield available_surface, board_offset + pos
+
+def get_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2) -> tuple[float, float]:
+	assert board_square.piece_surface is not NO_SURFACE
+	if board_square.picked_up: return get_picked_up_piece_render_pos(board_square, board_offset)
+	return get_unpicked_piece_render_pos(board_square, board_offset)
+
+def get_unpicked_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2) -> tuple[float, float]:
+	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
+	piece_rect.bottom = board_square.rect.bottom
+	pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
+	piece_pos = pos.x, pos.y
+	return piece_pos
+
+def get_picked_up_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2) -> tuple[float, float]:
+	piece_pos = get_unpicked_piece_render_pos(board_square, board_offset)
+	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
+	piece_rect.midbottom = pygame.mouse.get_pos()
+	piece_pos = piece_rect.x, piece_rect.y
+	return piece_pos
 # ------------------- 
 
 
 
 
 # -- getting assets --
-def get_grid_surface_size( board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
+def get_grid_surface_size(board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
 	offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
 	board_size = pygame.math.Vector2(board_sprite.surface.get_size())
 	return board_size - (offset * 2)
 
-def board_square_info( side : SIDE ) -> typing.Generator[tuple[int, int, str], None, None]:
+def board_square_info(side : SIDE) -> typing.Generator[tuple[int, int, str], None, None]:
 	ranks = string.ascii_lowercase[:BOARD_SIZE]
 	ranks = ranks[::-1] if side is  SIDE.BLACK else ranks
 	for row in range(BOARD_SIZE):
@@ -151,13 +180,10 @@ def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side 
 	size = get_grid_surface_size(board_sprite) / BOARD_SIZE
 	board_offset = pygame.math.Vector2(pos_rect.topleft)
 	grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
-	for row, col, AN_cordinates in board_square_info( side ):
+	for row, col, AN_cordinates in board_square_info(side):
 		pos = pygame.math.Vector2(col * size.x, row * size.y)
 		rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
-		grid.append( Board_Square(rect, AN_cordinates) )
+		grid.append(Board_Square(rect, AN_cordinates))
 	if side is  SIDE.BLACK: grid = grid[::-1]
 	return grid
 # --------------------------
-
-
-

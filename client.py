@@ -36,9 +36,9 @@ def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fe
 				logging.debug("command info : \n%s", info)
 				if command == PLAYER_COMMANDS.UPDATE_POS:
 					match_fen.notation = info
-					PLAYER.update_pieces_location(player, match_fen)
+					player.update_pieces_location(match_fen)
 				elif command == PLAYER_COMMANDS.NEXT_TURN:
-					PLAYER.next_turn(player)
+					player.swap_turn()
 		logging.debug("server disconnected")
 
 
@@ -97,7 +97,7 @@ def run_main_loop(server_ip : str) -> None:
 	bg_color, font_color = get_colors(player)
 
 	thread.start_new_thread(server_listener, (player, network.socket, match_fen))
-	PLAYER.update_pieces_location(player, match_fen)
+	player.update_pieces_location(match_fen)
 	while not done:
 		
 		fps = round(clock.get_fps())
@@ -106,11 +106,11 @@ def run_main_loop(server_ip : str) -> None:
 	
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT: done = True
-			PLAYER.parse_player_input( event, player, match_fen, network )
+			player.parse_input(event, match_fen, network = network)
 	
 		update_window_caption(player)
-		PLAYER.render_board( player )
-		PLAYER.render_pieces( player )
+		player.render_board()
+		player.render_pieces()
 	
 		DB.debug(fps, font_color)
 		pygame.display.flip()

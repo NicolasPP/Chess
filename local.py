@@ -60,14 +60,14 @@ while not done:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: done = True
 		if event.type == pygame.KEYDOWN: is_white =  not is_white
-		PLAYER.parse_local_player_input( event, player, match.fen )
+		player.parse_input( event, match.fen, local = True)
 
 	update_window_caption(white_player, black_player)
 	match.process_local_move()
-	PLAYER.exec_match_command( white_player, black_player, match.fen ) 
+	PLAYER.exec_player_command( white_player, black_player, match.fen ) 
 	
-	PLAYER.render_board( player )
-	PLAYER.render_pieces( player )
+	player.render_board()
+	player.render_pieces()
 
 	DB.debug(fps, font_color)
 	pygame.display.flip()
