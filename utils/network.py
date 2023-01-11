@@ -1,7 +1,5 @@
 import socket as SKT
 
-
-
 class Net:
 	def __init__(self, server_ip):
 		self.server = server_ip
@@ -25,4 +23,3 @@ class Network(Net):
 
 	def read(self) -> str:
 		return self.socket.recv(2048).decode()
-
