@@ -91,8 +91,8 @@ class Player:
 		for board_square in grid:
 			if board_square.FEN_val is FEN.BLANK_PIECE: continue
 			pygame.display.get_surface().blit(
-				board_square.piece_surface,
-				CHESS.get_piece_render_pos(board_square, board_offset))
+				self.pieces.get(board_square.FEN_val).sprite.surface,
+				CHESS.get_piece_render_pos(board_square, board_offset, self.pieces))
 
 	def show_available_moves(self) -> None:
 		picked = CHESS.get_picked_up(self.board)
@@ -107,17 +107,20 @@ class Player:
 	
 	def update_pieces_location(self, fen : FENN.Fen) -> None:
 		CHESS.reset_board_grid(self.board)
-		for piece, board_square in self.fen_to_piece_board_square(fen):
-			board_square.FEN_val = piece.FEN_val
-			board_square.piece_surface = piece.sprite.surface
+		for piece_fen, board_square in self.fen_to_piece_board_square(fen):
+			board_square.FEN_val = piece_fen
 
 	def fen_to_piece_board_square(self, fen : FENN.Fen)\
-	-> typing.Generator[tuple[CHESS.Piece, CHESS.Board_Square], None, None]:
+	-> typing.Generator[tuple[str, CHESS.Board_Square], None, None]:
 		count = 0
+
 		for piece_fen in FENN.iterate_FEN(fen):
-			if piece_fen.isnumeric(): count += int( piece_fen ) -1
-			else: yield self.pieces[piece_fen], self.board.grid[count]
+			if piece_fen.isnumeric():
+				count += int( piece_fen ) -1
+				yield FEN.BLANK_PIECE, self.board.grid[count]
+			else: yield piece_fen, self.board.grid[count]
 			count += 1
+
 	# ----------------------------
 
 	def progress_state(self) -> None: self.state = STATE((self.state.value + 1) % len(list(STATE)))
