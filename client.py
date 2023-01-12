@@ -30,8 +30,8 @@ def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fe
 			if not data_b: break
 			prev_data_tail = ''
 			data, prev_data_tail = correct_data(data_b.decode('utf-8'), prev_data_tail)
-			for command_info in data[:-1].split(INFO_SPLIT):
-				command, info = command_info.split(C_SPLIT)
+			for command_info in data[:-1].split(C_SPLIT):
+				command, info = command_info.split(I_SPLIT)
 				logging.debug("recieved %s from server", command)
 				logging.debug("command info : \n%s", info)
 				if command == PLAYER_COMMANDS.UPDATE_POS:
@@ -39,6 +39,8 @@ def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fe
 					player.update_pieces_location(match_fen)
 				elif command == PLAYER_COMMANDS.NEXT_TURN:
 					player.swap_turn()
+				elif command == PLAYER_COMMANDS.INVALID_MOVE:
+					player.is_render_required = True
 		logging.debug("server disconnected")
 
 
@@ -82,7 +84,6 @@ def get_colors(player : PLAYER.Player) -> tuple[str, str]:
 	font_color = 'black' if player.side == CHESS.SIDE.WHITE else 'white'
 	return bg_color, font_color
 
-
 def run_main_loop(server_ip : str) -> None:
 	pygame.init()
 	window_size = pygame.math.Vector2(WINDOW_SIZE)
@@ -100,19 +101,16 @@ def run_main_loop(server_ip : str) -> None:
 	player.update_pieces_location(match_fen)
 	while not done:
 		
-		fps = round(clock.get_fps())
-		pygame.display.get_surface().fill(bg_color)
-	
+		# fps = round(clock.get_fps())
 	
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT: done = True
 			player.parse_input(event, match_fen, network = network)
 	
 		update_window_caption(player)
-		player.render_board()
-		player.render_pieces()
+		player.render()
 	
-		DB.debug(fps, font_color)
+		# DB.debug(fps, font_color)
 		pygame.display.flip()
 		clock.tick()
 	

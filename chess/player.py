@@ -33,11 +33,12 @@ class Player:
 		piece_set 	: ASSETS.PIECE_SET,
 		board_asset : ASSETS.BOARDS,
 		scale 		: float):
-		self.side 		: CHESS.SIDE 		= side
-		self.board 		: CHESS.Board 		= CHESS.get_board(board_asset.value, side, scale)
-		self.pieces  	: dict[str,  Piece] = CHESS.get_peices(piece_set.value, scale)
-		self.turn 		: bool 				= side is CHESS.SIDE.WHITE
-		self.state 		: STATE 			= STATE.PICK_PIECE
+		self.side 				: CHESS.SIDE 		= side
+		self.board 				: CHESS.Board 		= CHESS.get_board(board_asset.value, side, scale)
+		self.pieces  			: dict[str,  Piece] = CHESS.get_peices(piece_set.value, scale)
+		self.turn 				: bool 				= side is CHESS.SIDE.WHITE
+		self.state 				: STATE 			= STATE.PICK_PIECE
+		self.is_render_required : bool 				= True
 
 
 	# -- reading playing input --
@@ -54,13 +55,14 @@ class Player:
 
 	def hanle_left_mouse_up(self, network : NET.Network | None, fen : FENN.Fen, local : bool) -> None:
 		if self.state is not STATE.DROP_PIECE: return
+
 		board_square = CHESS.get_collided_board_square(self.board)
-		if not board_square: return None
-		
-		CHESS.reset_board_grid(self.board)
 		from_coords = CHESS.get_picked_up(self.board).AN_coordinates
-		dest_coords = board_square.AN_coordinates
-		move = CMD.get_move(from_coords, dest_coords, self.side.name)
+		
+		move = CMD.get_move(from_coords, from_coords, self.side.name)
+		if board_square:
+			dest_coords = board_square.AN_coordinates
+			move = CMD.get_move(from_coords, dest_coords, self.side.name)
 		
 		if local: CMD.send_to(CMD.MATCH, move)
 		else: network.socket.send(str.encode(move.info))
@@ -68,7 +70,9 @@ class Player:
 		self.progress_state()
 		CHESS.reset_picked_up(self.board)
 
+
 	def handle_mouse_down_left(self, fen : FENN.Fen) -> None:
+
 		board_square = CHESS.get_collided_board_square(self.board)
 		if not board_square: return None
 		if self.state is not STATE.PICK_PIECE: return
@@ -80,19 +84,33 @@ class Player:
 
 
 	# -- rendering players game --
-	# TODO : Only rerender pieces which have changed place, maybe create a prev_fen member
+	def render(self):
+		if self.is_render_required or self.state is STATE.DROP_PIECE:
+			bg_color, font_color = self.get_colors()
+			pygame.display.get_surface().fill(bg_color)
+			self.render_board()
+			self.render_pieces()
+		self.is_render_required = False
+
+
 	def render_board( self) -> None:
 		pygame.display.get_surface().blit(self.board.sprite.surface, self.board.pos_rect)
 		if self.state is STATE.DROP_PIECE: self.show_available_moves()
 
 	def render_pieces(self) -> None:
 		grid = self.board.grid if self.side is CHESS.SIDE.WHITE else self.board.grid[::-1]
-		board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
 		for board_square in grid:
 			if board_square.FEN_val is FEN.BLANK_PIECE: continue
+			board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
 			pygame.display.get_surface().blit(
 				self.pieces.get(board_square.FEN_val).sprite.surface,
-				CHESS.get_piece_render_pos(board_square, board_offset, self.pieces))
+				CHESS.get_piece_render_pos(board_square, board_offset, self.pieces)
+				)
+
+	def get_colors(self) -> tuple[str, str]:
+		bg_color = 'white' if self.side == CHESS.SIDE.WHITE else 'black'
+		font_color = 'black' if self.side == CHESS.SIDE.WHITE else 'white'
+		return bg_color, font_color
 
 	def show_available_moves(self) -> None:
 		picked = CHESS.get_picked_up(self.board)
@@ -109,6 +127,7 @@ class Player:
 		CHESS.reset_board_grid(self.board)
 		for piece_fen, board_square in self.fen_to_piece_board_square(fen):
 			board_square.FEN_val = piece_fen
+		self.is_render_required = True
 
 	def fen_to_piece_board_square(self, fen : FENN.Fen)\
 	-> typing.Generator[tuple[str, CHESS.Board_Square], None, None]:
@@ -127,7 +146,6 @@ class Player:
 
 	def swap_turn(self) -> None: self.turn = not self.turn
 
-
 # -- Local Logic --
 def exec_player_command(white_player : Player, black_player : Player, fen: FENN.Fen) -> None:
 	command = CMD.read_from(CMD.PLAYER)
@@ -135,9 +153,14 @@ def exec_player_command(white_player : Player, black_player : Player, fen: FENN.
 	if command.info == PLAYER_COMMANDS.UPDATE_POS:
 		white_player.update_pieces_location(fen)
 		black_player.update_pieces_location(fen)
+
 	elif command.info == PLAYER_COMMANDS.NEXT_TURN:
 		white_player.swap_turn()
 		black_player.swap_turn()
 		assert not (white_player.turn and black_player.turn)
+
+	elif command.info == PLAYER_COMMANDS.INVALID_MOVE:
+		white_player.is_render_required = True
+		black_player.is_render_required = True
 # -----------------
 

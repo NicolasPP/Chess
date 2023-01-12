@@ -50,26 +50,25 @@ is_white = True
 
 while not done:
 	
-	fps = round(clock.get_fps())
-	bg_color = 'white' if white_player.turn else 'black'
-	font_color = 'black' if white_player.turn else 'white'
-	pygame.display.get_surface().fill(bg_color)
+	# fps = round(clock.get_fps())
 
 	player = white_player if is_white else black_player
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: done = True
-		if event.type == pygame.KEYDOWN: is_white =  not is_white
+		if event.type == pygame.KEYDOWN: 
+			is_white =  not is_white
+			white_player.is_render_required = True
+			black_player.is_render_required = True
 		player.parse_input( event, match.fen, local = True)
 
 	update_window_caption(white_player, black_player)
 	match.process_local_move()
-	PLAYER.exec_player_command( white_player, black_player, match.fen ) 
-	
-	player.render_board()
-	player.render_pieces()
+	PLAYER.exec_player_command( white_player, black_player, match.fen )
 
-	DB.debug(fps, font_color)
+	player.render()
+
+	# DB.debug(fps, font_color)
 	pygame.display.flip()
 	clock.tick()
 
