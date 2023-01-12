@@ -84,9 +84,8 @@ class Player:
 
 
 	# -- rendering players game --
-	def render(self):
+	def render(self, bg_color):
 		if self.is_render_required or self.state is STATE.DROP_PIECE:
-			bg_color, font_color = self.get_colors()
 			pygame.display.get_surface().fill(bg_color)
 			self.render_board()
 			self.render_pieces()
@@ -106,11 +105,6 @@ class Player:
 				self.pieces.get(board_square.FEN_val).sprite.surface,
 				CHESS.get_piece_render_pos(board_square, board_offset, self.pieces)
 				)
-
-	def get_colors(self) -> tuple[str, str]:
-		bg_color = 'white' if self.side == CHESS.SIDE.WHITE else 'black'
-		font_color = 'black' if self.side == CHESS.SIDE.WHITE else 'white'
-		return bg_color, font_color
 
 	def show_available_moves(self) -> None:
 		picked = CHESS.get_picked_up(self.board)

@@ -39,6 +39,10 @@ def update_window_caption(*players : PLAYER.Player) -> None:
 			pygame.display.set_caption(f"{player.side.name}s TURN")
 			return
 
+def get_colors(player : PLAYER.Player) -> tuple[str, str]:
+	bg_color = 'white' if player.side == CHESS.SIDE.WHITE else 'black'
+	font_color = 'black' if player.side == CHESS.SIDE.WHITE else 'white'
+	return bg_color, font_color
 
 # placing boards in the middle of the screen
 screen_center = window_size / 2
@@ -50,10 +54,10 @@ is_white = True
 
 while not done:
 	
-	# fps = round(clock.get_fps())
+	fps = round(clock.get_fps())
 
 	player = white_player if is_white else black_player
-
+	bg_color, font_color = get_colors(player)
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: done = True
 		if event.type == pygame.KEYDOWN: 
@@ -66,9 +70,9 @@ while not done:
 	match.process_local_move()
 	PLAYER.exec_player_command( white_player, black_player, match.fen )
 
-	player.render()
+	player.render(bg_color)
 
-	# DB.debug(fps, font_color)
+	DB.debug(fps, bg_color, font_color)
 	pygame.display.flip()
 	clock.tick()
 

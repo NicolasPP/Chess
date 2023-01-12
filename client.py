@@ -101,16 +101,16 @@ def run_main_loop(server_ip : str) -> None:
 	player.update_pieces_location(match_fen)
 	while not done:
 		
-		# fps = round(clock.get_fps())
+		fps = round(clock.get_fps())
 	
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT: done = True
 			player.parse_input(event, match_fen, network = network)
 	
 		update_window_caption(player)
-		player.render()
+		player.render(bg_color)
 	
-		# DB.debug(fps, font_color)
+		DB.debug(fps, bg_color, font_color)
 		pygame.display.flip()
 		clock.tick()
 	
