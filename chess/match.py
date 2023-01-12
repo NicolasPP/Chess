@@ -18,11 +18,14 @@ class Match:
 	def process_local_move(self) -> None:
 		command = CMD.read_from(CMD.MATCH)
 		if command is None: return
-		if self.process_move(command.info): CMD.send_to(CMD.PLAYER, CMD.get_next_turn())
-		CMD.send_to(CMD.PLAYER, CMD.get_update_pieces_pos())
+		if self.process_move(command.info): 
+			CMD.send_to(CMD.PLAYER, CMD.get_next_turn())
+			CMD.send_to(CMD.PLAYER, CMD.get_update_pieces_pos())
+		else:
+			CMD.send_to(CMD.PLAYER, CMD.get_invalid_move())
 
 	def process_move(self, command_info : str) -> bool:
-		fc, dc, cmd_dest = command_info.split(C_SPLIT)
+		fc, dc, cmd_dest = command_info.split(I_SPLIT)
 		if is_command_dest_valid(cmd_dest, self.is_white_turn()):
 			if GAME.is_move_valid(self.fen[fc],self.fen[dc],FENN.expand_fen(self.fen),self.is_white_turn()):
 				self.fen = FENN.make_move(command_info, self.fen)

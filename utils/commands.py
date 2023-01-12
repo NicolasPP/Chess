@@ -18,7 +18,7 @@ PLAYER : queue.Queue[Command]= queue.Queue()
 
 
 # -- Read and Write to Q -- 
-def send_to( dest : queue.Queue, command : Command ) -> None: 
+def send_to(dest : queue.Queue, command : Command) -> None: 
 	dest.put( command )
 
 def read_from(command_q : queue.Queue) -> Command | None:
@@ -30,14 +30,17 @@ def read_from(command_q : queue.Queue) -> Command | None:
 
 
 # -- Command Getters --
-def get_move( from_coords : str, dest_coords : str, cmd_source : str ) -> Command:
-	return Command(from_coords + C_SPLIT + dest_coords + C_SPLIT + cmd_source)
+def get_move(from_coords : str, dest_coords : str, cmd_source : str) -> Command:
+	return Command(from_coords + I_SPLIT + dest_coords + I_SPLIT + cmd_source)
 
 def get_update_pieces_pos() -> Command:
-	return Command( PLAYER_COMMANDS.UPDATE_POS )
+	return Command(PLAYER_COMMANDS.UPDATE_POS)
 
 def get_next_turn() -> Command:
-	return Command( PLAYER_COMMANDS.NEXT_TURN )
+	return Command(PLAYER_COMMANDS.NEXT_TURN)
+
+def get_invalid_move() -> Command:
+	return Command(PLAYER_COMMANDS.INVALID_MOVE)
 # ---------------------
 
 
