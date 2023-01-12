@@ -20,11 +20,12 @@ class FEN:
 
 
 class PLAYER_COMMANDS:
-	UPDATE_POS 	: str = 'update_pos'
-	NEXT_TURN 	: str = 'next_turn'
+	UPDATE_POS 		: str = 'update_pos'
+	NEXT_TURN 		: str = 'next_turn'
+	INVALID_MOVE 	: str = 'invalid_move'
 
 END_MARKER : str = '#'
 NO_INFO : str = '<>'
-C_SPLIT : str = '-'
-INFO_SPLIT : str = '%'
+I_SPLIT : str = '-'
+C_SPLIT : str = '%'
 DATA_SIZE : int = 4096
