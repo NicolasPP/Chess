@@ -29,15 +29,15 @@ class STATE(enum.Enum):
 
 class Player:
 	def __init__(self,
-		side : CHESS.SIDE,
-		piece_set : ASSETS.PIECE_SET,
+		side 		: CHESS.SIDE,
+		piece_set 	: ASSETS.PIECE_SET,
 		board_asset : ASSETS.BOARDS,
-		scale : float):
-		self.side = side
-		self.board = CHESS.get_board(board_asset.value, side, scale)
-		self.pieces = CHESS.get_peices(piece_set.value, scale)
-		self.turn = side is CHESS.SIDE.WHITE
-		self.state = STATE.PICK_PIECE
+		scale 		: float):
+		self.side 		: CHESS.SIDE 		= side
+		self.board 		: CHESS.Board 		= CHESS.get_board(board_asset.value, side, scale)
+		self.pieces  	: dict[str,  Piece] = CHESS.get_peices(piece_set.value, scale)
+		self.turn 		: bool 				= side is CHESS.SIDE.WHITE
+		self.state 		: STATE 			= STATE.PICK_PIECE
 
 
 	# -- reading playing input --
