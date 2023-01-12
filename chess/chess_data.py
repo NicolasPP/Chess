@@ -83,7 +83,6 @@ def get_picked_up(board : Board) -> Board_Square:
 
 def reset_board_grid(board : Board) -> None:
 	for board_square in board.grid:
-		# board_square.FEN_val = FEN.BLANK_PIECE
 		board_square.picked_up_moves = NO_SURFACE
 
 def get_collided_board_square(board : Board) -> Board_Square | None:
@@ -129,8 +128,7 @@ def get_picked_up_piece_render_pos(board_square : Board_Square, board_offset : p
 	piece_pos = get_unpicked_piece_render_pos(board_square, board_offset, piece_surface)
 	piece_rect = piece_surface.get_rect(topleft = board_square.rect.topleft)
 	piece_rect.midbottom = pygame.mouse.get_pos()
-	piece_pos = piece_rect.x, piece_rect.y
-	return piece_pos
+	return piece_rect.x, piece_rect.y
 # ------------------- 
 
 
