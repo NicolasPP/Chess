@@ -59,7 +59,7 @@ def pack_fen( unpacked_fen : list[str] ) -> Fen:
 	return fen
 
 def make_move( cmd_info : str, fen : Fen ) -> Fen:
-	from_c, dest_c, player = cmd_info.split(C_SPLIT)
+	from_c, dest_c, player = cmd_info.split(I_SPLIT)
 	expanded_fen = expand_fen(fen)
 	expanded_fen[fen[dest_c]] = expanded_fen[fen[from_c]]
 	expanded_fen[fen[from_c]] = FEN.BLANK_PIECE
