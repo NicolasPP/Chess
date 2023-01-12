@@ -35,7 +35,6 @@ class SIDE(enum.Enum):
 class Board_Square:
 	rect 				: pygame.rect.Rect
 	AN_coordinates	 	: str 
-	piece_surface 		: None | pygame.surface.Surface = NO_SURFACE
 	FEN_val 			: str = FEN.BLANK_PIECE
 	picked_up			: bool = False
 	picked_up_moves		: list[int] | None = NO_SURFACE
@@ -84,8 +83,7 @@ def get_picked_up(board : Board) -> Board_Square:
 
 def reset_board_grid(board : Board) -> None:
 	for board_square in board.grid:
-		board_square.FEN_val = FEN.BLANK_PIECE
-		board_square.piece_surface = NO_SURFACE
+		# board_square.FEN_val = FEN.BLANK_PIECE
 		board_square.picked_up_moves = NO_SURFACE
 
 def get_collided_board_square(board : Board) -> Board_Square | None:
@@ -115,21 +113,21 @@ def get_available_moves_surface( picked : Board_Square, board : Board
 		available_surface.set_alpha(AVAILABLE_ALPHA)
 		yield available_surface, board_offset + pos
 
-def get_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2) -> tuple[float, float]:
-	assert board_square.piece_surface is not NO_SURFACE
-	if board_square.picked_up: return get_picked_up_piece_render_pos(board_square, board_offset)
-	return get_unpicked_piece_render_pos(board_square, board_offset)
+def get_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2, pieces : dict[str, Piece]) -> tuple[float, float]:
+	piece_surface = pieces.get(board_square.FEN_val).sprite.surface
+	if board_square.picked_up: return get_picked_up_piece_render_pos(board_square, board_offset, piece_surface)
+	return get_unpicked_piece_render_pos(board_square, board_offset, piece_surface)
 
-def get_unpicked_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2) -> tuple[float, float]:
-	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
+def get_unpicked_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2, piece_surface : pygame.surface.Surface) -> tuple[float, float]:
+	piece_rect = piece_surface.get_rect(topleft = board_square.rect.topleft)
 	piece_rect.bottom = board_square.rect.bottom
 	pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
 	piece_pos = pos.x, pos.y
 	return piece_pos
 
-def get_picked_up_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2) -> tuple[float, float]:
-	piece_pos = get_unpicked_piece_render_pos(board_square, board_offset)
-	piece_rect = board_square.piece_surface.get_rect(topleft = board_square.rect.topleft)
+def get_picked_up_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2, piece_surface : pygame.surface.Surface) -> tuple[float, float]:
+	piece_pos = get_unpicked_piece_render_pos(board_square, board_offset, piece_surface)
+	piece_rect = piece_surface.get_rect(topleft = board_square.rect.topleft)
 	piece_rect.midbottom = pygame.mouse.get_pos()
 	piece_pos = piece_rect.x, piece_rect.y
 	return piece_pos
