@@ -152,7 +152,7 @@ class Player:
 
 	def set_require_render(self, is_render_required : bool): self.is_render_required = is_render_required
 
-# -- Local Logic --
+# -- Parsing Commands --
 def parse_command(command : str, info : str, match_fen : FENN.Fen, *players : tuple[Player], local : bool = False, ) -> None:
 	match CMD.COMMANDS(command):
 		case CMD.COMMANDS.UPDATE_POS:
