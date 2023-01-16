@@ -34,7 +34,7 @@ def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fe
 				command, info = command_info.split(I_SPLIT)
 				logging.debug("recieved %s from server", command)
 				logging.debug("command info : \n%s", info)
-				player.parse_command(command, info, match_fen)
+				PLAYER.parse_command(command, info, match_fen, player)
 				
 		logging.debug("server disconnected")
 

@@ -150,23 +150,22 @@ class Player:
 
 	def swap_turn(self) -> None: self.turn = not self.turn
 
-# -- Local Logic --
-def parse_command_local(white_player : Player, black_player : Player, match_fen: FENN.Fen) -> None:
+	def set_require_render(self, is_render_required : bool): self.is_render_required = is_render_required
 
-	command = CMD.read_from(CMD.PLAYER)
-	if command is None: return
-	
-	match CMD.COMMANDS(command.info):
+# -- Local Logic --
+def parse_command(command : str, info : str, match_fen : FENN.Fen, *players : tuple[Player], local : bool = False, ) -> None:
+	match CMD.COMMANDS(command):
 		case CMD.COMMANDS.UPDATE_POS:
-			white_player.update_pieces_location(match_fen)
-			black_player.update_pieces_location(match_fen)
-		case CMD.COMMANDS.NEXT_TURN:
-			white_player.swap_turn()
-			black_player.swap_turn()
-			assert not (white_player.turn and black_player.turn)
-		case CMD.COMMANDS.INVALID_MOVE:
-			white_player.is_render_required = True
-			black_player.is_render_required = True
+			if not local: match_fen.notation = info
+			list(map(lambda player : player.update_pieces_location(match_fen), players))
+		case CMD.COMMANDS.NEXT_TURN: list(map(lambda player : player.swap_turn(), players))
+		case CMD.COMMANDS.INVALID_MOVE: list(map(lambda player : player.set_require_render(True), players))
 		case _: assert False, f" {command.name} : Command not recognised"
+
+def parse_command_local(match_fen : FENN.Fen, *players) -> None:
+		command = CMD.read_from(CMD.PLAYER)
+		if command is None: return
+		parse_command(command.info, ' ', match_fen, True, *players)
+
 # -----------------
 
