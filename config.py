@@ -17,13 +17,6 @@ class FEN:
 	GAME_START_FEN : str = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
 
 
-
-
-class PLAYER_COMMANDS:
-	UPDATE_POS 		: str = 'update_pos'
-	NEXT_TURN 		: str = 'next_turn'
-	INVALID_MOVE 	: str = 'invalid_move'
-
 END_MARKER : str = '#'
 NO_INFO : str = '<>'
 I_SPLIT : str = '-'
