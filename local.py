@@ -68,7 +68,7 @@ while not done:
 
 	update_window_caption(white_player, black_player)
 	match.process_local_move()
-	PLAYER.exec_player_command( white_player, black_player, match.fen )
+	PLAYER.parse_command_local( white_player, black_player, match.fen )
 
 	player.render(bg_color)
 
