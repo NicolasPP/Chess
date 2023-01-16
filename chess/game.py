@@ -15,18 +15,18 @@ inside the Piece_Info(Enum) object passed.
 The function will return all possible moves for that Piece 
 '''
 def set_info_for(piece : CHESS.PIECES, FEN_val : str):
-	def set_valid_move(get_moves : typing.Callable):
-		piece.set_moves(get_moves)
-		piece.set_fen( FEN_val )
-		return get_moves
+	def set_valid_move(get_valid_moves : typing.Callable):
+		piece.set_moves(get_valid_moves)
+		piece.set_fen(FEN_val)
+		return get_valid_moves
 	return set_valid_move
 
 @set_info_for(CHESS.PIECES.PAWN, 'P') 
 def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
-	up = get_fen_offset_index( is_white_turn, from_index, 1, 0 )	#up
-	up_right = get_fen_offset_index( is_white_turn, from_index, 1, 1 )	#up right
-	up_left = get_fen_offset_index( is_white_turn, from_index, 1, -1 )	#up left
+	up = get_fen_offset_index(is_white_turn, from_index, 1, 0)	#up
+	up_right = get_fen_offset_index(is_white_turn, from_index, 1, 1)	#up right
+	up_left = get_fen_offset_index(is_white_turn, from_index, 1, -1)	#up left
 
 	if up is not None and exp_fen[up] == FEN.BLANK_PIECE: moves.append(up)
 	for move in [up_right, up_left]:
@@ -52,7 +52,7 @@ def KNIGHT_available_moves(from_index : int, exp_fen : list[str], is_white_turn 
 		(1,   2)		#left_up 	
 	]	 	
 
-	moves += move_fixed_amount( moves_offset, from_index, exp_fen, is_white_turn ) 	
+	moves += move_fixed_amount(moves_offset, from_index, exp_fen, is_white_turn) 	
 
 	return moves
 
@@ -103,7 +103,7 @@ def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 		(0,   1),		#left 	
 	]
 
-	moves += move_fixed_amount( moves_offset, from_index, exp_fen, is_white_turn ) 	
+	moves += move_fixed_amount(moves_offset, from_index, exp_fen, is_white_turn) 	
 
 	return moves
 # -----------------------
@@ -112,7 +112,7 @@ def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 
 
 # -- Piece Move Helpers --
-def get_fen_offset_index( is_white_turn : bool, from_index : int, row_offset : int, col_offset : int ) -> int | None:
+def get_fen_offset_index(is_white_turn : bool, from_index : int, row_offset : int, col_offset : int) -> int | None:
 	row, col = get_fen_row_col( from_index )
 	if is_white_turn:
 		row_offset = row_offset * -1
@@ -126,12 +126,12 @@ def get_fen_offset_index( is_white_turn : bool, from_index : int, row_offset : i
 	index = get_fen_index( new_row, new_col )
 	return index
 
-def get_fen_row_col( index: int ) -> tuple[int,int]:
+def get_fen_row_col(index: int) -> tuple[int,int]:
 	row = index // BOARD_SIZE
 	col = index - (row * BOARD_SIZE)
 	return row, col
 
-def get_fen_index( row : int , col : int ) -> int:
+def get_fen_index(row : int , col : int) -> int:
 	return (row * BOARD_SIZE) + col
 
 def get_diagonal_offsets(
@@ -144,16 +144,16 @@ def get_diagonal_offsets(
 
 def get_flat_offsets(
 	)-> tuple[list[tuple[int,int]], list[tuple[int,int]], list[tuple[int,int]], list[tuple[int,int]]]:
-	left = [ (0, index) for index in range(BOARD_SIZE) ]
-	right = [ (0, -index) for index in range(BOARD_SIZE) ]
-	up = [ (index, 0) for index in range(BOARD_SIZE) ]
-	down = [ (-index, 0) for index in range(BOARD_SIZE) ]
+	left = [(0, index) for index in range(BOARD_SIZE)]
+	right = [(0, -index) for index in range(BOARD_SIZE)]
+	up = [(index, 0) for index in range(BOARD_SIZE)]
+	down = [(-index, 0) for index in range(BOARD_SIZE)]
 	return up, down, right, left
 
-def move_until_friendly( moves_offset : list[tuple[int,int]], from_index :int, exp_fen : list[str] , is_white_turn : bool ) -> list[int]:
+def move_until_friendly(moves_offset : list[tuple[int,int]], from_index :int, exp_fen : list[str] , is_white_turn : bool) -> list[int]:
 	moves = []
 	for offset in moves_offset:
-		move = get_fen_offset_index( is_white_turn, from_index, *offset)
+		move = get_fen_offset_index(is_white_turn, from_index, *offset)
 		if move is None: continue
 		if move == from_index: continue
 		if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
@@ -165,10 +165,10 @@ def move_until_friendly( moves_offset : list[tuple[int,int]], from_index :int, e
 			break
 	return moves
 
-def move_fixed_amount( moves_offset : list[tuple[int,int]], from_index :int, exp_fen : list[str] , is_white_turn : bool ) -> list[int]:
+def move_fixed_amount(moves_offset : list[tuple[int,int]], from_index :int, exp_fen : list[str] , is_white_turn : bool) -> list[int]:
 	moves = []
 	for offset in moves_offset:
-		move = get_fen_offset_index( is_white_turn, from_index, *offset)
+		move = get_fen_offset_index(is_white_turn, from_index, *offset)
 		if move is None: continue
 		if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
 		elif is_white_turn:
@@ -190,11 +190,11 @@ def is_move_valid(from_index : int, dest_index: int, exp_fen : list[str], is_whi
 	# -- helpers --
 def is_from_valid(from_piece : str, is_white_turn : bool) -> bool:
 	if is_from_blank( from_piece ): return False
-	if not is_from_correct_side( from_piece, is_white_turn ): return False
+	if not is_from_correct_side(from_piece, is_white_turn): return False
 	return True 
 def is_side_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bool:
 	if is_same( from_index, dest_index): return False
-	if is_same_team( exp_fen[from_index], exp_fen[dest_index]): return False
+	if is_same_team(exp_fen[from_index], exp_fen[dest_index]): return False
 	return True 
 def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str], is_white_turn : bool) -> bool:
 	piece = CHESS.get_name_from_fen(exp_fen[from_index])
@@ -203,13 +203,13 @@ def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str], is_wh
 	return True 
 
 
-def is_from_correct_side( from_piece, is_white : bool) -> bool:
+def is_from_correct_side(from_piece, is_white : bool) -> bool:
 	if is_white: return from_piece.isupper()
 	return from_piece.islower() 
 def is_same(from_index : int, dest_index: int) -> bool:
 	return from_index == dest_index
-def is_from_blank( from_piece : str) -> bool: return from_piece == FEN.BLANK_PIECE
-def is_same_team( from_piece : str, dest_piece: str) -> bool:
+def is_from_blank(from_piece : str) -> bool: return from_piece == FEN.BLANK_PIECE
+def is_same_team(from_piece : str, dest_piece: str) -> bool:
 	if dest_piece == FEN.BLANK_PIECE: return False
 	return from_piece.islower() == dest_piece.islower()
 # -------------------------------
