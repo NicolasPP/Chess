@@ -30,10 +30,11 @@ def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fe
 			if not data_b: break
 			prev_data_tail = ''
 			data, prev_data_tail = correct_data(data_b.decode('utf-8'), prev_data_tail)
+			logging.debug("server sent commands :")
 			for command_info in data[:-1].split(C_SPLIT):
 				command, info = command_info.split(I_SPLIT)
-				logging.debug("recieved %s from server", command)
-				logging.debug("command info : \n%s", info)
+				logging.debug(" - %s ", command)
+				logging.debug(" - - %s", info)
 				PLAYER.parse_command(command, info, match_fen, player)
 				
 		logging.debug("server disconnected")

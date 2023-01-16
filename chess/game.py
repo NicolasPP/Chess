@@ -29,7 +29,7 @@ def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 	up_right = get_fen_offset_index(is_white_turn, from_index, 1, 1)	#up right
 	up_left = get_fen_offset_index(is_white_turn, from_index, 1, -1)	#up left
 
-	if up is not None and exp_fen[up] == FEN.FEN_CHARS.BLANK_PIECE: moves.append(up)
+	if up is not None and exp_fen[up] == FEN.FEN_CHARS.BLANK_PIECE.value: moves.append(up)
 	for move in [up_right, up_left]:
 		if move is None: continue
 		elif is_white_turn:
