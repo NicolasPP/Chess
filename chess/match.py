@@ -13,16 +13,16 @@ class Match:
 		self.moves		 		: list[str] = []
 		self.commands 			: list[str] = []
 		self.update_pos			: bool = False
-		CMD.send_to(CMD.PLAYER, CMD.get_update_pieces_pos())
+		CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
 
 	def process_local_move(self) -> None:
 		command = CMD.read_from(CMD.MATCH)
 		if command is None: return
 		if self.process_move(command.info): 
-			CMD.send_to(CMD.PLAYER, CMD.get_next_turn())
-			CMD.send_to(CMD.PLAYER, CMD.get_update_pieces_pos())
+			CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.NEXT_TURN))
+			CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
 		else:
-			CMD.send_to(CMD.PLAYER, CMD.get_invalid_move())
+			CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.INVALID_MOVE))
 
 	def process_move(self, command_info : str) -> bool:
 		fc, dc, cmd_dest = command_info.split(I_SPLIT)

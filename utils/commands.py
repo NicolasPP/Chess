@@ -1,8 +1,13 @@
-import queue, dataclasses
+import queue, dataclasses, enum
 
 from config import *
 
 
+class COMMANDS(enum.Enum):
+	UPDATE_POS 		: str = 'update_pos'
+	NEXT_TURN 		: str = 'next_turn'
+	MOVE 			: str = 'move'
+	INVALID_MOVE 	: str = 'invalid_move'
 
 
 # -- Data --
@@ -30,17 +35,30 @@ def read_from(command_q : queue.Queue) -> Command | None:
 
 
 # -- Command Getters --
-def get_move(from_coords : str, dest_coords : str, cmd_source : str) -> Command:
-	return Command(from_coords + I_SPLIT + dest_coords + I_SPLIT + cmd_source)
+def get(command : COMMANDS, from_coords : str = '', dest_coords : str = '', player_side : str = '') -> Command:
+	match command:
+		case COMMANDS.UPDATE_POS: return get_update_pieces_pos()
+		case COMMANDS.NEXT_TURN: return get_next_turn()
+		case COMMANDS.INVALID_MOVE: return get_invalid_move()
+		case COMMANDS.MOVE:
+			assert from_coords != '', 'invalid cooordinates for picked piece'
+			assert dest_coords != '', 'invalid cooordinates for destination piece'
+			assert player_side != '', 'invalid player side'
+			return get_move(from_coords, dest_coords, player_side)
+		case _: assert False, f" {command.name} : Command not recognised"
+
+
+def get_move(from_coords : str, dest_coords : str, player_side : str) -> Command:
+	return Command(from_coords + I_SPLIT + dest_coords + I_SPLIT + player_side)
 
 def get_update_pieces_pos() -> Command:
-	return Command(PLAYER_COMMANDS.UPDATE_POS)
+	return Command(COMMANDS.UPDATE_POS.value)
 
 def get_next_turn() -> Command:
-	return Command(PLAYER_COMMANDS.NEXT_TURN)
+	return Command(COMMANDS.NEXT_TURN.value)
 
 def get_invalid_move() -> Command:
-	return Command(PLAYER_COMMANDS.INVALID_MOVE)
+	return Command(COMMANDS.INVALID_MOVE.value)
 # ---------------------
 
 
