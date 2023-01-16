@@ -42,13 +42,13 @@ class Player:
 
 	# -- parsing commands sent by server --
 	def parse_command(self, command : str, info : str, match_fen : FENN.Fen) -> None:
-		if command == PLAYER_COMMANDS.UPDATE_POS:
-			match_fen.notation = info
-			self.update_pieces_location(match_fen)
-		elif command == PLAYER_COMMANDS.NEXT_TURN:
-			self.swap_turn()
-		elif command == PLAYER_COMMANDS.INVALID_MOVE:
-			self.is_render_required = True
+		match CMD.COMMANDS(command):
+			case CMD.COMMANDS.UPDATE_POS:
+				match_fen.notation = info
+				self.update_pieces_location(match_fen)
+			case CMD.COMMANDS.NEXT_TURN: self.swap_turn()
+			case CMD.COMMANDS.INVALID_MOVE: self.is_render_required = True
+			case _: assert False, f" {command.name} : Command not recognised"
 	# -------------------------------------
 
 	# -- reading playing input --
@@ -69,10 +69,10 @@ class Player:
 		board_square = CHESS.get_collided_board_square(self.board)
 		from_coords = CHESS.get_picked_up(self.board).AN_coordinates
 		
-		move = CMD.get_move(from_coords, from_coords, self.side.name)
+		move = CMD.get(CMD.COMMANDS.MOVE, from_coords, from_coords, self.side.name)
 		if board_square:
 			dest_coords = board_square.AN_coordinates
-			move = CMD.get_move(from_coords, dest_coords, self.side.name)
+			move = CMD.get(CMD.COMMANDS.MOVE, from_coords, dest_coords, self.side.name)
 		
 		if local: CMD.send_to(CMD.MATCH, move)
 		else: network.socket.send(str.encode(move.info))
@@ -151,20 +151,22 @@ class Player:
 	def swap_turn(self) -> None: self.turn = not self.turn
 
 # -- Local Logic --
-def exec_player_command(white_player : Player, black_player : Player, fen: FENN.Fen) -> None:
+def parse_command_local(white_player : Player, black_player : Player, match_fen: FENN.Fen) -> None:
+
 	command = CMD.read_from(CMD.PLAYER)
 	if command is None: return
-	if command.info == PLAYER_COMMANDS.UPDATE_POS:
-		white_player.update_pieces_location(fen)
-		black_player.update_pieces_location(fen)
-
-	elif command.info == PLAYER_COMMANDS.NEXT_TURN:
-		white_player.swap_turn()
-		black_player.swap_turn()
-		assert not (white_player.turn and black_player.turn)
-
-	elif command.info == PLAYER_COMMANDS.INVALID_MOVE:
-		white_player.is_render_required = True
-		black_player.is_render_required = True
+	
+	match CMD.COMMANDS(command.info):
+		case CMD.COMMANDS.UPDATE_POS:
+			white_player.update_pieces_location(match_fen)
+			black_player.update_pieces_location(match_fen)
+		case CMD.COMMANDS.NEXT_TURN:
+			white_player.swap_turn()
+			black_player.swap_turn()
+			assert not (white_player.turn and black_player.turn)
+		case CMD.COMMANDS.INVALID_MOVE:
+			white_player.is_render_required = True
+			black_player.is_render_required = True
+		case _: assert False, f" {command.name} : Command not recognised"
 # -----------------
 
