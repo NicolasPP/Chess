@@ -30,22 +30,13 @@ def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fe
 			if not data_b: break
 			prev_data_tail = ''
 			data, prev_data_tail = correct_data(data_b.decode('utf-8'), prev_data_tail)
-			for command_info in data[:-1].split(C_SPLIT): parse_command(command_info)
+			for command_info in data[:-1].split(C_SPLIT):
+				command, info = command_info.split(I_SPLIT)
+				logging.debug("recieved %s from server", command)
+				logging.debug("command info : \n%s", info)
+				player.parse_command(command, info, match_fen)
 				
 		logging.debug("server disconnected")
-
-def parse_command(command_info : str) -> None:
-	command, info = command_info.split(I_SPLIT)
-	logging.debug("recieved %s from server", command)
-	logging.debug("command info : \n%s", info)
-	if command == PLAYER_COMMANDS.UPDATE_POS:
-		match_fen.notation = info
-		player.update_pieces_location(match_fen)
-	elif command == PLAYER_COMMANDS.NEXT_TURN:
-		player.swap_turn()
-	elif command == PLAYER_COMMANDS.INVALID_MOVE:
-		player.is_render_required = True
-
 
 def correct_data(received_data : str, prev_data_tail : str) -> tuple[str,str]:
 	last_char = received_data[-1]

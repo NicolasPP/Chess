@@ -40,6 +40,16 @@ class Player:
 		self.state 				: STATE 			= STATE.PICK_PIECE
 		self.is_render_required : bool 				= True
 
+	# -- parsing commands sent by server --
+	def parse_command(self, command : str, info : str, match_fen : FENN.Fen) -> None:
+		if command == PLAYER_COMMANDS.UPDATE_POS:
+			match_fen.notation = info
+			self.update_pieces_location(match_fen)
+		elif command == PLAYER_COMMANDS.NEXT_TURN:
+			self.swap_turn()
+		elif command == PLAYER_COMMANDS.INVALID_MOVE:
+			self.is_render_required = True
+	# -------------------------------------
 
 	# -- reading playing input --
 	def parse_input(
