@@ -1,24 +1,24 @@
-GRID_OFFSET : int = 7
-BOARD_SIZE : int = 8
-NO_SURFACE : None = None
-PIECE_BG : tuple[int, int, int] = 0,0,0
-EMPTY_Q : None  = None
-AVAILABLE_MOVE_COLOR : str = 'green'
+# -- Alpha --
 AVAILABLE_ALPHA : int = 70
-BOARD_SCALE : float = 3.5
+
+# -- Size --
 WINDOW_SIZE : tuple[int,int] = 570, 570
+BOARD_SCALE : float = 3.5
+BOARD_SIZE : int = 8
+DATA_SIZE : int = 4096
 
+# -- Colors --
+AVAILABLE_MOVE_COLOR : str = 'green'
+PIECE_BG : tuple[int, int, int] = 0,0,0
 
+# -- Default vals --
+GAME_START_FEN : str = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+GRID_OFFSET : int = 7
+NO_SURFACE : None = None
+EMPTY_Q : None  = None
 
-class FEN:
-	BLANK_PIECE : str = "@"
-	SPLIT 		: str = '/'
-	BLANK 		: str = ''
-	GAME_START_FEN : str = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
-
-
+# -- Data operations --
 END_MARKER : str = '#'
 NO_INFO : str = '<>'
 I_SPLIT : str = '-'
 C_SPLIT : str = '%'
-DATA_SIZE : int = 4096
