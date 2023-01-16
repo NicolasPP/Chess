@@ -1,9 +1,13 @@
 import pygame, dataclasses, enum, typing, string
 
 from utils import asset as ASSETS
-from utils import FEN_notation as FENN
+from utils import FEN_notation as FEN
 
-from config import *
+from config import NO_SURFACE, \
+					GRID_OFFSET, \
+					BOARD_SIZE, \
+					AVAILABLE_MOVE_COLOR, \
+					AVAILABLE_ALPHA
 
 
 
@@ -35,7 +39,7 @@ class SIDE(enum.Enum):
 class Board_Square:
 	rect 				: pygame.rect.Rect
 	AN_coordinates	 	: str 
-	FEN_val 			: str = FEN.BLANK_PIECE
+	FEN_val 			: str = FEN.FEN_CHARS.BLANK_PIECE
 	picked_up			: bool = False
 	picked_up_moves		: list[int] | None = NO_SURFACE
 
@@ -56,10 +60,10 @@ class Piece:
 
 
 # -- Class Helpers -- 
-def set_picked_up(board_square : Board_Square, board : Board, fen : FENN.Fen, p_side : SIDE) -> None:
-	if board_square.FEN_val == FEN.BLANK_PIECE: return 
+def set_picked_up(board_square : Board_Square, board : Board, fen : FEN.Fen, p_side : SIDE) -> None:
+	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE: return 
 	reset_picked_up(board)
-	exp_fen = FENN.expand_fen(fen)
+	exp_fen = FEN.expand_fen(fen)
 	is_white_turn = True if p_side is SIDE.WHITE else False
 	name = get_name_from_fen(board_square.FEN_val)
 	moves = PIECES[name].available_moves(fen[board_square.AN_coordinates], exp_fen, is_white_turn)

@@ -1,4 +1,4 @@
-from utils import FEN_notation as FENN
+from utils import FEN_notation as FEN
 from utils import commands as CMD
 from chess import chess_data as CHESS
 from chess import game as GAME
@@ -9,7 +9,7 @@ from config import *
 # -- Classes --
 class Match:
 	def __init__(self):
-		self.fen				: FENN.Fen = FENN.Fen()
+		self.fen				: FEN.Fen = FEN.Fen()
 		self.moves		 		: list[str] = []
 		self.commands 			: list[str] = []
 		self.update_pos			: bool = False
@@ -27,8 +27,8 @@ class Match:
 	def process_move(self, command_info : str) -> bool:
 		fc, dc, cmd_dest = command_info.split(I_SPLIT)
 		if is_command_dest_valid(cmd_dest, self.is_white_turn()):
-			if GAME.is_move_valid(self.fen[fc],self.fen[dc],FENN.expand_fen(self.fen),self.is_white_turn()):
-				self.fen = FENN.make_move(command_info, self.fen)
+			if GAME.is_move_valid(self.fen[fc],self.fen[dc],FEN.expand_fen(self.fen),self.is_white_turn()):
+				self.fen = FEN.make_move(command_info, self.fen)
 				self.moves.append(command_info)
 				return True
 		return False

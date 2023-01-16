@@ -1,6 +1,7 @@
 import typing
 
 from chess import chess_data as CHESS
+from utils import FEN_notation as FEN
 
 from config import *
 
@@ -28,7 +29,7 @@ def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 	up_right = get_fen_offset_index(is_white_turn, from_index, 1, 1)	#up right
 	up_left = get_fen_offset_index(is_white_turn, from_index, 1, -1)	#up left
 
-	if up is not None and exp_fen[up] == FEN.BLANK_PIECE: moves.append(up)
+	if up is not None and exp_fen[up] == FEN.FEN_CHARS.BLANK_PIECE: moves.append(up)
 	for move in [up_right, up_left]:
 		if move is None: continue
 		elif is_white_turn:
@@ -156,7 +157,7 @@ def move_until_friendly(moves_offset : list[tuple[int,int]], from_index :int, ex
 		move = get_fen_offset_index(is_white_turn, from_index, *offset)
 		if move is None: continue
 		if move == from_index: continue
-		if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
+		if exp_fen[move] == FEN.FEN_CHARS.BLANK_PIECE.value: moves.append(move)
 		elif is_white_turn:
 			if exp_fen[move].islower(): moves.append(move)
 			break
@@ -170,7 +171,7 @@ def move_fixed_amount(moves_offset : list[tuple[int,int]], from_index :int, exp_
 	for offset in moves_offset:
 		move = get_fen_offset_index(is_white_turn, from_index, *offset)
 		if move is None: continue
-		if exp_fen[move] == FEN.BLANK_PIECE: moves.append(move)
+		if exp_fen[move] == FEN.FEN_CHARS.BLANK_PIECE.value: moves.append(move)
 		elif is_white_turn:
 			if exp_fen[move].islower(): moves.append(move)
 		else:
@@ -208,9 +209,9 @@ def is_from_correct_side(from_piece, is_white : bool) -> bool:
 	return from_piece.islower() 
 def is_same(from_index : int, dest_index: int) -> bool:
 	return from_index == dest_index
-def is_from_blank(from_piece : str) -> bool: return from_piece == FEN.BLANK_PIECE
+def is_from_blank(from_piece : str) -> bool: return from_piece == FEN.FEN_CHARS.BLANK_PIECE.value
 def is_same_team(from_piece : str, dest_piece: str) -> bool:
-	if dest_piece == FEN.BLANK_PIECE: return False
+	if dest_piece == FEN.FEN_CHARS.BLANK_PIECE.value: return False
 	return from_piece.islower() == dest_piece.islower()
 # -------------------------------
 

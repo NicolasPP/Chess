@@ -7,7 +7,7 @@ from chess import game as GAME
 from chess import player as PLAYER
 from chess import chess_data as CHESS
 from utils import asset as ASSETS
-from utils import FEN_notation as FENN
+from utils import FEN_notation as FEN
 from utils import network as NET
 from utils import debug as DB
 
@@ -22,7 +22,7 @@ logging.basicConfig(
 )
 
 
-def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fen : FENN.Fen) -> None:
+def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fen : FEN.Fen) -> None:
 	with server_socket:
 		prev_data_tail = ''
 		while True:
@@ -85,7 +85,7 @@ def run_main_loop(server_ip : str) -> None:
 	done = False
 	clock = pygame.time.Clock()
 	network = NET.Network(server_ip)
-	match_fen = FENN.Fen()
+	match_fen = FEN.Fen()
 
 	player = get_player(network)
 	center_board(player, window_size)
