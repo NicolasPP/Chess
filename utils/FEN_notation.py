@@ -4,9 +4,9 @@ from config import *
 
 
 class FEN_CHARS(enum.Enum):
-	BLANK_PIECE : str = "@"
-	SPLIT 		: str = '/'
-	BLANK 		: str = ''
+	BLANK_PIECE 	: str = "@"
+	SPLIT 			: str = '/'
+	BLANK_FEN		: str = ''
 
 
 
@@ -28,48 +28,48 @@ class Fen:
 
 
 # -- Fen Helpers -- 
-def iterate_FEN( fen : Fen ) -> typing.Generator[str, None, None]:
+def iterate_FEN(fen : Fen) -> typing.Generator[str, None, None]:
 	for fen_row in fen.notation.split(FEN_CHARS.SPLIT.value):
 		for piece_fen in fen_row: yield piece_fen 
 
-def set_blank_fen( fen : Fen, blank_count : int = 0) -> tuple[Fen, int]:
+def set_blank_fen(fen : Fen, blank_count : int = 0) -> tuple[Fen, int]:
 	if blank_count > 0:
 		fen.notation += str(blank_count)
 		blank_count = 0
 	return fen, blank_count
 
-def expand_fen( fen : Fen, expanded_fen : str = FEN_CHARS.BLANK.value ) -> list[str]:
-	for piece_fen in iterate_FEN( fen ):
-		if piece_fen.isnumeric(): expanded_fen += (int( piece_fen ) * FEN_CHARS.BLANK_PIECE.value)
+def expand_fen(fen : Fen, expanded_fen : str = FEN_CHARS.BLANK_FEN.value) -> list[str]:
+	for piece_fen in iterate_FEN(fen):
+		if piece_fen.isnumeric(): expanded_fen += (int(piece_fen) * FEN_CHARS.BLANK_PIECE.value)
 		elif piece_fen == FEN_CHARS.SPLIT.value: continue
 		else: expanded_fen += piece_fen
 	
 	return list(expanded_fen)
 
-def pack_fen( unpacked_fen : list[str] ) -> Fen:
-	fen, blank_count = set_blank_fen(Fen(FEN_CHARS.BLANK.value))
+def pack_fen(unpacked_fen : list[str]) -> Fen:
+	fen, blank_count = set_blank_fen(Fen(FEN_CHARS.BLANK_FEN.value))
 	for index in range(len( unpacked_fen )):
 
 		if index % BOARD_SIZE == 0 and index > 0:
-			fen, blank_count = set_blank_fen( fen, blank_count) 
+			fen, blank_count = set_blank_fen(fen, blank_count) 
 			fen.notation += FEN_CHARS.SPLIT.value
 
 		if unpacked_fen[index] == FEN_CHARS.BLANK_PIECE.value: blank_count += 1
 		else:
-			fen, blank_count = set_blank_fen( fen, blank_count) 
+			fen, blank_count = set_blank_fen(fen, blank_count) 
 			fen.notation += unpacked_fen[index]
 
 		
-		fen, blank_count = set_blank_fen( fen, blank_count) 
+		fen, blank_count = set_blank_fen(fen, blank_count) 
 	return fen
 
-def make_move( cmd_info : str, fen : Fen ) -> Fen:
+def make_move(cmd_info : str, fen : Fen) -> Fen:
 	from_c, dest_c, player = cmd_info.split(I_SPLIT)
 	expanded_fen = expand_fen(fen)
 	expanded_fen[fen[dest_c]] = expanded_fen[fen[from_c]]
 	expanded_fen[fen[from_c]] = FEN_CHARS.BLANK_PIECE.value
-	assert len( expanded_fen ) == BOARD_SIZE * BOARD_SIZE
-	return pack_fen( expanded_fen )
+	assert len(expanded_fen) == BOARD_SIZE * BOARD_SIZE
+	return pack_fen(expanded_fen)
 # -----------------
 
 
