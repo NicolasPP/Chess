@@ -94,6 +94,7 @@ def run_main_loop(server_ip : str) -> None:
 
 	thread.start_new_thread(server_listener, (player, network.socket, match_fen))
 	player.update_pieces_location(match_fen)
+	CHESS.set_board_available_moves(player.board, match_fen, player.side)
 	while not done:
 		
 		fps = round(clock.get_fps())

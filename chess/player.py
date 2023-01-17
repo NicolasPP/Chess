@@ -86,9 +86,9 @@ class Player:
 		board_square = CHESS.get_collided_board_square(self.board)
 		if not board_square: return None
 		if self.state is not STATE.PICK_PIECE: return
-		if board_square.FEN_val is FEN.FEN_CHARS.BLANK_PIECE: return 
+		if board_square.FEN_val is FEN.FEN_CHARS.BLANK_PIECE.value: return 
 		
-		CHESS.set_picked_up(board_square, self.board, fen, self.side)
+		CHESS.set_picked_up(board_square, self.board)
 		self.progress_state()
 	# ---------------------------
 
@@ -109,7 +109,7 @@ class Player:
 	def render_pieces(self) -> None:
 		grid = self.board.grid if self.side is CHESS.SIDE.WHITE else self.board.grid[::-1]
 		for board_square in grid:
-			if board_square.FEN_val is FEN.FEN_CHARS.BLANK_PIECE: continue
+			if board_square.FEN_val is FEN.FEN_CHARS.BLANK_PIECE.value: continue
 			board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
 			pygame.display.get_surface().blit(
 				self.pieces.get(board_square.FEN_val).sprite.surface,
@@ -128,9 +128,10 @@ class Player:
 			pygame.display.get_surface().blit(surface, pos)
 	
 	def update_pieces_location(self, fen : FEN.Fen) -> None:
-		CHESS.reset_board_grid(self.board)
 		for piece_fen, board_square in self.fen_to_piece_board_square(fen):
+			old_fen_val = board_square.FEN_val
 			board_square.FEN_val = piece_fen
+			CHESS.update_available_moves(board_square, fen, self.side)
 		self.is_render_required = True
 
 	def fen_to_piece_board_square(self, fen : FEN.Fen)\
@@ -139,8 +140,8 @@ class Player:
 
 		for piece_fen in FEN.iterate_FEN(fen):
 			if piece_fen.isnumeric():
-				count += int( piece_fen ) -1
-				yield FEN.FEN_CHARS.BLANK_PIECE, self.board.grid[count]
+				count += int(piece_fen) -1
+				yield FEN.FEN_CHARS.BLANK_PIECE.value, self.board.grid[count]
 			else: yield piece_fen, self.board.grid[count]
 			count += 1
 	# ----------------------------

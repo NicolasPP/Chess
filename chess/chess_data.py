@@ -39,9 +39,9 @@ class SIDE(enum.Enum):
 class Board_Square:
 	rect 				: pygame.rect.Rect
 	AN_coordinates	 	: str 
-	FEN_val 			: str = FEN.FEN_CHARS.BLANK_PIECE
+	available_moves 	: list[int]
+	FEN_val 			: str = FEN.FEN_CHARS.BLANK_PIECE.value
 	picked_up			: bool = False
-	picked_up_moves		: list[int] | None = NO_SURFACE
 
 @dataclasses.dataclass
 class Board:
@@ -59,21 +59,32 @@ class Piece:
 
 
 
-# -- Class Helpers -- 
-def set_picked_up(board_square : Board_Square, board : Board, fen : FEN.Fen, p_side : SIDE) -> None:
-	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE: return 
-	reset_picked_up(board)
-	exp_fen = FEN.expand_fen(fen)
-	is_white_turn = True if p_side is SIDE.WHITE else False
+# -- Class Helpers --
+def update_available_moves(board_square : Board_Square, match_fen : FEN.Fen, player_side : SIDE) -> None:
+	is_black_and_lower = player_side is SIDE.BLACK and board_square.FEN_val.islower()
+	is_white_and_upper = player_side is SIDE.WHITE and board_square.FEN_val.isupper()
+	correct_side = True if is_black_and_lower or is_white_and_upper else False
+	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE.value or not correct_side:
+		board_square.available_moves = []
+		return None
 	name = get_name_from_fen(board_square.FEN_val)
-	moves = PIECES[name].available_moves(fen[board_square.AN_coordinates], exp_fen, is_white_turn)
-	board_square.picked_up_moves = moves
+	board_square.available_moves = PIECES[name].available_moves(
+		match_fen[board_square.AN_coordinates],
+		FEN.expand_fen(match_fen),
+		player_side is SIDE.WHITE
+		)
+
+def set_board_available_moves(board : Board, match_fen : FEN.Fen, player_side : SIDE) ->None:
+	for board_square in board.grid: update_available_moves(board_square, match_fen, player_side)
+
+
+def set_picked_up(board_square : Board_Square, board : Board) -> None:
+	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE.value: return 
+	reset_picked_up(board)
 	board_square.picked_up = True
 
 def reset_picked_up(board : Board) -> None:
-	for sqr in board.grid: 
-		sqr.picked_up = False
-		sqr.picked_up_moves = NO_SURFACE
+	for sqr in board.grid: sqr.picked_up = False
 
 def is_picked_up(board : Board) -> bool:
 	for sqr in board.grid:
@@ -84,10 +95,6 @@ def get_picked_up(board : Board) -> Board_Square:
 	for sqr in board.grid:
 		if sqr.picked_up: return sqr
 	raise Exception( ' no peices picked up ' )
-
-def reset_board_grid(board : Board) -> None:
-	for board_square in board.grid:
-		board_square.picked_up_moves = NO_SURFACE
 
 def get_collided_board_square(board : Board) -> Board_Square | None:
 	board_offset = pygame.math.Vector2(board.pos_rect.topleft)
@@ -106,9 +113,8 @@ def get_name_from_fen(FEN_val : str) -> str:
 
 def get_available_moves_surface( picked : Board_Square, board : Board
 	) -> typing.Generator[tuple[pygame.surface.Surface, pygame.math.Vector2], None, None]:
-	assert picked.picked_up_moves is not None
 	board_offset = pygame.math.Vector2(board.pos_rect.topleft)
-	for index in picked.picked_up_moves:
+	for index in picked.available_moves:
 		board_square = board.grid[index]
 		pos = pygame.math.Vector2(board_square.rect.topleft)
 		available_surface = pygame.surface.Surface(board_square.rect.size)
@@ -175,7 +181,7 @@ def get_peices(piece_set : ASSETS.Piece_Set, scale : float) -> dict[str,  Piece]
 
 	return pieces
 
-def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side :  SIDE) -> list[ Board_Square]:
+def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side :  SIDE) -> list[Board_Square]:
 	grid = []
 	size = get_grid_surface_size(board_sprite) / BOARD_SIZE
 	board_offset = pygame.math.Vector2(pos_rect.topleft)
@@ -183,7 +189,7 @@ def create_grid(board_sprite : ASSETS.Sprite, pos_rect : pygame.rect.Rect, side 
 	for row, col, AN_cordinates in board_square_info(side):
 		pos = pygame.math.Vector2(col * size.x, row * size.y)
 		rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
-		grid.append(Board_Square(rect, AN_cordinates))
+		grid.append(Board_Square(rect, AN_cordinates, []))
 	if side is  SIDE.BLACK: grid = grid[::-1]
 	return grid
 # --------------------------
