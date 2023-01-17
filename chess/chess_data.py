@@ -61,7 +61,10 @@ class Piece:
 
 # -- Class Helpers --
 def update_available_moves(board_square : Board_Square, match_fen : FEN.Fen, player_side : SIDE) -> None:
-	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE.value:
+	is_black_and_lower = player_side is SIDE.BLACK and board_square.FEN_val.islower()
+	is_white_and_upper = player_side is SIDE.WHITE and board_square.FEN_val.isupper()
+	correct_side = True if is_black_and_lower or is_white_and_upper else False
+	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE.value or not correct_side:
 		board_square.available_moves = []
 		return None
 	name = get_name_from_fen(board_square.FEN_val)
