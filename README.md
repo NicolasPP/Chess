@@ -21,9 +21,3 @@ the default ip adress of the server is 127.0.0.1 for both the client and the ser
 	'--ip' option to specify the ip adress for the server
 - python client.py -> start the client\
 	'--server_ip' option to specify the ip adress the client will connect to
-
-
-
-# Limitations:
-- if more that 2 players connect, the third player will share the board with one of the other players
-- in order for the game to be properly synced up, the first client to connect must wait for the other client to join in order to make the first move. if you dont wait the move suggestion highlighting will NOT work
