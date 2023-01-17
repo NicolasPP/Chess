@@ -97,7 +97,7 @@ def client_listener(client_socket: SKT.socket, server : Server):
 		logging.info("client : %s  disconnected", p_id)
 
 @click.command()
-@click.option('--ip', default = '127.0.0.1')
+@click.option('--ip', default = '127.0.0.1', help = 'set ip adress of server, default = 127.0.0.1')
 def start_server(ip : str) -> None: 
 	Server(ip).run()
 

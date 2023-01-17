@@ -114,7 +114,7 @@ def run_main_loop(server_ip : str) -> None:
 	sys.exit()
 
 @click.command()
-@click.option('--server_ip', default = '127.0.0.1')
+@click.option('--server_ip', default = '127.0.0.1', help = 'set the server ip adress default = 127.0.0.1')
 def start_client(server_ip : str) -> None:
 	run_main_loop(server_ip)
 
