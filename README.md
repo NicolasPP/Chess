@@ -1,23 +1,30 @@
 # Chess
 Chess in pygame
 
-
-# Resources
-- sprites : https://dani-maccari.itch.io/pixel-chess
-
 # Features
-- Local : play on one computer, where two players take turns making the moves.
+- Local : 
+	- play on one computer, where two players take turns making the moves.
+	- press "SPACE" to change the player perspective
 - Network : play over the network
 		  
 # Instructions
 
 Local :
-- python local.py -> start local game
-
+- start local game
+```
+- python local.py
+```
 Network :
-To play over the network you must start the server before the clients can join.
-the default ip adress of the server is 127.0.0.1 for both the client and the server script
-- python server.py -> start the server\
-	'--ip' option to specify the ip adress for the server
-- python client.py -> start the client\
-	'--server_ip' option to specify the ip adress the client will connect to
+- start the server
+```
+python server.py  	// default ip address = 127.0.0.1
+python server.py --ip	// specified ip adress
+```
+- start the client
+```
+python client.py		// default ip address = 127.0.0.1
+python client.py --server_ip	// specified server ip address
+```
+
+# Resources
+- sprites : https://dani-maccari.itch.io/pixel-chess
