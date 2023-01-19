@@ -127,13 +127,15 @@ def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 
 
 # -- Piece Move Helpers --
-def get_available_moves(piece_name : str, *func_args) -> list[int]:
-	available_moves = CHESS.PIECES[piece_name].available_moves(*func_args)
-	return available_moves
-
+def get_available_moves(piece_name : str, from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
+	available_moves = CHESS.PIECES[piece_name].available_moves(from_index, exp_fen, is_white_turn)
+	safe_moves = []
+	for move in available_moves:
+		if is_king_safe(from_index, move, FEN.pack_fen(exp_fen), is_white_turn): safe_moves.append(move)
+	return safe_moves
 
 def get_fen_offset_index(is_white_turn : bool, from_index : int, row_offset : int, col_offset : int) -> int | None:
-	row, col = get_fen_row_col( from_index )
+	row, col = get_fen_row_col(from_index)
 	if is_white_turn:
 		row_offset = row_offset * -1
 		col_offset = col_offset * -1
@@ -143,7 +145,7 @@ def get_fen_offset_index(is_white_turn : bool, from_index : int, row_offset : in
 		new_row > BOARD_SIZE -1: return None
 	if new_col < 0 or \
 		new_col > BOARD_SIZE -1: return None
-	index = get_fen_index( new_row, new_col )
+	index = get_fen_index(new_row, new_col)
 	return index
 
 def get_fen_row_col(index: int) -> tuple[int,int]:
@@ -206,10 +208,29 @@ def is_move_valid(from_index : int, dest_index: int, fen : FEN.Fen, is_white_tur
 	if not is_from_valid(exp_fen[from_index], is_white_turn): return False
 	if not is_side_valid(from_index, dest_index, exp_fen): return False
 	if not is_dest_valid(from_index, dest_index, exp_fen, is_white_turn): return False
-	if not is_king_safe(from_index, dest_index, fen, is_white_turn): return False
 	return True
 
 	# -- helpers --
+def is_checkmate(exp_fen : list[int], is_white_turn, from_index : int, dest_index: int) -> bool:
+	new_exp_fen = exp_fen
+	new_exp_fen[dest_index] = new_exp_fen[from_index]
+	new_exp_fen[from_index] = FEN.FEN_CHARS.BLANK_PIECE.value
+	opponents_moves = get_opponent_available_moves(new_exp_fen, is_white_turn, use_getter = True)
+	return len(opponents_moves) == 0
+
+def get_opponent_available_moves(exp_fen : list[int], is_white_turn : bool, use_getter : bool = False) -> list[int]:
+	moves = []
+	is_same_side = lambda is_white_turn, fen_char : is_white_turn and fen_char.isupper() if is_white_turn else (not is_white_turn) and fen_char.islower()
+	for index, fen_char in enumerate(exp_fen):
+		if fen_char == FEN.FEN_CHARS.BLANK_PIECE.value: continue
+		if is_same_side(is_white_turn, fen_char): continue
+		piece_name = CHESS.get_name_from_fen(fen_char)
+		if use_getter:
+			moves += get_available_moves(piece_name, index, exp_fen, not is_white_turn)
+		else:
+			moves += CHESS.PIECES[piece_name].available_moves(index, exp_fen, not is_white_turn)
+	return moves
+
 def is_from_valid(from_piece : str, is_white_turn : bool) -> bool:
 	if from_piece == FEN.FEN_CHARS.BLANK_PIECE.value: return False
 	if not is_from_correct_side(from_piece, is_white_turn): return False
@@ -225,22 +246,15 @@ def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str], is_wh
 	return True
 def is_king_safe(from_index : int, dest_index : int, fen : FEN.Fen, is_white_turn : bool) -> bool:
 	new_exp_fen = FEN.expand_fen(fen)
+	king_fen = 'K' if is_white_turn else 'k'
+	
 	# creating a copy of game state and making the move
 	new_exp_fen[dest_index] = new_exp_fen[from_index]
 	new_exp_fen[from_index] = FEN.FEN_CHARS.BLANK_PIECE.value
 
+	opponents_moves = get_opponent_available_moves(new_exp_fen, is_white_turn)
 
-	is_same_side = lambda is_white_turn, fen_char : is_white_turn and fen_char.isupper() if is_white_turn else (not is_white_turn) and fen_char.islower()
-	moves = []
-	for index, fen_char in enumerate(new_exp_fen):
-		if fen_char == FEN.FEN_CHARS.BLANK_PIECE.value: continue
-		if is_same_side(is_white_turn, fen_char): continue
-		piece_name = CHESS.get_name_from_fen(fen_char)
-		moves += get_available_moves(piece_name, index, new_exp_fen, not is_white_turn)
-
-	king_fen = 'K' if is_white_turn else 'k'
-
-	for move in moves:
+	for move in opponents_moves:
 		if new_exp_fen[move] == king_fen: return False
 
 	return True
