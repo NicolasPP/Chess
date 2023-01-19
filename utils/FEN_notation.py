@@ -12,7 +12,7 @@ class FEN_CHARS(enum.Enum):
 
 @dataclasses.dataclass
 class Fen: 	
-	notation : str = CHECK_MATE_CHECK
+	notation : str = GAME_START_FEN
 	def __getitem__(self, AN_C : str) -> int:
 		'''
 		returns the index of the expanded fen
