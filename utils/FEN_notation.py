@@ -11,14 +11,13 @@ class FEN_CHARS(enum.Enum):
 
 
 @dataclasses.dataclass
-class Fen:
-	notation : str = GAME_START_FEN
-
+class Fen: 	
+	notation : str = CHECK_MATE_CHECK
 	def __getitem__(self, AN_C : str) -> int:
 		'''
 		returns the index of the expanded fen
 		which corresponds with the passed AN_C (algebraic notation coordinates)
-		'''
+		'''	
 		col_num = int(AN_C[0])
 		row_str = AN_C[1]
 		ascii_str = string.ascii_lowercase
