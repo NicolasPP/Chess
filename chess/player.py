@@ -184,8 +184,3 @@ def update_available_moves(board_square : CHESS.Board_Square, match_fen : FEN.Fe
 		FEN.expand_fen(match_fen),
 		player_side is CHESS.SIDE.WHITE
 		)
-
-def set_board_available_moves(board : CHESS.Board, match_fen : FEN.Fen, player_side : CHESS.SIDE) ->None:
-	for board_square in board.grid: update_available_moves(board_square, match_fen, player_side)
-
-
