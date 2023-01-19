@@ -5,7 +5,7 @@ from utils import commands as CMD
 from utils import FEN_notation as FEN
 from utils import network as NET
 from chess import chess_data as CHESS
-
+from chess import game as GAME
 from config import AVAILABLE_MOVE_COLOR
 
 
@@ -131,7 +131,7 @@ class Player:
 		for piece_fen, board_square in self.fen_to_piece_board_square(fen):
 			old_fen_val = board_square.FEN_val
 			board_square.FEN_val = piece_fen
-			CHESS.update_available_moves(board_square, fen, self.side)
+			update_available_moves(board_square, fen, self.side)
 		self.is_render_required = True
 
 	def fen_to_piece_board_square(self, fen : FEN.Fen)\
@@ -169,4 +169,23 @@ def parse_command_local(match_fen : FEN.Fen, *players) -> None:
 		if command is None: return
 		parse_command(command.info, ' ', match_fen, *players, local = True)
 # -----------------
+
+# --
+def update_available_moves(board_square : CHESS.Board_Square, match_fen : FEN.Fen, player_side : CHESS.SIDE) -> None:
+	is_black_and_lower = player_side is CHESS.SIDE.BLACK and board_square.FEN_val.islower()
+	is_white_and_upper = player_side is CHESS.SIDE.WHITE and board_square.FEN_val.isupper()
+	correct_side = True if is_black_and_lower or is_white_and_upper else False
+	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE.value or not correct_side:
+		board_square.available_moves = []
+		return None
+	name = CHESS.get_name_from_fen(board_square.FEN_val)
+	board_square.available_moves = GAME.get_available_moves(name,
+		match_fen[board_square.AN_coordinates],
+		FEN.expand_fen(match_fen),
+		player_side is CHESS.SIDE.WHITE
+		)
+
+def set_board_available_moves(board : CHESS.Board, match_fen : FEN.Fen, player_side : CHESS.SIDE) ->None:
+	for board_square in board.grid: update_available_moves(board_square, match_fen, player_side)
+
 

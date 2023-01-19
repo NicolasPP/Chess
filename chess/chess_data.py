@@ -21,9 +21,9 @@ class PIECES(enum.Enum):
 	QUEEN 	: int =  4
 	KING 	: int =  5
 
-	def set_moves( self, func : typing.Callable) -> None: 
+	def set_moves(self, func : typing.Callable) -> None: 
 		self.available_moves : typing.Callable = func
-	def set_fen( self, FEN_val : str) -> None: 
+	def set_fen(self, FEN_val : str) -> None: 
 		self.FEN_val : str = FEN_val
 
 class SIDE(enum.Enum):
@@ -60,24 +60,6 @@ class Piece:
 
 
 # -- Class Helpers --
-def update_available_moves(board_square : Board_Square, match_fen : FEN.Fen, player_side : SIDE) -> None:
-	is_black_and_lower = player_side is SIDE.BLACK and board_square.FEN_val.islower()
-	is_white_and_upper = player_side is SIDE.WHITE and board_square.FEN_val.isupper()
-	correct_side = True if is_black_and_lower or is_white_and_upper else False
-	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE.value or not correct_side:
-		board_square.available_moves = []
-		return None
-	name = get_name_from_fen(board_square.FEN_val)
-	board_square.available_moves = PIECES[name].available_moves(
-		match_fen[board_square.AN_coordinates],
-		FEN.expand_fen(match_fen),
-		player_side is SIDE.WHITE
-		)
-
-def set_board_available_moves(board : Board, match_fen : FEN.Fen, player_side : SIDE) ->None:
-	for board_square in board.grid: update_available_moves(board_square, match_fen, player_side)
-
-
 def set_picked_up(board_square : Board_Square, board : Board) -> None:
 	if board_square.FEN_val == FEN.FEN_CHARS.BLANK_PIECE.value: return 
 	reset_picked_up(board)
@@ -111,7 +93,7 @@ def get_name_from_fen(FEN_val : str) -> str:
 		if piece.FEN_val == FEN_val.upper(): return piece.name
 	raise Exception(f'FEN_val : {FEN_val} not found')
 
-def get_available_moves_surface( picked : Board_Square, board : Board
+def get_available_moves_surface(picked : Board_Square, board : Board
 	) -> typing.Generator[tuple[pygame.surface.Surface, pygame.math.Vector2], None, None]:
 	board_offset = pygame.math.Vector2(board.pos_rect.topleft)
 	for index in picked.available_moves:
