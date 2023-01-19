@@ -117,8 +117,8 @@ class Player:
 				)
 
 	def show_available_moves(self) -> None:
-		picked = CHESS.get_picked_up(self.board)
 		if not self.turn: return
+		picked = CHESS.get_picked_up(self.board)
 		if self.side is CHESS.SIDE.WHITE:
 			if picked.FEN_val.islower(): return
 		if self.side is CHESS.SIDE.BLACK:
