@@ -27,7 +27,7 @@ class Match:
 	def process_move(self, command_info : str) -> bool:
 		fc, dc, cmd_dest = command_info.split(I_SPLIT)
 		if is_command_dest_valid(cmd_dest, self.is_white_turn()):
-			if GAME.is_move_valid(self.fen[fc],self.fen[dc],FEN.expand_fen(self.fen),self.is_white_turn()):
+			if GAME.is_move_valid(self.fen[fc],self.fen[dc], self.fen, self.is_white_turn()):
 				self.fen = FEN.make_move(fc, dc, self.fen)
 				self.moves.append(command_info)
 				return True

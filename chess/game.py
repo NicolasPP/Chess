@@ -182,37 +182,57 @@ def move_fixed_amount(moves_offset : list[tuple[int,int]], from_index :int, exp_
 
 
 # -- Checking if Move is Valid --
-def is_move_valid(from_index : int, dest_index: int, exp_fen : list[str], is_white_turn : bool) -> bool:
+def is_move_valid(from_index : int, dest_index: int, fen : FEN.Fen, is_white_turn : bool) -> bool:
+	exp_fen = FEN.expand_fen(fen)
 	if not is_from_valid(exp_fen[from_index], is_white_turn): return False
 	if not is_side_valid(from_index, dest_index, exp_fen): return False
 	if not is_dest_valid(from_index, dest_index, exp_fen, is_white_turn): return False
+	if not is_king_safe(from_index, dest_index, fen, is_white_turn): return False
 	return True
 
 	# -- helpers --
 def is_from_valid(from_piece : str, is_white_turn : bool) -> bool:
-	if is_from_blank( from_piece ): return False
+	if from_piece == FEN.FEN_CHARS.BLANK_PIECE.value: return False
 	if not is_from_correct_side(from_piece, is_white_turn): return False
 	return True 
 def is_side_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bool:
-	if is_same( from_index, dest_index): return False
+	if is_same(from_index, dest_index): return False
 	if is_same_team(exp_fen[from_index], exp_fen[dest_index]): return False
 	return True 
 def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str], is_white_turn : bool) -> bool:
 	piece = CHESS.get_name_from_fen(exp_fen[from_index])
 	available_moves = CHESS.PIECES[piece].available_moves(from_index, exp_fen, is_white_turn)
 	if dest_index not in available_moves: return False
-	return True 
+	return True
+def is_king_safe(from_index : int, dest_index : int, fen : FEN.Fen, is_white_turn : bool) -> bool:
+	new_exp_fen = FEN.expand_fen(fen)
+	# creating a copy of game state and making the move
+	new_exp_fen[dest_index] = new_exp_fen[from_index]
+	new_exp_fen[from_index] = FEN.FEN_CHARS.BLANK_PIECE.value
 
 
+	is_same_side = lambda is_white_turn, fen_char : is_white_turn and fen_char.isupper() if is_white_turn else (not is_white_turn) and fen_char.islower()
+	moves = []
+	for index, fen_char in enumerate(new_exp_fen):
+		if fen_char == FEN.FEN_CHARS.BLANK_PIECE.value: continue
+		if is_same_side(is_white_turn, fen_char): continue
+		piece = CHESS.get_name_from_fen(fen_char)
+		moves += CHESS.PIECES[piece].available_moves(index, new_exp_fen, not is_white_turn)
+
+	king_fen = 'K' if is_white_turn else 'k'
+
+	for move in moves:
+		if new_exp_fen[move] == king_fen: return False
+
+	return True
 def is_from_correct_side(from_piece, is_white : bool) -> bool:
 	if is_white: return from_piece.isupper()
 	return from_piece.islower() 
 def is_same(from_index : int, dest_index: int) -> bool:
 	return from_index == dest_index
-def is_from_blank(from_piece : str) -> bool: return from_piece == FEN.FEN_CHARS.BLANK_PIECE.value
-def is_same_team(from_piece : str, dest_piece: str) -> bool:
-	if dest_piece == FEN.FEN_CHARS.BLANK_PIECE.value: return False
-	return from_piece.islower() == dest_piece.islower()
+def is_same_team(piece1 : str, piece2: str) -> bool:
+	if piece2 == FEN.FEN_CHARS.BLANK_PIECE.value: return False
+	return piece1.islower() == piece2.islower()
 # -------------------------------
 
 
