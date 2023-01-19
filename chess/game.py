@@ -6,7 +6,21 @@ from utils import FEN_notation as FEN
 from config import *
 
 
+'''
+class BOARD_STATE(enum.Enum):
+	CHECK
+	CHECKMATE
+	NORMAL
 
+
+- check if move is valid:
+	match get_board_state(fen):
+		case BOARD_STATE.CHECK:
+
+	- get possible moves according to how piece moves
+	- filter moves that leave king vunerable
+	- if the king is checked, 
+'''
 
 # -- Defining Movement --
 '''
@@ -113,6 +127,11 @@ def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 
 
 # -- Piece Move Helpers --
+def get_available_moves(piece_name : str, *func_args) -> list[int]:
+	available_moves = CHESS.PIECES[piece_name].available_moves(*func_args)
+	return available_moves
+
+
 def get_fen_offset_index(is_white_turn : bool, from_index : int, row_offset : int, col_offset : int) -> int | None:
 	row, col = get_fen_row_col( from_index )
 	if is_white_turn:
@@ -200,8 +219,8 @@ def is_side_valid(from_index : int, dest_index : int, exp_fen : list[str]) -> bo
 	if is_same_team(exp_fen[from_index], exp_fen[dest_index]): return False
 	return True 
 def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str], is_white_turn : bool) -> bool:
-	piece = CHESS.get_name_from_fen(exp_fen[from_index])
-	available_moves = CHESS.PIECES[piece].available_moves(from_index, exp_fen, is_white_turn)
+	piece_name = CHESS.get_name_from_fen(exp_fen[from_index])
+	available_moves = get_available_moves(piece_name, from_index, exp_fen, is_white_turn)
 	if dest_index not in available_moves: return False
 	return True
 def is_king_safe(from_index : int, dest_index : int, fen : FEN.Fen, is_white_turn : bool) -> bool:
@@ -216,8 +235,8 @@ def is_king_safe(from_index : int, dest_index : int, fen : FEN.Fen, is_white_tur
 	for index, fen_char in enumerate(new_exp_fen):
 		if fen_char == FEN.FEN_CHARS.BLANK_PIECE.value: continue
 		if is_same_side(is_white_turn, fen_char): continue
-		piece = CHESS.get_name_from_fen(fen_char)
-		moves += CHESS.PIECES[piece].available_moves(index, new_exp_fen, not is_white_turn)
+		piece_name = CHESS.get_name_from_fen(fen_char)
+		moves += get_available_moves(piece_name, index, new_exp_fen, not is_white_turn)
 
 	king_fen = 'K' if is_white_turn else 'k'
 
