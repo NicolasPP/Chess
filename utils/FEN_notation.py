@@ -37,7 +37,8 @@ def set_blank_fen(fen : Fen, blank_count : int = 0) -> tuple[Fen, int]:
 		blank_count = 0
 	return fen, blank_count
 
-def expand_fen(fen : Fen, expanded_fen : str = FEN_CHARS.BLANK_FEN.value) -> list[str]:
+def expand_fen(fen : Fen) -> list[str]:
+	expanded_fen : str = ''
 	for piece_fen in iterate_FEN(fen):
 		if piece_fen.isnumeric(): expanded_fen += (int(piece_fen) * FEN_CHARS.BLANK_PIECE.value)
 		elif piece_fen == FEN_CHARS.SPLIT.value: continue
