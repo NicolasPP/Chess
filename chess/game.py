@@ -247,8 +247,7 @@ def is_dest_valid(from_index : int, dest_index : int, exp_fen : list[str], is_wh
 def is_king_safe(from_index : int, dest_index : int, fen : FEN.Fen, is_white_turn : bool) -> bool:
 	new_exp_fen = FEN.expand_fen(fen)
 	king_fen = 'K' if is_white_turn else 'k'
-	
-	# creating a copy of game state and making the move
+
 	new_exp_fen[dest_index] = new_exp_fen[from_index]
 	new_exp_fen[from_index] = FEN.FEN_CHARS.BLANK_PIECE.value
 
