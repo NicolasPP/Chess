@@ -6,28 +6,13 @@ from utils import FEN_notation as FEN
 from config import *
 
 
-'''
-class BOARD_STATE(enum.Enum):
-	CHECK
-	CHECKMATE
-	NORMAL
-
-
-- check if move is valid:
-	match get_board_state(fen):
-		case BOARD_STATE.CHECK:
-
-	- get possible moves according to how piece moves
-	- filter moves that leave king vunerable
-	- if the king is checked, 
-'''
 
 # -- Defining Movement --
 '''
-this decorator creates a variable " self.available_moves() "
-and "FEN_val"
-inside the Piece_Info(Enum) object passed.
-The function will return all possible moves for that Piece 
+set_info_for()
+will set the individual move set for all the pieces
+anything specific to a pieces move set will live in the function
+which is wrapped by set_info_for()
 '''
 def set_info_for(piece : CHESS.PIECES, FEN_val : str):
 	def set_valid_move(get_valid_moves : typing.Callable):
@@ -39,11 +24,21 @@ def set_info_for(piece : CHESS.PIECES, FEN_val : str):
 @set_info_for(CHESS.PIECES.PAWN, 'P') 
 def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
-	up = get_fen_offset_index(is_white_turn, from_index, 1, 0)	#up
+	up = get_fen_offset_index(is_white_turn, from_index, 1, 0)	#up 
+	double_up = get_fen_offset_index(is_white_turn, from_index, 2, 0) #up up
 	up_right = get_fen_offset_index(is_white_turn, from_index, 1, 1)	#up right
 	up_left = get_fen_offset_index(is_white_turn, from_index, 1, -1)	#up left
 
+	double_moves = list(range(48, 56)) if is_white_turn else list(range(8, 16))
+
+	#pawn moves up twice in the first move
+	if from_index in double_moves:
+		if (double_up is not None) and \
+			(exp_fen[double_up] == FEN.FEN_CHARS.BLANK_PIECE.value) and \
+			(exp_fen[up] == FEN.FEN_CHARS.BLANK_PIECE.value): moves.append(double_up)
+	
 	if up is not None and exp_fen[up] == FEN.FEN_CHARS.BLANK_PIECE.value: moves.append(up)
+	
 	for move in [up_right, up_left]:
 		if move is None: continue
 		elif is_white_turn:
