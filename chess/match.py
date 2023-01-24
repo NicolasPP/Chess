@@ -1,3 +1,4 @@
+import enum
 from utils import FEN_notation as FEN
 from utils import commands as CMD
 from chess import chess_data as CHESS
@@ -5,6 +6,14 @@ from chess import game as GAME
 
 from config import *
 
+
+class MOVE_TYPE(enum.Enum):
+	CHECK = enum.auto()
+	CHECKMATE = enum.auto()
+	CASTLE = enum.auto()
+	EN_PASSANT = enum.auto()
+	REGULAR = enum.auto()
+	INVALID = enum.auto()
 
 # -- Classes --
 class Match:
@@ -18,20 +27,31 @@ class Match:
 	def process_local_move(self) -> None:
 		command = CMD.read_from(CMD.MATCH)
 		if command is None: return
-		if self.process_move(command.info): 
-			CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.NEXT_TURN))
-			CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
-		else:
-			CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.INVALID_MOVE))
+		match(self.process_move(command.info)):
+			case MOVE_TYPE.CHECK: pass
+			case MOVE_TYPE.CHECKMATE:
+				print('checkmate')
+				CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
+			case MOVE_TYPE.CASTLE: pass
+			case MOVE_TYPE.EN_PASSANT: pass
+			case MOVE_TYPE.REGULAR:
+				CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.NEXT_TURN))
+				CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
+			case MOVE_TYPE.INVALID:
+				CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.INVALID_MOVE))
 
-	def process_move(self, command_info : str) -> bool:
+
+	def process_move(self, command_info : str) -> MOVE_TYPE:
 		fc, dc, cmd_dest = command_info.split(I_SPLIT)
+		from_index, dest_index = self.fen[fc], self.fen[dc]
+		is_white_turn = self.is_white_turn()
 		if is_command_dest_valid(cmd_dest, self.is_white_turn()):
-			if GAME.is_move_valid(self.fen[fc],self.fen[dc], self.fen, self.is_white_turn()):
+			if GAME.is_move_valid(from_index, dest_index, self.fen, is_white_turn):
 				self.fen = FEN.make_move(fc, dc, self.fen)
 				self.moves.append(command_info)
-				return True
-		return False
+				if GAME.is_checkmate(self.fen, is_white_turn): return MOVE_TYPE.CHECKMATE
+				return MOVE_TYPE.REGULAR
+		return MOVE_TYPE.INVALID
 
 	def is_white_turn(self) -> bool: return len( self.moves ) % 2 == 0
 # -------------

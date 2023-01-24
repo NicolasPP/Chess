@@ -82,14 +82,31 @@ def client_listener(client_socket: SKT.socket, server : Server):
 			commands = []
 			move_info = data.decode('utf-8')
 			logging.debug("client : %s, sent move %s to server", p_id, move_info)
-			if server.match.process_move(move_info):
-				next_turn_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.NEXT_TURN).info, NO_INFO])
-				update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-				commands.append(next_turn_command)
-				commands.append(update_pos_command)
-			else:
-				invalid_move_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.INVALID_MOVE).info, NO_INFO])
-				commands.append(invalid_move_command)
+			move_type = server.match.process_move(move_info)
+			logging.debug("move type : %s", move_type.name)
+			
+			match(move_type):		
+				case MATCH.MOVE_TYPE.CHECK:
+					assert False, "CHECK Not implemented"
+				case MATCH.MOVE_TYPE.CHECKMATE:
+					print(MATCH.MOVE_TYPE.CHECKMATE)
+					update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
+					commands.append(update_pos_command)
+				case MATCH.MOVE_TYPE.CASTLE:
+					assert False, "CASTLE Not implemented"
+				case MATCH.MOVE_TYPE.EN_PASSANT:
+					assert False, "EN_PASSANT Not implemented"
+				case MATCH.MOVE_TYPE.REGULAR:
+					next_turn_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.NEXT_TURN).info, NO_INFO])
+					update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
+					commands.append(next_turn_command)
+					commands.append(update_pos_command)
+				case MATCH.MOVE_TYPE.INVALID:
+					invalid_move_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.INVALID_MOVE).info, NO_INFO])
+					commands.append(invalid_move_command)
+				case _:
+					assert False, "INVALID MATCH.MOVE_TYPE"
+
 
 			server.match.update_pos = True
 			server.match.commands = commands

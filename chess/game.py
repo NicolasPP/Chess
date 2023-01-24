@@ -207,11 +207,9 @@ def is_move_valid(from_index : int, dest_index: int, fen : FEN.Fen, is_white_tur
 	return True
 
 	# -- helpers --
-def is_checkmate(exp_fen : list[int], is_white_turn, from_index : int, dest_index: int) -> bool:
-	new_exp_fen = exp_fen
-	new_exp_fen[dest_index] = new_exp_fen[from_index]
-	new_exp_fen[from_index] = FEN.FEN_CHARS.BLANK_PIECE.value
-	opponents_moves = get_opponent_available_moves(new_exp_fen, is_white_turn, use_getter = True)
+def is_checkmate(fen : FEN.Fen, is_white_turn : bool) -> bool:
+	exp_fen = FEN.expand_fen(fen)
+	opponents_moves = get_opponent_available_moves(exp_fen, is_white_turn, use_getter = True)
 	return len(opponents_moves) == 0
 
 def get_opponent_available_moves(exp_fen : list[int], is_white_turn : bool, use_getter : bool = False) -> list[int]:
