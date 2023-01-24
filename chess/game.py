@@ -36,8 +36,9 @@ def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 		if (double_up is not None) and \
 			(exp_fen[double_up] == FEN.FEN_CHARS.BLANK_PIECE.value) and \
 			(exp_fen[up] == FEN.FEN_CHARS.BLANK_PIECE.value): moves.append(double_up)
-	
-	if up is not None and exp_fen[up] == FEN.FEN_CHARS.BLANK_PIECE.value: moves.append(up)
+
+	if (up is not None) and \
+		(exp_fen[up] == FEN.FEN_CHARS.BLANK_PIECE.value): moves.append(up)
 	
 	for move in [up_right, up_left]:
 		if move is None: continue
@@ -112,8 +113,8 @@ def KING_available_moves(from_index : int, exp_fen : list[str], is_white_turn : 
 		(-1,  0),		#down 	
 		(0,   1),		#left 	
 	]
-
-	moves += move_fixed_amount(moves_offset, from_index, exp_fen, is_white_turn) 	
+	
+	moves += move_fixed_amount(moves_offset, from_index, exp_fen, is_white_turn)
 
 	return moves
 # -----------------------
