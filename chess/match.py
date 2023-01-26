@@ -28,7 +28,8 @@ class Match:
 		command = CMD.read_from(CMD.MATCH)
 		if command is None: return
 		match(self.process_move(command.info)):
-			case MOVE_TYPE.CHECK: pass
+			case MOVE_TYPE.CHECK:
+				print('check')
 			case MOVE_TYPE.CHECKMATE:
 				print('checkmate')
 				CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
@@ -50,6 +51,7 @@ class Match:
 				self.fen = FEN.make_move(fc, dc, self.fen)
 				self.moves.append(command_info)
 				if GAME.is_checkmate(self.fen, is_white_turn): return MOVE_TYPE.CHECKMATE
+				if GAME.is_check(self.fen, is_white_turn): return MOVE_TYPE.CHECK
 				return MOVE_TYPE.REGULAR
 		return MOVE_TYPE.INVALID
 

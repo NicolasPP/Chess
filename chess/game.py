@@ -207,10 +207,32 @@ def is_move_valid(from_index : int, dest_index: int, fen : FEN.Fen, is_white_tur
 	return True
 
 	# -- helpers --
+def is_check(fen : FEN.Fen, is_white_turn : bool) -> bool:
+	exp_fen = FEN.expand_fen(fen)
+	own_moves = get_own_available_moves(exp_fen, is_white_turn, use_getter = True)
+	king_fen = 'k' if is_white_turn else 'K'
+	for move in own_moves:
+		if exp_fen[move] == king_fen: return True
+	return False
+
 def is_checkmate(fen : FEN.Fen, is_white_turn : bool) -> bool:
 	exp_fen = FEN.expand_fen(fen)
 	opponents_moves = get_opponent_available_moves(exp_fen, is_white_turn, use_getter = True)
 	return len(opponents_moves) == 0
+
+def get_own_available_moves(exp_fen : list[int], is_white_turn : bool, use_getter : bool = False) -> list[int]:
+	moves = []
+	is_same_side = lambda is_white_turn, fen_char : is_white_turn and fen_char.isupper() if is_white_turn else (not is_white_turn) and fen_char.islower()
+	for index, fen_char in enumerate(exp_fen):
+		if fen_char == FEN.FEN_CHARS.BLANK_PIECE.value: continue
+		if not is_same_side(is_white_turn, fen_char): continue
+		piece_name = CHESS.get_name_from_fen(fen_char)
+		if use_getter:
+			moves += get_available_moves(piece_name, index, exp_fen, is_white_turn)
+		else:
+			moves += CHESS.PIECES[piece_name].available_moves(index, exp_fen, is_white_turn)
+	return moves
+
 
 def get_opponent_available_moves(exp_fen : list[int], is_white_turn : bool, use_getter : bool = False) -> list[int]:
 	moves = []
