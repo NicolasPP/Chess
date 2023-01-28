@@ -257,7 +257,7 @@ def is_dest_valid(from_index : int, dest_index : int, fen : FEN.Fen, is_white_tu
 	if dest_index not in available_moves: return False
 	return True
 def is_king_safe(from_index : int, dest_index : int, fen : FEN.Fen, is_white_turn : bool) -> bool:
-	new_fen = FEN.Fen(fen.notation)
+	new_fen = FEN.Fen(fen.get_notation())
 	king_fen = 'K' if is_white_turn else 'k'
 	
 	new_fen.make_move(from_index, dest_index)

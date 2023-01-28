@@ -57,6 +57,8 @@ class Fen:
 			fen, blank_count = set_blank_fen(fen, blank_count) 
 		return fen.notation
 
+	def get_notation(self) -> str: return self.notation
+
 
 # -- Fen Helpers --
 def get_index_from_ANC(algebraic_notation_coordinates : str) -> int:
