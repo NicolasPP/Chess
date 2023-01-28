@@ -51,7 +51,6 @@ class Server(NET.Net):
 			client_socket, addr = self.socket.accept()
 			logging.info("Connected to address : %s", addr)
 
-
 			self.client_sockets.append(client_socket)
 			thread.start_new_thread(client_listener, (client_socket, self,))
 
@@ -85,7 +84,7 @@ def client_listener(client_socket: SKT.socket, server : Server):
 			move_type = server.match.process_move(move_info)
 			logging.debug("move type : %s", move_type.name)
 			
-			match(move_type):		
+			match(move_type):
 				case MATCH.MOVE_TYPE.CHECK:
 					print(MATCH.MOVE_TYPE.CHECK)
 					next_turn_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.NEXT_TURN).info, NO_INFO])
@@ -119,8 +118,8 @@ def client_listener(client_socket: SKT.socket, server : Server):
 
 @click.command()
 @click.option('--ip', default = '127.0.0.1', help = 'set ip adress of server, default = 127.0.0.1')
-def start_server(ip : str) -> None: 
+def start_server(ip : str) -> None:
 	Server(ip).run()
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
 	start_server()
