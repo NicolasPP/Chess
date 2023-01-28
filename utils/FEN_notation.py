@@ -56,10 +56,13 @@ class Fen:
 
 # -- Helpers --
 def get_index_from_ANC(algebraic_notation_coordinates : str) -> int:
-	col_num = int(algebraic_notation_coordinates[0])
+	col_num = algebraic_notation_coordinates[0]
 	row_str = algebraic_notation_coordinates[1]
+	if not col_num.isnumeric(): raise IndexError("col should be number")
+	if row_str.isnumeric(): raise IndexError("row should be letter")
+	if int(col_num) > BOARD_SIZE or row_str > 'h': raise IndexError("invalid index")
 	ascii_str = string.ascii_lowercase
-	return ((BOARD_SIZE - col_num) * BOARD_SIZE) + ascii_str.index(row_str)
+	return ((BOARD_SIZE - int(col_num)) * BOARD_SIZE) + ascii_str.index(row_str)
 
 def set_blank_fen(fen_notation : str, blank_count : int = 0) -> tuple[Fen, int]:
 	if blank_count > 0:
