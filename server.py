@@ -88,12 +88,12 @@ def client_listener(client_socket: SKT.socket, server : Server):
 				case MATCH.MOVE_TYPE.CHECK:
 					print(MATCH.MOVE_TYPE.CHECK)
 					next_turn_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.NEXT_TURN).info, NO_INFO])
-					update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
+					update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.get_packed()])
 					commands.append(next_turn_command)
 					commands.append(update_pos_command)
 				case MATCH.MOVE_TYPE.CHECKMATE:
 					print(MATCH.MOVE_TYPE.CHECKMATE)
-					update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
+					update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.get_packed()])
 					commands.append(update_pos_command)
 				case MATCH.MOVE_TYPE.CASTLE:
 					assert False, "CASTLE Not implemented"
@@ -101,7 +101,7 @@ def client_listener(client_socket: SKT.socket, server : Server):
 					assert False, "EN_PASSANT Not implemented"
 				case MATCH.MOVE_TYPE.REGULAR:
 					next_turn_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.NEXT_TURN).info, NO_INFO])
-					update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
+					update_pos_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.get_packed()])
 					commands.append(next_turn_command)
 					commands.append(update_pos_command)
 				case MATCH.MOVE_TYPE.INVALID:

@@ -29,6 +29,8 @@ class Match:
 		if command is None: return
 		match(self.process_move(command.info)):
 			case MOVE_TYPE.CHECK:
+				CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.NEXT_TURN))
+				CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
 				print('check')
 			case MOVE_TYPE.CHECKMATE:
 				print('checkmate')
@@ -44,11 +46,12 @@ class Match:
 
 	def process_move(self, command_info : str) -> MOVE_TYPE:
 		fc, dc, cmd_dest = command_info.split(I_SPLIT)
-		from_index, dest_index = self.fen[fc], self.fen[dc]
+		from_index = FEN.get_index_from_ANC(fc)
+		dest_index = FEN.get_index_from_ANC(dc)
 		is_white_turn = self.is_white_turn()
 		if is_command_dest_valid(cmd_dest, self.is_white_turn()):
 			if GAME.is_move_valid(from_index, dest_index, self.fen, is_white_turn):
-				self.fen = FEN.make_move(fc, dc, self.fen)
+				self.fen.make_move(from_index, dest_index)
 				self.moves.append(command_info)
 				if GAME.is_checkmate(self.fen, is_white_turn): return MOVE_TYPE.CHECKMATE
 				if GAME.is_check(self.fen, is_white_turn): return MOVE_TYPE.CHECK

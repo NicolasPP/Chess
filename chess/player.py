@@ -40,17 +40,6 @@ class Player:
 		self.state 				: STATE 			= STATE.PICK_PIECE
 		self.is_render_required : bool 				= True
 
-	# -- parsing commands sent by server --
-	def parse_command(self, command : str, info : str, match_fen : FEN.Fen) -> None:
-		match CMD.COMMANDS(command):
-			case CMD.COMMANDS.UPDATE_POS:
-				match_fen.notation = info
-				self.update_pieces_location(match_fen)
-			case CMD.COMMANDS.NEXT_TURN: self.swap_turn()
-			case CMD.COMMANDS.INVALID_MOVE: self.is_render_required = True
-			case _: assert False, f" {command.name} : Command not recognised"
-	# -------------------------------------
-
 	# -- reading playing input --
 	def parse_input(
 		self,
@@ -138,7 +127,7 @@ class Player:
 	-> typing.Generator[tuple[str, CHESS.Board_Square], None, None]:
 		count = 0
 
-		for piece_fen in FEN.iterate_FEN(fen):
+		for piece_fen in fen.iterate():
 			if piece_fen.isnumeric():
 				count += int(piece_fen) -1
 				yield FEN.FEN_CHARS.BLANK_PIECE.value, self.board.grid[count]
@@ -158,7 +147,7 @@ class Player:
 def parse_command(command : str, info : str, match_fen : FEN.Fen, *players : tuple[Player], local : bool = False, ) -> None:
 	match CMD.COMMANDS(command):
 		case CMD.COMMANDS.UPDATE_POS:
-			if not local: match_fen.notation = info
+			if not local: match_fen = FEN.Fen(info)
 			list(map(lambda player : player.update_pieces_location(match_fen), players))
 		case CMD.COMMANDS.NEXT_TURN: list(map(lambda player : player.swap_turn(), players))
 		case CMD.COMMANDS.INVALID_MOVE: list(map(lambda player : player.set_require_render(True), players))
@@ -180,7 +169,7 @@ def update_available_moves(board_square : CHESS.Board_Square, match_fen : FEN.Fe
 		return None
 	name = CHESS.get_name_from_fen(board_square.FEN_val)
 	board_square.available_moves = GAME.get_available_moves(name,
-		match_fen[board_square.AN_coordinates],
-		FEN.expand_fen(match_fen),
+		FEN.get_index_from_ANC(board_square.AN_coordinates),
+		match_fen,
 		player_side is CHESS.SIDE.WHITE
 		)
