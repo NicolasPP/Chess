@@ -36,7 +36,41 @@ def test_fen_getitem(index, expected):
 	assert fen[index] is expected
 
 @pytest.mark.parametrize("index", [64, -1])
-def test_fen_invalid_getitem(index):
+def test_invalid_fen_getitem(index):
 	fen = FEN.Fen()
 	with pytest.raises(IndexError):
 		fen[index]
+
+@pytest.mark.parametrize("ANC,expected", [
+	('8a', 0),
+	('8b', 1),
+	('8c', 2),
+	('8d', 3),
+	('8e', 4),
+	('8f', 5),
+	('8g', 6),
+	('8h', 7),
+	('7a', 8),
+	('7b', 9),
+	('7c', 10),
+	('7d', 11),
+	('2e', 52),
+	('2f', 53),
+	('2g', 54),
+	('2h', 55),
+	('1a', 56),
+	('1b', 57),
+	('1c', 58),
+	('1d', 59),
+	('1e', 60),
+	('1f', 61),
+	('1g', 62),
+	('1h', 63)
+	])
+def test_get_index_from_ANC(ANC, expected):
+	assert FEN.get_index_from_ANC(ANC) is expected
+
+@pytest.mark.parametrize("ANC", ['-8a','b8','88','9d', '8x'])
+def test_invalid_get_index_from_ANC(ANC):
+	with pytest.raises(IndexError):
+		FEN.get_index_from_ANC(ANC)
