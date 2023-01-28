@@ -14,6 +14,7 @@ class Fen:
 		self.expanded  : list[str] = self.get_expanded()
 	
 	def __getitem__(self, index : int) -> str:
+			if index < 0: raise IndexError("no negative index")
 			return self.expanded[index]
 
 	def update_notation(self) -> None: self.notation = self.get_packed()
