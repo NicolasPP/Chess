@@ -21,7 +21,7 @@ def set_info_for(piece : CHESS.PIECES, FEN_val : str):
 		return get_valid_moves
 	return set_valid_move
 
-@set_info_for(CHESS.PIECES.PAWN, 'P') 
+@set_info_for(CHESS.PIECES.PAWN, 'P')
 def PAWN_available_moves(from_index : int, exp_fen : list[str], is_white_turn : bool) -> list[int]:
 	moves = []
 	up = get_fen_offset_index(is_white_turn, from_index, 1, 0)	#up 
