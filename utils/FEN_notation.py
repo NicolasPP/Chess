@@ -6,7 +6,6 @@ from config import *
 class FEN_CHARS(enum.Enum):
 	BLANK_PIECE 	: str = "@"
 	SPLIT 			: str = '/'
-	
 
 class Fen:
 	def __init__(self, default_fen = GAME_START_FEN):
@@ -40,7 +39,7 @@ class Fen:
 			else:
 				fen_notation, blank_count = set_blank_fen(fen_notation, blank_count) 
 				fen_notation += self.expanded[index]
-	
+
 			fen_notation, blank_count = set_blank_fen(fen_notation, blank_count) 
 		return fen_notation
 
@@ -52,7 +51,6 @@ class Fen:
 	def iterate(self) -> typing.Generator[str, None, None]:
 		for fen_row in self.notation.split(FEN_CHARS.SPLIT.value):
 			for piece_fen in fen_row: yield piece_fen
-	
 
 # -- Helpers --
 def get_index_from_ANC(algebraic_notation_coordinates : str) -> int:
