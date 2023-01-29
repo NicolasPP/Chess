@@ -2,13 +2,11 @@ import queue, dataclasses, enum
 
 from config import *
 
-
 class COMMANDS(enum.Enum):
 	UPDATE_POS 		: str = 'update_pos'
 	NEXT_TURN 		: str = 'next_turn'
 	MOVE 			: str = 'move'
 	INVALID_MOVE 	: str = 'invalid_move'
-
 
 # -- Data --
 @dataclasses.dataclass
@@ -19,9 +17,6 @@ MATCH : queue.Queue[Command]= queue.Queue()
 PLAYER : queue.Queue[Command]= queue.Queue()
 # ----------
 
-
-
-
 # -- Read and Write to Q -- 
 def send_to(dest : queue.Queue, command : Command) -> None: 
 	dest.put( command )
@@ -30,9 +25,6 @@ def read_from(command_q : queue.Queue) -> Command | None:
 	if command_q.empty(): return EMPTY_Q
 	return command_q.get()
 # ------------------------- 
-
-
-
 
 # -- Command Getters --
 def get(command : COMMANDS, from_coords : str = '', dest_coords : str = '', player_side : str = '') -> Command:
@@ -46,7 +38,6 @@ def get(command : COMMANDS, from_coords : str = '', dest_coords : str = '', play
 			assert player_side != '', 'invalid player side'
 			return get_move(from_coords, dest_coords, player_side)
 		case _: assert False, f" {command.name} : Command not recognised"
-
 
 def get_move(from_coords : str, dest_coords : str, player_side : str) -> Command:
 	return Command(from_coords + I_SPLIT + dest_coords + I_SPLIT + player_side)

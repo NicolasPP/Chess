@@ -2,9 +2,6 @@ import pygame, dataclasses, enum
 
 from config import *
 
-
-
-
 # -- Classes and Enums --
 class TYPE(enum.Enum):
 	SPRITE 	: int = 0
@@ -48,9 +45,6 @@ class PIECE_SET(enum.Enum):
 		)
 # -----------------------
 
-
-
-
 # -- helper functions --
 def scale(surface : pygame.surface.Surface, factor : float) -> pygame.surface.Surface:
 	size = pygame.math.Vector2(surface.get_size()) * factor
@@ -85,9 +79,6 @@ def load_sprite( file : str, factor : float ) -> Sprite:
 	return Sprite(surface, factor)
 # ----------------------
 
-
-
-
 # --  user will call these functions --
 def load_board(asset : Asset, factor : float) -> Sprite:
 	return load_sprite(asset.file, factor)
@@ -95,6 +86,3 @@ def load_board(asset : Asset, factor : float) -> Sprite:
 def load_piece_set( piece_set : Piece_Set, factor : float) -> tuple[list[Sprite], list[Sprite]]:
 	return load_sprite_sheet(piece_set.white_asset, factor), load_sprite_sheet(piece_set.black_asset, factor)
 # -------------------------------------
-
-
-

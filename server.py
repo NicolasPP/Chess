@@ -14,7 +14,6 @@ from config import *
 you can get the process ID with port with this command : sudo lsof -i:PORT
 '''
 
-
 logging.basicConfig(
 	filename='log/server.log',
 	encoding='utf-8',
@@ -22,7 +21,6 @@ logging.basicConfig(
 	filemode='w',
 	format='%(asctime)s\t%(levelname)s\t%(message)s'
 )
-
 
 class Server(NET.Net):
 	def __init__(self, server_ip : str):
@@ -61,7 +59,6 @@ class Server(NET.Net):
 	def send_all_clients(self, data : str):
 		for client_socket in self.client_sockets:
 			client_socket.send(str.encode(data))
-
 
 def game_logic(server : Server):
 	while True:

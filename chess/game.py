@@ -5,8 +5,6 @@ from utils import FEN_notation as FEN
 
 from config import *
 
-
-
 # -- Defining Movement --
 '''
 set_info_for()
@@ -91,13 +89,13 @@ def BISHOP_available_moves(from_index : int, fen : FEN.Fen, is_white_turn : bool
 	moves += move_until_friendly(down_left, from_index, fen, is_white_turn)
 
 	return moves
+
 @set_info_for(CHESS.PIECES.QUEEN, 'Q') 
 def QUENN_available_moves(from_index : int, fen : FEN.Fen, is_white_turn : bool) -> list[int]:
 	moves = []
 	moves += BISHOP_available_moves(from_index, fen, is_white_turn)
 	moves += ROOK_available_moves(from_index, fen, is_white_turn)
 	return moves
-
 
 @set_info_for(CHESS.PIECES.KING, 'K') 
 def KING_available_moves(from_index : int, fen : FEN.Fen, is_white_turn : bool) -> list[int]:
@@ -117,9 +115,6 @@ def KING_available_moves(from_index : int, fen : FEN.Fen, is_white_turn : bool) 
 
 	return moves
 # -----------------------
-
-
-
 
 # -- Piece Move Helpers --
 def get_available_moves(piece_name : str, from_index : int, fen : FEN.Fen, is_white_turn : bool) -> list[int]:
@@ -195,8 +190,6 @@ def move_fixed_amount(moves_offset : list[tuple[int,int]], from_index :int, fen 
 	return moves
 # ------------------------
 
-
-
 # -- Checking if Move is Valid --
 def is_move_valid(from_index : int, dest_index: int, fen : FEN.Fen, is_white_turn : bool) -> bool:
 	if not is_from_valid(fen[from_index], is_white_turn): return False
@@ -247,15 +240,18 @@ def is_from_valid(from_piece : str, is_white_turn : bool) -> bool:
 	if from_piece == FEN.FEN_CHARS.BLANK_PIECE.value: return False
 	if not is_from_correct_side(from_piece, is_white_turn): return False
 	return True 
+
 def is_side_valid(from_index : int, dest_index : int, fen : FEN.Fen) -> bool:
 	if is_same(from_index, dest_index): return False
 	if is_same_team(fen[from_index], fen[dest_index]): return False
 	return True 
+
 def is_dest_valid(from_index : int, dest_index : int, fen : FEN.Fen, is_white_turn : bool) -> bool:
 	piece_name = CHESS.get_name_from_fen(fen[from_index])
 	available_moves = get_available_moves(piece_name, from_index, fen, is_white_turn)
 	if dest_index not in available_moves: return False
 	return True
+
 def is_king_safe(from_index : int, dest_index : int, fen : FEN.Fen, is_white_turn : bool) -> bool:
 	new_fen = FEN.Fen(fen.get_notation())
 	king_fen = 'K' if is_white_turn else 'k'
@@ -266,11 +262,14 @@ def is_king_safe(from_index : int, dest_index : int, fen : FEN.Fen, is_white_tur
 		if new_fen[move] == king_fen: return False
 
 	return True
+
 def is_from_correct_side(from_piece, is_white : bool) -> bool:
 	if is_white: return from_piece.isupper()
 	return from_piece.islower() 
+
 def is_same(from_index : int, dest_index: int) -> bool:
 	return from_index == dest_index
+
 def is_same_team(piece1 : str, piece2: str) -> bool:
 	if piece2 == FEN.FEN_CHARS.BLANK_PIECE.value: return False
 	return piece1.islower() == piece2.islower()

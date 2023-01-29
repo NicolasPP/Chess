@@ -10,8 +10,6 @@ from chess import match as MATCH
 
 from config import *
 
-
-
 pygame.init()
 window_size = pygame.math.Vector2(WINDOW_SIZE)
 pygame.display.set_mode(window_size)
@@ -50,7 +48,6 @@ white_player.board.pos_rect.center = round(screen_center.x), round(screen_center
 black_player.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
 
 is_white = True
-
 
 while not done:
 	

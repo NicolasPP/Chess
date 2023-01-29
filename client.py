@@ -3,7 +3,6 @@ import pygame, sys, random, logging, click
 import socket as SKT
 import _thread as thread
 
-from chess import game as GAME
 from chess import player as PLAYER
 from chess import chess_data as CHESS
 from utils import asset as ASSETS
@@ -20,7 +19,6 @@ logging.basicConfig(
 	filemode='w',
 	format='%(asctime)s\t%(levelname)s\t%(message)s'
 )
-
 
 def server_listener(player : PLAYER.Player, server_socket : SKT.socket, match_fen : FEN.Fen) -> None:
 	with server_socket:
@@ -51,7 +49,6 @@ def correct_data(received_data : str, prev_data_tail : str) -> tuple[str,str]:
 		logging.debug("Data is incomplete, Tail : %s", prev_data_tail)
 		logging.debug("Last correct pair : %s", temp_data[-1])
 	return temp_data[-1], prev_data_tail
-
 
 def update_window_caption(player: PLAYER.Player) -> None:
 	if player.turn: pygame.display.set_caption(f"{player.side.name}s TURN")
@@ -116,7 +113,6 @@ def run_main_loop(server_ip : str) -> None:
 @click.option('--server_ip', default = '127.0.0.1', help = 'set the server ip adress default = 127.0.0.1')
 def start_client(server_ip : str) -> None:
 	run_main_loop(server_ip)
-
 
 if __name__ == '__main__':
 	start_client()

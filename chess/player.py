@@ -8,9 +8,6 @@ from chess import chess_data as CHESS
 from chess import game as GAME
 from config import AVAILABLE_MOVE_COLOR
 
-
-
-
 # -- Enums --
 class MOUSECLICK(enum.Enum):
 	LEFT 		: int = 1
@@ -23,9 +20,6 @@ class STATE(enum.Enum):
 	PICK_PIECE 	: int = 0 #  picking a piece 
 	DROP_PIECE 	: int = 1 # dropping the piece 
 # -----------
-
-
-
 
 class Player:
 	def __init__(self,
@@ -69,7 +63,6 @@ class Player:
 		self.progress_state()
 		CHESS.reset_picked_up(self.board)
 
-
 	def handle_mouse_down_left(self, fen : FEN.Fen) -> None:
 
 		board_square = CHESS.get_collided_board_square(self.board)
@@ -81,7 +74,6 @@ class Player:
 		self.progress_state()
 	# ---------------------------
 
-
 	# -- rendering players game --
 	def render(self, bg_color):
 		if self.is_render_required or self.state is STATE.DROP_PIECE:
@@ -89,7 +81,6 @@ class Player:
 			self.render_board()
 			self.render_pieces()
 		self.is_render_required = False
-
 
 	def render_board( self) -> None:
 		pygame.display.get_surface().blit(self.board.sprite.surface, self.board.pos_rect)

@@ -2,7 +2,6 @@ import string, typing, enum
 
 from config import *
 
-
 class FEN_CHARS(enum.Enum):
 	BLANK_PIECE 	: str = "@"
 	SPLIT 			: str = '/'

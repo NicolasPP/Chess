@@ -43,7 +43,6 @@ class Match:
 			case MOVE_TYPE.INVALID:
 				CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.INVALID_MOVE))
 
-
 	def process_move(self, command_info : str) -> MOVE_TYPE:
 		fc, dc, cmd_dest = command_info.split(I_SPLIT)
 		from_index = FEN.get_index_from_ANC(fc)
@@ -60,7 +59,6 @@ class Match:
 
 	def is_white_turn(self) -> bool: return len( self.moves ) % 2 == 0
 # -------------
-
 
 # -- Match Helpers --
 def is_command_dest_valid(cmd_dest : str , is_white : bool) -> bool:

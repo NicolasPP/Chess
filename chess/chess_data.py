@@ -9,9 +9,6 @@ from config import NO_SURFACE, \
 					AVAILABLE_MOVE_COLOR, \
 					AVAILABLE_ALPHA
 
-
-
-
 # -- Enums --
 class PIECES(enum.Enum):
 	PAWN	: int =  0
@@ -30,9 +27,6 @@ class SIDE(enum.Enum):
 	WHITE : int = 0
 	BLACK : int = 1
 # -----------
-
-
-
 
 # -- Classes --
 @dataclasses.dataclass
@@ -55,9 +49,6 @@ class Piece:
 	sprite 		: ASSETS.Sprite
 	FEN_val 	: str
 # -------------
-
-
-
 
 # -- Class Helpers --
 def set_picked_up(board_square : Board_Square, board : Board) -> None:
@@ -122,9 +113,6 @@ def get_picked_up_piece_render_pos(board_square : Board_Square, board_offset : p
 	piece_rect.midbottom = pygame.mouse.get_pos()
 	return piece_rect.x, piece_rect.y
 # ------------------- 
-
-
-
 
 # -- getting assets --
 def get_grid_surface_size(board_sprite : ASSETS.Sprite) -> pygame.math.Vector2:
