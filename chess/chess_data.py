@@ -95,12 +95,11 @@ def get_available_moves_surface(picked : Board_Square, board : Board
 		available_surface.set_alpha(AVAILABLE_ALPHA)
 		yield available_surface, board_offset + pos
 
-def get_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2, pieces : dict[str, Piece]) -> tuple[float, float]:
-	piece_surface = pieces.get(board_square.FEN_val).sprite.surface
+def get_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2, piece_surface : pygame.surface.Surface) -> tuple[float, float]:
 	if board_square.picked_up: return get_picked_up_piece_render_pos(board_square, board_offset, piece_surface)
-	return get_unpicked_piece_render_pos(board_square, board_offset, piece_surface)
+	return get_not_picked_up_piece_render_pos(board_square, board_offset, piece_surface)
 
-def get_unpicked_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2, piece_surface : pygame.surface.Surface) -> tuple[float, float]:
+def get_not_picked_up_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2, piece_surface : pygame.surface.Surface) -> tuple[float, float]:
 	piece_rect = piece_surface.get_rect(topleft = board_square.rect.topleft)
 	piece_rect.bottom = board_square.rect.bottom
 	pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
@@ -108,7 +107,7 @@ def get_unpicked_piece_render_pos(board_square : Board_Square, board_offset : py
 	return piece_pos
 
 def get_picked_up_piece_render_pos(board_square : Board_Square, board_offset : pygame.math.Vector2, piece_surface : pygame.surface.Surface) -> tuple[float, float]:
-	piece_pos = get_unpicked_piece_render_pos(board_square, board_offset, piece_surface)
+	piece_pos = get_not_picked_up_piece_render_pos(board_square, board_offset, piece_surface)
 	piece_rect = piece_surface.get_rect(topleft = board_square.rect.topleft)
 	piece_rect.midbottom = pygame.mouse.get_pos()
 	return piece_rect.x, piece_rect.y

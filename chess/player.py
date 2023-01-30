@@ -88,13 +88,17 @@ class Player:
 
 	def render_pieces(self) -> None:
 		grid = self.board.grid if self.side is CHESS.SIDE.WHITE else self.board.grid[::-1]
+		board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
 		for board_square in grid:
 			if board_square.FEN_val is FEN.FEN_CHARS.BLANK_PIECE.value: continue
-			board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
-			pygame.display.get_surface().blit(
-				self.pieces.get(board_square.FEN_val).sprite.surface,
-				CHESS.get_piece_render_pos(board_square, board_offset, self.pieces)
-				)
+			if board_square.picked_up: continue
+			self.render_board_square(board_square, board_offset)
+		if self.state is STATE.DROP_PIECE: self.render_board_square(CHESS.get_picked_up(self.board), board_offset)
+
+	def render_board_square(self, board_square, board_offset) -> None:
+		piece_surface = self.pieces.get(board_square.FEN_val).sprite.surface
+		pygame.display.get_surface().blit(piece_surface,
+				CHESS.get_piece_render_pos(board_square, board_offset, piece_surface))
 
 	def show_available_moves(self) -> None:
 		if not self.turn: return
