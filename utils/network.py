@@ -6,7 +6,6 @@ class Net:
 		self.socket : SKT.socket = SKT.socket(SKT.AF_INET, SKT.SOCK_STREAM)
 		self.port : int = 5555
 		self.address : tuple[str, int]= (self.server, self.port)
-		
 
 class Network(Net):
 	def __init__(self, server_ip : str):
