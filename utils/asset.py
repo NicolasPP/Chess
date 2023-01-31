@@ -54,7 +54,7 @@ def sheet_surface_gen(asset : Asset, surface_size : pygame.math.Vector2):
 	for r in range(asset.rows):
 		for c in range(asset.cols):
 			surface = pygame.surface.Surface(surface_size)
-			surface.set_colorkey( PIECE_BG )
+			surface.set_colorkey(PIECE_BG)
 			index 	= pygame.math.Vector2(c, r).elementwise()
 			yield surface, index
 
@@ -66,14 +66,14 @@ def load_sprite_sheet(asset : Asset, factor : float) -> list[Sprite]:
 	
 	sprites = []
 
-	for surface, index in sheet_surface_gen( asset, surface_size ):
+	for surface, index in sheet_surface_gen(asset, surface_size):
 		surface.blit(sheet_sprite.surface, surface_size * index * -1)
 		surface = scale(surface, factor)
 		sprites.append(Sprite(surface, factor))
 
 	return sprites
 
-def load_sprite( file : str, factor : float ) -> Sprite:
+def load_sprite(file : str, factor : float) -> Sprite:
 	surface = pygame.image.load(file).convert()
 	surface = scale(surface, factor)
 	return Sprite(surface, factor)
@@ -83,6 +83,6 @@ def load_sprite( file : str, factor : float ) -> Sprite:
 def load_board(asset : Asset, factor : float) -> Sprite:
 	return load_sprite(asset.file, factor)
 
-def load_piece_set( piece_set : Piece_Set, factor : float) -> tuple[list[Sprite], list[Sprite]]:
+def load_piece_set(piece_set : Piece_Set, factor : float) -> tuple[list[Sprite], list[Sprite]]:
 	return load_sprite_sheet(piece_set.white_asset, factor), load_sprite_sheet(piece_set.black_asset, factor)
 # -------------------------------------
