@@ -1,6 +1,9 @@
-import queue, dataclasses, enum
+import dataclasses
+import enum
+import queue
 
 from config import *
+
 
 class COMMANDS(enum.Enum):
 	UPDATE_POS 		: str = 'update_pos'

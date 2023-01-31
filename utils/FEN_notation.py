@@ -1,6 +1,9 @@
-import string, typing, enum
+import enum
+import string
+import typing
 
 from config import *
+
 
 class FEN_CHARS(enum.Enum):
 	BLANK_PIECE 	: str = "@"

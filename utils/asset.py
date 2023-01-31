@@ -1,6 +1,9 @@
-import pygame, dataclasses, enum	
+import dataclasses
+import enum
+import pygame
 
 from config import *
+
 
 # -- Classes and Enums --
 class TYPE(enum.Enum):

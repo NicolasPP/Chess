@@ -1,13 +1,13 @@
-import logging, click
-
-import socket as SKT
 import _thread as thread
+import logging
+import socket as SKT
 
-from utils import network as NET
-from utils import commands as CMD
+import click
+
 from chess import match as MATCH
-
 from config import *
+from utils import commands as CMD
+from utils import network as NET
 
 '''
 [Errno 48] Address already in use

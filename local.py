@@ -1,6 +1,7 @@
-import pygame
 import random
 import sys
+
+import pygame
 
 from chess import chess_data as CHESS
 from chess import match as MATCH

@@ -1,10 +1,10 @@
 import enum
-from utils import FEN_notation as FEN
-from utils import commands as CMD
+
 from chess import chess_data as CHESS
 from chess import game as GAME
-
 from config import *
+from utils import FEN_notation as FEN
+from utils import commands as CMD
 
 
 class MOVE_TYPE(enum.Enum):

@@ -1,13 +1,16 @@
-import pygame, dataclasses, enum, typing, string
+import dataclasses
+import enum
+import pygame
+import string
+import typing
 
-from utils import asset as ASSETS
+from config import GRID_OFFSET, \
+	BOARD_SIZE, \
+	AVAILABLE_MOVE_COLOR, \
+	AVAILABLE_ALPHA
 from utils import FEN_notation as FEN
+from utils import asset as ASSETS
 
-from config import NO_SURFACE, \
-					GRID_OFFSET, \
-					BOARD_SIZE, \
-					AVAILABLE_MOVE_COLOR, \
-					AVAILABLE_ALPHA
 
 # -- Enums --
 class PIECES(enum.Enum):

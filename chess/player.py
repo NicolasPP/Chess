@@ -1,12 +1,14 @@
-import pygame, enum, typing
+import enum
+import pygame
+import typing
 
-from utils import asset as ASSETS
-from utils import commands as CMD
-from utils import FEN_notation as FEN
-from utils import network as NET
 from chess import chess_data as CHESS
 from chess import game as GAME
-from config import AVAILABLE_MOVE_COLOR
+from utils import FEN_notation as FEN
+from utils import asset as ASSETS
+from utils import commands as CMD
+from utils import network as NET
+
 
 # -- Enums --
 class MOUSECLICK(enum.Enum):

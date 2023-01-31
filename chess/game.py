@@ -1,9 +1,8 @@
 import typing
 
 from chess import chess_data as CHESS
-from utils import FEN_notation as FEN
-
 from config import *
+from utils import FEN_notation as FEN
 
 # -- Defining Movement --
 '''
