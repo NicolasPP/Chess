@@ -148,7 +148,7 @@ def parse_command(command : str, info : str, match_fen : FEN.Fen, *players : tup
 		case CMD.COMMANDS.INVALID_MOVE: list(map(lambda player : player.set_require_render(True), players))
 		case _: assert False, f" {command.name} : Command not recognised"
 
-def parse_command_local(match_fen : FEN.Fen, *players) -> None:
+def parse_command_local(match_fen : FEN.Fen, *players : Player) -> None:
 		command = CMD.read_from(CMD.PLAYER)
 		if command is None: return
 		parse_command(command.info, ' ', match_fen, *players, local = True)
