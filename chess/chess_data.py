@@ -82,7 +82,7 @@ def is_picked_up(board: Board) -> bool:
 def get_picked_up(board: Board) -> BoardSquare:
     for sqr in board.grid:
         if sqr.picked_up: return sqr
-    raise Exception(' no peices picked up ')
+    raise Exception(' no piece picked up ')
 
 
 def get_collided_board_square(board: Board) -> BoardSquare | None:
