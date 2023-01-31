@@ -68,12 +68,12 @@ def test_invalid_fen_getitem(index):
 	('1h', 63)
 	])
 def test_get_index_from_ANC(ANC, expected):
-	assert FEN.get_index_from_ANC(ANC) is expected
+	assert FEN.get_index_from_anc(ANC) is expected
 
 @pytest.mark.parametrize("ANC", ['-8a','b8','88','9d', '8x'])
 def test_invalid_get_index_from_ANC(ANC):
 	with pytest.raises(IndexError):
-		FEN.get_index_from_ANC(ANC)
+		FEN.get_index_from_anc(ANC)
 
 @pytest.mark.parametrize("fen_notation,expected", [
 	("r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1",
