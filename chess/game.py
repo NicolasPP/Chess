@@ -34,7 +34,7 @@ def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> 
 
     # pawn moves up twice in the first move
     if from_index in double_moves:
-        if (double_up is not None) and \
+        if (double_up and up) and \
                 (fen[double_up] == FEN.FenChars.BLANK_PIECE.value) and \
                 (fen[up] == FEN.FenChars.BLANK_PIECE.value): moves.append(double_up)
 

@@ -1,6 +1,6 @@
-import pytest, typing
+import pytest
 
-from utils import FEN_notation as FEN
+import utils.FEN_notation as FEN
 
 
 @pytest.fixture(scope="session")

@@ -65,7 +65,7 @@ class Player:
         if local:
             CMD.send_to(CMD.MATCH, move)
         else:
-            network.socket.send(str.encode(move.info))
+            if network: network.socket.send(str.encode(move.info))
 
         self.progress_state()
         CHESS.reset_picked_up(self.board)
@@ -104,7 +104,7 @@ class Player:
         if self.state is STATE.DROP_PIECE: self.render_board_square(CHESS.get_picked_up(self.board), board_offset)
 
     def render_board_square(self, board_square, board_offset) -> None:
-        piece_surface = self.pieces.get(board_square.FEN_val).sprite.surface
+        piece_surface = self.pieces[board_square.FEN_val].sprite.surface
         pygame.display.get_surface().blit(piece_surface,
                                           CHESS.get_piece_render_pos(board_square, board_offset, piece_surface))
 
