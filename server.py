@@ -84,7 +84,7 @@ def client_listener(client_socket: skt.socket, server: Server):
             move_type = server.match.process_move(move_info)
             logging.debug("move type : %s", move_type.name)
 
-            # TODO : change I_SPLIT.join(... into a function calling in commands script
+            # TODO change I_SPLIT.join(... into a function calling in commands script
 
             match move_type:
                 case MATCH.MoveType.CHECK:
