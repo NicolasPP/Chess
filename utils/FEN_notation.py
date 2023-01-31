@@ -11,8 +11,26 @@ class FenChars(enum.Enum):
 
 
 class Fen:
-    def __init__(self, default_fen=GAME_START_FEN):
-        self.notation: str = default_fen
+    @staticmethod
+    def validate_fen_notation(fen_notation) -> bool:
+        count = 0
+        possible_vals = ['p', 'P', 'b', 'B', 'k', 'K', 'n', 'N', 'q', 'Q', 'r', 'R']
+        for fen_row in fen_notation.split(FenChars.SPLIT.value):
+            for piece_fen in fen_row:
+                if piece_fen.isnumeric():
+                    int_fen = int(piece_fen)
+                    if int_fen == 0: raise Exception('INVALID fen notation: number too small')
+                    if int_fen > 8: raise Exception('INVALID fen notation: number too big')
+                    count += int_fen
+                else:
+                    if not (piece_fen in possible_vals): raise Exception('INVALID fen notation: invalid fen val')
+                    count += 1
+        assert count == 64, "INVALID fen notation: too many or too few"
+        return True
+
+    def __init__(self, fen_notation=GAME_START_FEN):
+        Fen.validate_fen_notation(fen_notation)
+        self.notation: str = fen_notation
         self.expanded: list[str] = self.get_expanded()
 
     def __getitem__(self, index: int) -> str:

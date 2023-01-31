@@ -119,3 +119,25 @@ def test_pack_fen(expanded_fen, expected):
     packed = fen.get_packed()
     assert packed == expected
     assert len(fen.get_expanded()) == 64
+
+
+@pytest.mark.parametrize("fen_notation",[
+    '8/8/8/8/8/8/8/8',
+    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR',
+    '8/8/8/3PpP2/3pKp2/3PpP2/8/8',
+    '8/8/8/5p2/4b3/3p1p2/2P3P1/8',
+    '8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8',
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+])
+def test_fen_validation(fen_notation: str):
+    assert FEN.Fen.validate_fen_notation(fen_notation)
+
+@pytest.mark.parametrize("fen_notation",[
+    '8/8/8/8/8/8/8/9',
+    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBLR',
+    '8/8/8/3PpP2/3pKp2/3P0pP2/8/8',
+    '8/8/8/5p2/4b3/3p1p2/2P3PP1/8',
+])
+def test_fail_fen_validation(fen_notation: str):
+    with pytest.raises(Exception):
+        assert FEN.Fen.validate_fen_notation(fen_notation)
