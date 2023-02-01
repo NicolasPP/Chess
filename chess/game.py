@@ -147,18 +147,13 @@ def get_fen_offset_index(is_white_turn: bool, from_index: int, row_offset: int, 
     new_col = col + col_offset
     if new_row < 0 or new_row > BOARD_SIZE - 1: return None
     if new_col < 0 or new_col > BOARD_SIZE - 1: return None
-    index = get_fen_index(new_row, new_col)
-    return index
+    return (new_row * BOARD_SIZE) + new_col
 
 
 def get_fen_row_col(index: int) -> tuple[int, int]:
     row = index // BOARD_SIZE
     col = index - (row * BOARD_SIZE)
     return row, col
-
-
-def get_fen_index(row: int, col: int) -> int:
-    return (row * BOARD_SIZE) + col
 
 
 def get_diagonal_offsets(
