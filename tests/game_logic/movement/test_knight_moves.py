@@ -22,10 +22,8 @@ def test_jump_over_piece():
 
 
 def test_possible_take():
-    is_white_turn = False
-    from_index = 36
     fen = FEN.Fen('8/8/3P1P2/2P3P1/4k3/2P3P1/3P1P2/8')
-    moves = GAME.get_available_moves('KNIGHT', from_index, fen, is_white_turn)
+    moves = GAME.get_available_moves('KNIGHT', 36, fen, False)
     assert len(moves) == 4
     for move in moves:
         assert fen.expanded[move].isupper()

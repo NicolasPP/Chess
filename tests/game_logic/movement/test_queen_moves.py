@@ -13,10 +13,8 @@ def test_fully_blocked():
 
 
 def test_possible_take():
-    is_white_turn = False
-    from_index = 36
     fen = FEN.Fen('8/8/8/3PPP2/3PqP2/3PPP2/8/8')
-    moves = GAME.get_available_moves('QUEEN', from_index, fen, is_white_turn)
+    moves = GAME.get_available_moves('QUEEN', 36, fen, False)
     assert len(moves) is 8
     for move in moves:
         assert fen.expanded[move].isupper()
@@ -27,10 +25,8 @@ def test_blocked_take():
 
 
 def test_blocked_with_possible_take():
-    is_white_turn = False
-    from_index = 36
     fen = FEN.Fen('8/8/8/3PpP2/3Pqp2/3PpP2/8/8')
-    moves = GAME.get_available_moves('QUEEN', from_index, fen, is_white_turn)
+    moves = GAME.get_available_moves('QUEEN', 36, fen, False)
     assert len(moves) is 5
     for move in moves:
         assert fen.expanded[move].isupper()
