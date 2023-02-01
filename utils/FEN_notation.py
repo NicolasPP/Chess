@@ -11,31 +11,21 @@ class FenChars(enum.Enum):
 
 
 class Fen:
-    @staticmethod
-    def validate_fen_notation(fen_notation) -> bool:
-        count = 0
-        possible_vals = ['p', 'P', 'b', 'B', 'k', 'K', 'n', 'N', 'q', 'Q', 'r', 'R']
-        for fen_row in fen_notation.split(FenChars.SPLIT.value):
-            for piece_fen in fen_row:
-                if piece_fen.isnumeric():
-                    int_fen = int(piece_fen)
-                    if int_fen == 0: raise Exception('INVALID fen notation: number too small')
-                    if int_fen > 8: raise Exception('INVALID fen notation: number too big')
-                    count += int_fen
-                else:
-                    if not (piece_fen in possible_vals): raise Exception('INVALID fen notation: invalid fen val')
-                    count += 1
-        assert count == 64, "INVALID fen notation: too many or too few"
-        return True
-
     def __init__(self, fen_notation=GAME_START_FEN):
-        Fen.validate_fen_notation(fen_notation)
+        validate_fen_notation(fen_notation)
         self.notation: str = fen_notation
         self.expanded: list[str] = self.get_expanded()
 
     def __getitem__(self, index: int) -> str:
         if index < 0: raise IndexError("no negative index")
         return self.expanded[index]
+
+    def __repr__(self):
+        result = ''
+        for index, fen_val in enumerate(self.expanded):
+            if index % BOARD_SIZE == 0 and index != 0: result += '\n'
+            result += fen_val
+        return result
 
     def update_notation(self) -> None:
         self.notation = self.get_packed()
@@ -45,7 +35,7 @@ class Fen:
 
     def get_expanded(self) -> list[str]:
         expanded_fen: str = ''
-        for piece_fen in self.iterate():
+        for piece_fen in iterate(self.notation):
             if piece_fen.isnumeric():
                 expanded_fen += (int(piece_fen) * FenChars.BLANK_PIECE.value)
             elif piece_fen == FenChars.SPLIT.value:
@@ -75,10 +65,6 @@ class Fen:
         self.expanded[from_index] = FenChars.BLANK_PIECE.value
         self.update_notation()
 
-    def iterate(self) -> typing.Generator[str, None, None]:
-        for fen_row in self.notation.split(FenChars.SPLIT.value):
-            for piece_fen in fen_row: yield piece_fen
-
 
 # -- Helpers --
 def get_index_from_anc(algebraic_notation_coordinates: str) -> int:
@@ -91,9 +77,30 @@ def get_index_from_anc(algebraic_notation_coordinates: str) -> int:
     return ((BOARD_SIZE - int(col_num)) * BOARD_SIZE) + ascii_str.index(row_str)
 
 
+def iterate(fen_notation: str) -> typing.Generator[str, None, None]:
+    for fen_row in fen_notation.split(FenChars.SPLIT.value):
+        for piece_fen in fen_row: yield piece_fen
+
+
 def set_blank_fen(fen_notation: str, blank_count: int = 0) -> tuple[str, int]:
     if blank_count > 0:
         fen_notation += str(blank_count)
         blank_count = 0
     return fen_notation, blank_count
+
+
+def validate_fen_notation(notation) -> bool:
+    count = 0
+    possible_vals = ['p', 'P', 'b', 'B', 'k', 'K', 'n', 'N', 'q', 'Q', 'r', 'R']
+    for piece_fen in iterate(notation):
+        if piece_fen.isnumeric():
+            int_fen = int(piece_fen)
+            if int_fen == 0: raise Exception('INVALID fen notation: number too small')
+            if int_fen > 8: raise Exception('INVALID fen notation: number too big')
+            count += int_fen
+        else:
+            if piece_fen not in possible_vals: raise Exception('INVALID fen notation: invalid fen val')
+            count += 1
+    assert count == 64, "INVALID fen notation: too many or too few"
+    return True
 # -------------

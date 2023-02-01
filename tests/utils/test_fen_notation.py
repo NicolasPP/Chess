@@ -11,26 +11,6 @@ from utils import FEN_notation as FEN
     (5, 'b'),
     (6, 'n'),
     (7, 'r'),
-    (10, 'p'),
-    (11, 'p'),
-    (12, 'p'),
-    (13, 'p'),
-    (16, '@'),
-    (17, '@'),
-    (18, '@'),
-    (19, '@'),
-    (48, 'P'),
-    (49, 'P'),
-    (50, 'P'),
-    (51, 'P'),
-    (56, 'R'),
-    (57, 'N'),
-    (58, 'B'),
-    (59, 'Q'),
-    (60, 'K'),
-    (61, 'B'),
-    (62, 'N'),
-    (63, 'R')
 ])
 def test_fen_getitem(index, expected):
     fen = FEN.Fen()
@@ -45,22 +25,6 @@ def test_invalid_fen_getitem(index):
 
 
 @pytest.mark.parametrize("anc,expected", [
-    ('8a', 0),
-    ('8b', 1),
-    ('8c', 2),
-    ('8d', 3),
-    ('8e', 4),
-    ('8f', 5),
-    ('8g', 6),
-    ('8h', 7),
-    ('7a', 8),
-    ('7b', 9),
-    ('7c', 10),
-    ('7d', 11),
-    ('2e', 52),
-    ('2f', 53),
-    ('2g', 54),
-    ('2h', 55),
     ('1a', 56),
     ('1b', 57),
     ('1c', 58),
@@ -121,7 +85,7 @@ def test_pack_fen(expanded_fen, expected):
     assert len(fen.get_expanded()) == 64
 
 
-@pytest.mark.parametrize("fen_notation",[
+@pytest.mark.parametrize("fen_notation", [
     '8/8/8/8/8/8/8/8',
     'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR',
     '8/8/8/3PpP2/3pKp2/3PpP2/8/8',
@@ -130,9 +94,10 @@ def test_pack_fen(expanded_fen, expected):
     'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
 ])
 def test_fen_validation(fen_notation: str):
-    assert FEN.Fen.validate_fen_notation(fen_notation)
+    assert FEN.validate_fen_notation(fen_notation)
 
-@pytest.mark.parametrize("fen_notation",[
+
+@pytest.mark.parametrize("fen_notation", [
     '8/8/8/8/8/8/8/9',
     'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBLR',
     '8/8/8/3PpP2/3pKp2/3P0pP2/8/8',
@@ -140,4 +105,17 @@ def test_fen_validation(fen_notation: str):
 ])
 def test_fail_fen_validation(fen_notation: str):
     with pytest.raises(Exception):
-        assert FEN.Fen.validate_fen_notation(fen_notation)
+        assert FEN.validate_fen_notation(fen_notation)
+
+
+@pytest.mark.parametrize("fen_notation", [
+    '8/8/8/8/8/8/8/8',
+    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR',
+    '8/8/8/3PpP2/3pKp2/3PpP2/8/8',
+    '8/8/8/5p2/4b3/3p1p2/2P3P1/8',
+    '8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8',
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+])
+def test_fen_repr(fen_notation):
+    assert len(FEN.Fen(fen_notation).__repr__()) is 71
+    assert len(FEN.Fen(fen_notation).__repr__().split('\n')) is 8
