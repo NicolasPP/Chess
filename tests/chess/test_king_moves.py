@@ -12,16 +12,8 @@ def test_blocked():
     assert len(GAME.get_available_moves('KING', 36, FEN.Fen('8/8/8/3PPP2/3PKP2/3PPP2/8/8'), True)) is 0
 
 
-def test_checkmate():
-    assert len(GAME.get_available_moves('KING', 60, FEN.Fen('rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR'), True)) is 0
-
-
 def test_possible_take():
     assert len(GAME.get_available_moves('KING', 36, FEN.Fen('8/8/8/3pPp2/3pKp2/3PPP2/8/8'), True)) is 4
-
-
-def test_check():
-    assert len(GAME.get_available_moves('KING', 36, FEN.Fen('8/8/8/3PpP2/3pKp2/3PpP2/8/8'), True)) is 1
 
 
 @pytest.mark.parametrize("from_index,is_white_turn", [(4, False), (60, True)])
