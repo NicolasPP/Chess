@@ -1,4 +1,4 @@
-from chess import game as GAME
+import chess.game as GAME
 
 
 def test_first_turn_double_move(pawn_test_fen):
