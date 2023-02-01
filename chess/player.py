@@ -128,7 +128,7 @@ class Player:
             -> typing.Generator[tuple[str, CHESS.BoardSquare], None, None]:
         count = 0
 
-        for piece_fen in fen.iterate():
+        for piece_fen in FEN.iterate(fen.notation):
             if piece_fen.isnumeric():
                 count += int(piece_fen) - 1
                 yield FEN.FenChars.BLANK_PIECE.value, self.board.grid[count]
