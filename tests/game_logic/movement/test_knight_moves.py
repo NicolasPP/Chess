@@ -1,3 +1,5 @@
+import pytest
+
 import utils.FEN_notation as FEN
 import chess.game as GAME
 
@@ -6,12 +8,9 @@ def test_base_moves():
     assert len(GAME.get_available_moves('KNIGHT', 36, FEN.Fen('8/8/8/8/8/8/8/8'), True)) is 8
 
 
-def test_default_fen_moves():
-    fen = FEN.Fen()
-    assert len(GAME.get_available_moves('KNIGHT', 1, fen, False)) == 2
-    assert len(GAME.get_available_moves('KNIGHT', 5, fen, False)) == 2
-    assert len(GAME.get_available_moves('KNIGHT', 62, fen, True)) == 2
-    assert len(GAME.get_available_moves('KNIGHT', 57, fen, True)) == 2
+@pytest.mark.parametrize("from_index,is_white_turn", [(1, False), (5, False), (62, True), (57, True)])
+def test_default_fen(from_index: int, is_white_turn: bool):
+    assert len(GAME.get_available_moves('KNIGHT', from_index, FEN.Fen(), is_white_turn)) == 2
 
 
 def test_fully_blocked():
@@ -20,6 +19,7 @@ def test_fully_blocked():
 
 def test_jump_over_piece():
     assert(len(GAME.get_available_moves('KNIGHT', 36, FEN.Fen('8/8/3P1P2/2PpppP1/3pkp2/2PpppP1/3P1P2/8'), False)) == 4)
+
 
 def test_possible_take():
     is_white_turn = False

@@ -23,6 +23,12 @@ def test_possible_take():
 def test_check():
     assert len(GAME.get_available_moves('KING', 36, FEN.Fen('8/8/8/3PpP2/3pKp2/3PpP2/8/8'), True)) is 1
 
+
+@pytest.mark.parametrize("from_index,is_white_turn", [(4, False), (60, True)])
+def test_default_fen(from_index: int, is_white_turn: bool):
+    assert len(GAME.get_available_moves('KING', from_index, FEN.Fen(), is_white_turn)) is 0
+
+
 @pytest.mark.xfail
 def test_castle_while_in_check():
     assert len(GAME.get_available_moves('KING', 60, FEN.Fen('8/8/8/8/8/8/PPPPPpPP/R3K2R'), True)) is 3

@@ -25,5 +25,5 @@ def test_blocked_take():
 
 
 @pytest.mark.parametrize("from_index,is_white_turn", [(2, False), (5, False), (61, True), (58, True)])
-def test_game_start(from_index: int, is_white_turn: bool):
+def test_default_fen(from_index: int, is_white_turn: bool):
     assert len(GAME.get_available_moves('BISHOP', from_index, FEN.Fen(), is_white_turn)) is 0

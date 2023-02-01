@@ -1,4 +1,7 @@
+import pytest
+
 import chess.game as GAME
+import utils.FEN_notation as FEN
 
 
 def test_first_turn_double_move(pawn_test_fen):
@@ -34,3 +37,25 @@ def test_first_turn_double_move_blocked(pawn_test_fen):
 def test_first_turn_blocked(pawn_test_fen):
     from_index = 52
     assert len(GAME.get_available_moves('PAWN', from_index, pawn_test_fen, True)) is 0
+
+
+@pytest.mark.parametrize("from_index,is_white_turn", [
+    (8, False),
+    (9, False),
+    (10, False),
+    (11, False),
+    (12, False),
+    (13, False),
+    (14, False),
+    (15, False),
+    (55, True),
+    (54, True),
+    (53, True),
+    (52, True),
+    (51, True),
+    (50, True),
+    (49, True),
+    (48, True)
+])
+def test_default_fen(from_index: int, is_white_turn: bool):
+    assert len(GAME.get_available_moves('PAWN', from_index, FEN.Fen(), is_white_turn)) is 2
