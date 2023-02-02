@@ -279,10 +279,14 @@ def is_destination_valid(from_index: int, dest_index: int, fen: FEN.Fen, is_whit
 
 
 def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: bool) -> bool:
-    new_fen = FEN.Fen(fen.get_notation())
+    king_fen = 'K' if is_white_turn else 'k'
+
+    new_fen = FEN.Fen(fen.get_notation(), fen.move_history)
     new_fen.make_move(from_index, dest_index)
 
-    own_king_index = get_own_king_index(new_fen, is_white_turn)
+    own_king_indexes = new_fen.get_index_for_piece(king_fen)
+    own_king_index = -1 if len(own_king_indexes) == 0 else own_king_indexes[0]
+
     possible_threats = get_possible_threats(own_king_index, new_fen, is_white_turn)
 
     return len(possible_threats) == 0
@@ -312,13 +316,6 @@ def get_possible_threats(piece_index: int, fen: FEN.Fen, is_white_turn: bool) ->
             if fen[move] is own_king_fen: possible_threats.append(move)
 
     return possible_threats
-
-
-def get_own_king_index(fen: FEN.Fen, is_white_turn: bool) -> int:
-    king_fen = 'K' if is_white_turn else 'k'
-    for index, fen_val in enumerate(fen):
-        if fen_val == king_fen: return index
-    return -1
 
 
 def is_from_correct_side(from_fen_val: str, is_white: bool) -> bool:
