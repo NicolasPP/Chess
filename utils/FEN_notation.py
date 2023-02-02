@@ -31,7 +31,7 @@ class Fen:
 
     def __repr__(self):
         result = ''
-        for index, fen_val in enumerate(self):
+        for index, fen_val in enumerate(self.expanded):
             if index % BOARD_SIZE == 0 and index != 0: result += '\n'
             result += fen_val
         return result
@@ -57,7 +57,7 @@ class Fen:
     def get_index_for_piece(self, piece_fen_val: str) -> list[int]:
         validate_fen_val(piece_fen_val)
         result = []
-        for index, fen_val in enumerate(self):
+        for index, fen_val in enumerate(self.expanded):
             if fen_val is piece_fen_val: result.append(index)
         return result
 

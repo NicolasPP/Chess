@@ -245,7 +245,7 @@ def is_opponent_in_checkmate(fen: FEN.Fen, is_white_turn: bool) -> bool:
 
 def get_all_available_moves(fen: FEN.Fen, is_white_turn: bool, *, own_moves: bool) -> list[int]:
     moves = []
-    for index, fen_char in enumerate(fen):
+    for index, fen_char in enumerate(fen.expanded):
         same_side = is_same_side(is_white_turn, fen_char)
         if fen_char == FEN.FenChars.BLANK_PIECE.value: continue
         if not same_side if own_moves else same_side: continue
