@@ -71,7 +71,7 @@ def is_command_destination_valid(cmd_dest: str, is_white: bool) -> bool:
 
 
 def get_move_type(fen: FEN.Fen, is_white_turn: bool) -> MoveType:
-    if GAME.is_checkmate(fen, is_white_turn): return MoveType.CHECKMATE
-    if GAME.is_check(fen, is_white_turn): return MoveType.CHECK
+    if GAME.is_opponent_in_checkmate(fen, is_white_turn): return MoveType.CHECKMATE
+    if GAME.is_opponent_in_check(fen, is_white_turn): return MoveType.CHECK
     return MoveType.REGULAR
 # -------------------------
