@@ -6,10 +6,11 @@ import utils.FEN_notation as FEN
 
 
 def test_check():
-    assert len(GAME.get_available_moves('KING', 36, FEN.Fen('8/8/8/3PpP2/3pKp2/3PpP2/8/8'), True)) is 1
+    assert GAME.is_opponent_in_check(FEN.Fen('8/8/8/3PpP2/3pkp2/3PpP2/8/8'), True)
 
 
 def test_moving_into_check():
+    assert len(GAME.get_available_moves('KING', 36, FEN.Fen('8/8/8/3PpP2/3pKp2/3PpP2/8/8'), True)) is 1
     assert len(GAME.get_available_moves('PAWN', 44, FEN.Fen('8/8/8/6b1/8/4P3/3K4/8'), True)) is 0
 
 
@@ -32,3 +33,5 @@ def test_get_out_check(fen: FEN.Fen, is_white_turn: bool, piece_fen_val: str):
             assert len(moves) is 1
         else:
             assert len(moves) is 0
+
+        assert GAME.is_opponent_in_check(fen, not is_white_turn)
