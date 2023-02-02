@@ -30,7 +30,7 @@ class Fen:
 
     def __repr__(self):
         result = ''
-        for index, fen_val in enumerate(self.expanded):
+        for index, fen_val in enumerate(self):
             if index % BOARD_SIZE == 0 and index != 0: result += '\n'
             result += fen_val
         return result
@@ -55,7 +55,7 @@ class Fen:
 
     def get_packed(self) -> str:
         fen_notation, blank_count = set_blank_fen('')
-        for index in range(len(self.expanded)):
+        for index in range(BOARD_SIZE * BOARD_SIZE):
             if index % BOARD_SIZE == 0 and index > 0:
                 fen_notation, blank_count = set_blank_fen(fen_notation, blank_count)
                 fen_notation += FenChars.SPLIT.value
