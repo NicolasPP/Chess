@@ -62,21 +62,27 @@ class Fen:
         return result
 
     def get_packed(self) -> str:
-        fen_notation, blank_count = set_blank_fen('')
-        for index in range(BOARD_SIZE * BOARD_SIZE):
-            if index % BOARD_SIZE == 0 and index > 0:
-                fen_notation, blank_count = set_blank_fen(fen_notation, blank_count)
-                fen_notation += FenChars.SPLIT.value
-            if self[index] == FenChars.BLANK_PIECE.value:
+        blank_count = 0
+        fen_notation, fen_row = [], ''
+        for index, fen_val in enumerate(self.expanded):
+            if fen_val == FenChars.BLANK_PIECE.value:
                 blank_count += 1
+                if blank_count == 8:
+                    fen_row += str(blank_count)
+                    blank_count = 0
             else:
-                fen_notation, blank_count = set_blank_fen(fen_notation, blank_count)
-                fen_notation += self[index]
+                if blank_count > 0: fen_row += str(blank_count)
+                fen_row += fen_val
+                blank_count = 0
 
-            fen_notation, blank_count = set_blank_fen(fen_notation, blank_count)
-        return fen_notation
+            if (index + 1) % 8 == 0:
+                if blank_count > 0: fen_row += str(blank_count)
+                fen_notation.append(fen_row)
+                fen_row = ''
+                blank_count = 0
+        return '/'.join(fen_notation)
 
-    def make_move(self, from_index: int, dest_index: int) -> None:
+    def make_move(self, from_index: int, dest_index: int, show=False) -> None:
         self[dest_index] = self[from_index]
         self[from_index] = FenChars.BLANK_PIECE.value
 
@@ -102,13 +108,6 @@ def get_index_from_anc(algebraic_notation_coordinates: str) -> int:
 def iterate(fen_notation: str) -> typing.Generator[str, None, None]:
     for fen_row in fen_notation.split(FenChars.SPLIT.value):
         for piece_fen in fen_row: yield piece_fen
-
-
-def set_blank_fen(fen_notation: str, blank_count: int = 0) -> tuple[str, int]:
-    if blank_count > 0:
-        fen_notation += str(blank_count)
-        blank_count = 0
-    return fen_notation, blank_count
 
 
 def validate_fen_notation(notation) -> bool:
