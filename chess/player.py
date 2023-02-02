@@ -127,7 +127,7 @@ class Player:
     def fen_to_piece_board_square(self, fen: FEN.Fen) \
             -> typing.Generator[tuple[str, CHESS.BoardSquare], None, None]:
         count = 0
-
+        print(fen.notation)
         for piece_fen in FEN.iterate(fen.notation):
             if piece_fen.isnumeric():
                 count += int(piece_fen) - 1
@@ -156,7 +156,7 @@ class Player:
 def parse_command(command: str, info: str, match_fen: FEN.Fen, *players: Player, local: bool = False) -> None:
     match CMD.COMMANDS(command):
         case CMD.COMMANDS.UPDATE_POS:
-            if not local: match_fen = FEN.Fen(info)
+            if not local: match_fen = FEN.Fen(fen_notation=info)
             list(map(lambda player: player.update_pieces_location(match_fen), players))
         case CMD.COMMANDS.NEXT_TURN:
             list(map(lambda player: player.swap_turn(), players))
