@@ -20,6 +20,14 @@ class Fen:
         if index < 0: raise IndexError("no negative index")
         return self.expanded[index]
 
+    def __setitem__(self, index: int, fen_val: str) -> None:
+        if index < 0: raise IndexError("no negative index")
+        validate_fen_val(fen_val, True)
+        self.expanded[index] = fen_val
+
+    def __str__(self):
+        return 'fen : ' + self.notation + '\n' + self.__repr__()
+
     def __repr__(self):
         result = ''
         for index, fen_val in enumerate(self.expanded):
@@ -51,18 +59,18 @@ class Fen:
             if index % BOARD_SIZE == 0 and index > 0:
                 fen_notation, blank_count = set_blank_fen(fen_notation, blank_count)
                 fen_notation += FenChars.SPLIT.value
-            if self.expanded[index] == FenChars.BLANK_PIECE.value:
+            if self[index] == FenChars.BLANK_PIECE.value:
                 blank_count += 1
             else:
                 fen_notation, blank_count = set_blank_fen(fen_notation, blank_count)
-                fen_notation += self.expanded[index]
+                fen_notation += self[index]
 
             fen_notation, blank_count = set_blank_fen(fen_notation, blank_count)
         return fen_notation
 
     def make_move(self, from_index: int, dest_index: int) -> None:
-        self.expanded[dest_index] = self.expanded[from_index]
-        self.expanded[from_index] = FenChars.BLANK_PIECE.value
+        self[dest_index] = self[from_index]
+        self[from_index] = FenChars.BLANK_PIECE.value
         self.update_notation()
 
 
@@ -91,7 +99,6 @@ def set_blank_fen(fen_notation: str, blank_count: int = 0) -> tuple[str, int]:
 
 def validate_fen_notation(notation) -> bool:
     count = 0
-    possible_vals = ['p', 'P', 'b', 'B', 'k', 'K', 'n', 'N', 'q', 'Q', 'r', 'R']
     for piece_fen in iterate(notation):
         if piece_fen.isnumeric():
             int_fen = int(piece_fen)
@@ -99,8 +106,16 @@ def validate_fen_notation(notation) -> bool:
             if int_fen > 8: raise Exception('INVALID fen notation: number too big')
             count += int_fen
         else:
-            if piece_fen not in possible_vals: raise Exception('INVALID fen notation: invalid fen val')
+            validate_fen_val(piece_fen)
             count += 1
     assert count == 64, "INVALID fen notation: too many or too few"
+    return True
+
+
+def validate_fen_val(fen_val: str, expanded_vals: bool = False) -> bool:
+    possible_vals = ['p', 'P', 'b', 'B', 'k', 'K', 'n', 'N', 'q', 'Q', 'r', 'R']
+    if expanded_vals: possible_vals.append(FenChars.BLANK_PIECE.value)
+    if fen_val not in possible_vals:
+        raise Exception('INVALID fen notation: invalid fen val')
     return True
 # -------------
