@@ -11,10 +11,11 @@ class FenChars(enum.Enum):
 
 
 class Fen:
-    def __init__(self, fen_notation=GAME_START_FEN):
+    def __init__(self, fen_notation: str = GAME_START_FEN, move_history: list[list[int]] | None = None):
         validate_fen_notation(fen_notation)
         self.notation: str = fen_notation
         self.expanded: list[str] = self.get_expanded()
+        self.move_history: list[list[int]] = move_history if move_history else [[] for _ in self.expanded]
 
     def __getitem__(self, index: int) -> str:
         if index < 0: raise IndexError("no negative index")
@@ -53,6 +54,13 @@ class Fen:
 
         return list(expanded_fen)
 
+    def get_index_for_piece(self, piece_fen_val: str) -> list[int]:
+        validate_fen_val(piece_fen_val)
+        result = []
+        for index, fen_val in enumerate(self):
+            if fen_val is piece_fen_val: result.append(index)
+        return result
+
     def get_packed(self) -> str:
         fen_notation, blank_count = set_blank_fen('')
         for index in range(BOARD_SIZE * BOARD_SIZE):
@@ -71,6 +79,12 @@ class Fen:
     def make_move(self, from_index: int, dest_index: int) -> None:
         self[dest_index] = self[from_index]
         self[from_index] = FenChars.BLANK_PIECE.value
+
+        self.move_history[dest_index] = self.move_history[from_index]
+        self.move_history[from_index] = []
+
+        self.move_history[dest_index].append(from_index)
+
         self.update_notation()
 
 
