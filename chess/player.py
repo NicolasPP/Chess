@@ -119,23 +119,11 @@ class Player:
             pygame.display.get_surface().blit(surface, pos)
 
     def update_pieces_location(self, fen: FEN.Fen) -> None:
-        for piece_fen, board_square in self.fen_to_piece_board_square(fen):
-            board_square.FEN_val = piece_fen
+        for index, fen_val in enumerate(fen.expanded):
+            board_square = self.board.grid[index]
+            board_square.FEN_val = fen_val
             update_available_moves(board_square, fen, self.side)
         self.is_render_required = True
-
-    def fen_to_piece_board_square(self, fen: FEN.Fen) \
-            -> typing.Generator[tuple[str, CHESS.BoardSquare], None, None]:
-        count = 0
-        print(fen.notation)
-        for piece_fen in FEN.iterate(fen.notation):
-            if piece_fen.isnumeric():
-                count += int(piece_fen) - 1
-                yield FEN.FenChars.BLANK_PIECE.value, self.board.grid[count]
-            else:
-                yield piece_fen, self.board.grid[count]
-            count += 1
-
     # ----------------------------
 
     # -- helpers --
