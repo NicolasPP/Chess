@@ -119,3 +119,12 @@ def test_fail_fen_validation(fen_notation: str):
 def test_fen_repr(fen_notation):
     assert len(FEN.Fen(fen_notation).__repr__()) is 71
     assert len(FEN.Fen(fen_notation).__repr__().split('\n')) is 8
+
+
+def test_fen_setitem():
+    fen = FEN.Fen('8/8/8/8/8/8/8/8')
+    fen[10] = 'k'
+    assert fen[10] is 'k'
+    fen[10] = fen[0]
+    assert fen[10] is FEN.FenChars.BLANK_PIECE.value
+    assert fen[0] is FEN.FenChars.BLANK_PIECE.value
