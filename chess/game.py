@@ -307,12 +307,12 @@ def get_possible_threats(piece_index: int, fen: FEN.Fen, is_white_turn: bool) ->
 
     for threat_index in rest_possible_threats:
         if fen[threat_index] is FEN.FenChars.BLANK_PIECE.value: continue
-        if fen[threat_index] is opponent_king_fen: raise Exception('King should never be in this spot')
 
         threat_name = CHESS.get_name_from_fen(fen[threat_index])
         threat_possible_moves = CHESS.PIECES[threat_name].available_moves(threat_index, fen, not is_white_turn)
 
         for move in threat_possible_moves:
+            if fen[move] is opponent_king_fen: raise Exception('King should never be in this spot')
             if fen[move] is own_king_fen: possible_threats.append(move)
 
     return possible_threats
