@@ -230,42 +230,28 @@ def is_move_valid(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn:
 # -- helpers --
 
 
-def is_check(fen: FEN.Fen, is_white_turn: bool) -> bool:
-    own_moves = get_own_available_moves(fen, is_white_turn, use_getter=True)
+def is_opponent_in_check(fen: FEN.Fen, is_white_turn: bool) -> bool:
+    own_moves = get_all_available_moves(fen, is_white_turn, own_moves=True)
     king_fen = 'k' if is_white_turn else 'K'
     for move in own_moves:
         if fen[move] == king_fen: return True
     return False
 
 
-def is_checkmate(fen: FEN.Fen, is_white_turn: bool) -> bool:
-    opponents_moves = get_opponent_available_moves(fen, is_white_turn, use_getter=True)
+def is_opponent_in_checkmate(fen: FEN.Fen, is_white_turn: bool) -> bool:
+    opponents_moves = get_all_available_moves(fen, is_white_turn, own_moves=False)
     return len(opponents_moves) == 0
 
 
-def get_own_available_moves(fen: FEN.Fen, is_white_turn: bool, use_getter: bool = False) -> list[int]:
+def get_all_available_moves(fen: FEN.Fen, is_white_turn: bool, *, own_moves: bool) -> list[int]:
     moves = []
-    for index, fen_char in enumerate(fen.expanded):
+    for index, fen_char in enumerate(fen):
+        same_side = is_same_side(is_white_turn, fen_char)
         if fen_char == FEN.FenChars.BLANK_PIECE.value: continue
-        if not is_same_side(is_white_turn, fen_char): continue
+        if not same_side if own_moves else same_side: continue
         piece_name = CHESS.get_name_from_fen(fen_char)
-        if use_getter:
-            moves += get_available_moves(piece_name, index, fen, is_white_turn)
-        else:
-            moves += CHESS.PIECES[piece_name].available_moves(index, fen, is_white_turn)
-    return moves
+        moves += get_available_moves(piece_name, index, fen, is_white_turn if own_moves else not is_white_turn)
 
-
-def get_opponent_available_moves(fen: FEN.Fen, is_white_turn: bool, use_getter: bool = False) -> list[int]:
-    moves = []
-    for index, fen_char in enumerate(fen.expanded):
-        if fen_char == FEN.FenChars.BLANK_PIECE.value: continue
-        if is_same_side(is_white_turn, fen_char): continue
-        piece_name = CHESS.get_name_from_fen(fen_char)
-        if use_getter:
-            moves += get_available_moves(piece_name, index, fen, not is_white_turn)
-        else:
-            moves += CHESS.PIECES[piece_name].available_moves(index, fen, not is_white_turn)
     return moves
 
 
@@ -294,14 +280,45 @@ def is_destination_valid(from_index: int, dest_index: int, fen: FEN.Fen, is_whit
 
 def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: bool) -> bool:
     new_fen = FEN.Fen(fen.get_notation())
-    king_fen = 'K' if is_white_turn else 'k'
-
     new_fen.make_move(from_index, dest_index)
 
-    for move in get_opponent_available_moves(new_fen, is_white_turn):
-        if new_fen[move] == king_fen: return False
+    own_king_index = get_own_king_index(new_fen, is_white_turn)
+    possible_threats = get_possible_threats(own_king_index, new_fen, is_white_turn)
 
-    return True
+    return len(possible_threats) == 0
+
+
+def get_possible_threats(piece_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+    if piece_index < 0: return []
+    threat_knight_fen = 'n' if is_white_turn else 'N'
+    own_king_fen = 'K' if is_white_turn else 'k'
+    opponent_king_fen = 'k' if is_white_turn else 'K'
+
+    knight_possible_threats = knight_available_moves(piece_index, fen, is_white_turn)
+    rest_possible_threats = queen_available_moves(piece_index, fen, is_white_turn)
+
+    possible_threats: list[int] = []
+    for threat_index in knight_possible_threats:
+        if fen[threat_index] is threat_knight_fen: possible_threats.append(threat_index)
+
+    for threat_index in rest_possible_threats:
+        if fen[threat_index] is FEN.FenChars.BLANK_PIECE.value: continue
+        if fen[threat_index] is opponent_king_fen: raise Exception('King should never be in this spot')
+
+        threat_name = CHESS.get_name_from_fen(fen[threat_index])
+        threat_possible_moves = CHESS.PIECES[threat_name].available_moves(threat_index, fen, not is_white_turn)
+
+        for move in threat_possible_moves:
+            if fen[move] is own_king_fen: possible_threats.append(move)
+
+    return possible_threats
+
+
+def get_own_king_index(fen: FEN.Fen, is_white_turn: bool) -> int:
+    king_fen = 'K' if is_white_turn else 'k'
+    for index, fen_val in enumerate(fen):
+        if fen_val == king_fen: return index
+    return -1
 
 
 def is_from_correct_side(from_fen_val: str, is_white: bool) -> bool:
