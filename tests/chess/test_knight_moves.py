@@ -26,4 +26,4 @@ def test_possible_take():
     moves = GAME.get_available_moves('KNIGHT', 36, fen, False)
     assert len(moves) == 4
     for move in moves:
-        assert fen.expanded[move].isupper()
+        assert fen[move].isupper()

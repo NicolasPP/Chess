@@ -22,7 +22,7 @@ def test_possible_take():
     moves = GAME.get_available_moves('ROOK', 36, fen, False)
     assert len(moves) is 4
     for move in moves:
-        assert fen.expanded[move].isupper()
+        assert fen[move].isupper()
 
 
 def test_blocked_with_possible_take():
@@ -30,7 +30,7 @@ def test_blocked_with_possible_take():
     moves = GAME.get_available_moves('ROOK', 36, fen, False)
     assert len(moves) is 2
     for move in moves:
-        assert fen.expanded[move].isupper()
+        assert fen[move].isupper()
 
 
 def test_blocked_take():

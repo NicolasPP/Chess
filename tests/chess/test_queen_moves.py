@@ -17,7 +17,7 @@ def test_possible_take():
     moves = GAME.get_available_moves('QUEEN', 36, fen, False)
     assert len(moves) is 8
     for move in moves:
-        assert fen.expanded[move].isupper()
+        assert fen[move].isupper()
 
 
 def test_blocked_take():
@@ -29,7 +29,7 @@ def test_blocked_with_possible_take():
     moves = GAME.get_available_moves('QUEEN', 36, fen, False)
     assert len(moves) is 5
     for move in moves:
-        assert fen.expanded[move].isupper()
+        assert fen[move].isupper()
 
 
 @pytest.mark.parametrize("from_index,is_white_turn", [(3, False), (59, True)])
