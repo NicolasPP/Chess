@@ -51,14 +51,11 @@ class Match:
         from_index = FEN.get_index_from_anc(fc)
         dest_index = FEN.get_index_from_anc(dc)
         is_white_turn = self.is_white_turn()
-        if is_command_destination_valid(cmd_dest, self.is_white_turn()):
-            if GAME.is_move_valid(from_index, dest_index, self.fen, is_white_turn):
-                self.fen.make_move(from_index, dest_index)
-                self.moves.append(command_info)
-                if GAME.is_checkmate(self.fen, is_white_turn): return MoveType.CHECKMATE
-                if GAME.is_check(self.fen, is_white_turn): return MoveType.CHECK
-                return MoveType.REGULAR
-        return MoveType.INVALID
+        if not is_command_destination_valid(cmd_dest, self.is_white_turn()) or \
+            not GAME.is_move_valid(from_index, dest_index, self.fen, is_white_turn): return MoveType.INVALID
+        self.fen.make_move(from_index, dest_index)
+        self.moves.append(command_info)
+        return get_move_type(self.fen, is_white_turn)
 
     def is_white_turn(self) -> bool:
         return len(self.moves) % 2 == 0
@@ -71,4 +68,10 @@ def is_command_destination_valid(cmd_dest: str, is_white: bool) -> bool:
     if cmd_dest == CHESS.SIDE.WHITE.name and is_white: return True
     if cmd_dest == CHESS.SIDE.BLACK.name and not is_white: return True
     return False
+
+
+def get_move_type(fen: FEN.Fen, is_white_turn: bool) -> MoveType:
+    if GAME.is_checkmate(fen, is_white_turn): return MoveType.CHECKMATE
+    if GAME.is_check(fen, is_white_turn): return MoveType.CHECK
+    return MoveType.REGULAR
 # -------------------------
