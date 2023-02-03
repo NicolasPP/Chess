@@ -1,8 +1,9 @@
+import dataclasses
 import enum
 import string
 import typing
-import dataclasses
 
+import utils.algebraic_notation as AN
 from config import *
 
 
@@ -17,16 +18,16 @@ class FenData:
     active_color: str
     castling_rights: str
     en_passant_rights: str
-    halfmove_clock: str
-    fullmove_number: str
+    half_move_clock: str
+    full_move_number: str
 
 
 class Fen:
-    def __init__(self, fen_notation: str = GAME_START_FEN, move_history: list[list[int]] | None = None):
-        self.notation = fen_notation
-        self.data = decode_fen_notation(fen_notation)
+    def __init__(self, fen_notation: str = GAME_START_FEN):
+        self._notation: str
+        self.data: FenData = decode_fen_notation(fen_notation)
+
         self.expanded: list[str] = self.get_expanded()
-        self.move_history: list[list[int]] = move_history if move_history else [[] for _ in self.expanded]
 
     def __getitem__(self, index: int) -> str:
         if index < 0: raise IndexError("no negative index")
@@ -47,9 +48,81 @@ class Fen:
             result += fen_val
         return result
 
-    def update(self) -> None:
-        self.data.piece_placement = self.get_packed()
-        self.notation = encode_fen_data(self.data)
+    @property
+    def notation(self) -> str:
+        return encode_fen_data(self.data)
+
+    @notation.setter
+    def notation(self, new_notation) -> None:
+        self._notation = new_notation
+
+    @notation.deleter
+    def notation(self) -> None:
+        del self._notation
+
+    def get_next_active_color(self) -> str:
+        if self.data.active_color == 'w':
+            active_color = 'b'
+        else:
+            active_color = 'w'
+        validate_fen_active_color(active_color)
+        return active_color
+
+    def get_castling_rights(self, from_piece_val: str, from_index: int) -> str:
+        if self.data.castling_rights == '-': return self.data.castling_rights
+        castling_rights = self.data.castling_rights
+        is_white_turn = True if self.data.active_color == 'w' else False
+        king_side_rook_index = 63 if is_white_turn else 7
+        queen_side_rook_index = 56 if is_white_turn else 0
+        king_index = 60 if is_white_turn else 4
+        king_fen = 'K' if is_white_turn else 'k'
+        queen_fen = 'Q' if is_white_turn else 'q'
+        rook_fen = 'R' if is_white_turn else 'r'
+        if from_piece_val == rook_fen:
+            if from_index == king_side_rook_index:
+                castling_rights = castling_rights.replace(king_fen, '')
+            elif from_index == queen_side_rook_index:
+                castling_rights = castling_rights.replace(queen_fen, '')
+
+        elif from_piece_val == king_fen and from_index == king_index:
+            castling_rights = castling_rights.replace(king_fen, '')
+            castling_rights = castling_rights.replace(queen_fen, '')
+
+        if len(castling_rights) == 0: return '-'
+        validate_fen_castling_rights(castling_rights)
+        return castling_rights
+
+    def get_en_passant_rights(self, from_piece_val: str, from_index: int, dest_index: int) -> str:
+        is_white_turn = True if self.data.active_color == 'w' else False
+        pawn_fen = 'P' if is_white_turn else 'p'
+
+        double_moves_start = list(range(48, 56)) if is_white_turn else list(range(8, 16))
+        double_moves_end = list(range(32, 40)) if is_white_turn else list(range(24, 32))
+        if from_piece_val is not pawn_fen: return '-'
+        if from_index not in double_moves_start: return '-'
+        if dest_index not in double_moves_end: return '-'
+
+        en_passant_rights = AN.get_an_from_index(dest_index).data.coordinates
+        validate_fen_en_passant_rights(en_passant_rights)
+
+        return en_passant_rights
+
+    def get_half_move_clock(self, from_piece_val: str, dest_piece_val: str) -> str:
+        is_white_turn = True if self.data.active_color == 'w' else False
+        pawn_fen = 'P' if is_white_turn else 'p'
+        if from_piece_val is pawn_fen or \
+                dest_piece_val is not FenChars.BLANK_PIECE.value: return '0'
+        half_move_clock = str(int(self.data.half_move_clock) + 1)
+        validate_fen_half_move_clock(half_move_clock)
+        return half_move_clock
+
+    def get_full_move_number(self) -> str:
+        if self.data.active_color == 'w' and \
+                self.data.full_move_number == 1:
+            return self.data.full_move_number
+        full_move_number = str(int(self.data.full_move_number) + 1)
+        validate_fen_full_move_number(full_move_number)
+        return full_move_number
 
     def get_expanded(self) -> list[str]:
         expanded_fen: str = ''
@@ -89,29 +162,26 @@ class Fen:
                 fen_notation.append(fen_row)
                 fen_row = ''
                 blank_count = 0
-        return '/'.join(fen_notation)
+        packed = '/'.join(fen_notation)
+        validate_fen_piece_placement(packed)
+        return packed
 
     def make_move(self, from_index: int, dest_index: int) -> None:
+        from_piece_val = self[from_index]
+        dest_piece_val = self[dest_index]
+
         self[dest_index] = self[from_index]
         self[from_index] = FenChars.BLANK_PIECE.value
 
-        self.move_history[dest_index] = self.move_history[from_index]
-        self.move_history[from_index] = []
-
-        self.move_history[dest_index].append(from_index)
-
-        self.update()
+        self.data.piece_placement = self.get_packed()
+        self.data.castling_rights = self.get_castling_rights(from_piece_val, from_index)
+        self.data.en_passant_rights = self.get_en_passant_rights(from_piece_val, from_index, dest_index)
+        self.data.half_move_clock = self.get_half_move_clock(from_piece_val, dest_piece_val)
+        self.data.full_move_number = self.get_full_move_number()
+        self.data.active_color = self.get_next_active_color()
 
 
 # -- Helpers --
-def get_index_from_anc(algebraic_notation_coordinates: str) -> int:
-    col_num = algebraic_notation_coordinates[0]
-    row_str = algebraic_notation_coordinates[1]
-    validate_anc(algebraic_notation_coordinates)
-    ascii_str = string.ascii_lowercase
-    return ((BOARD_SIZE - int(col_num)) * BOARD_SIZE) + ascii_str.index(row_str)
-
-
 def iterate(piece_placement: str) -> typing.Generator[str, None, None]:
     for fen_row in piece_placement.split(FenChars.SPLIT.value):
         for piece_fen in fen_row: yield piece_fen
@@ -140,15 +210,6 @@ def validate_fen_val(fen_val: str, expanded_vals: bool = False) -> bool:
     return True
 
 
-def validate_anc(anc: str) -> bool:
-    col_num = anc[0]
-    row_str = anc[1]
-    if not col_num.isnumeric(): raise IndexError("col should be number")
-    if row_str.isnumeric(): raise IndexError("row should be letter")
-    if int(col_num) > BOARD_SIZE or row_str > 'h': raise IndexError("invalid index")
-    return True
-
-
 def validate_fen_active_color(active_color: str) -> bool:
     if active_color != 'w' and active_color != 'b':
         raise Exception('active color not valid')
@@ -166,7 +227,8 @@ def validate_fen_castling_rights(castling_rights: str):
 
 
 def validate_fen_en_passant_rights(en_passant_rights: str):
-    if en_passant_rights != '-': validate_anc(en_passant_rights)
+    if len(en_passant_rights) > 2: raise Exception('too mny digits')
+    if en_passant_rights != '-': AN.validate_file_and_rank(*en_passant_rights)
     return True
 
 
@@ -183,25 +245,25 @@ def validate_fen_full_move_number(full_move_number: str):
     return True
 
 
+def validate_fen_data(fen_data: FenData) -> bool:
+    validate_fen_piece_placement(fen_data.piece_placement)
+    validate_fen_active_color(fen_data.active_color)
+    validate_fen_castling_rights(fen_data.castling_rights)
+    validate_fen_en_passant_rights(fen_data.en_passant_rights)
+    validate_fen_half_move_clock(fen_data.half_move_clock)
+    validate_fen_full_move_number(fen_data.full_move_number)
+    return True
+
+
 def encode_fen_data(fen_data: FenData) -> str:
     return ' '.join([
         fen_data.piece_placement,
         fen_data.active_color,
         fen_data.castling_rights,
         fen_data.en_passant_rights,
-        fen_data.halfmove_clock,
-        fen_data.fullmove_number
+        fen_data.half_move_clock,
+        fen_data.full_move_number
     ])
-
-
-def validate_fen_data(fen_data: FenData) -> bool:
-    validate_fen_piece_placement(fen_data.piece_placement)
-    validate_fen_active_color(fen_data.active_color)
-    validate_fen_castling_rights(fen_data.castling_rights)
-    validate_fen_en_passant_rights(fen_data.en_passant_rights)
-    validate_fen_half_move_clock(fen_data.halfmove_clock)
-    validate_fen_full_move_number(fen_data.fullmove_number)
-    return True
 
 
 def decode_fen_notation(fen_notation: str) -> FenData:
