@@ -55,11 +55,11 @@ class Player:
         if self.state is not STATE.DROP_PIECE: return
 
         board_square = CHESS.get_collided_board_square(self.board)
-        from_coordinates = CHESS.get_picked_up(self.board).AN_coordinates
+        from_coordinates = CHESS.get_picked_up(self.board).algebraic_notation.data.coordinates
 
         move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, from_coordinates, self.side.name)
         if board_square:
-            dest_coordinates = board_square.AN_coordinates
+            dest_coordinates = board_square.algebraic_notation.data.coordinates
             move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, dest_coordinates, self.side.name)
 
         if local:
@@ -124,6 +124,7 @@ class Player:
             board_square.FEN_val = fen_val
             update_available_moves(board_square, fen, self.side)
         self.is_render_required = True
+
     # ----------------------------
 
     # -- helpers --
@@ -172,6 +173,6 @@ def update_available_moves(board_square: CHESS.BoardSquare, match_fen: FEN.Fen, 
         return None
     name = CHESS.get_name_from_fen(board_square.FEN_val)
     board_square.available_moves = GAME.get_available_moves(name,
-                                                            FEN.get_index_from_anc(board_square.AN_coordinates),
+                                                            board_square.algebraic_notation.data.index,
                                                             match_fen,
                                                             player_side is CHESS.SIDE.WHITE)

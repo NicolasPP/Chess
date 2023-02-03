@@ -2,6 +2,7 @@ import enum
 
 import chess.chess_data as CHESS
 import chess.game as GAME
+import utils.algebraic_notation as AN
 import utils.FEN_notation as FEN
 import utils.commands as CMD
 from config import *
@@ -48,10 +49,10 @@ class Match:
 
     def process_move(self, command_info: str) -> MoveType:
         fc, dc, cmd_dest = command_info.split(I_SPLIT)
-        from_index = FEN.get_index_from_anc(fc)
-        dest_index = FEN.get_index_from_anc(dc)
+        from_index = AN.get_index_from_an(*fc)
+        dest_index = AN.get_index_from_an(*dc)
         is_white_turn = self.is_white_turn()
-        if not is_command_destination_valid(cmd_dest, self.is_white_turn()) or \
+        if not is_command_destination_valid(cmd_dest, is_white_turn) or \
             not GAME.is_move_valid(from_index, dest_index, self.fen, is_white_turn): return MoveType.INVALID
         self.fen.make_move(from_index, dest_index)
         self.moves.append(command_info)
