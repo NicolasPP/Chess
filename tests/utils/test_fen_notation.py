@@ -45,15 +45,15 @@ def test_invalid_get_index_from_anc(anc):
 
 
 @pytest.mark.parametrize("fen_notation,expected", [
-    ("r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1",
+    ("r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 w KQkq - 0 1",
      ['r', '@', 'b', '@', 'k', '@', 'n', 'r', 'p', '@', '@', 'p', '@', 'p', 'N', 'p', 'n', '@', '@', 'B', '@', '@', '@',
       '@', '@', 'p', '@', 'N', 'P', '@', '@', 'P', '@', '@', '@', '@', '@', '@', 'P', '@', '@', '@', '@', 'P', '@', 'Q',
       '@', '@', 'P', '@', 'P', '@', 'K', '@', '@', '@', 'q', '@', '@', '@', '@', '@', 'b', '@']),
-    ("8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8",
+    ("8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8 w KQkq - 0 1",
      ['@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', 'k', '@', '@', '@', '@', '@', 'p', '@', '@', '@',
       '@', '@', 'p', '@', 'P', 'p', '@', '@', 'p', 'p', 'P', '@', '@', 'P', 'p', '@', 'P', 'P', '@', '@', '@', '@', 'P',
       '@', 'K', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@', '@']),
-    ("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R",
+    ("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1",
      ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r', 'p', 'p', '@', 'p', 'p', 'p', 'p', 'p', '@', '@', '@', '@', '@', '@', '@',
       '@', '@', '@', 'p', '@', '@', '@', '@', '@', '@', '@', '@', '@', 'P', '@', '@', '@', '@', '@', '@', '@', '@', 'N',
       '@', '@', 'P', 'P', 'P', 'P', '@', 'P', 'P', 'P', 'R', 'N', 'B', 'Q', 'K', 'B', '@', 'R'])
@@ -86,35 +86,35 @@ def test_pack_fen(expanded_fen, expected):
 
 
 @pytest.mark.parametrize("fen_notation", [
-    '8/8/8/8/8/8/8/8',
-    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR',
-    '8/8/8/3PpP2/3pKp2/3PpP2/8/8',
-    '8/8/8/5p2/4b3/3p1p2/2P3P1/8',
-    '8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8',
-    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+    '8/8/8/8/8/8/8/8 w KQkq - 0 1',
+    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 0 1',
+    '8/8/8/3PpP2/3pKp2/3PpP2/8/8 w KQkq - 0 1',
+    '8/8/8/5p2/4b3/3p1p2/2P3P1/8 w KQkq - 0 1',
+    '8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8 w KQkq - 0 1',
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 ])
 def test_fen_validation(fen_notation: str):
-    assert FEN.validate_fen_notation(fen_notation)
+    assert FEN.Fen(fen_notation)
 
 
 @pytest.mark.parametrize("fen_notation", [
-    '8/8/8/8/8/8/8/9',
-    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBLR',
-    '8/8/8/3PpP2/3pKp2/3P0pP2/8/8',
-    '8/8/8/5p2/4b3/3p1p2/2P3PP1/8',
+    '8/8/8/8/8/8/8/9 w KQkq - 0 1',
+    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBLR w KQkq - 0 1',
+    '8/8/8/3PpP2/3pKp2/3P0pP2/8/8 w KQkq - 0 1',
+    '8/8/8/5p2/4b3/3p1p2/2P3PP1/8 w KQkq - 0 1',
 ])
 def test_fail_fen_validation(fen_notation: str):
     with pytest.raises(Exception):
-        assert FEN.validate_fen_notation(fen_notation)
+        assert FEN.Fen(fen_notation)
 
 
 @pytest.mark.parametrize("fen_notation", [
-    '8/8/8/8/8/8/8/8',
-    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR',
-    '8/8/8/3PpP2/3pKp2/3PpP2/8/8',
-    '8/8/8/5p2/4b3/3p1p2/2P3P1/8',
-    '8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8',
-    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+    '8/8/8/8/8/8/8/8 w KQkq - 0 1',
+    'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 0 1',
+    '8/8/8/3PpP2/3pKp2/3PpP2/8/8 w KQkq - 0 1',
+    '8/8/8/5p2/4b3/3p1p2/2P3P1/8 w KQkq - 0 1',
+    '8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8 w KQkq - 0 1',
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 ])
 def test_fen_repr(fen_notation):
     assert len(FEN.Fen(fen_notation).__repr__()) is 71
@@ -122,7 +122,7 @@ def test_fen_repr(fen_notation):
 
 
 def test_fen_setitem():
-    fen = FEN.Fen('8/8/8/8/8/8/8/8')
+    fen = FEN.Fen('8/8/8/8/8/8/8/8 w KQkq - 0 1')
     fen[10] = 'k'
     assert fen[10] is 'k'
     fen[10] = fen[0]
