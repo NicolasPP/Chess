@@ -281,7 +281,7 @@ def is_destination_valid(from_index: int, dest_index: int, fen: FEN.Fen, is_whit
 def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: bool) -> bool:
     king_fen = 'K' if is_white_turn else 'k'
 
-    new_fen = FEN.Fen(fen.get_notation(), fen.move_history)
+    new_fen = FEN.Fen(fen.notation, fen.move_history)
     new_fen.make_move(from_index, dest_index)
 
     own_king_indexes = new_fen.get_index_for_piece(king_fen)
