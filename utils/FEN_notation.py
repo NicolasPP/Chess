@@ -1,6 +1,5 @@
 import dataclasses
 import enum
-import string
 import typing
 
 import utils.algebraic_notation as AN
