@@ -58,4 +58,6 @@ def test_first_turn_blocked(pawn_test_fen):
     (48, True)
 ])
 def test_default_fen(from_index: int, is_white_turn: bool):
-    assert len(GAME.get_available_moves('PAWN', from_index, FEN.Fen(), is_white_turn)) is 2
+    fen = FEN.Fen()
+    if not is_white_turn: fen.data.active_color = 'b'
+    assert len(GAME.get_available_moves('PAWN', from_index, fen, is_white_turn)) is 2
