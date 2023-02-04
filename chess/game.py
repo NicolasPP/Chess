@@ -23,7 +23,8 @@ def set_info_for(piece: CHESS.PIECES, fen_val: str):
 
 
 @set_info_for(CHESS.PIECES.PAWN, 'P')
-def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     up = get_fen_offset_index(is_white_turn, from_index, 1, 0)  # up
     double_up = get_fen_offset_index(is_white_turn, from_index, 2, 0)  # up_up
@@ -52,7 +53,8 @@ def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> 
 
 
 @set_info_for(CHESS.PIECES.KNIGHT, 'N')
-def knight_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+def knight_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     moves_offset = [
         (2, -1),  # up_right
@@ -71,7 +73,8 @@ def knight_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -
 
 
 @set_info_for(CHESS.PIECES.ROOK, 'R')
-def rook_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+def rook_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     up, down, right, left = get_flat_offsets()
 
@@ -84,7 +87,8 @@ def rook_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> 
 
 
 @set_info_for(CHESS.PIECES.BISHOP, 'B')
-def bishop_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+def bishop_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
 
     up_right, down_right, up_left, down_left = get_diagonal_offsets()
@@ -98,7 +102,8 @@ def bishop_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -
 
 
 @set_info_for(CHESS.PIECES.QUEEN, 'Q')
-def queen_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+def queen_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     moves += bishop_available_moves(from_index, fen, is_white_turn)
     moves += rook_available_moves(from_index, fen, is_white_turn)
@@ -106,7 +111,8 @@ def queen_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) ->
 
 
 @set_info_for(CHESS.PIECES.KING, 'K')
-def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     moves_offset = [
         (1, -1),  # up_right
@@ -130,7 +136,8 @@ def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: bool) -> 
 # -- Piece Move Helpers --
 
 
-def get_available_moves(piece_name: str, from_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+def get_available_moves(piece_name: str, from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     available_moves = CHESS.PIECES[piece_name].available_moves(from_index, fen, is_white_turn)
     safe_moves = []
     for move in available_moves:
@@ -220,37 +227,38 @@ def move_fixed_amount(
 # -- Checking if Move is Valid --
 
 
-def is_move_valid(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: bool) -> bool:
-    if not is_from_valid(fen[from_index], is_white_turn): return False
+def is_move_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool:
+    if not is_from_valid(fen, from_index): return False
     if not is_side_valid(from_index, dest_index, fen): return False
-    if not is_destination_valid(from_index, dest_index, fen, is_white_turn): return False
+    if not is_destination_valid(from_index, dest_index, fen): return False
     return True
 
 
 # -- helpers --
 
 
-def is_opponent_in_check(fen: FEN.Fen, is_white_turn: bool) -> bool:
-    own_moves = get_all_available_moves(fen, is_white_turn, own_moves=True)
-    king_fen = 'k' if is_white_turn else 'K'
+def is_opponent_in_check(fen: FEN.Fen) -> bool:
+    own_moves = get_all_available_moves(fen, own_moves=True)
+    king_fen = 'k' if fen.is_white_turn() else 'K'
     for move in own_moves:
         if fen[move] == king_fen: return True
     return False
 
 
-def is_opponent_in_checkmate(fen: FEN.Fen, is_white_turn: bool) -> bool:
-    opponents_moves = get_all_available_moves(fen, is_white_turn, own_moves=False)
+def is_opponent_in_checkmate(fen: FEN.Fen) -> bool:
+    opponents_moves = get_all_available_moves(fen, own_moves=False)
     return len(opponents_moves) == 0
 
 
-def get_all_available_moves(fen: FEN.Fen, is_white_turn: bool, *, own_moves: bool) -> list[int]:
+def get_all_available_moves(fen: FEN.Fen, *, own_moves: bool) -> list[int]:
     moves = []
     for index, fen_char in enumerate(fen.expanded):
-        same_side = is_same_side(is_white_turn, fen_char)
+        same_side = is_same_side(fen.is_white_turn(), fen_char)
         if fen_char == FEN.FenChars.BLANK_PIECE.value: continue
         if not same_side if own_moves else same_side: continue
+
         piece_name = CHESS.get_name_from_fen(fen_char)
-        moves += get_available_moves(piece_name, index, fen, is_white_turn if own_moves else not is_white_turn)
+        moves += get_available_moves(piece_name, index, fen, own_moves == fen.is_white_turn())
 
     return moves
 
@@ -259,9 +267,10 @@ def is_same_side(is_white_turn: bool, fen_char: str) -> bool:
     return (is_white_turn and fen_char.isupper()) if is_white_turn else ((not is_white_turn) and fen_char.islower())
 
 
-def is_from_valid(from_fen_val: str, is_white_turn: bool) -> bool:
+def is_from_valid(fen: FEN.Fen, from_index: int) -> bool:
+    from_fen_val = fen[from_index]
     if from_fen_val == FEN.FenChars.BLANK_PIECE.value: return False
-    if not is_from_correct_side(from_fen_val, is_white_turn): return False
+    if not is_from_correct_side(from_fen_val, fen.is_white_turn()): return False
     return True
 
 
@@ -271,14 +280,15 @@ def is_side_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool:
     return True
 
 
-def is_destination_valid(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: bool) -> bool:
+def is_destination_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool:
     piece_name = CHESS.get_name_from_fen(fen[from_index])
-    available_moves = get_available_moves(piece_name, from_index, fen, is_white_turn)
+    available_moves = get_available_moves(piece_name, from_index, fen)
     if dest_index not in available_moves: return False
     return True
 
 
-def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: bool) -> bool:
+def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> bool:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     king_fen = 'K' if is_white_turn else 'k'
 
     new_fen = FEN.Fen(fen.notation)

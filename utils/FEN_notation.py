@@ -59,8 +59,11 @@ class Fen:
     def notation(self) -> None:
         del self._notation
 
+    def is_white_turn(self) -> bool:
+        return self.data.active_color == 'w'
+
     def get_next_active_color(self) -> str:
-        if self.data.active_color == 'w':
+        if self.is_white_turn():
             active_color = 'b'
         else:
             active_color = 'w'
