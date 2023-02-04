@@ -191,6 +191,8 @@ def test_get_castling_rights():
     assert f.get_castling_rights('k', 4) == 'KQ'
     f = FEN.Fen("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1")
     assert f.get_castling_rights('r', 0) == 'KQk'
+    f = FEN.Fen('r3k2r/8/8/8/8/8/7R/R3K3 w KQkq - 1 2')
+    assert f.get_castling_rights('R', 63) == 'Qkq'
 
 
 @pytest.mark.parametrize("full_move_number", ["k", "-1"])
