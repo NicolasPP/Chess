@@ -5,6 +5,7 @@ import socket as skt
 import click
 
 import chess.match as MATCH
+import utils.FEN_notation as FEN
 import utils.commands as CMD
 import utils.network as NET
 from config import *
@@ -75,6 +76,7 @@ def client_listener(client_socket: skt.socket, server: Server):
     with client_socket:
         p_id = server.get_id()
         client_socket.send(str.encode(p_id))
+        client_socket.send(str.encode(FEN.encode_fen_data(server.match.fen.data)))
         while True:
             data: bytes = client_socket.recv(DATA_SIZE)
             if not data: break
@@ -88,24 +90,22 @@ def client_listener(client_socket: skt.socket, server: Server):
 
             match move_type:
                 case MATCH.MoveType.CHECK:
-                    next_turn_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.NEXT_TURN).info, NO_INFO])
                     update_pos_command = I_SPLIT.join(
                         [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-                    commands.append(next_turn_command)
                     commands.append(update_pos_command)
                 case MATCH.MoveType.CHECKMATE:
+                    end_game_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.END_GAME).info, NO_INFO])
                     update_pos_command = I_SPLIT.join(
                         [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
+                    commands.append(end_game_command)
                     commands.append(update_pos_command)
                 case MATCH.MoveType.CASTLE:
                     assert False, "CASTLE Not implemented"
                 case MATCH.MoveType.EN_PASSANT:
                     assert False, "EN_PASSANT Not implemented"
                 case MATCH.MoveType.REGULAR:
-                    next_turn_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.NEXT_TURN).info, NO_INFO])
                     update_pos_command = I_SPLIT.join(
                         [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-                    commands.append(next_turn_command)
                     commands.append(update_pos_command)
                 case MATCH.MoveType.INVALID:
                     invalid_move_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.INVALID_MOVE).info, NO_INFO])

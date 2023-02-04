@@ -30,6 +30,8 @@ black_player = PLAYER.Player(
     board_asset=random.choice(list(ASSETS.BoardAssets)),
     scale=BOARD_SCALE
 )
+white_player.update_turn(match.fen)
+black_player.update_turn(match.fen)
 
 
 def update_window_caption(*players: PLAYER.Player) -> None:

@@ -57,13 +57,9 @@ def correct_data(received_data: str, prev_data_tail: str) -> tuple[str, str]:
 
 
 def update_window_caption(player: PLAYER.Player) -> None:
-    if player.turn:
-        pygame.display.set_caption(f"{player.side.name}s TURN")
-    else:
-        if player.side == CHESS.SIDE.WHITE:
-            pygame.display.set_caption(f"BLACK's TURN")
-        elif player.side == CHESS.SIDE.BLACK:
-            pygame.display.set_caption(f"WHITE's TURN")
+    if player.game_over:
+        pygame.display.set_caption('GAME OVER')
+    else: pygame.display.set_caption(player.get_window_title())
 
 
 def get_player(network: NET.Network) -> PLAYER.Player:
@@ -95,8 +91,9 @@ def run_main_loop(server_ip: str) -> None:
 
     clock = pygame.time.Clock()
     network = NET.Network(server_ip)
-    match_fen = FEN.Fen()
+    match_fen = FEN.Fen(network.read())
     player = get_player(network)
+    player.update_turn(match_fen)
     bg_color, font_color = get_colors(player)
 
     thread.start_new_thread(server_listener, (player, network.socket, match_fen))
