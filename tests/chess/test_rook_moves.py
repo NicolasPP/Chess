@@ -10,9 +10,7 @@ def test_base_moves():
 
 @pytest.mark.parametrize("from_index,is_white_turn", [(0, False), (7, False), (63, True), (56, True)])
 def test_default_fen(from_index: int, is_white_turn: bool):
-    fen = FEN.Fen()
-    if not is_white_turn: fen.data.active_color = fen.get_next_active_color()
-    assert len(GAME.get_available_moves('ROOK', from_index, fen)) is 0
+    assert len(GAME.get_available_moves('ROOK', from_index, FEN.Fen(), is_white_turn)) is 0
 
 
 def test_fully_blocked():

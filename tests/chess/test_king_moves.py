@@ -18,9 +18,7 @@ def test_possible_take():
 
 @pytest.mark.parametrize("from_index,is_white_turn", [(4, False), (60, True)])
 def test_default_fen(from_index: int, is_white_turn: bool):
-    fen = FEN.Fen()
-    if not is_white_turn: fen.data.active_color = fen.get_next_active_color()
-    assert len(GAME.get_available_moves('KING', from_index, fen)) is 0
+    assert len(GAME.get_available_moves('KING', from_index, FEN.Fen(), is_white_turn)) is 0
 
 
 @pytest.mark.xfail

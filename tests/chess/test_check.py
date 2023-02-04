@@ -24,13 +24,12 @@ def test_moving_into_check():
 ])
 def test_get_out_check(fen: FEN.Fen, piece_fen_val: str):
     assert GAME.is_opponent_in_check(fen)
-    fen.data.active_color = fen.get_next_active_color()
     for index, fen_val in enumerate(fen.expanded):
         if fen_val is FEN.FenChars.BLANK_PIECE.value: continue
-        if fen_val.islower() if fen.is_white_turn() else fen_val.isupper(): continue
+        if fen_val.isupper() if fen.is_white_turn() else fen_val.islower(): continue
 
         piece_name = CHESS.get_name_from_fen(fen_val)
-        moves = GAME.get_available_moves(piece_name, index, fen)
+        moves = GAME.get_available_moves(piece_name, index, fen, not fen.is_white_turn())
 
         if fen_val == piece_fen_val:
             assert len(moves) == 1
