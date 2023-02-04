@@ -2,6 +2,7 @@ import typing
 
 import chess.chess_data as CHESS
 import utils.FEN_notation as FEN
+import utils.algebraic_notation as AN
 from config import *
 
 # -- Defining Movement --
@@ -39,11 +40,17 @@ def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
                 (fen[double_up] == FEN.FenChars.BLANK_PIECE.value) and \
                 (fen[up] == FEN.FenChars.BLANK_PIECE.value): moves.append(double_up)
 
+    # en passant move
+    if fen.data.en_passant_rights != '-':
+        en_passant_an = AN.AlgebraicNotation(*fen.data.en_passant_rights)
+        if from_index + 1 == en_passant_an.data.index or from_index - 1 == en_passant_an.data.index:
+            move = get_fen_offset_index(is_white_turn, en_passant_an.data.index, 1, 0)
+            if move is not None: moves.append(move)
+
     if (up is not None) and (fen[up] == FEN.FenChars.BLANK_PIECE.value): moves.append(up)
 
     for move in [up_right, up_left]:
-        if move is None:
-            continue
+        if move is None: continue
         elif is_white_turn:
             if fen[move].islower(): moves.append(move)
         else:

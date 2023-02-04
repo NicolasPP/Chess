@@ -170,9 +170,36 @@ class Fen:
         from_piece_val = self[from_index]
         dest_piece_val = self[dest_index]
 
+        if self.is_move_en_passant(from_index, dest_index) and \
+                self.data.en_passant_rights != '-':
+                en_passant_an = AN.AlgebraicNotation(*self.data.en_passant_rights)
+                self.make_en_passant_move(from_index, dest_index, en_passant_an.data.index)
+        else:
+            self.make_regular_move(from_index, dest_index)
+
+        self.update_fen_data(from_index, dest_index, from_piece_val, dest_piece_val)
+
+    def make_en_passant_move(self, from_index: int, dest_index: int, en_passant_index: int) -> None:
+        print('making en passant')
+        self.make_regular_move(from_index, dest_index)
+        self[en_passant_index] = FenChars.BLANK_PIECE.value
+
+    def make_castle_move(self, from_index: int, dest_index: int) -> None:
+        pass
+
+    def make_regular_move(self, from_index: int, dest_index: int) -> None:
         self[dest_index] = self[from_index]
         self[from_index] = FenChars.BLANK_PIECE.value
 
+    def is_move_en_passant(self, from_index: int, dest_index: int) -> bool:
+        pawn_fen =  'P' if self.is_white_turn() else 'p'
+        if self[from_index] != pawn_fen: return False
+        from_an = AN.get_an_from_index(from_index)
+        dest_an = AN.get_an_from_index(dest_index)
+        return from_an.data.file != dest_an.data.file and \
+            self[dest_index] == FenChars.BLANK_PIECE.value
+
+    def update_fen_data(self, from_index: int, dest_index: int, from_piece_val: str, dest_piece_val: str) -> None:
         self.data.piece_placement = self.get_packed()
         self.data.castling_rights = self.get_castling_rights(from_piece_val, from_index)
         self.data.en_passant_rights = self.get_en_passant_rights(from_piece_val, from_index, dest_index)

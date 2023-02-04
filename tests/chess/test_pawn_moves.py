@@ -59,3 +59,26 @@ def test_first_turn_blocked(pawn_test_fen):
 ])
 def test_default_fen(from_index: int, is_white_turn: bool):
     assert len(GAME.get_available_moves('PAWN', from_index, FEN.Fen(), is_white_turn)) is 2
+
+
+def test_en_passant():
+    fen = FEN.Fen()
+    expected = fen[53]
+    fen.make_move(53, 37)
+    assert fen[37] == expected
+    expected = fen[13]
+    fen.make_move(13, 21)
+    assert fen[21] == expected
+    expected = fen[37]
+    fen.make_move(37, 29)
+    assert fen[29] == expected
+    fen.make_move(14, 30)
+    assert len(GAME.get_available_moves('PAWN', 29, fen)) == 1
+    fen.make_move(48, 40)
+    assert len(GAME.get_available_moves('PAWN', 29, fen, True)) == 0
+    fen.make_move(12, 28)
+    assert len(GAME.get_available_moves('PAWN', 29, fen)) == 1
+    fen.make_move(29, 20)
+    assert fen[28] == FEN.FenChars.BLANK_PIECE.value
+    assert fen[20] == 'P'
+
