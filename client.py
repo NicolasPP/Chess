@@ -91,7 +91,8 @@ def run_main_loop(server_ip: str) -> None:
 
     clock = pygame.time.Clock()
     network = NET.Network(server_ip)
-    match_fen = FEN.Fen(network.read())
+    game_state = network.read()
+    match_fen = FEN.Fen(game_state)
     player = get_player(network)
     player.update_turn(match_fen)
     bg_color, font_color = get_colors(player)
