@@ -110,6 +110,15 @@ def test_fen_setitem():
     assert fen[0] is FEN.FenChars.BLANK_PIECE.value
 
 
+def test_fen_notation():
+    fen = FEN.Fen()
+    fen.notation = '8/8/8/8/8/8/8/8 w KQkq - 0 1'
+    assert fen.notation == FEN.encode_fen_data(fen.data)
+    del fen.notation
+
+def test_fen_str():
+    fen = FEN.Fen()
+    assert str(fen) == 'fen : ' + fen.data.piece_placement + '\n' + fen.__repr__()
 @pytest.mark.parametrize("fen_notation,expected", [
     ("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
      FEN.FenData("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq", "-", "0", "1")),
@@ -154,9 +163,9 @@ def test_get_full_move_number():
     f = FEN.Fen()
     assert f.data.full_move_number == '1'
     f.make_move(30, 33)
-    assert f.data.full_move_number == '2'
+    assert f.data.full_move_number == '1'
     f.make_move(33, 30)
-    assert f.data.full_move_number == '3'
+    assert f.data.full_move_number == '2'
 
 
 def test_get_half_move_number():
@@ -180,12 +189,20 @@ def test_get_castling_rights():
     assert f.get_castling_rights('K', 60) == 'kq'
     f = FEN.Fen("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1")
     assert f.get_castling_rights('k', 4) == 'KQ'
+    f = FEN.Fen("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1")
+    assert f.get_castling_rights('r', 0) == 'KQk'
 
 
 @pytest.mark.parametrize("full_move_number", ["k", "-1"])
 def test_validate_fen_full_move_number(full_move_number: str):
     with pytest.raises(Exception):
         FEN.validate_fen_full_move_number(full_move_number)
+
+
+@pytest.mark.parametrize("active_color", ["h", "1", "*"])
+def test_validate_fen_active_color(active_color: str):
+    with pytest.raises(Exception):
+        FEN.validate_fen_active_color(active_color)
 
 
 @pytest.mark.parametrize("half_move_clock", ["k", "-1", "101"])

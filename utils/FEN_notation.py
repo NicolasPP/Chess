@@ -120,7 +120,7 @@ class Fen:
 
     def get_full_move_number(self) -> str:
         if self.data.active_color == 'w' and \
-                self.data.full_move_number == 1:
+                self.data.full_move_number == '1':
             return self.data.full_move_number
         full_move_number = str(int(self.data.full_move_number) + 1)
         validate_fen_full_move_number(full_move_number)
@@ -131,8 +131,6 @@ class Fen:
         for piece_fen in iterate(self.data.piece_placement):
             if piece_fen.isnumeric():
                 expanded_fen += (int(piece_fen) * FenChars.BLANK_PIECE.value)
-            elif piece_fen == FenChars.SPLIT.value:
-                continue
             else:
                 expanded_fen += piece_fen
 
