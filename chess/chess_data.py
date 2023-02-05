@@ -5,6 +5,7 @@ import typing
 
 import pygame
 
+import utils.algebraic_notation as AN
 import utils.FEN_notation as FEN
 import utils.asset as ASSETS
 from config import *
@@ -39,7 +40,7 @@ class SIDE(enum.Enum):
 @dataclasses.dataclass
 class BoardSquare:
     rect: pygame.rect.Rect
-    AN_coordinates: str
+    algebraic_notation: AN.AlgebraicNotation
     available_moves: list[int]
     FEN_val: str = FEN.FenChars.BLANK_PIECE.value
     picked_up: bool = False
@@ -145,14 +146,13 @@ def get_grid_surface_size(board_sprite: ASSETS.Sprite) -> pygame.math.Vector2:
     return board_size - (offset * 2)
 
 
-def board_square_info(side: SIDE) -> typing.Generator[tuple[int, int, str], None, None]:
-    ranks = string.ascii_lowercase[:BOARD_SIZE]
-    ranks = ranks[::-1] if side is SIDE.BLACK else ranks
-    for row in range(BOARD_SIZE):
-        for col, rank in zip(range(BOARD_SIZE), ranks):
-            num = BOARD_SIZE - row if side is SIDE.WHITE else row + 1
-            an_coordinates = str(num) + rank
-            yield row, col, an_coordinates
+def board_square_info(side: SIDE) -> typing.Generator[tuple[int, int, AN.AlgebraicNotation], None, None]:
+    files = string.ascii_lowercase[:BOARD_SIZE]
+    files = files[::-1] if side is SIDE.BLACK else files
+    for rank in range(BOARD_SIZE):
+        for col, file in enumerate(files):
+            str_rank = str(BOARD_SIZE - rank) if side is SIDE.WHITE else str(rank + 1)
+            yield rank, col, AN.AlgebraicNotation(file, str_rank)
 
 
 def get_board(board_asset: ASSETS.Asset, side: SIDE, scale: float) -> Board:
@@ -184,10 +184,10 @@ def create_grid(board_sprite: ASSETS.Sprite, pos_rect: pygame.rect.Rect, side: S
     size = get_grid_surface_size(board_sprite) / BOARD_SIZE
     board_offset = pygame.math.Vector2(pos_rect.topleft)
     grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
-    for row, col, an_coordinates in board_square_info(side):
+    for row, col, algebraic_notation in board_square_info(side):
         pos = pygame.math.Vector2(col * size.x, row * size.y)
         rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
-        grid.append(BoardSquare(rect, an_coordinates, []))
+        grid.append(BoardSquare(rect, algebraic_notation, []))
     if side is SIDE.BLACK: grid = grid[::-1]
     return grid
 

@@ -2,6 +2,7 @@ import enum
 
 import chess.chess_data as CHESS
 import chess.game as GAME
+import utils.algebraic_notation as AN
 import utils.FEN_notation as FEN
 import utils.commands as CMD
 from config import *
@@ -30,35 +31,31 @@ class Match:
         if command is None: return
         match (self.process_move(command.info)):
             case MoveType.CHECK:
-                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.NEXT_TURN))
                 CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
-                print('check')
             case MoveType.CHECKMATE:
-                print('checkmate')
                 CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
+                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.END_GAME))
             case MoveType.CASTLE:
                 pass
             case MoveType.EN_PASSANT:
                 pass
             case MoveType.REGULAR:
-                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.NEXT_TURN))
                 CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
             case MoveType.INVALID:
                 CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.INVALID_MOVE))
 
     def process_move(self, command_info: str) -> MoveType:
         fc, dc, cmd_dest = command_info.split(I_SPLIT)
-        from_index = FEN.get_index_from_anc(fc)
-        dest_index = FEN.get_index_from_anc(dc)
-        is_white_turn = self.is_white_turn()
-        if not is_command_destination_valid(cmd_dest, self.is_white_turn()) or \
-            not GAME.is_move_valid(from_index, dest_index, self.fen, is_white_turn): return MoveType.INVALID
+        from_index, dest_index = AN.get_index_from_an(*fc), AN.get_index_from_an(*dc)
+        if not is_command_destination_valid(cmd_dest, self.fen.is_white_turn()) or \
+            not GAME.is_move_valid(from_index, dest_index, self.fen): return MoveType.INVALID
         self.fen.make_move(from_index, dest_index)
         self.moves.append(command_info)
-        return get_move_type(self.fen, is_white_turn)
 
-    def is_white_turn(self) -> bool:
-        return len(self.moves) % 2 == 0
+        c_fen = FEN.Fen(FEN.encode_fen_data(self.fen.data))
+        c_fen.data.active_color = self.fen.get_next_active_color()
+        move_type = get_move_type(c_fen)
+        return move_type
 
 
 # -------------
@@ -70,8 +67,8 @@ def is_command_destination_valid(cmd_dest: str, is_white: bool) -> bool:
     return False
 
 
-def get_move_type(fen: FEN.Fen, is_white_turn: bool) -> MoveType:
-    if GAME.is_opponent_in_checkmate(fen, is_white_turn): return MoveType.CHECKMATE
-    if GAME.is_opponent_in_check(fen, is_white_turn): return MoveType.CHECK
+def get_move_type(fen: FEN.Fen) -> MoveType:
+    if GAME.is_opponent_in_checkmate(fen): return MoveType.CHECKMATE
+    if GAME.is_opponent_in_check(fen): return MoveType.CHECK
     return MoveType.REGULAR
 # -------------------------

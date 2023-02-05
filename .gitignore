@@ -134,3 +134,4 @@ dmypy.json
 #pytest-cov
 check_code.sh
 .coverage
+htmlcov/

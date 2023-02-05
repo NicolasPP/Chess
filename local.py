@@ -30,10 +30,15 @@ black_player = PLAYER.Player(
     board_asset=random.choice(list(ASSETS.BoardAssets)),
     scale=BOARD_SCALE
 )
+white_player.update_turn(match.fen)
+black_player.update_turn(match.fen)
 
 
 def update_window_caption(*players: PLAYER.Player) -> None:
     for player in players:
+        if player.game_over:
+            pygame.display.set_caption('GAME OVER')
+            return
         if not player.turn: continue
         pygame.display.set_caption(f"{player.side.name}s TURN")
         return

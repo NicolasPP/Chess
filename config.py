@@ -12,7 +12,7 @@ AVAILABLE_MOVE_COLOR: str = 'green'
 PIECE_BG: tuple[int, int, int] = 0, 0, 0
 
 # -- Default vals --
-GAME_START_FEN: str = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
+GAME_START_FEN: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 GRID_OFFSET: int = 7
 NO_SURFACE: None = None
 EMPTY_Q: None = None
@@ -20,5 +20,5 @@ EMPTY_Q: None = None
 # -- Data operations --
 END_MARKER: str = '#'
 NO_INFO: str = '<>'
-I_SPLIT: str = '-'
+I_SPLIT: str = '*'
 C_SPLIT: str = '%'

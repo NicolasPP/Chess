@@ -1,5 +1,4 @@
 import enum
-import typing
 
 import pygame
 
@@ -39,6 +38,7 @@ class Player:
         self.turn: bool = side is CHESS.SIDE.WHITE
         self.state: STATE = STATE.PICK_PIECE
         self.is_render_required: bool = True
+        self.game_over = False
 
     # -- reading playing input --
     def parse_input(
@@ -55,11 +55,11 @@ class Player:
         if self.state is not STATE.DROP_PIECE: return
 
         board_square = CHESS.get_collided_board_square(self.board)
-        from_coordinates = CHESS.get_picked_up(self.board).AN_coordinates
+        from_coordinates = CHESS.get_picked_up(self.board).algebraic_notation.data.coordinates
 
         move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, from_coordinates, self.side.name)
         if board_square:
-            dest_coordinates = board_square.AN_coordinates
+            dest_coordinates = board_square.algebraic_notation.data.coordinates
             move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, dest_coordinates, self.side.name)
 
         if local:
@@ -124,17 +124,36 @@ class Player:
             board_square.FEN_val = fen_val
             update_available_moves(board_square, fen, self.side)
         self.is_render_required = True
+
     # ----------------------------
 
     # -- helpers --
     def progress_state(self) -> None:
         self.state = STATE((self.state.value + 1) % len(list(STATE)))
 
-    def swap_turn(self) -> None:
-        self.turn = not self.turn
+    def end_turn(self) -> None:
+        self.turn = False
+        self.game_over = True
+
+    def update_turn(self, fen: FEN.Fen) -> None:
+        if self.side is CHESS.SIDE.WHITE:
+            if fen.is_white_turn():
+                self.turn = True
+            else:
+                self.turn = False
+        else:
+            if not fen.is_white_turn():
+                self.turn = True
+            else:
+                self.turn = False
 
     def set_require_render(self, is_render_required: bool) -> None:
         self.is_render_required = is_render_required
+
+    def get_window_title(self):
+        if self.turn: return f"{self.side.name}s TURN"
+        opposite_side = CHESS.SIDE.WHITE if self.side is CHESS.SIDE.BLACK else CHESS.SIDE.BLACK
+        return f"{opposite_side.name}s TURN"
 
 
 # -------------
@@ -146,8 +165,10 @@ def parse_command(command: str, info: str, match_fen: FEN.Fen, *players: Player,
         case CMD.COMMANDS.UPDATE_POS:
             if not local: match_fen = FEN.Fen(fen_notation=info)
             list(map(lambda player: player.update_pieces_location(match_fen), players))
-        case CMD.COMMANDS.NEXT_TURN:
-            list(map(lambda player: player.swap_turn(), players))
+            list(map(lambda player: player.update_turn(match_fen), players))
+        case CMD.COMMANDS.END_GAME:
+            print('end game')
+            list(map(lambda player: player.end_turn(), players))
         case CMD.COMMANDS.INVALID_MOVE:
             list(map(lambda player: player.set_require_render(True), players))
         case _:
@@ -172,6 +193,5 @@ def update_available_moves(board_square: CHESS.BoardSquare, match_fen: FEN.Fen, 
         return None
     name = CHESS.get_name_from_fen(board_square.FEN_val)
     board_square.available_moves = GAME.get_available_moves(name,
-                                                            FEN.get_index_from_anc(board_square.AN_coordinates),
-                                                            match_fen,
-                                                            player_side is CHESS.SIDE.WHITE)
+                                                            board_square.algebraic_notation.data.index,
+                                                            match_fen)

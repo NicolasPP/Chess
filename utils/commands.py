@@ -7,7 +7,7 @@ from config import *
 
 class COMMANDS(enum.Enum):
     UPDATE_POS: str = 'update_pos'
-    NEXT_TURN: str = 'next_turn'
+    END_GAME: str = 'end_game'
     MOVE: str = 'move'
     INVALID_MOVE: str = 'invalid_move'
 
@@ -41,8 +41,8 @@ def get(command: COMMANDS, from_coordinates: str = '', dest_coordinates: str = '
     match command:
         case COMMANDS.UPDATE_POS:
             return get_update_pieces_pos()
-        case COMMANDS.NEXT_TURN:
-            return get_next_turn()
+        case COMMANDS.END_GAME:
+            return get_end_game()
         case COMMANDS.INVALID_MOVE:
             return get_invalid_move()
         case COMMANDS.MOVE:
@@ -62,8 +62,8 @@ def get_update_pieces_pos() -> Command:
     return Command(COMMANDS.UPDATE_POS.value)
 
 
-def get_next_turn() -> Command:
-    return Command(COMMANDS.NEXT_TURN.value)
+def get_end_game() -> Command:
+    return Command(COMMANDS.END_GAME.value)
 
 
 def get_invalid_move() -> Command:
