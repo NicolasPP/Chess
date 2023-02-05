@@ -9,6 +9,10 @@ def test_check():
     assert GAME.is_opponent_in_check(FEN.Fen('8/8/8/3PpP2/3pkp2/3PpP2/8/8 w KQkq - 0 1'))
 
 
+def test_not_in_check():
+    assert not GAME.is_opponent_in_check(FEN.Fen())
+
+
 def test_moving_into_check():
     assert len(GAME.get_available_moves('KING', 36, FEN.Fen('8/8/8/3PpP2/3pKp2/3PpP2/8/8 w KQkq - 0 1'))) is 1
     assert len(GAME.get_available_moves('PAWN', 44, FEN.Fen('8/8/8/6b1/8/4P3/3K4/8 w KQkq - 0 1'))) is 0
