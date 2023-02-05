@@ -48,7 +48,7 @@ class Match:
         fc, dc, cmd_dest = command_info.split(I_SPLIT)
         from_index, dest_index = AN.get_index_from_an(*fc), AN.get_index_from_an(*dc)
         if not is_command_destination_valid(cmd_dest, self.fen.is_white_turn()) or \
-                not GAME.is_move_valid(from_index, dest_index, self.fen): return MoveType.INVALID
+            not GAME.is_move_valid(from_index, dest_index, self.fen): return MoveType.INVALID
         self.fen.make_move(from_index, dest_index)
         self.moves.append(command_info)
 
