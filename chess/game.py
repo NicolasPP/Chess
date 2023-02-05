@@ -50,7 +50,8 @@ def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
     if (up is not None) and (fen[up] == FEN.FenChars.BLANK_PIECE.value): moves.append(up)
 
     for move in [up_right, up_left]:
-        if move is None: continue
+        if move is None:
+            continue
         elif is_white_turn:
             if fen[move].islower(): moves.append(move)
         else:
@@ -282,7 +283,7 @@ def is_from_valid(fen: FEN.Fen, from_index: int) -> bool:
 
 
 def is_side_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool:
-    if is_same(from_index, dest_index): return False
+    if from_index == dest_index: return False
     if is_same_team(fen[from_index], fen[dest_index]): return False
     return True
 
@@ -338,10 +339,6 @@ def get_possible_threats(piece_index: int, fen: FEN.Fen, is_white_turn: bool) ->
 def is_from_correct_side(from_fen_val: str, is_white: bool) -> bool:
     if is_white: return from_fen_val.isupper()
     return from_fen_val.islower()
-
-
-def is_same(from_index: int, dest_index: int) -> bool:
-    return from_index == dest_index
 
 
 def is_same_team(piece1: str, piece2: str) -> bool:
