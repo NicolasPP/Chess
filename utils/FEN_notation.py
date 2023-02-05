@@ -170,34 +170,55 @@ class Fen:
         from_piece_val = self[from_index]
         dest_piece_val = self[dest_index]
 
-        if self.is_move_en_passant(from_index, dest_index) and \
-                self.data.en_passant_rights != '-':
-                en_passant_an = AN.AlgebraicNotation(*self.data.en_passant_rights)
-                self.make_en_passant_move(from_index, dest_index, en_passant_an.data.index)
+        if self.is_move_en_passant(from_index, dest_index):
+            en_passant_an = AN.AlgebraicNotation(*self.data.en_passant_rights)
+            self.make_en_passant_move(from_index, dest_index, en_passant_an.data.index)
+        elif self.is_move_castle(from_index, dest_index):
+            self.make_castle_move(from_index, dest_index)
         else:
             self.make_regular_move(from_index, dest_index)
 
         self.update_fen_data(from_index, dest_index, from_piece_val, dest_piece_val)
 
     def make_en_passant_move(self, from_index: int, dest_index: int, en_passant_index: int) -> None:
-        print('making en passant')
         self.make_regular_move(from_index, dest_index)
         self[en_passant_index] = FenChars.BLANK_PIECE.value
 
     def make_castle_move(self, from_index: int, dest_index: int) -> None:
-        pass
+        king_side_rook_index = 63 if self.is_white_turn() else 7
+        queen_side_rook_index = 56 if self.is_white_turn() else 0
+
+        if dest_index == king_side_rook_index:
+            king_dest = 62 if self.is_white_turn() else 6
+            rook_dest = 61 if self.is_white_turn() else 5
+            self.make_regular_move(from_index, king_dest)
+            self.make_regular_move(dest_index, rook_dest)
+        if dest_index == queen_side_rook_index:
+            king_dest = 58 if self.is_white_turn() else 2
+            rook_dest = 59 if self.is_white_turn() else 3
+            self.make_regular_move(from_index, king_dest)
+            self.make_regular_move(dest_index, rook_dest)
 
     def make_regular_move(self, from_index: int, dest_index: int) -> None:
         self[dest_index] = self[from_index]
         self[from_index] = FenChars.BLANK_PIECE.value
 
     def is_move_en_passant(self, from_index: int, dest_index: int) -> bool:
-        pawn_fen =  'P' if self.is_white_turn() else 'p'
+        pawn_fen = 'P' if self.is_white_turn() else 'p'
+        if self.data.en_passant_rights == '-': return False
         if self[from_index] != pawn_fen: return False
         from_an = AN.get_an_from_index(from_index)
         dest_an = AN.get_an_from_index(dest_index)
         return from_an.data.file != dest_an.data.file and \
             self[dest_index] == FenChars.BLANK_PIECE.value
+
+    def is_move_castle(self, from_index: int, dest_index: int):
+        king_fen = 'K' if self.is_white_turn() else 'k'
+        rook_fen = 'R' if self.is_white_turn() else 'r'
+        if self.data.castling_rights == '-': return False
+        if self[from_index] != king_fen: return False
+        if self[dest_index] != rook_fen: return False
+        return True
 
     def update_fen_data(self, from_index: int, dest_index: int, from_piece_val: str, dest_piece_val: str) -> None:
         self.data.piece_placement = self.get_packed()

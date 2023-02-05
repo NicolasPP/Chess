@@ -121,6 +121,7 @@ def queen_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | b
 @set_info_for(CHESS.PIECES.KING, 'K')
 def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
+
     moves = []
     moves_offset = [
         (1, -1),  # up_right
@@ -132,6 +133,27 @@ def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
         (-1, 0),  # down
         (0, 1),  # left
     ]
+
+    king_side_rook_index = 63 if is_white_turn else 7
+    queen_side_rook_index = 56 if is_white_turn else 0
+
+    king_in_between = [61, 62] if is_white_turn else [5, 6]
+    queen_in_between = [57, 58, 59] if is_white_turn else [1, 2, 3]
+
+    king_fen = 'K' if is_white_turn else 'k'
+    queen_fen = 'Q' if is_white_turn else 'q'
+
+    if king_fen in fen.data.castling_rights:
+        king_castle = True
+        for move in king_in_between:
+            if fen[move] is not FEN.FenChars.BLANK_PIECE.value: king_castle = False
+        if king_castle: moves.append(king_side_rook_index)
+
+    if queen_fen in fen.data.castling_rights:
+        queen_castle = True
+        for move in queen_in_between:
+            if fen[move] is not FEN.FenChars.BLANK_PIECE.value: queen_castle = False
+        if queen_castle: moves.append(queen_side_rook_index)
 
     moves += move_fixed_amount(moves_offset, from_index, fen, is_white_turn)
 
@@ -147,9 +169,47 @@ def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
 def get_available_moves(piece_name: str, from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     available_moves = CHESS.PIECES[piece_name].available_moves(from_index, fen, is_white_turn)
+
+    if piece_name is CHESS.PIECES.KING.name:
+        return process_king_available_moves(from_index, is_white_turn, fen, available_moves)
+    else:
+        return process_regular_available_moves(from_index, is_white_turn, fen, available_moves)
+
+
+def process_regular_available_moves(from_index: int, is_white_turn: bool, fen: FEN.Fen, available_moves: list[int]) -> \
+        list[int]:
     safe_moves = []
     for move in available_moves:
-        if is_king_safe(from_index, move, fen, is_white_turn): safe_moves.append(move)
+        if is_king_safe(from_index, move, fen, is_white_turn):
+            safe_moves.append(move)
+    return safe_moves
+
+
+def process_king_available_moves(from_index: int, is_white_turn: bool, fen: FEN.Fen, available_moves: list[int]) -> \
+        list[int]:
+    safe_moves = []
+    king_side_rook_index = 63 if is_white_turn else 7
+    queen_side_rook_index = 56 if is_white_turn else 0
+    king_in_between = [61, 62] if is_white_turn else [5, 6]
+    queen_in_between = [57, 58, 59] if is_white_turn else [1, 2, 3]
+
+    # is_check = is_opponent_in_check(fen)
+    safe_king = is_king_safe(0, 0, fen, is_white_turn)
+
+    for move in available_moves:
+        if move == king_side_rook_index:
+            king_castle = True
+            for square in king_in_between:
+                if not is_king_safe(from_index, square, fen, is_white_turn): king_castle = False
+            if king_castle and safe_king: safe_moves.append(move)
+        elif move == queen_side_rook_index:
+            queen_castle = True
+            for square in queen_in_between:
+                if not is_king_safe(from_index, square, fen, is_white_turn): queen_castle = False
+            if queen_castle and safe_king: safe_moves.append(move)
+        else:
+            if is_king_safe(from_index, move, fen, is_white_turn): safe_moves.append(move)
+
     return safe_moves
 
 
@@ -246,11 +306,10 @@ def is_move_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool:
 
 
 def is_opponent_in_check(fen: FEN.Fen) -> bool:
-    own_moves = get_all_available_moves(fen, own_moves=True)
     king_fen = 'k' if fen.is_white_turn() else 'K'
-    for move in own_moves:
-        if fen[move] == king_fen: return True
-    return False
+    king_index = fen.get_index_for_piece(king_fen)
+    threats = get_possible_threats(king_index[0], fen, not fen.is_white_turn())
+    return len(threats) != 0
 
 
 def is_opponent_in_checkmate(fen: FEN.Fen) -> bool:
@@ -283,6 +342,7 @@ def is_from_valid(fen: FEN.Fen, from_index: int) -> bool:
 
 
 def is_side_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool:
+    if fen.is_move_castle(from_index, dest_index): return True
     if from_index == dest_index: return False
     if is_same_team(fen[from_index], fen[dest_index]): return False
     return True
