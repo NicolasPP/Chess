@@ -3,15 +3,6 @@ import pytest
 import chess.game as GAME
 import utils.FEN_notation as FEN
 
-# TODO : test is king safe
-# TODO : test is move valid
-# TODO : test get all available moves
-
-'''
-def is_from_correct_side(from_fen_val: str, is_white: bool) -> bool:
-def is_same_team(piece1: str, piece2: str) -> bool:
-'''
-
 
 @pytest.mark.parametrize("from_fen_val,is_white_turn,expected",
                          [('p', True, False), ('P', True, True), ('p', False, True), ('P', False, False)])
@@ -46,12 +37,13 @@ def test_is_destination_valid(from_index: int, dest_index: int, fen: FEN.Fen, ex
     (1, 1, FEN.Fen(), False),
     (0, 1, FEN.Fen(), False),
     (0, 63, FEN.Fen(), True),
+    (4, 0, FEN.Fen("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1"), True)
 ])
 def test_is_side_valid(from_index: int, dest_index: int, fen: FEN.Fen, expected: bool):
     assert GAME.is_side_valid(from_index, dest_index, fen) is expected
 
 
-@pytest.mark.parametrize("fen,from_index,expected",[
+@pytest.mark.parametrize("fen,from_index,expected", [
     (FEN.Fen(), 16, False),
     (FEN.Fen(), 0, False),
     (FEN.Fen(), 63, True)
@@ -61,7 +53,7 @@ def is_from_valid(fen: FEN.Fen, from_index: int, expected: bool):
     assert GAME.is_from_valid(fen, from_index) is expected
 
 
-@pytest.mark.parametrize("from_index,dest_index,fen,expected",[
+@pytest.mark.parametrize("from_index,dest_index,fen,expected", [
     (48, 32, FEN.Fen(), True),
     (48, 24, FEN.Fen(), False),
     (28, 1, FEN.Fen("8/8/8/4B3/8/8/8/8 w KQkq - 0 1"), True),

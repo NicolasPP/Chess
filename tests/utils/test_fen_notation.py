@@ -116,9 +116,12 @@ def test_fen_notation():
     assert fen.notation == FEN.encode_fen_data(fen.data)
     del fen.notation
 
+
 def test_fen_str():
     fen = FEN.Fen()
     assert str(fen) == 'fen : ' + fen.data.piece_placement + '\n' + fen.__repr__()
+
+
 @pytest.mark.parametrize("fen_notation,expected", [
     ("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
      FEN.FenData("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq", "-", "0", "1")),
@@ -193,6 +196,16 @@ def test_get_castling_rights():
     assert f.get_castling_rights('r', 0) == 'KQk'
     f = FEN.Fen('r3k2r/8/8/8/8/8/7R/R3K3 w KQkq - 1 2')
     assert f.get_castling_rights('R', 63) == 'Qkq'
+
+
+def test_make_castle_move():
+    f = FEN.Fen("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1")
+    f.make_move(4, 0)
+    assert f[2] == 'k'
+    assert f[3] == 'r'
+    f.make_move(60, 63)
+    assert f[62] == 'K'
+    assert f[61] == 'R'
 
 
 @pytest.mark.parametrize("full_move_number", ["k", "-1"])
