@@ -142,14 +142,15 @@ def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
 
     king_fen = 'K' if is_white_turn else 'k'
     queen_fen = 'Q' if is_white_turn else 'q'
+    rook_fen = 'R' if is_white_turn else 'r'
 
-    if king_fen in fen.data.castling_rights:
+    if king_fen in fen.data.castling_rights and fen[king_side_rook_index] is rook_fen:
         king_castle = True
         for move in king_in_between:
             if fen[move] is not FEN.FenChars.BLANK_PIECE.value: king_castle = False
         if king_castle: moves.append(king_side_rook_index)
 
-    if queen_fen in fen.data.castling_rights:
+    if queen_fen in fen.data.castling_rights and fen[queen_side_rook_index] is rook_fen:
         queen_castle = True
         for move in queen_in_between:
             if fen[move] is not FEN.FenChars.BLANK_PIECE.value: queen_castle = False
@@ -360,7 +361,7 @@ def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: 
     king_fen = 'K' if is_white_turn else 'k'
 
     new_fen = FEN.Fen(fen.notation)
-    new_fen.make_move(from_index, dest_index)
+    new_fen.make_move(from_index, dest_index, new_fen[from_index])
 
     own_king_indexes = new_fen.get_index_for_piece(king_fen)
     own_king_index = -1 if len(own_king_indexes) == 0 else own_king_indexes[0]
