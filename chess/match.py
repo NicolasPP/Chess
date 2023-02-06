@@ -45,11 +45,11 @@ class Match:
                 CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.INVALID_MOVE))
 
     def process_move(self, command_info: str) -> MoveType:
-        fc, dc, cmd_dest = command_info.split(I_SPLIT)
+        fc, dc, cmd_dest, target_fen = command_info.split(I_SPLIT)
         from_index, dest_index = AN.get_index_from_an(*fc), AN.get_index_from_an(*dc)
         if not is_command_destination_valid(cmd_dest, self.fen.is_white_turn()) or \
             not GAME.is_move_valid(from_index, dest_index, self.fen): return MoveType.INVALID
-        self.fen.make_move(from_index, dest_index)
+        self.fen.make_move(from_index, dest_index, target_fen)
         self.moves.append(command_info)
 
         c_fen = FEN.Fen(FEN.encode_fen_data(self.fen.data))
