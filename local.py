@@ -66,11 +66,11 @@ while not done:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: done = True
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN and current_player.state is not PLAYER.STATE.PICK_PROMOTION:
             is_white = not is_white
             white_player.is_render_required = True
             black_player.is_render_required = True
-        current_player.parse_input(event, local=True)
+        current_player.parse_input(event, match.fen, local=True)
 
     update_window_caption(white_player, black_player)
 

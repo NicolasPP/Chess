@@ -109,7 +109,7 @@ def run_main_loop(server_ip: str) -> None:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: done = True
-            player.parse_input(event, network=network)
+            player.parse_input(event, match_fen, network=network)
 
         update_window_caption(player)
         player.render(bg_color)
