@@ -37,7 +37,7 @@ def read_from(command_q: queue.Queue) -> Command | None:
 # -------------------------
 
 # -- Command Getters --
-def get(command: COMMANDS, from_coordinates: str = '', dest_coordinates: str = '', player_side: str = '') -> Command:
+def get(command: COMMANDS, *args) -> Command:
     match command:
         case COMMANDS.UPDATE_POS:
             return get_update_pieces_pos()
@@ -46,16 +46,13 @@ def get(command: COMMANDS, from_coordinates: str = '', dest_coordinates: str = '
         case COMMANDS.INVALID_MOVE:
             return get_invalid_move()
         case COMMANDS.MOVE:
-            assert from_coordinates != '', 'invalid coordinates for picked piece'
-            assert dest_coordinates != '', 'invalid coordinates for destination piece'
-            assert player_side != '', 'invalid player side'
-            return get_move(from_coordinates, dest_coordinates, player_side)
+            return get_move(*args)
         case _:
             assert False, f" {command.name} : Command not recognised"
 
 
-def get_move(from_coordinates: str, dest_coordinates: str, player_side: str) -> Command:
-    return Command(from_coordinates + I_SPLIT + dest_coordinates + I_SPLIT + player_side)
+def get_move(from_coordinates: str, dest_coordinates: str, player_side: str, target_fen: str) -> Command:
+    return Command(I_SPLIT.join([from_coordinates, dest_coordinates, player_side, target_fen]))
 
 
 def get_update_pieces_pos() -> Command:
