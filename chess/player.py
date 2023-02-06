@@ -97,9 +97,11 @@ class Player:
         for surface, rect, val in self.promotion_pieces:
             if not rect.collidepoint(pygame.mouse.get_pos()): continue
             from_board_square = CHESS.get_picked_up(self.board)
-            from_coordinates = from_board_square.algebraic_notation.data.coordinates
             dest_board_square = CHESS.get_collided_board_square(self.board, self.prev_left_mouse_up)
+            if dest_board_square is None or from_board_square is None: continue
+            from_coordinates = from_board_square.algebraic_notation.data.coordinates
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
+
             move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, dest_coordinates, self.side.name, val)
             send_move(local, network, move)
             CHESS.reset_picked_up(self.board)
