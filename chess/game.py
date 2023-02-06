@@ -41,7 +41,7 @@ def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
                 (fen[up] == FEN.FenChars.BLANK_PIECE.value): moves.append(double_up)
 
     # en passant move
-    if fen.data.en_passant_rights != '-':
+    if fen.data.en_passant_rights != FEN.FenChars.EMPTY_INFO.value:
         en_passant_an = AN.AlgebraicNotation(*fen.data.en_passant_rights)
         if from_index + 1 == en_passant_an.data.index or from_index - 1 == en_passant_an.data.index:
             move = get_fen_offset_index(is_white_turn, en_passant_an.data.index, 1, 0)
@@ -140,9 +140,9 @@ def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
     king_in_between = [61, 62] if is_white_turn else [5, 6]
     queen_in_between = [57, 58, 59] if is_white_turn else [1, 2, 3]
 
-    king_fen = 'K' if is_white_turn else 'k'
-    queen_fen = 'Q' if is_white_turn else 'q'
-    rook_fen = 'R' if is_white_turn else 'r'
+    king_fen = FEN.FenChars.WHITE_KING.value if is_white_turn else FEN.FenChars.BLACK_KING.value
+    queen_fen = FEN.FenChars.WHITE_QUEEN.value if is_white_turn else FEN.FenChars.BLACK_QUEEN.value
+    rook_fen = FEN.FenChars.WHITE_ROOK.value if is_white_turn else FEN.FenChars.BLACK_ROOK.value
 
     if king_fen in fen.data.castling_rights and fen[king_side_rook_index] is rook_fen:
         king_castle = True
@@ -193,21 +193,20 @@ def process_king_available_moves(from_index: int, is_white_turn: bool, fen: FEN.
     queen_side_rook_index = 56 if is_white_turn else 0
     king_in_between = [61, 62] if is_white_turn else [5, 6]
     queen_in_between = [57, 58, 59] if is_white_turn else [1, 2, 3]
-
-    # is_check = is_opponent_in_check(fen)
-    safe_king = is_king_safe(0, 0, fen, is_white_turn)
+    rook_fen = FEN.FenChars.WHITE_ROOK.value if is_white_turn else FEN.FenChars.BLACK_ROOK.value
+    king_not_in_check = is_king_safe(0, 0, fen, is_white_turn)
 
     for move in available_moves:
-        if move == king_side_rook_index:
+        if move == king_side_rook_index and fen[king_side_rook_index] is rook_fen:
             king_castle = True
             for square in king_in_between:
                 if not is_king_safe(from_index, square, fen, is_white_turn): king_castle = False
-            if king_castle and safe_king: safe_moves.append(move)
-        elif move == queen_side_rook_index:
+            if king_castle and king_not_in_check: safe_moves.append(move)
+        elif move == queen_side_rook_index and fen[queen_side_rook_index] is rook_fen:
             queen_castle = True
             for square in queen_in_between:
                 if not is_king_safe(from_index, square, fen, is_white_turn): queen_castle = False
-            if queen_castle and safe_king: safe_moves.append(move)
+            if queen_castle and king_not_in_check: safe_moves.append(move)
         else:
             if is_king_safe(from_index, move, fen, is_white_turn): safe_moves.append(move)
 
@@ -307,7 +306,7 @@ def is_move_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool:
 
 
 def is_opponent_in_check(fen: FEN.Fen) -> bool:
-    king_fen = 'k' if fen.is_white_turn() else 'K'
+    king_fen = FEN.FenChars.BLACK_KING.value if fen.is_white_turn() else FEN.FenChars.WHITE_KING.value
     king_index = fen.get_index_for_piece(king_fen)
     threats = get_possible_threats(king_index[0], fen, not fen.is_white_turn())
     return len(threats) != 0
@@ -358,7 +357,7 @@ def is_destination_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool
 
 def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> bool:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    king_fen = 'K' if is_white_turn else 'k'
+    king_fen = FEN.FenChars.WHITE_KING.value if is_white_turn else FEN.FenChars.BLACK_KING.value
 
     new_fen = FEN.Fen(fen.notation)
     new_fen.make_move(from_index, dest_index, new_fen[from_index])
@@ -373,9 +372,9 @@ def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: 
 
 def get_possible_threats(piece_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
     if piece_index < 0: return []
-    threat_knight_fen = 'n' if is_white_turn else 'N'
-    own_king_fen = 'K' if is_white_turn else 'k'
-    opponent_king_fen = 'k' if is_white_turn else 'K'
+    threat_knight_fen = FEN.FenChars.BLACK_KNIGHT.value if is_white_turn else FEN.FenChars.WHITE_KNIGHT.value
+    own_king_fen = FEN.FenChars.WHITE_KING.value if is_white_turn else FEN.FenChars.BLACK_KING.value
+    opponent_king_fen = FEN.FenChars.BLACK_KING.value if is_white_turn else FEN.FenChars.WHITE_KING.value
 
     knight_possible_threats = knight_available_moves(piece_index, fen, is_white_turn)
     rest_possible_threats = queen_available_moves(piece_index, fen, is_white_turn)
