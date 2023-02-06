@@ -86,13 +86,14 @@ def get_picked_up(board: Board) -> BoardSquare:
     raise Exception(' no piece picked up ')
 
 
-def get_collided_board_square(board: Board) -> BoardSquare | None:
+def get_collided_board_square(board: Board, mouse_pos: tuple[int, int] | None = None) -> BoardSquare | None:
+    if mouse_pos is None: mouse_pos = pygame.mouse.get_pos()
     board_offset = pygame.math.Vector2(board.pos_rect.topleft)
     for board_square in board.grid:
         rect = board_square.rect.copy()
         top_left = board_offset + pygame.math.Vector2(rect.topleft)
         rect.topleft = int(top_left.x), int(top_left.y)
-        if rect.collidepoint(pygame.mouse.get_pos()):
+        if rect.collidepoint(mouse_pos):
             return board_square
     return None
 
