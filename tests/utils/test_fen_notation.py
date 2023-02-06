@@ -154,29 +154,29 @@ def test_encode_fen_notation(fen_data: FEN.FenData, expected: str):
 def test_get_next_active_color():
     f = FEN.Fen()
     assert f.data.active_color == 'w'
-    f.make_move(30, 33)
+    f.make_move(30, 33, f[30])
     assert f.data.active_color == 'b'
-    f.make_move(33, 30)
+    f.make_move(33, 30, f[33])
     assert f.data.active_color == 'w'
-    f.make_move(30, 33)
+    f.make_move(30, 33, f[30])
     assert f.data.active_color == 'b'
 
 
 def test_get_full_move_number():
     f = FEN.Fen()
     assert f.data.full_move_number == '1'
-    f.make_move(30, 33)
+    f.make_move(30, 33, f[30])
     assert f.data.full_move_number == '1'
-    f.make_move(33, 30)
+    f.make_move(33, 30, f[33])
     assert f.data.full_move_number == '2'
 
 
 def test_get_half_move_number():
     f = FEN.Fen()
     assert f.data.half_move_clock == '0'
-    f.make_move(1, 16)
+    f.make_move(1, 16, f[1])
     assert f.data.half_move_clock == '1'
-    f.make_move(8, 16)
+    f.make_move(8, 16, f[8])
     assert f.data.half_move_clock == '0'
 
 
@@ -200,10 +200,10 @@ def test_get_castling_rights():
 
 def test_make_castle_move():
     f = FEN.Fen("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1")
-    f.make_move(4, 0)
+    f.make_move(4, 0, f[4])
     assert f[2] == 'k'
     assert f[3] == 'r'
-    f.make_move(60, 63)
+    f.make_move(60, 63, f[60])
     assert f[62] == 'K'
     assert f[61] == 'R'
 

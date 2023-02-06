@@ -64,21 +64,21 @@ def test_default_fen(from_index: int, is_white_turn: bool):
 def test_en_passant():
     fen = FEN.Fen()
     expected = fen[53]
-    fen.make_move(53, 37)
+    fen.make_move(53, 37, fen[53])
     assert fen[37] == expected
     expected = fen[13]
-    fen.make_move(13, 21)
+    fen.make_move(13, 21, fen[13])
     assert fen[21] == expected
     expected = fen[37]
-    fen.make_move(37, 29)
+    fen.make_move(37, 29, fen[37])
     assert fen[29] == expected
-    fen.make_move(14, 30)
+    fen.make_move(14, 30, fen[14])
     assert len(GAME.get_available_moves('PAWN', 29, fen)) == 1
-    fen.make_move(48, 40)
+    fen.make_move(48, 40, fen[48])
     assert len(GAME.get_available_moves('PAWN', 29, fen, True)) == 0
-    fen.make_move(12, 28)
+    fen.make_move(12, 28, fen[12])
     assert len(GAME.get_available_moves('PAWN', 29, fen)) == 1
-    fen.make_move(29, 20)
+    fen.make_move(29, 20, fen[29])
     assert fen[28] == FEN.FenChars.BLANK_PIECE.value
     assert fen[20] == 'P'
 
