@@ -2,7 +2,6 @@ import enum
 
 import pygame
 
-import utils.algebraic_notation as AN
 import chess.chess_data as CHESS
 import chess.game as GAME
 import utils.FEN_notation as FEN
@@ -244,10 +243,14 @@ def update_available_moves(board_square: CHESS.BoardSquare, match_fen: FEN.Fen, 
 
 
 def is_pawn_promotion(from_board_square: CHESS.BoardSquare, dest_board_square: CHESS.BoardSquare, fen: FEN.Fen) -> bool:
-    pawn_fen = 'P' if fen.is_white_turn() else 'p'
+    pawn_fen = FEN.FenChars.WHITE_PAWN.value if fen.is_white_turn() else FEN.FenChars.BLACK_PAWN.value
     rank = '8' if fen.is_white_turn() else '1'
+    from_index = from_board_square.algebraic_notation.data.index
+    dest_index = dest_board_square.algebraic_notation.data.index
+    dest_rank = dest_board_square.algebraic_notation.data.rank
     if from_board_square.FEN_val != pawn_fen: return False
-    if dest_board_square.algebraic_notation.data.rank != rank: return False
+    if dest_rank != rank: return False
+    if dest_index not in GAME.get_available_moves('PAWN', from_index, fen): return False
     if not GAME.is_king_safe(from_board_square.algebraic_notation.data.index,
                              dest_board_square.algebraic_notation.data.index, fen): return False
     return True
