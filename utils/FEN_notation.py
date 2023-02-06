@@ -25,7 +25,6 @@ class Fen:
     def __init__(self, fen_notation: str = GAME_START_FEN):
         self._notation: str
         self.data: FenData = decode_fen_notation(fen_notation)
-
         self.expanded: list[str] = self.get_expanded()
 
     def __getitem__(self, index: int) -> str:
@@ -54,6 +53,9 @@ class Fen:
     @notation.setter
     def notation(self, new_notation) -> None:
         self._notation = new_notation
+        self.data = decode_fen_notation(new_notation)
+        self.expanded = self.get_expanded()
+
 
     @notation.deleter
     def notation(self) -> None:
@@ -166,7 +168,7 @@ class Fen:
         validate_fen_piece_placement(packed)
         return packed
 
-    def make_move(self, from_index: int, dest_index: int) -> None:
+    def make_move(self, from_index: int, dest_index: int, target_fen: str) -> None:
         from_piece_val = self[from_index]
         dest_piece_val = self[dest_index]
 
@@ -176,12 +178,12 @@ class Fen:
         elif self.is_move_castle(from_index, dest_index):
             self.make_castle_move(from_index, dest_index)
         else:
-            self.make_regular_move(from_index, dest_index)
+            self.make_regular_move(from_index, dest_index, target_fen)
 
         self.update_fen_data(from_index, dest_index, from_piece_val, dest_piece_val)
 
     def make_en_passant_move(self, from_index: int, dest_index: int, en_passant_index: int) -> None:
-        self.make_regular_move(from_index, dest_index)
+        self.make_regular_move(from_index, dest_index, self[from_index])
         self[en_passant_index] = FenChars.BLANK_PIECE.value
 
     def make_castle_move(self, from_index: int, dest_index: int) -> None:
@@ -191,16 +193,16 @@ class Fen:
         if dest_index == king_side_rook_index:
             king_dest = 62 if self.is_white_turn() else 6
             rook_dest = 61 if self.is_white_turn() else 5
-            self.make_regular_move(from_index, king_dest)
-            self.make_regular_move(dest_index, rook_dest)
+            self.make_regular_move(from_index, king_dest, self[from_index])
+            self.make_regular_move(dest_index, rook_dest,  self[dest_index])
         if dest_index == queen_side_rook_index:
             king_dest = 58 if self.is_white_turn() else 2
             rook_dest = 59 if self.is_white_turn() else 3
-            self.make_regular_move(from_index, king_dest)
-            self.make_regular_move(dest_index, rook_dest)
+            self.make_regular_move(from_index, king_dest, self[from_index])
+            self.make_regular_move(dest_index, rook_dest, self[dest_index])
 
-    def make_regular_move(self, from_index: int, dest_index: int) -> None:
-        self[dest_index] = self[from_index]
+    def make_regular_move(self, from_index: int, dest_index: int, target_fen: str) -> None:
+        self[dest_index] = target_fen
         self[from_index] = FenChars.BLANK_PIECE.value
 
     def is_move_en_passant(self, from_index: int, dest_index: int) -> bool:
