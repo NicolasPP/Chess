@@ -11,8 +11,6 @@ from config import *
 class MoveType(enum.Enum):
     CHECK = enum.auto()
     CHECKMATE = enum.auto()
-    CASTLE = enum.auto()
-    EN_PASSANT = enum.auto()
     REGULAR = enum.auto()
     INVALID = enum.auto()
 
@@ -24,23 +22,19 @@ class Match:
         self.moves: list[str] = []
         self.commands: list[str] = []
         self.update_pos: bool = False
-        CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
+        CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS, self.fen.notation))
 
     def process_local_move(self) -> None:
         command = CMD.read_from(CMD.MATCH)
         if command is None: return
         match (self.process_move(command.info)):
             case MoveType.CHECK:
-                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
+                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS, self.fen.notation))
             case MoveType.CHECKMATE:
-                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
+                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS, self.fen.notation))
                 CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.END_GAME))
-            case MoveType.CASTLE:
-                pass
-            case MoveType.EN_PASSANT:
-                pass
             case MoveType.REGULAR:
-                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS))
+                CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.UPDATE_POS, self.fen.notation))
             case MoveType.INVALID:
                 CMD.send_to(CMD.PLAYER, CMD.get(CMD.COMMANDS.INVALID_MOVE))
 
