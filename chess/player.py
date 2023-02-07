@@ -212,7 +212,6 @@ def parse_command(command: str, info: str, match_fen: FEN.Fen, *players: Player,
             list(map(lambda player: player.update_pieces_location(match_fen), players))
             list(map(lambda player: player.update_turn(match_fen), players))
         case CMD.COMMANDS.END_GAME:
-            print('end game')
             list(map(lambda player: player.end_turn(), players))
         case CMD.COMMANDS.INVALID_MOVE:
             list(map(lambda player: player.set_require_render(True), players))
@@ -223,7 +222,8 @@ def parse_command(command: str, info: str, match_fen: FEN.Fen, *players: Player,
 def parse_command_local(match_fen: FEN.Fen, *players: Player) -> None:
     command = CMD.read_from(CMD.PLAYER)
     if command is None: return
-    parse_command(command.info, ' ', match_fen, *players, local=True)
+    cmd, info = CMD.split_command_info(command.info)
+    parse_command(cmd, info, match_fen, *players, local=True)
 
 
 # -----------------

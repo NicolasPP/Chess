@@ -90,26 +90,19 @@ def client_listener(client_socket: skt.socket, server: Server):
 
             match move_type:
                 case MATCH.MoveType.CHECK:
-                    update_pos_command = I_SPLIT.join(
-                        [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-                    commands.append(update_pos_command)
+                    update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, server.match.fen.notation)
+                    commands.append(update_pos_command.info)
                 case MATCH.MoveType.CHECKMATE:
-                    end_game_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.END_GAME).info, NO_INFO])
-                    update_pos_command = I_SPLIT.join(
-                        [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-                    commands.append(end_game_command)
-                    commands.append(update_pos_command)
-                case MATCH.MoveType.CASTLE:
-                    assert False, "CASTLE Not implemented"
-                case MATCH.MoveType.EN_PASSANT:
-                    assert False, "EN_PASSANT Not implemented"
+                    end_game_command = CMD.get(CMD.COMMANDS.END_GAME)
+                    update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, server.match.fen.notation)
+                    commands.append(end_game_command.info)
+                    commands.append(update_pos_command.info)
                 case MATCH.MoveType.REGULAR:
-                    update_pos_command = I_SPLIT.join(
-                        [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-                    commands.append(update_pos_command)
+                    update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, server.match.fen.notation)
+                    commands.append(update_pos_command.info)
                 case MATCH.MoveType.INVALID:
-                    invalid_move_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.INVALID_MOVE).info, NO_INFO])
-                    commands.append(invalid_move_command)
+                    invalid_move_command = CMD.get(CMD.COMMANDS.INVALID_MOVE)
+                    commands.append(invalid_move_command.info)
                 case _:
                     assert False, "INVALID MATCH.MOVE_TYPE"
 
