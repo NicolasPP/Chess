@@ -1,10 +1,14 @@
 import typing
 import dataclasses
+import enum
 import re
 
 TagPairs: typing.TypeAlias = dict[str, str]
 
-
+class PGNChars(enum.Enum):
+    CHECK: str = '+'
+    CHECKMATE: str = '#'
+    TAKE: str = 'x'
 @dataclasses.dataclass
 class PGNMove:
     white_move: str
