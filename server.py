@@ -33,7 +33,7 @@ class Server(NET.Net):
 
     def start(self) -> None:
         logging.info('Server started')
-        print(f'server started at {self.server}')
+        print(f'server started at {self.host}')
         try:
             self.socket.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
             self.socket.bind(self.address)
