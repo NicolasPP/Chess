@@ -33,15 +33,16 @@ class Server(NET.Net):
 
     def start(self) -> None:
         logging.info('Server started')
-        print(f'server started at {self.host}')
         try:
             self.socket.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
             self.socket.bind(self.address)
         except skt.error as e:
+            logging.debug(f"error binding : {e}")
             logging.debug("error binding : %s", e)
 
         self.socket.listen()
 
+        print("Waiting for clients to connect")
         logging.info("Waiting for clients to connect")
 
     def run(self) -> None:
@@ -49,6 +50,7 @@ class Server(NET.Net):
         thread.start_new_thread(game_logic, (self,))
         while True:
             client_socket, addr = self.socket.accept()
+            print(f"Connected to address : {addr}")
             logging.info("Connected to address : %s", addr)
 
             self.client_sockets.append(client_socket)
@@ -82,8 +84,10 @@ def client_listener(client_socket: skt.socket, server: Server):
             if not data: break
             commands = []
             move_info = data.decode('utf-8')
+            print(f"client : {p_id}, sent move {move_info} to server")
             logging.debug("client : %s, sent move %s to server", p_id, move_info)
             move_type = server.match.process_move(move_info)
+            print(f"move type : {move_type.name}")
             logging.debug("move type : %s", move_type.name)
 
             # TODO change I_SPLIT.join(... into a function calling in commands script
@@ -110,13 +114,15 @@ def client_listener(client_socket: skt.socket, server: Server):
             server.match.commands = commands
 
         server.client_sockets.remove(client_socket)
+        print(f'client : {p_id}  disconnected')
         logging.info("client : %s  disconnected", p_id)
 
 
 @click.command()
-@click.option('--ip', default='127.0.0.1', help='set ip address of server, default = 127.0.0.1')
+@click.option('--ip', default='', help='set ip address of server, default = 127.0.0.1')
 def start_server(ip: str) -> None:
-    ip = ''
+    if ip: print(f'server started at {ip}')
+    else: print('online server started !')
     Server(ip).run()
 
 

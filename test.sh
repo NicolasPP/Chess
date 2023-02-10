@@ -10,8 +10,7 @@ OnlyIntegrated()
 
 TestAll()
 {
-  MainTests
-  OnlyIntegrated
+  pytest tests/utils tests/chess tests/test_with_played_games.py
 }
 
 InvalidOption()
