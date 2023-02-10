@@ -33,15 +33,16 @@ class Server(NET.Net):
 
     def start(self) -> None:
         logging.info('Server started')
-        print(f'server started at {self.server}')
         try:
             self.socket.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
             self.socket.bind(self.address)
         except skt.error as e:
+            logging.debug(f"error binding : {e}")
             logging.debug("error binding : %s", e)
 
         self.socket.listen()
 
+        print("Waiting for clients to connect")
         logging.info("Waiting for clients to connect")
 
     def run(self) -> None:
@@ -49,6 +50,7 @@ class Server(NET.Net):
         thread.start_new_thread(game_logic, (self,))
         while True:
             client_socket, addr = self.socket.accept()
+            print(f"Connected to address : {addr}")
             logging.info("Connected to address : %s", addr)
 
             self.client_sockets.append(client_socket)
@@ -82,34 +84,29 @@ def client_listener(client_socket: skt.socket, server: Server):
             if not data: break
             commands = []
             move_info = data.decode('utf-8')
+            print(f"client : {p_id}, sent move {move_info} to server")
             logging.debug("client : %s, sent move %s to server", p_id, move_info)
             move_type = server.match.process_move(move_info)
+            print(f"move type : {move_type.name}")
             logging.debug("move type : %s", move_type.name)
 
             # TODO change I_SPLIT.join(... into a function calling in commands script
 
             match move_type:
                 case MATCH.MoveType.CHECK:
-                    update_pos_command = I_SPLIT.join(
-                        [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-                    commands.append(update_pos_command)
+                    update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, server.match.fen.notation)
+                    commands.append(update_pos_command.info)
                 case MATCH.MoveType.CHECKMATE:
-                    end_game_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.END_GAME).info, NO_INFO])
-                    update_pos_command = I_SPLIT.join(
-                        [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-                    commands.append(end_game_command)
-                    commands.append(update_pos_command)
-                case MATCH.MoveType.CASTLE:
-                    assert False, "CASTLE Not implemented"
-                case MATCH.MoveType.EN_PASSANT:
-                    assert False, "EN_PASSANT Not implemented"
+                    end_game_command = CMD.get(CMD.COMMANDS.END_GAME)
+                    update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, server.match.fen.notation)
+                    commands.append(end_game_command.info)
+                    commands.append(update_pos_command.info)
                 case MATCH.MoveType.REGULAR:
-                    update_pos_command = I_SPLIT.join(
-                        [CMD.get(CMD.COMMANDS.UPDATE_POS).info, server.match.fen.notation])
-                    commands.append(update_pos_command)
+                    update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, server.match.fen.notation)
+                    commands.append(update_pos_command.info)
                 case MATCH.MoveType.INVALID:
-                    invalid_move_command = I_SPLIT.join([CMD.get(CMD.COMMANDS.INVALID_MOVE).info, NO_INFO])
-                    commands.append(invalid_move_command)
+                    invalid_move_command = CMD.get(CMD.COMMANDS.INVALID_MOVE)
+                    commands.append(invalid_move_command.info)
                 case _:
                     assert False, "INVALID MATCH.MOVE_TYPE"
 
@@ -117,12 +114,15 @@ def client_listener(client_socket: skt.socket, server: Server):
             server.match.commands = commands
 
         server.client_sockets.remove(client_socket)
+        print(f'client : {p_id}  disconnected')
         logging.info("client : %s  disconnected", p_id)
 
 
 @click.command()
-@click.option('--ip', default='127.0.0.1', help='set ip address of server, default = 127.0.0.1')
+@click.option('--ip', default='', help='set ip address of server, default = 127.0.0.1')
 def start_server(ip: str) -> None:
+    if ip: print(f'server started at {ip}')
+    else: print('online server started !')
     Server(ip).run()
 
 

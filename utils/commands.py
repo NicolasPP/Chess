@@ -40,7 +40,7 @@ def read_from(command_q: queue.Queue) -> Command | None:
 def get(command: COMMANDS, *args) -> Command:
     match command:
         case COMMANDS.UPDATE_POS:
-            return get_update_pieces_pos()
+            return get_update_pieces_pos(*args)
         case COMMANDS.END_GAME:
             return get_end_game()
         case COMMANDS.INVALID_MOVE:
@@ -51,18 +51,22 @@ def get(command: COMMANDS, *args) -> Command:
             assert False, f" {command.name} : Command not recognised"
 
 
+def split_command_info(command_info: str) -> list[str]:
+    return command_info.split(I_SPLIT)
+
+
 def get_move(from_coordinates: str, dest_coordinates: str, player_side: str, target_fen: str) -> Command:
     return Command(I_SPLIT.join([from_coordinates, dest_coordinates, player_side, target_fen]))
 
 
-def get_update_pieces_pos() -> Command:
-    return Command(COMMANDS.UPDATE_POS.value)
+def get_update_pieces_pos(fen_notation: str) -> Command:
+    return Command(I_SPLIT.join([COMMANDS.UPDATE_POS.value, fen_notation]))
 
 
 def get_end_game() -> Command:
-    return Command(COMMANDS.END_GAME.value)
+    return Command(I_SPLIT.join([COMMANDS.END_GAME.value, NO_INFO]))
 
 
 def get_invalid_move() -> Command:
-    return Command(COMMANDS.INVALID_MOVE.value)
+    return Command(I_SPLIT.join([COMMANDS.INVALID_MOVE.value, NO_INFO]))
 # ---------------------

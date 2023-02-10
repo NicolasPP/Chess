@@ -132,6 +132,5 @@ dmypy.json
 .idea/
 
 #pytest-cov
-check_code.sh
 .coverage
 htmlcov/

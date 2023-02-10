@@ -1,16 +1,17 @@
 import _thread as thread
+import logging
+import random
 import socket as skt
+import sys
 
 import click
-import logging
 import pygame
-import random
-import sys
 
 import chess.chess_data as CHESS
 import chess.player as PLAYER
 import utils.FEN_notation as FEN
 import utils.asset as ASSETS
+import utils.commands as CMD
 import utils.debug as DB
 import utils.network as NET
 from config import *
@@ -33,7 +34,7 @@ def server_listener(player: PLAYER.Player, server_socket: skt.socket, match_fen:
             data, prev_data_tail = correct_data(data_b.decode('utf-8'), prev_data_tail)
             logging.debug("server sent commands :")
             for command_info in data[:-1].split(C_SPLIT):
-                command, info = command_info.split(I_SPLIT)
+                command, info = CMD.split_command_info(command_info)
                 logging.debug(" - %s ", command)
                 logging.debug(" - - %s", info)
                 PLAYER.parse_command(command, info, match_fen, player)
