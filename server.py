@@ -116,6 +116,7 @@ def client_listener(client_socket: skt.socket, server: Server):
 @click.command()
 @click.option('--ip', default='127.0.0.1', help='set ip address of server, default = 127.0.0.1')
 def start_server(ip: str) -> None:
+    ip = ''
     Server(ip).run()
 
 
