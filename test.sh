@@ -1,6 +1,6 @@
 MainTests()
 {
-  pytest tests/utils test/chess
+  pytest tests/utils tests/chess
 }
 
 OnlyIntegrated()
