@@ -1,7 +1,8 @@
 import pytest
 
-import utils.portable_game_notation as PGN
+import chess.game as GAME
 import utils.FEN_notation as FEN
+import utils.portable_game_notation as PGN
 
 
 def get_games() -> list[PGN.Game]:
@@ -10,8 +11,9 @@ def get_games() -> list[PGN.Game]:
     return magnus.games + hikaru.games
 
 
-@pytest.mark.xfail
 @pytest.mark.parametrize("game", get_games())
 def test_against_played_games(game: PGN.Game):
     fen = FEN.Fen()
-    pass
+    for from_an, dest_an, target_fen in PGN.get_an_from_pgn_game(game):
+        assert GAME.is_move_valid(from_an.data.index, dest_an.data.index, fen)
+        fen.make_move(from_an.data.index, dest_an.data.index, target_fen)
