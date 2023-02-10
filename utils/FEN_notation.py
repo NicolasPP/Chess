@@ -146,11 +146,11 @@ class Fen:
 
         return list(expanded_fen)
 
-    def get_index_for_piece(self, piece_fen_val: str) -> list[int]:
+    def get_indexes_for_piece(self, piece_fen_val: str) -> list[int]:
         validate_fen_val(piece_fen_val)
         result = []
         for index, fen_val in enumerate(self.expanded):
-            if fen_val is piece_fen_val: result.append(index)
+            if fen_val == piece_fen_val: result.append(index)
         return result
 
     def get_packed(self) -> str:
