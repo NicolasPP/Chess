@@ -5,7 +5,7 @@ class Net:
     def __init__(self, server_ip):
         self.host = server_ip
         self.socket: skt.socket = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
-        self.port: int = 5555
+        self.port: int = 3389
         self.address: tuple[str, int] = (self.host, self.port)
 
 
