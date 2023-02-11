@@ -90,7 +90,6 @@ def client_listener(client_socket: skt.socket, server: Server):
             print(f"move type : {move_type.name}")
             logging.debug("move type : %s", move_type.name)
 
-
             match move_type:
                 case MATCH.MoveType.CHECK:
                     update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, server.match.fen.notation)
@@ -120,8 +119,10 @@ def client_listener(client_socket: skt.socket, server: Server):
 @click.command()
 @click.option('--ip', default='', help='set ip address of server, default = 127.0.0.1')
 def start_server(ip: str) -> None:
-    if ip: print(f'server started at {ip}')
-    else: print('online server started !')
+    if ip:
+        print(f'server started at {ip}')
+    else:
+        print('online server started !')
     Server(ip).run()
 
 
