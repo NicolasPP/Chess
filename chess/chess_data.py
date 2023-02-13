@@ -162,7 +162,58 @@ def get_board(board_asset: ASSETS.Asset, side: SIDE, scale: float) -> Board:
 
     pos_rect = sprite.surface.get_rect()
     grid = create_grid(sprite, pos_rect, side)
-    return Board(sprite, pos_rect, grid)
+    board = Board(sprite, pos_rect, grid)
+    replace_board_axis_vals(board, scale)
+    return board
+
+
+def replace_board_axis_vals(board: Board, scale: float) -> None:
+    nums = list(range(8, 0, -1))
+    nums_index = 0
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    letters_index = 0
+    color = board.sprite.surface.get_at((0, 0))
+    font = pygame.font.Font("assets/fonts/Oleaguid.ttf", 25)
+
+    for index, board_square in enumerate(board.grid):
+        if index % 8 == 0:
+            val = font.render(str(nums[nums_index]), False, (255, 255, 255))
+
+            size = 6 * scale, board_square.rect.height
+            surface = pygame.surface.Surface(size)
+
+            pos_rect = surface.get_rect()
+            pos_rect.topright = board_square.rect.topleft
+            pos_rect.x -= 4
+
+            val_pos = val.get_rect()
+            val_pos.center = surface.get_rect().center
+
+            surface.fill(color)
+
+            surface.blit(val, val_pos)
+            board.sprite.surface.blit(surface, pos_rect)
+
+            nums_index += 1
+        if index >= 56:
+            val = font.render(letters[letters_index], False, (255, 255, 255))
+
+            size = board_square.rect.width, 6 * scale
+            surface = pygame.surface.Surface(size)
+
+            pos_rect = surface.get_rect()
+            pos_rect.topleft = board_square.rect.bottomleft
+            pos_rect.y += 4
+
+            val_pos = val.get_rect()
+            val_pos.center = surface.get_rect().center
+
+            surface.fill(color)
+
+            surface.blit(val, val_pos)
+            board.sprite.surface.blit(surface, pos_rect)
+
+            letters_index += 1
 
 
 def get_pieces(piece_set: ASSETS.PieceSet, scale: float) -> dict[str, Piece]:
