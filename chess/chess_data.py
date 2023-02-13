@@ -163,7 +163,8 @@ def get_board(board_asset: ASSETS.Asset, side: SIDE, scale: float) -> Board:
     pos_rect = sprite.surface.get_rect()
     grid = create_grid(sprite, pos_rect, side)
     board = Board(sprite, pos_rect, grid)
-    replace_board_axis_vals(board, scale)
+    # TODO: fix replace_board_axis to work for the black side
+    # replace_board_axis_vals(board, scale)
     return board
 
 
