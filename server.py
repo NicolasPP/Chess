@@ -5,7 +5,7 @@ import socket as skt
 import click
 
 import chess.match as MATCH
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 import utils.commands as CMD
 import utils.network as NET
 from config import *

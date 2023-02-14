@@ -1,7 +1,7 @@
 import typing
 
 import chess.chess_data as CHESS
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 import utils.algebraic_notation as AN
 from config import *
 

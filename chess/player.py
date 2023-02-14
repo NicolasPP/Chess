@@ -4,7 +4,7 @@ import pygame
 
 import chess.chess_data as CHESS
 import chess.game as GAME
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 import utils.asset as ASSETS
 import utils.commands as CMD
 import utils.network as NET

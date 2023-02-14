@@ -1,7 +1,7 @@
 import pytest
 
 import chess.game as GAME
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 
 
 def test_first_turn_double_move(pawn_test_fen):

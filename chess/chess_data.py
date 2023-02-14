@@ -6,7 +6,7 @@ import typing
 import pygame
 
 import utils.algebraic_notation as AN
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 import utils.asset as ASSETS
 from config import *
 

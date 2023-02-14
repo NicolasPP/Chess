@@ -1,6 +1,6 @@
 import pytest
 
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 
 
 @pytest.fixture(scope="session")

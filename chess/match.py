@@ -3,7 +3,7 @@ import enum
 import chess.chess_data as CHESS
 import chess.game as GAME
 import utils.algebraic_notation as AN
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 import utils.commands as CMD
 from config import *
 
