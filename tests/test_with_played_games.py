@@ -11,6 +11,7 @@ def get_games() -> list[PGN.Game]:
     return magnus.games + hikaru.games
 
 
+@pytest.mark.integrated
 @pytest.mark.parametrize("game", get_games())
 def test_against_played_games(game: PGN.Game):
     fen = FEN.Fen()
