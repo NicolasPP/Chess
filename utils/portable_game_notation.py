@@ -73,14 +73,14 @@ def insert_tag_pair(tag_pairs: TagPairs, line: str) -> None:
 
 
 def get_pgn_moves_and_result(line: str) -> tuple[list[PGNMove], str]:
-    split_line = '[0-9A-Za-z]+\.'
+    split_line = r'[0-9A-Za-z]+\.'
     move_list = re.split(split_line, line)
     pgn_moves: list[PGNMove] = []
     result: str = ''
     for move in move_list:
         if not move: continue
 
-        curly_brackets_content_pattern = '\{[^}]*\}'
+        curly_brackets_content_pattern = r'\{[^}]*\}'
         move_set = re.sub(curly_brackets_content_pattern, '', move).split()
         time_set = re.findall(curly_brackets_content_pattern, move)
 
@@ -114,7 +114,7 @@ def is_result(move: str) -> bool:
 def get_an_from_pgn_game(game: Game) \
         -> typing.Generator[tuple[AN.AlgebraicNotation, AN.AlgebraicNotation, str], None, None]:
     fen = FEN.Fen()
-    for index, pgn_move in enumerate(game.pgn_moves):
+    for pgn_move in game.pgn_moves:
         if pgn_move.white_move:
             yield process_pgn_move(pgn_move.white_move, fen, True)
         if pgn_move.black_move:
