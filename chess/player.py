@@ -24,8 +24,8 @@ class MOUSECLICK(enum.Enum):
 
 
 class STATE(enum.Enum):
-    PICK_PIECE: int = 0  # picking a piece
-    DROP_PIECE: int = 1  # dropping the piece
+    PICK_PIECE: int = 0
+    DROP_PIECE: int = 1
     PICK_PROMOTION: int = 2
 
 
