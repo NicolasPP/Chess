@@ -4,42 +4,83 @@ import chess.chess_data as CHESS
 import utils.asset as ASSETS
 
 
-class CapturedPieces:
-    def __init__(self, captured_pieces: str, pieces: dict[str, CHESS.Piece], scale: float = 3 / 5):
+class CapturedGui:
+    def __init__(
+            self,
+            captured_pieces: str,
+            pieces: dict[str, CHESS.Piece],
+            board_rect: pygame.rect.Rect,
+            bg_color: str,
+            scale: float = 3 / 5
+    ):
         self.scale = scale
-        self._captured_pieces = captured_pieces
+        self.board_rect = board_rect
+        self.captured_pieces = captured_pieces
+        self.bg_color = bg_color
         for val in captured_pieces: FEN.validate_fen_val(val)
-        self.pieces = self.resize_pieces(pieces)
-        self.surface = self.create_captured_surface()
+        self.pieces: dict[str, pygame.surface.Surface] = self.copy_and_resize_pieces(pieces)
+        self.white_cap_surface, self.black_cap_surface = self.create_captured_surfaces()
 
-    @property
-    def captured_pieces(self) -> str:
-        return self._captured_pieces
-
-    @captured_pieces.setter
-    def captured_pieces(self, new_cap_pieces) -> None:
-        self._captured_pieces = new_cap_pieces
+    def set_captured_pieces(self, new_cap_pieces) -> None:
+        self.captured_pieces = new_cap_pieces
         for val in self.captured_pieces: FEN.validate_fen_val(val)
-        self.surface = self.create_captured_surface()
+        self.white_cap_surface, self.black_cap_surface = self.create_captured_surfaces()
 
-    @captured_pieces.deleter
-    def captured_pieces(self) -> None:
-        del self._captured_pieces
+    def create_captured_surfaces(self) -> tuple[pygame.surface.Surface, pygame.surface.Surface]:
+        piece_size = self.get_piece_size()
 
-    def create_captured_surface(self) -> pygame.surface.Surface:
-        piece_size = pygame.math.Vector2(self.pieces['p'].sprite.surface.get_rect().size)
-        surface_size = piece_size.elementwise() * pygame.math.Vector2(len(self.captured_pieces), 1)
-        captured_surface = pygame.surface.Surface(surface_size)
-        pos = pygame.math.Vector2(0)
+        w_size = sum(list(map(lambda char: 1 if char.isupper() else 0, self.captured_pieces)))
+        b_size = sum(list(map(lambda char: 1 if char.islower() else 0, self.captured_pieces)))
+
+        w_surface_size = piece_size.elementwise() * pygame.math.Vector2(w_size, 1)
+        b_surface_size = piece_size.elementwise() * pygame.math.Vector2(b_size, 1)
+
+        w_captured_surface = pygame.surface.Surface(w_surface_size)
+        b_captured_surface = pygame.surface.Surface(b_surface_size)
+
+        w_captured_surface.fill(self.bg_color)
+        b_captured_surface.fill(self.bg_color)
+
+        w_pos = pygame.math.Vector2(0)
+        b_pos = pygame.math.Vector2(0)
+
         for fen_val in self.captured_pieces:
-            captured_surface.blit(self.pieces[fen_val].sprite.surface, pos)
-            pos.x += piece_size.x
-        return captured_surface
+            if fen_val.isupper():
+                w_captured_surface.blit(self.pieces[fen_val], w_pos)
+                w_pos.x += piece_size.x
+            else:
+                b_captured_surface.blit(self.pieces[fen_val], b_pos)
+                b_pos.x += piece_size.x
 
-    def resize_pieces(self, pieces: dict[str, CHESS.Piece]) -> dict[str, CHESS.Piece]:
+        return w_captured_surface, b_captured_surface
+
+    def copy_and_resize_pieces(self, pieces: dict[str, CHESS.Piece]) -> dict[str, pygame.surface.Surface]:
+        copy_pieces: dict[str, pygame.surface.Surface] = {}
         for fen_val, piece in pieces.items():
-            pieces[fen_val].sprite.surface = ASSETS.scale(piece.sprite.surface, self.scale)
-        return pieces
+            copy_pieces[fen_val] = ASSETS.scale(piece.sprite.surface, self.scale)
+        return copy_pieces
 
-    def render(self, pos: pygame.math.Vector2) -> None:
-        pygame.display.get_surface().blit(self.surface, pos)
+    def render(self, player_side: CHESS.SIDE) -> None:
+        top_pos = self.get_top_board_cap_pos()
+        bottom_pos = self.get_bottom_board_cap_pos()
+
+        if player_side is CHESS.SIDE.WHITE:
+            w_surface_pos = top_pos
+            b_surface_pos = bottom_pos
+        else:
+            b_surface_pos = top_pos
+            w_surface_pos = bottom_pos
+
+        top_pos.y -= self.get_piece_size().y
+
+        pygame.display.get_surface().blit(self.white_cap_surface, w_surface_pos)
+        pygame.display.get_surface().blit(self.black_cap_surface, b_surface_pos)
+
+    def get_top_board_cap_pos(self) -> pygame.math.Vector2:
+        return pygame.math.Vector2(self.board_rect.topleft)
+
+    def get_bottom_board_cap_pos(self) -> pygame.math.Vector2:
+        return pygame.math.Vector2(self.board_rect.bottomleft)
+
+    def get_piece_size(self) -> pygame.math.Vector2:
+        return pygame.math.Vector2(self.pieces['p'].get_rect().size)
