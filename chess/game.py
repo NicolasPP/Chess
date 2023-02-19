@@ -305,27 +305,34 @@ def is_move_valid(from_index: int, dest_index: int, fen: FEN.Fen) -> bool:
 # -- helpers --
 
 
-def is_opponent_in_check(fen: FEN.Fen) -> bool:
-    king_fen = FEN.FenChars.BLACK_KING.value if fen.is_white_turn() else FEN.FenChars.WHITE_KING.value
+def is_opponent_in_check(fen: FEN.Fen, is_white_turn: None | bool = None) -> bool:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
+    king_fen = FEN.FenChars.BLACK_KING.value if is_white_turn else FEN.FenChars.WHITE_KING.value
     king_index = fen.get_indexes_for_piece(king_fen)
-    threats = get_possible_threats(king_index[0], fen, not fen.is_white_turn())
+    threats = get_possible_threats(king_index[0], fen, not is_white_turn)
     return len(threats) != 0
 
 
-def is_opponent_in_checkmate(fen: FEN.Fen) -> bool:
-    opponents_moves = get_all_available_moves(fen, own_moves=False)
+def is_opponent_in_checkmate(fen: FEN.Fen, is_white_turn: None | bool = None) -> bool:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
+    opponents_moves = get_all_available_moves(fen, is_white_turn, own_moves=False)
     return len(opponents_moves) == 0
 
 
-def get_all_available_moves(fen: FEN.Fen, *, own_moves: bool) -> list[int]:
+def is_take(fen: FEN.Fen, dest_index: int, is_en_passant: bool) -> bool:
+    return (fen[dest_index] is not FEN.FenChars.BLANK_PIECE.value) or is_en_passant
+
+
+def get_all_available_moves(fen: FEN.Fen, is_white_turn: None | bool = None, *, own_moves: bool) -> list[int]:
     moves = []
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
     for index, fen_char in enumerate(fen.expanded):
-        same_side = is_same_side(fen.is_white_turn(), fen_char)
+        same_side = is_same_side(is_white_turn, fen_char)
         if fen_char == FEN.FenChars.BLANK_PIECE.value: continue
         if not same_side if own_moves else same_side: continue
 
         piece_name = CHESS.get_name_from_fen(fen_char)
-        moves += get_available_moves(piece_name, index, fen, own_moves == fen.is_white_turn())
+        moves += get_available_moves(piece_name, index, fen, own_moves == is_white_turn)
 
     return moves
 
