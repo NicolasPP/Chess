@@ -68,8 +68,8 @@ class Server(NET.Net):
 def game_logic(server: Server):
     while True:
         if server.match.update_fen:
-            server.match.commands.append(END_MARKER)
-            server.send_all_clients(C_SPLIT.join(server.match.commands))
+            server.match.commands.append(CMD.Command(END_MARKER))
+            server.send_all_clients(C_SPLIT.join(list(map(lambda cmd: cmd.info, server.match.commands))))
             server.match.update_fen = False
             server.match.commands = []
 
@@ -91,7 +91,7 @@ def client_listener(client_socket: skt.socket, server: Server):
             logging.debug("move tags : %s", str(move_tags))
 
             for tag in move_tags:
-                commands.extend(process_tag(tag, server.match))
+                commands.extend(server.match.process_tag(tag))
 
             server.match.update_fen = True
             server.match.commands = commands
@@ -99,31 +99,6 @@ def client_listener(client_socket: skt.socket, server: Server):
         server.client_sockets.remove(client_socket)
         print(f'client : {p_id}  disconnected')
         logging.info("client : %s  disconnected", p_id)
-
-
-def process_tag(tag: MATCH.MoveTags, match: MATCH.Match) -> list[CMD.Command]:
-    ext_commands = []
-    match tag:
-        case MATCH.MoveTags.CHECK:
-            update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, match.fen.notation)
-            ext_commands.append(update_pos_command.info)
-        case MATCH.MoveTags.CHECKMATE:
-            end_game_command = CMD.get(CMD.COMMANDS.END_GAME)
-            update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, match.fen.notation)
-            ext_commands.append(end_game_command.info)
-            ext_commands.append(update_pos_command.info)
-        case MATCH.MoveTags.REGULAR:
-            update_pos_command = CMD.get(CMD.COMMANDS.UPDATE_POS, match.fen.notation)
-            ext_commands.append(update_pos_command.info)
-        case MATCH.MoveTags.INVALID:
-            invalid_move_command = CMD.get(CMD.COMMANDS.INVALID_MOVE)
-            ext_commands.append(invalid_move_command.info)
-        case MATCH.MoveTags.TAKE:
-            update_captured_pieces = CMD.get(CMD.COMMANDS.UPDATE_CAP_PIECES, match.captured_pieces)
-            ext_commands.append(update_captured_pieces.info)
-        case _:
-            assert False, "INVALID MATCH.MOVE_TYPE"
-    return ext_commands
 
 
 @click.command()
