@@ -192,7 +192,7 @@ def replace_board_axis_vals(board_sprite: ASSETS.Sprite, scale: float, side: CHE
         if index % 8 == 0:
             val = font.render(str(nums[nums_index]), False, (255, 255, 255))
 
-            size = 6 * scale, rect.height
+            size: tuple[float, float] = 6 * scale, rect.height
             surface = pygame.surface.Surface(size)
 
             pos_rect = surface.get_rect()
