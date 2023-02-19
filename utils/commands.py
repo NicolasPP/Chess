@@ -10,6 +10,7 @@ class COMMANDS(enum.Enum):
     END_GAME: str = 'end_game'
     MOVE: str = 'move'
     INVALID_MOVE: str = 'invalid_move'
+    UPDATE_CAP_PIECES: str = 'update_cap_pieces'
 
 
 # -- Data --
@@ -47,6 +48,8 @@ def get(command: COMMANDS, *args) -> Command:
             return get_invalid_move()
         case COMMANDS.MOVE:
             return get_move(*args)
+        case COMMANDS.UPDATE_CAP_PIECES:
+            return get_update_captured_pieces(*args)
         case _:
             assert False, f" {command.name} : Command not recognised"
 
@@ -69,4 +72,8 @@ def get_end_game() -> Command:
 
 def get_invalid_move() -> Command:
     return Command(I_SPLIT.join([COMMANDS.INVALID_MOVE.value, NO_INFO]))
+
+
+def get_update_captured_pieces(captured_pieces: str) -> Command:
+    return Command(I_SPLIT.join([COMMANDS.UPDATE_CAP_PIECES.value, captured_pieces]))
 # ---------------------
