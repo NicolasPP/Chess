@@ -4,6 +4,7 @@ import chess.chess_data as CHESS
 import utils.asset as ASSETS
 
 
+# TODO: 16x32 pieces dont look good at the bottom of the board, maybe show only the characters
 class CapturedGui:
     def __init__(
             self,
@@ -61,8 +62,8 @@ class CapturedGui:
         return copy_pieces
 
     def render(self, player_side: CHESS.SIDE) -> None:
-        top_pos = self.get_top_board_cap_pos()
-        bottom_pos = self.get_bottom_board_cap_pos()
+        top_pos = pygame.math.Vector2(self.board_rect.topleft)
+        bottom_pos = pygame.math.Vector2(self.board_rect.bottomleft)
 
         if player_side is CHESS.SIDE.WHITE:
             w_surface_pos = top_pos
@@ -75,12 +76,6 @@ class CapturedGui:
 
         pygame.display.get_surface().blit(self.white_cap_surface, w_surface_pos)
         pygame.display.get_surface().blit(self.black_cap_surface, b_surface_pos)
-
-    def get_top_board_cap_pos(self) -> pygame.math.Vector2:
-        return pygame.math.Vector2(self.board_rect.topleft)
-
-    def get_bottom_board_cap_pos(self) -> pygame.math.Vector2:
-        return pygame.math.Vector2(self.board_rect.bottomleft)
 
     def get_piece_size(self) -> pygame.math.Vector2:
         return pygame.math.Vector2(self.pieces['p'].get_rect().size)
