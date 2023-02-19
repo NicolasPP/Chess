@@ -87,7 +87,7 @@ def client_listener(client_socket: skt.socket, server: Server):
             print(f"client : {p_id}, sent move {move_info} to server")
             logging.debug("client : %s, sent move %s to server", p_id, move_info)
             move_tags: list[MATCH.MoveTags] = server.match.process_move(move_info)
-            print(f"move tags : ", *move_tags, sep=' ')
+            print(f"move tags : ", *list(map(lambda m_tag: m_tag.name, move_tags)), sep=' ')
             logging.debug("move tags : %s", str(move_tags))
 
             for tag in move_tags:
@@ -118,6 +118,9 @@ def process_tag(tag: MATCH.MoveTags, match: MATCH.Match) -> list[CMD.Command]:
         case MATCH.MoveTags.INVALID:
             invalid_move_command = CMD.get(CMD.COMMANDS.INVALID_MOVE)
             ext_commands.append(invalid_move_command.info)
+        case MATCH.MoveTags.TAKE:
+            update_captured_pieces = CMD.get(CMD.COMMANDS.UPDATE_CAP_PIECES, match.captured_pieces)
+            ext_commands.append(update_captured_pieces.info)
         case _:
             assert False, "INVALID MATCH.MOVE_TYPE"
     return ext_commands

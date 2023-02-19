@@ -8,7 +8,10 @@ import utils.Forsyth_Edwards_notation as FEN
 import utils.asset as ASSETS
 import utils.commands as CMD
 import utils.network as NET
+
 from gui.promotion_gui import PromotionGui
+from gui.captured_gui import CapturedGui
+
 
 
 # -- Enums --
@@ -42,6 +45,8 @@ class Player:
         self.is_render_required: bool = True
         self.game_over = False
         self.promotion_gui = PromotionGui(self.pieces, self.side, self.board.sprite.surface.get_rect())
+        self.captured_gui = CapturedGui('', self.pieces, self.board.pos_rect,
+                                        'white' if self.side is CHESS.SIDE.WHITE else 'black')
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
 
     # -- reading playing input --
@@ -110,11 +115,12 @@ class Player:
     # ---------------------------
 
     # -- rendering players game --
-    def render(self, bg_color):
+    def render(self, bg_color) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
             pygame.display.get_surface().fill(bg_color)
             self.render_board()
             self.render_pieces()
+            self.captured_gui.render(self.side)
         if self.state is STATE.PICK_PROMOTION:
             self.promotion_gui.render()
         self.is_render_required = False
@@ -199,6 +205,8 @@ def parse_command(command: str, info: str, match_fen: FEN.Fen, *players: Player,
             list(map(lambda player: player.end_turn(), players))
         case CMD.COMMANDS.INVALID_MOVE:
             list(map(lambda player: player.set_require_render(True), players))
+        case CMD.COMMANDS.UPDATE_CAP_PIECES:
+            list(map(lambda player: player.captured_gui.set_captured_pieces(info), players))
         case _:
             assert False, f" {command} : Command not recognised"
 
