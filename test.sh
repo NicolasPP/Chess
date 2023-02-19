@@ -11,6 +11,7 @@ OnlyIntegrated()
 TestAll()
 {
   pytest tests/utils tests/chess tests/test_with_played_games.py
+  cloc $(git ls-files)
 }
 
 InvalidOption()
