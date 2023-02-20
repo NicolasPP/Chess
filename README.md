@@ -29,3 +29,5 @@ python client.py --server_ip	// specified server ip address
 
 # Resources
 - sprites : https://dani-maccari.itch.io/pixel-chess
+- font : https://opengameart.org/content/oleaguid-font
+  - The Oleaguid font was made by Arynoc

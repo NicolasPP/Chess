@@ -5,8 +5,9 @@ import typing
 
 import pygame
 
+import chess.chess_data as CHESS
 import utils.algebraic_notation as AN
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 import utils.asset as ASSETS
 from config import *
 
@@ -142,7 +143,7 @@ def get_picked_up_piece_render_pos(board_square: BoardSquare, piece_surface: pyg
 
 # -- getting assets --
 def get_grid_surface_size(board_sprite: ASSETS.Sprite) -> pygame.math.Vector2:
-    offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
+    offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
     board_size = pygame.math.Vector2(board_sprite.surface.get_size())
     return board_size - (offset * 2)
 
@@ -158,11 +159,79 @@ def board_square_info(side: SIDE) -> typing.Generator[tuple[int, int, AN.Algebra
 
 def get_board(board_asset: ASSETS.Asset, side: SIDE, scale: float) -> Board:
     sprite = ASSETS.load_board(board_asset, scale)
+    replace_board_axis_vals(sprite, scale, side)
     if side is SIDE.BLACK: sprite.surface = pygame.transform.flip(sprite.surface, True, True)
-
     pos_rect = sprite.surface.get_rect()
     grid = create_grid(sprite, pos_rect, side)
     return Board(sprite, pos_rect, grid)
+
+
+def replace_board_axis_info(board_sprite: ASSETS.Sprite) -> typing.Generator[tuple[int, pygame.rect.Rect], None, None]:
+    size = get_grid_surface_size(board_sprite) / BOARD_SIZE
+    board_offset = pygame.math.Vector2(board_sprite.surface.get_rect().topleft)
+    grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
+
+    for row in range(BOARD_SIZE):
+        for col in range(BOARD_SIZE):
+            index = (row * BOARD_SIZE) + col
+            pos = pygame.math.Vector2(col * size.x, row * size.y)
+            rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
+            yield index, rect
+
+
+def replace_board_axis_vals(board_sprite: ASSETS.Sprite, scale: float, side: CHESS.SIDE) -> None:
+    nums = list(range(8, 0, -1))
+    nums_index = 0
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    letters_index = 0
+    color = board_sprite.surface.get_at((0, 0))
+    font = pygame.font.Font("assets/fonts/Oleaguid.ttf", 25)
+    is_black_turn = True if side is CHESS.SIDE.BLACK else False
+
+    for index, rect in replace_board_axis_info(board_sprite):
+        if index % 8 == 0:
+            val = font.render(str(nums[nums_index]), False, (255, 255, 255))
+
+            size: tuple[float, float] = 6 * scale, rect.height
+            surface = pygame.surface.Surface(size)
+
+            pos_rect = surface.get_rect()
+            pos_rect.topright = rect.topleft
+            pos_rect.x -= 4
+
+            val_pos = val.get_rect()
+            val_pos.center = surface.get_rect().center
+
+            surface.fill(color)
+
+            if is_black_turn:
+                val = pygame.transform.flip(val, True, True)
+
+            surface.blit(val, val_pos)
+            board_sprite.surface.blit(surface, pos_rect)
+
+            nums_index += 1
+        if index >= 56:
+            val = font.render(letters[letters_index], False, (255, 255, 255))
+
+            size = rect.width, 6 * scale
+            surface = pygame.surface.Surface(size)
+
+            pos_rect = surface.get_rect()
+            pos_rect.topleft = rect.bottomleft
+            pos_rect.y += 4
+
+            val_pos = val.get_rect()
+            val_pos.center = surface.get_rect().center
+
+            surface.fill(color)
+
+            if is_black_turn:
+                val = pygame.transform.flip(val, True, True)
+            surface.blit(val, val_pos)
+            board_sprite.surface.blit(surface, pos_rect)
+
+            letters_index += 1
 
 
 def get_pieces(piece_set: ASSETS.PieceSet, scale: float) -> dict[str, Piece]:
@@ -184,7 +253,7 @@ def create_grid(board_sprite: ASSETS.Sprite, pos_rect: pygame.rect.Rect, side: S
     grid = []
     size = get_grid_surface_size(board_sprite) / BOARD_SIZE
     board_offset = pygame.math.Vector2(pos_rect.topleft)
-    grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.factor
+    grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
     for row, col, algebraic_notation in board_square_info(side):
         pos = pygame.math.Vector2(col * size.x, row * size.y)
         rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)

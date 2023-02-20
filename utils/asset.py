@@ -22,7 +22,7 @@ class Asset:
 @dataclasses.dataclass
 class Sprite:
     surface: pygame.surface.Surface
-    factor: float
+    scale: float
 
 
 @dataclasses.dataclass
@@ -56,8 +56,8 @@ class PieceSetAssets(enum.Enum):
 # -----------------------
 
 # -- helper functions --
-def scale(surface: pygame.surface.Surface, factor: float) -> pygame.surface.Surface:
-    size = pygame.math.Vector2(surface.get_size()) * factor
+def scale(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
+    size = pygame.math.Vector2(surface.get_size()) * surface_scale
     return pygame.transform.scale(surface, (round(size.x), round(size.y)))
 
 
@@ -70,8 +70,8 @@ def sheet_surface_gen(asset: Asset, surface_size: pygame.math.Vector2):
             yield surface, index
 
 
-def load_sprite_sheet(asset: Asset, factor: float) -> list[Sprite]:
-    sheet_sprite = load_sprite(asset.file, factor=1)
+def load_sprite_sheet(asset: Asset, asset_scale: float) -> list[Sprite]:
+    sheet_sprite = load_sprite(asset.file, sprite_scale=1)
     sheet_dimensions = pygame.math.Vector2(asset.cols, asset.rows)
     sheet_size = pygame.math.Vector2(sheet_sprite.surface.get_size()).elementwise()
     surface_size = sheet_size / sheet_dimensions
@@ -80,25 +80,25 @@ def load_sprite_sheet(asset: Asset, factor: float) -> list[Sprite]:
 
     for surface, index in sheet_surface_gen(asset, surface_size):
         surface.blit(sheet_sprite.surface, surface_size * index * -1)
-        surface = scale(surface, factor)
-        sprites.append(Sprite(surface, factor))
+        surface = scale(surface, asset_scale)
+        sprites.append(Sprite(surface, asset_scale))
 
     return sprites
 
 
-def load_sprite(file: str, factor: float) -> Sprite:
+def load_sprite(file: str, sprite_scale: float) -> Sprite:
     surface = pygame.image.load(file).convert()
-    surface = scale(surface, factor)
-    return Sprite(surface, factor)
+    surface = scale(surface, sprite_scale)
+    return Sprite(surface, sprite_scale)
 
 
 # ----------------------
 
 # --  user will call these functions --
-def load_board(asset: Asset, factor: float) -> Sprite:
-    return load_sprite(asset.file, factor)
+def load_board(asset: Asset, asset_scale: float) -> Sprite:
+    return load_sprite(asset.file, asset_scale)
 
 
-def load_piece_set(piece_set: PieceSet, factor: float) -> tuple[list[Sprite], list[Sprite]]:
-    return load_sprite_sheet(piece_set.white_asset, factor), load_sprite_sheet(piece_set.black_asset, factor)
+def load_piece_set(piece_set: PieceSet, piece_scale: float) -> tuple[list[Sprite], list[Sprite]]:
+    return load_sprite_sheet(piece_set.white_asset, piece_scale), load_sprite_sheet(piece_set.black_asset, piece_scale)
 # -------------------------------------

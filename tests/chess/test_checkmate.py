@@ -1,7 +1,7 @@
 import pytest
 
 import chess.game as GAME
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 
 
 @pytest.mark.parametrize("fen", [

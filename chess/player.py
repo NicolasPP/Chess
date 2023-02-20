@@ -4,10 +4,14 @@ import pygame
 
 import chess.chess_data as CHESS
 import chess.game as GAME
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 import utils.asset as ASSETS
 import utils.commands as CMD
 import utils.network as NET
+
+from gui.promotion_gui import PromotionGui
+from gui.captured_gui import CapturedGui
+
 
 
 # -- Enums --
@@ -20,8 +24,8 @@ class MOUSECLICK(enum.Enum):
 
 
 class STATE(enum.Enum):
-    PICK_PIECE: int = 0  # picking a piece
-    DROP_PIECE: int = 1  # dropping the piece
+    PICK_PIECE: int = 0
+    DROP_PIECE: int = 1
     PICK_PROMOTION: int = 2
 
 
@@ -40,7 +44,9 @@ class Player:
         self.state: STATE = STATE.PICK_PIECE
         self.is_render_required: bool = True
         self.game_over = False
-        self.promotion_pieces: list[tuple[pygame.surface.Surface, pygame.rect.Rect, str]] = self.get_promotion_pieces()
+        self.promotion_gui = PromotionGui(self.pieces, self.side, self.board.sprite.surface.get_rect())
+        self.captured_gui = CapturedGui('', self.pieces, self.board.pos_rect,
+                                        'white' if self.side is CHESS.SIDE.WHITE else 'black')
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
 
     # -- reading playing input --
@@ -93,7 +99,7 @@ class Player:
             self.state = STATE.DROP_PIECE
 
     def handle_pick_promotion(self, local: bool, network: NET.Network | None) -> None:
-        for surface, rect, val in self.promotion_pieces:
+        for surface, rect, val in self.promotion_gui.promotion_pieces:
             if not rect.collidepoint(pygame.mouse.get_pos()): continue
             from_board_square = CHESS.get_picked_up(self.board)
             dest_board_square = CHESS.get_collided_board_square(self.board, self.prev_left_mouse_up)
@@ -109,13 +115,14 @@ class Player:
     # ---------------------------
 
     # -- rendering players game --
-    def render(self, bg_color):
+    def render(self, bg_color) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
             pygame.display.get_surface().fill(bg_color)
             self.render_board()
             self.render_pieces()
+            self.captured_gui.render(self.side)
         if self.state is STATE.PICK_PROMOTION:
-            self.render_pick_promotion_piece()
+            self.promotion_gui.render()
         self.is_render_required = False
 
     def render_board(self) -> None:
@@ -135,23 +142,6 @@ class Player:
         piece_surface = self.pieces[board_square.FEN_val].sprite.surface
         pygame.display.get_surface().blit(piece_surface,
                                           CHESS.get_piece_render_pos(board_square, board_offset, piece_surface))
-
-    def render_pick_promotion_piece(self) -> None:
-        for surface, rect, val in self.promotion_pieces:
-            pygame.display.get_surface().blit(surface, rect)
-
-    def get_promotion_pieces(self) -> list[tuple[pygame.surface.Surface, pygame.rect.Rect, str]]:
-        promotion_pieces: list[str] = ['N', 'R', 'B', 'Q'] if self.side is CHESS.SIDE.WHITE else ['n', 'r', 'b', 'q']
-        center = pygame.math.Vector2(self.board.sprite.surface.get_rect().center)
-        piece_width = self.pieces[promotion_pieces[0]].sprite.surface.get_width()
-        piece_height = self.pieces[promotion_pieces[0]].sprite.surface.get_height()
-        center.x -= (piece_width * 2)
-        result = []
-        for val in promotion_pieces:
-            rect = pygame.rect.Rect(center.x, center.y, piece_width, piece_height)
-            result.append((self.pieces[val].sprite.surface, rect, val))
-            center.x += piece_width
-        return result
 
     def show_available_moves(self) -> None:
         if not self.turn: return
@@ -215,6 +205,8 @@ def parse_command(command: str, info: str, match_fen: FEN.Fen, *players: Player,
             list(map(lambda player: player.end_turn(), players))
         case CMD.COMMANDS.INVALID_MOVE:
             list(map(lambda player: player.set_require_render(True), players))
+        case CMD.COMMANDS.UPDATE_CAP_PIECES:
+            list(map(lambda player: player.captured_gui.set_captured_pieces(info), players))
         case _:
             assert False, f" {command} : Command not recognised"
 

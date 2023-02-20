@@ -1,7 +1,7 @@
 import pytest
 
 import chess.game as GAME
-import utils.FEN_notation as FEN
+import utils.Forsyth_Edwards_notation as FEN
 import utils.portable_game_notation as PGN
 
 
@@ -11,6 +11,7 @@ def get_games() -> list[PGN.Game]:
     return magnus.games + hikaru.games
 
 
+@pytest.mark.integrated
 @pytest.mark.parametrize("game", get_games())
 def test_against_played_games(game: PGN.Game):
     fen = FEN.Fen()
