@@ -1,5 +1,3 @@
-import pytest
-
 from chess.piece import Pieces
 
 
