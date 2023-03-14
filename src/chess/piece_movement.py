@@ -1,6 +1,6 @@
-import utils.forsyth_edwards_notation as notation
-from utils.algebraic_notation import AlgebraicNotation
-from config import *
+import src.utils.forsyth_edwards_notation as notation
+from src.utils.algebraic_notation import AlgebraicNotation
+from src.config import *
 
 
 def pawn_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:

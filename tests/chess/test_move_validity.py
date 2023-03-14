@@ -1,7 +1,7 @@
 import pytest
 
-from utils.forsyth_edwards_notation import Fen
-import chess.validate_move as validate_move
+from src.utils.forsyth_edwards_notation import Fen
+import src.chess.validate_move as validate_move
 
 
 @pytest.mark.parametrize("from_fen_val,is_white_turn,expected",

@@ -1,10 +1,10 @@
 import pygame
 
-import chess.board as chess_board
-import chess.piece as chess_piece
+import src.chess.board as chess_board
+import src.chess.piece as chess_piece
 
-from utils.forsyth_edwards_notation import validate_fen_val
-from utils.asset import scale
+from src.utils.forsyth_edwards_notation import validate_fen_val
+from src.utils.asset import scale
 
 
 # TODO: 16x32 pieces dont look good at the bottom of the board, maybe show only the characters

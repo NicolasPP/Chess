@@ -4,9 +4,9 @@ import dataclasses
 import enum
 import typing
 
-import utils.asset as asset_manager
-import utils.forsyth_edwards_notation as notation
-import chess.piece_movement as movement
+import src.utils.asset as asset_manager
+import src.utils.forsyth_edwards_notation as notation
+import src.chess.piece_movement as movement
 
 AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, notation.Fen, None | bool], list[int]]
 

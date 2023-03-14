@@ -2,7 +2,7 @@ import dataclasses
 import enum
 import pygame
 
-from config import *
+from src.config import *
 
 
 # -- Classes and Enums --

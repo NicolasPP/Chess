@@ -1,7 +1,7 @@
 import pytest
 
-import chess.piece as chess_piece
-from utils.forsyth_edwards_notation import Fen
+import src.chess.piece as chess_piece
+from src.utils.forsyth_edwards_notation import Fen
 
 
 def test_base_moves():

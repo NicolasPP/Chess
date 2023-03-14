@@ -3,11 +3,11 @@ import sys
 
 import pygame
 
-import chess.board as chess_board
-from chess.match import Match
-from chess.player import Player, parse_command_local, STATE
-from utils.asset import PieceSetAssets, BoardAssets
-from utils.debug import debug
+import src.chess.board as chess_board
+from src.chess.match import Match
+from src.chess.player import Player, parse_command_local, STATE
+from src.utils.asset import PieceSetAssets, BoardAssets
+from src.utils.debug import debug
 from config import *
 
 pygame.init()

@@ -7,18 +7,18 @@ import sys
 import click
 import pygame
 
-from chess.player import parse_command, Player
-from utils.forsyth_edwards_notation import Fen
-from utils.commands import split_command_info
-from utils.asset import PieceSetAssets, BoardAssets
-from utils.debug import debug
-from utils.network import Network
-import chess.board as chess_board
+from src.chess.player import parse_command, Player
+from src.utils.forsyth_edwards_notation import Fen
+from src.utils.commands import split_command_info
+from src.utils.asset import PieceSetAssets, BoardAssets
+from src.utils.debug import debug
+from src.utils.network import Network
+import src.chess.board as chess_board
 
 from config import *
 
 logging.basicConfig(
-    filename='log/client.log',
+    filename='../log/client.log',
     encoding='utf-8',
     level=logging.DEBUG,
     filemode='w',
