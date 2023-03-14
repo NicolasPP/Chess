@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import dataclasses
 import enum
 import typing
 
@@ -18,21 +20,14 @@ class PieceName(enum.Enum):
     KING: str = "K"
 
 
+@dataclasses.dataclass
 class PieceInfo:
-    def __init__(self, asset_index: int, piece_name: PieceName, available_moves: AvailableMovesGetter):
-        self.asset_index = asset_index
-        self.name = piece_name
-        self.available_moves = available_moves
+    asset_index: int
+    piece_name: PieceName
+    available_moves: AvailableMovesGetter
 
 
 class Pieces:
-    PAWN: PieceInfo | None = None
-    KNIGHT: PieceInfo | None = None
-    ROOK: PieceInfo | None = None
-    BISHOP: PieceInfo | None = None
-    QUEEN: PieceInfo | None = None
-    KING: PieceInfo | None = None
-
     sprites: dict[str, ASSETS.Sprite] = {}
     info: dict[str, PieceInfo] = {}
 
@@ -46,22 +41,11 @@ class Pieces:
 
     @staticmethod
     def load_pieces_info():
-        Pieces.PAWN = PieceInfo(0, PieceName.PAWN, movement.pawn_available_moves)
         Pieces.info[PieceName.PAWN.value] = PieceInfo(0, PieceName.PAWN, movement.pawn_available_moves)
-
-        Pieces.KNIGHT = PieceInfo(1, PieceName.KNIGHT, movement.knight_available_moves)
         Pieces.info[PieceName.KNIGHT.value] = PieceInfo(1, PieceName.KNIGHT, movement.knight_available_moves)
-
-        Pieces.ROOK = PieceInfo(2, PieceName.ROOK, movement.rook_available_moves)
         Pieces.info[PieceName.ROOK.value] = PieceInfo(2, PieceName.ROOK, movement.rook_available_moves)
-
-        Pieces.BISHOP = PieceInfo(3, PieceName.BISHOP, movement.bishop_available_moves)
         Pieces.info[PieceName.BISHOP.value] = PieceInfo(3, PieceName.BISHOP, movement.bishop_available_moves)
-
-        Pieces.QUEEN = PieceInfo(4, PieceName.QUEEN, movement.queen_available_moves)
         Pieces.info[PieceName.QUEEN.value] = PieceInfo(4, PieceName.QUEEN, movement.queen_available_moves)
-
-        Pieces.KING = PieceInfo(5, PieceName.KING, movement.king_available_moves)
         Pieces.info[PieceName.KING.value] = PieceInfo(5, PieceName.KING, movement.king_available_moves)
 
     @staticmethod
