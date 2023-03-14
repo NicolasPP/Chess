@@ -1,42 +1,44 @@
 import pytest
 
-import chess.game as GAME
-import utils.Forsyth_Edwards_notation as FEN
+from utils.Forsyth_Edwards_notation import Fen, FenChars
+from chess.piece import get_available_moves
+
+fen = Fen("8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8 w KQkq - 0 1")
 
 
-def test_first_turn_double_move(pawn_test_fen):
+def test_first_turn_double_move(load_pieces_info):
     from_index = 50
-    assert len(GAME.get_available_moves('PAWN', from_index, pawn_test_fen)) is 2
+    assert len(get_available_moves('P', from_index, fen)) is 2
 
 
-def test_first_turn_double_move_and_possible_take(pawn_test_fen):
+def test_first_turn_double_move_and_possible_take(load_pieces_info):
     from_index = 53
-    assert len(GAME.get_available_moves('PAWN', from_index, pawn_test_fen)) is 3
+    assert len(get_available_moves('P', from_index, fen)) is 3
 
 
-def test_regular_move(pawn_test_fen):
+def test_regular_move(load_pieces_info):
     from_index = 41
-    assert len(GAME.get_available_moves('PAWN', from_index, pawn_test_fen)) is 1
+    assert len(get_available_moves('P', from_index, fen)) is 1
 
 
-def test_blocked_by_piece(pawn_test_fen):
+def test_blocked_by_piece(load_pieces_info):
     from_index = 26
-    assert len(GAME.get_available_moves('PAWN', from_index, pawn_test_fen)) is 0
+    assert len(get_available_moves('P', from_index, fen)) is 0
 
 
-def test_blocked_by_piece_and_possible_take(pawn_test_fen):
+def test_blocked_by_piece_and_possible_take(load_pieces_info):
     from_index = 21
-    assert len(GAME.get_available_moves('PAWN', from_index, pawn_test_fen)) is 1
+    assert len(get_available_moves('P', from_index, fen)) is 1
 
 
-def test_first_turn_double_move_blocked(pawn_test_fen):
+def test_first_turn_double_move_blocked(load_pieces_info):
     from_index = 55
-    assert len(GAME.get_available_moves('PAWN', from_index, pawn_test_fen)) is 1
+    assert len(get_available_moves('P', from_index, fen)) is 1
 
 
-def test_first_turn_blocked(pawn_test_fen):
+def test_first_turn_blocked(load_pieces_info):
     from_index = 52
-    assert len(GAME.get_available_moves('PAWN', from_index, pawn_test_fen)) is 0
+    assert len(get_available_moves('P', from_index, fen)) is 0
 
 
 @pytest.mark.parametrize("from_index,is_white_turn", [
@@ -58,27 +60,26 @@ def test_first_turn_blocked(pawn_test_fen):
     (48, True)
 ])
 def test_default_fen(from_index: int, is_white_turn: bool):
-    assert len(GAME.get_available_moves('PAWN', from_index, FEN.Fen(), is_white_turn)) is 2
+    assert len(get_available_moves('P', from_index, Fen(), is_white_turn)) is 2
 
 
 def test_en_passant():
-    fen = FEN.Fen()
-    expected = fen[53]
-    fen.make_move(53, 37, fen[53])
-    assert fen[37] == expected
-    expected = fen[13]
-    fen.make_move(13, 21, fen[13])
-    assert fen[21] == expected
-    expected = fen[37]
-    fen.make_move(37, 29, fen[37])
-    assert fen[29] == expected
-    fen.make_move(14, 30, fen[14])
-    assert len(GAME.get_available_moves('PAWN', 29, fen)) == 1
-    fen.make_move(48, 40, fen[48])
-    assert len(GAME.get_available_moves('PAWN', 29, fen, True)) == 0
-    fen.make_move(12, 28, fen[12])
-    assert len(GAME.get_available_moves('PAWN', 29, fen)) == 1
-    fen.make_move(29, 20, fen[29])
-    assert fen[28] == FEN.FenChars.BLANK_PIECE.value
-    assert fen[20] == 'P'
-
+    f = Fen()
+    expected = f[53]
+    f.make_move(53, 37, f[53])
+    assert f[37] == expected
+    expected = f[13]
+    f.make_move(13, 21, f[13])
+    assert f[21] == expected
+    expected = f[37]
+    f.make_move(37, 29, f[37])
+    assert f[29] == expected
+    f.make_move(14, 30, f[14])
+    assert len(get_available_moves('P', 29, f)) == 1
+    f.make_move(48, 40, f[48])
+    assert len(get_available_moves('P', 29, f, True)) == 0
+    f.make_move(12, 28, f[12])
+    assert len(get_available_moves('P', 29, f)) == 1
+    f.make_move(29, 20, f[29])
+    assert f[28] == FenChars.BLANK_PIECE.value
+    assert f[20] == 'P'
