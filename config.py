@@ -22,3 +22,6 @@ END_MARKER: str = '#'
 NO_INFO: str = '<>'
 I_SPLIT: str = '*'
 C_SPLIT: str = '%'
+
+# -- File Name --
+FONT_FILE: str = "assets/fonts/Oleaguid.ttf"
