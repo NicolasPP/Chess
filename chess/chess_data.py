@@ -239,6 +239,7 @@ def get_pieces(piece_set: ASSETS.PieceSet, scale: float) -> dict[str, Piece]:
     assert len(white_sprites) == len(black_sprites)
     pieces = {}
     ''' get fen value from name of PIECES(Enum) '''
+    ''' order of the sprite sheet corresponds to the value of the PIECES(Enum)'''
 
     for i in range(len(white_sprites)):
         white_fen: str = PIECES(i).FEN_val
