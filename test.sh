@@ -3,15 +3,15 @@ MainTests()
   pytest tests/utils tests/chess
 }
 
-OnlyIntegrated()
+OnlyPlayedGames()
 {
-  pytest -v -m integrated
+  pytest -v -m played_games
 }
 
 TestAll()
 {
   pytest tests/utils tests/chess tests/test_with_played_games.py
-  cloc $(git ls-files)
+  TypeCheck
 }
 
 InvalidOption()
@@ -38,10 +38,10 @@ TypeCheck()
 no_args="true"
 while [ $# -gt 0 ] ; do
   case $1 in
-    -a | --all) TestAll;;
-    -i | --integrated) OnlyIntegrated ;;
+    -a | --all) TestAll ;;
+    -p | --played-games) OnlyPlayedGames ;;
     -t | --type-check) TypeCheck ;;
-	*) InvalidOption $1;;
+	*) InvalidOption $1 ;;
 
   esac
   no_args="false"
