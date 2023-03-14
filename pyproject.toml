@@ -3,3 +3,6 @@ addopts = "--cov-report html --cov=chess --cov=utils"
 testpaths = [
     "tests",
 ]
+markers = [
+    "played_games",
+]
