@@ -7,13 +7,14 @@ import sys
 import click
 import pygame
 
+from chess.player import parse_command, Player
+from utils.Forsyth_Edwards_notation import Fen
+from utils.commands import split_command_info
+from utils.asset import PieceSetAssets, BoardAssets
+from utils.debug import debug
+from utils.network import Network
 import chess.board as chess_board
-import chess.player as PLAYER
-import utils.Forsyth_Edwards_notation as FEN
-import utils.asset as ASSETS
-import utils.commands as CMD
-import utils.debug as DB
-import utils.network as NET
+
 from config import *
 
 logging.basicConfig(
@@ -25,7 +26,7 @@ logging.basicConfig(
 )
 
 
-def server_listener(player: PLAYER.Player, server_socket: skt.socket, match_fen: FEN.Fen) -> None:
+def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -> None:
     with server_socket:
         while True:
             data_b: bytes = server_socket.recv(DATA_SIZE)
@@ -34,10 +35,10 @@ def server_listener(player: PLAYER.Player, server_socket: skt.socket, match_fen:
             data, prev_data_tail = correct_data(data_b.decode('utf-8'), prev_data_tail)
             logging.debug("server sent commands :")
             for command_info in data[:-1].split(C_SPLIT):
-                command, info = CMD.split_command_info(command_info)
+                command, info = split_command_info(command_info)
                 logging.debug(" - %s ", command)
                 logging.debug(" - - %s", info)
-                PLAYER.parse_command(command, info, match_fen, player)
+                parse_command(command, info, match_fen, player)
 
         logging.debug("server disconnected")
 
@@ -57,28 +58,29 @@ def correct_data(received_data: str, prev_data_tail: str) -> tuple[str, str]:
     return temp_data[-1], prev_data_tail
 
 
-def update_window_caption(player: PLAYER.Player) -> None:
+def update_window_caption(player: Player) -> None:
     if player.game_over:
         pygame.display.set_caption('GAME OVER')
-    else: pygame.display.set_caption(player.get_window_title())
+    else:
+        pygame.display.set_caption(player.get_window_title())
 
 
-def get_player(network: NET.Network) -> PLAYER.Player:
+def get_player(network: Network) -> Player:
     side = chess_board.SIDE.WHITE if network.id % 2 == 0 else chess_board.SIDE.BLACK
-    player = PLAYER.Player(
+    player = Player(
         side=side,
-        piece_set=random.choice(list(ASSETS.PieceSetAssets)),
-        board_asset=random.choice(list(ASSETS.BoardAssets)),
+        piece_set=random.choice(list(PieceSetAssets)),
+        board_asset=random.choice(list(BoardAssets)),
         scale=BOARD_SCALE)
     return player
 
 
-def center_board(player: PLAYER.Player, window_size: pygame.math.Vector2) -> None:
+def center_board(player: Player, window_size: pygame.math.Vector2) -> None:
     screen_center = window_size / 2
     player.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
 
 
-def get_colors(player: PLAYER.Player) -> tuple[str, str]:
+def get_colors(player: Player) -> tuple[str, str]:
     bg_color = 'white' if player.side == chess_board.SIDE.WHITE else 'black'
     font_color = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
     return bg_color, font_color
@@ -91,9 +93,9 @@ def run_main_loop(server_ip: str) -> None:
     pygame.display.set_mode(window_size)
 
     clock = pygame.time.Clock()
-    network = NET.Network(server_ip)
+    network = Network(server_ip)
     game_state = network.read()
-    match_fen = FEN.Fen(game_state)
+    match_fen = Fen(game_state)
     player = get_player(network)
     player.update_turn(match_fen)
     bg_color, font_color = get_colors(player)
@@ -115,7 +117,7 @@ def run_main_loop(server_ip: str) -> None:
         update_window_caption(player)
         player.render(bg_color)
 
-        DB.debug(fps, bg_color, font_color)
+        debug(fps, bg_color, font_color)
         pygame.display.flip()
         clock.tick()
 
