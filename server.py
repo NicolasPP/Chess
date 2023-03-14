@@ -3,7 +3,7 @@ import logging
 import socket as skt
 
 import click
-
+import chess.piece as chess_piece
 import chess.match as MATCH
 import utils.Forsyth_Edwards_notation as FEN
 import utils.commands as CMD
@@ -30,6 +30,7 @@ class Server(NET.Net):
         self.client_id: int = -1
         self.match: MATCH.Match = MATCH.Match()
         self.client_sockets: list[skt.socket] = []
+        chess_piece.Pieces.load_pieces_info()
 
     def start(self) -> None:
         logging.info('Server started')
