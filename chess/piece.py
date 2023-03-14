@@ -72,7 +72,7 @@ class Pieces:
     @staticmethod
     def get_info_from_fen(fen_val: str) -> PieceInfo:
         info = Pieces.info.get(fen_val.upper())
-        if info is None: raise Exception("fen value not found")
+        if info is None: raise Exception(f"fen value not found {fen_val}")
         return info
 
 
