@@ -68,7 +68,7 @@ class Player:
         from_coordinates = from_board_square.algebraic_notation.data.coordinates
 
         # invalid move
-        target_fen = from_board_square.FEN_val
+        target_fen = from_board_square.fen_val
         move = command_manager.get(
             command_manager.COMMANDS.MOVE,
             from_coordinates,
@@ -106,7 +106,7 @@ class Player:
         elif self.state is STATE.PICK_PIECE:
             board_square = self.board.get_collided_board_square()
             if not board_square: return
-            if board_square.FEN_val is FenChars.BLANK_PIECE.value: return
+            if board_square.fen_val is FenChars.BLANK_PIECE.value: return
             self.board.set_picked_up(board_square)
             self.state = STATE.DROP_PIECE
 
@@ -150,14 +150,14 @@ class Player:
 
     def render_pieces(self) -> None:  # move to
         def render_board_square(bs: chess_board.BoardSquare, offset: pygame.math.Vector2) -> None:
-            piece_surface = chess_piece.Pieces.sprites[bs.FEN_val].surface
-            piece_pos = chess_board.BoardSquare.get_piece_render_pos(bs, offset, piece_surface)
-            pygame.display.get_surface().blit(piece_surface, piece_pos)
+            piece_surface = chess_piece.Pieces.sprites[bs.fen_val].surface
+            piece_pos: chess_board.RenderPos = chess_board.BoardSquare.get_piece_render_pos(bs, offset, piece_surface)
+            pygame.display.get_surface().blit(piece_surface, (piece_pos.x, piece_pos.y))
 
         grid = self.board.grid if self.side is chess_board.SIDE.WHITE else self.board.grid[::-1]
         board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
         for board_square in grid:
-            if board_square.FEN_val is FenChars.BLANK_PIECE.value: continue
+            if board_square.fen_val is FenChars.BLANK_PIECE.value: continue
             if board_square.picked_up: continue
             render_board_square(board_square, board_offset)
         if self.state is STATE.DROP_PIECE: render_board_square(self.board.get_picked_up(), board_offset)
@@ -166,16 +166,16 @@ class Player:
         if not self.turn: return
         picked = self.board.get_picked_up()
         if self.side is chess_board.SIDE.WHITE:
-            if picked.FEN_val.islower(): return
+            if picked.fen_val.islower(): return
         if self.side is chess_board.SIDE.BLACK:
-            if picked.FEN_val.isupper(): return
+            if picked.fen_val.isupper(): return
         for surface, pos in self.board.get_available_moves_surface(picked):
             pygame.display.get_surface().blit(surface, pos)
 
     def update_pieces_location(self, fen: Fen) -> None:
         for index, fen_val in enumerate(fen.expanded):
             board_square = self.board.grid[index]
-            board_square.FEN_val = fen_val
+            board_square.fen_val = fen_val
             update_available_moves(board_square, fen, self.side)
         self.is_render_required = True
 
@@ -235,14 +235,14 @@ def parse_command_local(match_fen: Fen, *players: Player) -> None:
 
 def update_available_moves(board_square: chess_board.BoardSquare, match_fen: Fen,
                            player_side: chess_board.SIDE) -> None:
-    is_black_and_lower = player_side is chess_board.SIDE.BLACK and board_square.FEN_val.islower()
-    is_white_and_upper = player_side is chess_board.SIDE.WHITE and board_square.FEN_val.isupper()
+    is_black_and_lower = player_side is chess_board.SIDE.BLACK and board_square.fen_val.islower()
+    is_white_and_upper = player_side is chess_board.SIDE.WHITE and board_square.fen_val.isupper()
     correct_side = True if is_black_and_lower or is_white_and_upper else False
-    if board_square.FEN_val == FenChars.BLANK_PIECE.value or not correct_side:
+    if board_square.fen_val == FenChars.BLANK_PIECE.value or not correct_side:
         board_square.available_moves = []
         return None
     board_square.available_moves = chess_piece.get_available_moves(
-        board_square.FEN_val,
+        board_square.fen_val,
         board_square.algebraic_notation.data.index,
         match_fen
     )
@@ -255,7 +255,7 @@ def is_pawn_promotion(from_board_square: chess_board.BoardSquare, dest_board_squ
     from_index = from_board_square.algebraic_notation.data.index
     dest_index = dest_board_square.algebraic_notation.data.index
     dest_rank = dest_board_square.algebraic_notation.data.rank
-    if from_board_square.FEN_val != pawn_fen: return False
+    if from_board_square.fen_val != pawn_fen: return False
     if dest_rank != rank: return False
     if dest_index not in chess_piece.get_available_moves('P', from_index, fen): return False
     if not chess_piece.is_king_safe(from_board_square.algebraic_notation.data.index,
