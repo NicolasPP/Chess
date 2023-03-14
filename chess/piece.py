@@ -4,11 +4,11 @@ import dataclasses
 import enum
 import typing
 
-import utils.asset as ASSETS
-import utils.forsyth_edwards_notation as FEN
+import utils.asset as asset_manager
+import utils.forsyth_edwards_notation as notation
 import chess.piece_movement as movement
 
-AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, FEN.Fen, None | bool], list[int]]
+AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, notation.Fen, None | bool], list[int]]
 
 
 class PieceName(enum.Enum):
@@ -28,12 +28,12 @@ class PieceInfo:
 
 
 class Pieces:
-    sprites: dict[str, ASSETS.Sprite] = {}
+    sprites: dict[str, asset_manager.Sprite] = {}
     info: dict[str, PieceInfo] = {}
 
     @staticmethod
-    def load_pieces_sprites(piece_set: ASSETS.PieceSet, scale: float):
-        white_sprites, black_sprites = ASSETS.load_piece_set(piece_set, scale)
+    def load_pieces_sprites(piece_set: asset_manager.PieceSet, scale: float):
+        white_sprites, black_sprites = asset_manager.load_piece_set(piece_set, scale)
         assert len(white_sprites) == len(black_sprites)
         for fen_value, piece_info in Pieces.info.items():
             Pieces.sprites[fen_value.upper()] = white_sprites[piece_info.asset_index]  # White
@@ -49,7 +49,7 @@ class Pieces:
         Pieces.info[PieceName.KING.value] = PieceInfo(5, PieceName.KING, movement.king_available_moves)
 
     @staticmethod
-    def load(piece_set: ASSETS.PieceSet, scale: float) -> None:
+    def load(piece_set: asset_manager.PieceSet, scale: float) -> None:
         Pieces.load_pieces_info()
         Pieces.load_pieces_sprites(piece_set, scale)
 
@@ -61,7 +61,12 @@ class Pieces:
         return info
 
 
-def get_available_moves(fen_val: str, from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+def get_available_moves(
+        fen_val: str,
+        from_index: int,
+        fen: notation.Fen,
+        is_white_turn: None | bool = None
+) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     available_moves = Pieces.get_info_from_fen(fen_val).available_moves(from_index, fen, is_white_turn)
 
@@ -71,11 +76,11 @@ def get_available_moves(fen_val: str, from_index: int, fen: FEN.Fen, is_white_tu
         return process_regular_available_moves(from_index, is_white_turn, fen, available_moves)
 
 
-def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> bool:
+def is_king_safe(from_index: int, dest_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> bool:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    king_fen = FEN.FenChars.WHITE_KING.value if is_white_turn else FEN.FenChars.BLACK_KING.value
+    king_fen = notation.FenChars.WHITE_KING.value if is_white_turn else notation.FenChars.BLACK_KING.value
 
-    new_fen = FEN.Fen(fen.notation)
+    new_fen = notation.Fen(fen.notation)
     new_fen.make_move(from_index, dest_index, new_fen[from_index])
 
     own_king_indexes = new_fen.get_indexes_for_piece(king_fen)
@@ -86,11 +91,11 @@ def is_king_safe(from_index: int, dest_index: int, fen: FEN.Fen, is_white_turn: 
     return len(possible_threats) == 0
 
 
-def get_possible_threats(piece_index: int, fen: FEN.Fen, is_white_turn: bool) -> list[int]:
+def get_possible_threats(piece_index: int, fen: notation.Fen, is_white_turn: bool) -> list[int]:
     if piece_index < 0: return []
-    threat_knight_fen = FEN.FenChars.BLACK_KNIGHT.value if is_white_turn else FEN.FenChars.WHITE_KNIGHT.value
-    own_king_fen = FEN.FenChars.WHITE_KING.value if is_white_turn else FEN.FenChars.BLACK_KING.value
-    opponent_king_fen = FEN.FenChars.BLACK_KING.value if is_white_turn else FEN.FenChars.WHITE_KING.value
+    threat_knight_fen = notation.FenChars.BLACK_KNIGHT.value if is_white_turn else notation.FenChars.WHITE_KNIGHT.value
+    own_king_fen = notation.FenChars.WHITE_KING.value if is_white_turn else notation.FenChars.BLACK_KING.value
+    opponent_king_fen = notation.FenChars.BLACK_KING.value if is_white_turn else notation.FenChars.WHITE_KING.value
 
     knight_possible_threats = movement.knight_available_moves(piece_index, fen, is_white_turn)
     rest_possible_threats = movement.queen_available_moves(piece_index, fen, is_white_turn)
@@ -100,7 +105,7 @@ def get_possible_threats(piece_index: int, fen: FEN.Fen, is_white_turn: bool) ->
         if fen[threat_index] is threat_knight_fen: possible_threats.append(threat_index)
 
     for threat_index in rest_possible_threats:
-        if fen[threat_index] is FEN.FenChars.BLANK_PIECE.value: continue
+        if fen[threat_index] is notation.FenChars.BLANK_PIECE.value: continue
 
         threat_info = Pieces.get_info_from_fen(fen[threat_index])
         threat_possible_moves = threat_info.available_moves(threat_index, fen, not is_white_turn)
@@ -112,8 +117,12 @@ def get_possible_threats(piece_index: int, fen: FEN.Fen, is_white_turn: bool) ->
     return possible_threats
 
 
-def process_regular_available_moves(from_index: int, is_white_turn: bool, fen: FEN.Fen, available_moves: list[int]) -> \
-        list[int]:
+def process_regular_available_moves(
+        from_index: int,
+        is_white_turn: bool,
+        fen: notation.Fen,
+        available_moves: list[int]
+) -> list[int]:
     safe_moves = []
     for move in available_moves:
         if is_king_safe(from_index, move, fen, is_white_turn):
@@ -121,14 +130,18 @@ def process_regular_available_moves(from_index: int, is_white_turn: bool, fen: F
     return safe_moves
 
 
-def process_king_available_moves(from_index: int, is_white_turn: bool, fen: FEN.Fen, available_moves: list[int]) -> \
-        list[int]:
+def process_king_available_moves(
+        from_index: int,
+        is_white_turn: bool,
+        fen: notation.Fen,
+        available_moves: list[int]
+) -> list[int]:
     safe_moves = []
     king_side_rook_index = 63 if is_white_turn else 7
     queen_side_rook_index = 56 if is_white_turn else 0
     king_in_between = [61, 62] if is_white_turn else [5, 6]
     queen_in_between = [58, 59] if is_white_turn else [2, 3]
-    rook_fen = FEN.FenChars.WHITE_ROOK.value if is_white_turn else FEN.FenChars.BLACK_ROOK.value
+    rook_fen = notation.FenChars.WHITE_ROOK.value if is_white_turn else notation.FenChars.BLACK_ROOK.value
     king_not_in_check = is_king_safe(0, 0, fen, is_white_turn)
 
     for move in available_moves:
