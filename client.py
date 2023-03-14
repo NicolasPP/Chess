@@ -7,7 +7,7 @@ import sys
 import click
 import pygame
 
-import chess.chess_data as CHESS
+import chess.board as chess_board
 import chess.player as PLAYER
 import utils.Forsyth_Edwards_notation as FEN
 import utils.asset as ASSETS
@@ -64,7 +64,7 @@ def update_window_caption(player: PLAYER.Player) -> None:
 
 
 def get_player(network: NET.Network) -> PLAYER.Player:
-    side = CHESS.SIDE.WHITE if network.id % 2 == 0 else CHESS.SIDE.BLACK
+    side = chess_board.SIDE.WHITE if network.id % 2 == 0 else chess_board.SIDE.BLACK
     player = PLAYER.Player(
         side=side,
         piece_set=random.choice(list(ASSETS.PieceSetAssets)),
@@ -79,8 +79,8 @@ def center_board(player: PLAYER.Player, window_size: pygame.math.Vector2) -> Non
 
 
 def get_colors(player: PLAYER.Player) -> tuple[str, str]:
-    bg_color = 'white' if player.side == CHESS.SIDE.WHITE else 'black'
-    font_color = 'black' if player.side == CHESS.SIDE.WHITE else 'white'
+    bg_color = 'white' if player.side == chess_board.SIDE.WHITE else 'black'
+    font_color = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
     return bg_color, font_color
 
 
