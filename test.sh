@@ -3,15 +3,15 @@ MainTests()
   pytest tests/utils tests/chess
 }
 
-OnlyIntegrated()
+OnlyPlayedGames()
 {
-  pytest -v -m integrated
+  pytest -v -m played_games
 }
 
 TestAll()
 {
   pytest tests/utils tests/chess tests/test_with_played_games.py
-  cloc $(git ls-files)
+  TypeCheck
 }
 
 InvalidOption()
@@ -25,23 +25,23 @@ ValidOptions()
 {
 	echo "---------------- VALID OPTIONS ----------------"
 	  echo "	-a | --all        : run all tests"
-    echo "	-i | --integrated : run integrated tests only"
+    echo "	-p | --played-games : test already played games"
     echo "	-t | --type-check : run mypy check"
 }
 
 TypeCheck()
 {
-  mypy . --check-untyped-defs --explicit-package-bases
+  mypy src/ --check-untyped-defs --explicit-package-bases
 }
 
 
 no_args="true"
 while [ $# -gt 0 ] ; do
   case $1 in
-    -a | --all) TestAll;;
-    -i | --integrated) OnlyIntegrated ;;
+    -a | --all) TestAll ;;
+    -p | --played-games) OnlyPlayedGames ;;
     -t | --type-check) TypeCheck ;;
-	*) InvalidOption $1;;
+	*) InvalidOption $1 ;;
 
   esac
   no_args="false"

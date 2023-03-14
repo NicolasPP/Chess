@@ -2,7 +2,7 @@ import dataclasses
 import enum
 import queue
 
-from config import *
+from src.config import *
 
 
 class COMMANDS(enum.Enum):

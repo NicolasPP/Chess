@@ -4,11 +4,13 @@ import socket as skt
 
 import click
 
-import chess.match as MATCH
-import utils.Forsyth_Edwards_notation as FEN
-import utils.commands as CMD
-import utils.network as NET
-from config import *
+import src.chess.piece as chess_piece
+from src.chess.match import MoveTags, Match
+from src.utils.forsyth_edwards_notation import encode_fen_data
+from src.utils.commands import Command
+from src.utils.network import Net
+
+from src.config import *
 
 '''
 [Errno 48] Address already in use
@@ -16,7 +18,7 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 '''
 
 logging.basicConfig(
-    filename='log/server.log',
+    filename='../log/server.log',
     encoding='utf-8',
     level=logging.DEBUG,
     filemode='w',
@@ -24,12 +26,13 @@ logging.basicConfig(
 )
 
 
-class Server(NET.Net):
+class Server(Net):
     def __init__(self, server_ip: str):
         super().__init__(server_ip)
         self.client_id: int = -1
-        self.match: MATCH.Match = MATCH.Match()
+        self.match: Match = Match()
         self.client_sockets: list[skt.socket] = []
+        chess_piece.Pieces.load_pieces_info()
 
     def start(self) -> None:
         logging.info('Server started')
@@ -68,7 +71,7 @@ class Server(NET.Net):
 def game_logic(server: Server):
     while True:
         if server.match.update_fen:
-            server.match.commands.append(CMD.Command(END_MARKER))
+            server.match.commands.append(Command(END_MARKER))
             server.send_all_clients(C_SPLIT.join(list(map(lambda cmd: cmd.info, server.match.commands))))
             server.match.update_fen = False
             server.match.commands = []
@@ -78,7 +81,7 @@ def client_listener(client_socket: skt.socket, server: Server):
     with client_socket:
         p_id = server.get_id()
         client_socket.send(str.encode(p_id))
-        client_socket.send(str.encode(FEN.encode_fen_data(server.match.fen.data)))
+        client_socket.send(str.encode(encode_fen_data(server.match.fen.data)))
         while True:
             data: bytes = client_socket.recv(DATA_SIZE)
             if not data: break
@@ -86,7 +89,7 @@ def client_listener(client_socket: skt.socket, server: Server):
             move_info = data.decode('utf-8')
             print(f"client : {p_id}, sent move {move_info} to server")
             logging.debug("client : %s, sent move %s to server", p_id, move_info)
-            move_tags: list[MATCH.MoveTags] = server.match.process_move(move_info)
+            move_tags: list[MoveTags] = server.match.process_move(move_info)
             print(f"move tags : ", *list(map(lambda m_tag: m_tag.name, move_tags)), sep=' ')
             logging.debug("move tags : %s", str(move_tags))
 

@@ -3,10 +3,9 @@ import enum
 import re
 import typing
 
-import chess.chess_data as CHESS
-import chess.game as GAME
-import utils.Forsyth_Edwards_notation as FEN
-import utils.algebraic_notation as AN
+from src.chess.piece import get_available_moves
+from src.utils.forsyth_edwards_notation import Fen, FenChars
+from src.utils.algebraic_notation import AlgebraicNotation, get_an_from_index
 
 TagPairs: typing.TypeAlias = dict[str, str]
 
@@ -95,7 +94,7 @@ def get_pgn_moves_and_result(line: str) -> tuple[list[PGNMove], str]:
             result = move_set[1]
             move_set[1] = ''
 
-        move_set = list(map(lambda move: move.strip(), move_set))
+        move_set = list(map(lambda m: m.strip(), move_set))
         time_set = list(map(lambda time: time.strip(), time_set))
 
         pgn_moves.append(PGNMove(*move_set, *time_set))
@@ -112,8 +111,8 @@ def is_result(move: str) -> bool:
 
 
 def get_an_from_pgn_game(game: Game) \
-        -> typing.Generator[tuple[AN.AlgebraicNotation, AN.AlgebraicNotation, str], None, None]:
-    fen = FEN.Fen()
+        -> typing.Generator[tuple[AlgebraicNotation, AlgebraicNotation, str], None, None]:
+    fen = Fen()
     for pgn_move in game.pgn_moves:
         if pgn_move.white_move:
             yield process_pgn_move(pgn_move.white_move, fen, True)
@@ -121,16 +120,16 @@ def get_an_from_pgn_game(game: Game) \
             yield process_pgn_move(pgn_move.black_move, fen, False)
 
 
-def process_pgn_move(pgn_move: str, fen: FEN.Fen, is_white_turn: bool) \
-        -> tuple[AN.AlgebraicNotation, AN.AlgebraicNotation, str]:
+def process_pgn_move(pgn_move: str, fen: Fen, is_white_turn: bool) \
+        -> tuple[AlgebraicNotation, AlgebraicNotation, str]:
     from_an, dest_an, target_fen = get_algebraic_notation_from_pgn_move(pgn_move, fen, is_white_turn)
     if not target_fen: target_fen = fen[from_an.data.index]
     fen.make_move(from_an.data.index, dest_an.data.index, target_fen)
     return from_an, dest_an, target_fen
 
 
-def get_algebraic_notation_from_pgn_move(pgn_move: str, fen: FEN.Fen, is_white_turn: bool) \
-        -> tuple[AN.AlgebraicNotation, AN.AlgebraicNotation, str]:
+def get_algebraic_notation_from_pgn_move(pgn_move: str, fen: Fen, is_white_turn: bool) \
+        -> tuple[AlgebraicNotation, AlgebraicNotation, str]:
     target_fen = ''
 
     if is_move_castle(pgn_move):
@@ -154,12 +153,12 @@ def get_algebraic_notation_from_pgn_move(pgn_move: str, fen: FEN.Fen, is_white_t
         pgn_move = pgn_move[:-1]
 
     # at this point it is safe to extract the destination
-    dest_coords = pgn_move[-2:]
+    dest_coordinates = pgn_move[-2:]
 
     # the remaining string(pgn_move) becomes the from_piece information
     pgn_move = pgn_move[:-2]
 
-    dest_an = AN.AlgebraicNotation(*dest_coords)
+    dest_an = AlgebraicNotation(*dest_coordinates)
 
     from_an = disambiguate_pgn_from_move(dest_an, pgn_move, fen, is_white_turn)
     return from_an, dest_an, target_fen
@@ -172,35 +171,34 @@ def is_move_castle(pgn_move) -> bool:
     return True
 
 
-def get_castle_from_dest(pgn_move, is_white_turn) -> tuple[AN.AlgebraicNotation, AN.AlgebraicNotation]:
+def get_castle_from_dest(pgn_move, is_white_turn) -> tuple[AlgebraicNotation, AlgebraicNotation]:
     king_side_rook_index = 63 if is_white_turn else 7
     queen_side_rook_index = 56 if is_white_turn else 0
     king_index = 60 if is_white_turn else 4
-    king_an = AN.get_an_from_index(king_index)
-    if pgn_move == 'O-O-O': return king_an, AN.get_an_from_index(queen_side_rook_index)
-    return king_an, AN.get_an_from_index(king_side_rook_index)
+    king_an = get_an_from_index(king_index)
+    if pgn_move == 'O-O-O': return king_an, get_an_from_index(queen_side_rook_index)
+    return king_an, get_an_from_index(king_side_rook_index)
 
 
-def disambiguate_pgn_from_move(dest_an: AN.AlgebraicNotation, pgn_from_info: str, fen: FEN.Fen,
-                               is_white_turn) -> AN.AlgebraicNotation:
+def disambiguate_pgn_from_move(dest_an: AlgebraicNotation, pgn_from_info: str, fen: Fen,
+                               is_white_turn) -> AlgebraicNotation:
     piece_fen, file_filter, rank_filter = parse_pgn_from_info(pgn_from_info, is_white_turn)
-    piece_name = CHESS.get_name_from_fen(piece_fen)
     similar_pieces_indexes = fen.get_indexes_for_piece(piece_fen)
     from_index = -1
     for s_index in similar_pieces_indexes:
-        index_an = AN.get_an_from_index(s_index)
+        index_an = get_an_from_index(s_index)
         if file_filter and index_an.data.file != file_filter.lower(): continue
         if rank_filter and index_an.data.rank != rank_filter.lower(): continue
-        similar_piece_available_moves = GAME.get_available_moves(piece_name, s_index, fen, is_white_turn)
+        similar_piece_available_moves = get_available_moves(piece_fen, s_index, fen, is_white_turn)
         for move in similar_piece_available_moves:
             if move == dest_an.data.index: from_index = s_index
             if from_index != -1: break
         if from_index != -1: break
-    return AN.get_an_from_index(from_index)
+    return get_an_from_index(from_index)
 
 
 def parse_pgn_from_info(pgn_from_info: str, is_white_turn: bool) -> tuple[str, str | None, str | None]:
-    pawn_fen = FEN.FenChars.WHITE_PAWN.value if is_white_turn else FEN.FenChars.BLACK_PAWN.value
+    pawn_fen = FenChars.WHITE_PAWN.value if is_white_turn else FenChars.BLACK_PAWN.value
     if not pgn_from_info: return pawn_fen, None, None
 
     possible_fen = ['B', 'Q', 'R', 'N', 'K']

@@ -1,0 +1,6 @@
+2023-03-15 02:02:58,670	DEBUG	server sent commands :
+2023-03-15 02:02:58,674	DEBUG	 - update_pos 
+2023-03-15 02:02:58,675	DEBUG	 - - rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1
+2023-03-15 02:03:02,531	DEBUG	server sent commands :
+2023-03-15 02:03:02,531	DEBUG	 - update_pos 
+2023-03-15 02:03:02,531	DEBUG	 - - rnbqkb1r/pppppppp/5n2/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 2 2

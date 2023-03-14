@@ -1,6 +1,6 @@
 import pytest
 
-import utils.algebraic_notation as AN
+from src.utils.algebraic_notation import get_an_from_index, get_index_from_an
 
 
 @pytest.mark.parametrize("index,expected", [
@@ -14,13 +14,13 @@ import utils.algebraic_notation as AN
     (63, 'h1')
 ])
 def test_get_an_from_index(index: int, expected: str):
-    assert AN.get_an_from_index(index).data.coordinates == expected
+    assert get_an_from_index(index).data.coordinates == expected
 
 
 @pytest.mark.parametrize("index", [-1, 65])
 def test_invalid_get_an_from_index(index: int):
     with pytest.raises(IndexError):
-        AN.get_an_from_index(index)
+        get_an_from_index(index)
 
 
 @pytest.mark.parametrize("an,expected", [
@@ -34,10 +34,10 @@ def test_invalid_get_an_from_index(index: int):
     ('h1', 63)
 ])
 def test_get_index_from_anc(an, expected):
-    assert AN.get_index_from_an(*an) is expected
+    assert get_index_from_an(*an) is expected
 
 
 @pytest.mark.parametrize("file,rank", [('a', '-8'), ('8', 'b'), ('8', '8'), ('9', 'd'), ('8', 'x')])
 def test_validate_file_and_rank(file: str, rank: str):
     with pytest.raises(Exception):
-        AN.get_index_from_an(file, rank)
+        get_index_from_an(file, rank)

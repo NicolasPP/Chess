@@ -1,30 +1,33 @@
 import pygame
-import utils.Forsyth_Edwards_notation as FEN
-import chess.chess_data as CHESS
-import utils.asset as ASSETS
+
+import src.chess.board as chess_board
+import src.chess.piece as chess_piece
+
+from src.utils.forsyth_edwards_notation import validate_fen_val
+from src.utils.asset import scale
 
 
 # TODO: 16x32 pieces dont look good at the bottom of the board, maybe show only the characters
+# FIXME: castling causes makes the game think a rook has been captured
 class CapturedGui:
     def __init__(
             self,
             captured_pieces: str,
-            pieces: dict[str, CHESS.Piece],
             board_rect: pygame.rect.Rect,
             bg_color: str,
-            scale: float = 3 / 5
+            scale_factor: float = 3 / 5
     ):
-        self.scale = scale
+        self.scale_factor = scale_factor
         self.board_rect = board_rect
         self.captured_pieces = captured_pieces
         self.bg_color = bg_color
-        for val in captured_pieces: FEN.validate_fen_val(val)
-        self.pieces: dict[str, pygame.surface.Surface] = self.copy_and_resize_pieces(pieces)
+        self.pieces = self.copy_and_resize_pieces()
+        for val in captured_pieces: validate_fen_val(val)
         self.white_cap_surface, self.black_cap_surface = self.create_captured_surfaces()
 
     def set_captured_pieces(self, new_cap_pieces) -> None:
         self.captured_pieces = new_cap_pieces
-        for val in self.captured_pieces: FEN.validate_fen_val(val)
+        for val in self.captured_pieces: validate_fen_val(val)
         self.white_cap_surface, self.black_cap_surface = self.create_captured_surfaces()
 
     def create_captured_surfaces(self) -> tuple[pygame.surface.Surface, pygame.surface.Surface]:
@@ -55,17 +58,17 @@ class CapturedGui:
 
         return w_captured_surface, b_captured_surface
 
-    def copy_and_resize_pieces(self, pieces: dict[str, CHESS.Piece]) -> dict[str, pygame.surface.Surface]:
+    def copy_and_resize_pieces(self) -> dict[str, pygame.surface.Surface]:
         copy_pieces: dict[str, pygame.surface.Surface] = {}
-        for fen_val, piece in pieces.items():
-            copy_pieces[fen_val] = ASSETS.scale(piece.sprite.surface, self.scale)
+        for fen_val, sprite in chess_piece.Pieces.sprites.items():
+            copy_pieces[fen_val] = scale(sprite.surface, self.scale_factor)
         return copy_pieces
 
-    def render(self, player_side: CHESS.SIDE) -> None:
+    def render(self, player_side: chess_board.SIDE) -> None:
         top_pos = pygame.math.Vector2(self.board_rect.topleft)
         bottom_pos = pygame.math.Vector2(self.board_rect.bottomleft)
 
-        if player_side is CHESS.SIDE.WHITE:
+        if player_side is chess_board.SIDE.WHITE:
             w_surface_pos = top_pos
             b_surface_pos = bottom_pos
         else:

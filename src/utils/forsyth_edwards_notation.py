@@ -2,8 +2,8 @@ import dataclasses
 import enum
 import typing
 
-import utils.algebraic_notation as AN
-from config import *
+from src.utils.algebraic_notation import AlgebraicNotation, validate_file_and_rank, get_an_from_index
+from src.config import *
 
 
 class FenChars(enum.Enum):
@@ -115,7 +115,7 @@ class Fen:
         if from_index not in double_moves_start: return FenChars.EMPTY_INFO.value
         if dest_index not in double_moves_end: return FenChars.EMPTY_INFO.value
 
-        en_passant_rights = AN.get_an_from_index(dest_index).data.coordinates
+        en_passant_rights = get_an_from_index(dest_index).data.coordinates
         validate_fen_en_passant_rights(en_passant_rights)
 
         return en_passant_rights
@@ -181,7 +181,7 @@ class Fen:
         dest_piece_val = self[dest_index]
 
         if self.is_move_en_passant(from_index, dest_index):
-            en_passant_an = AN.AlgebraicNotation(*self.data.en_passant_rights)
+            en_passant_an = AlgebraicNotation(*self.data.en_passant_rights)
             self.make_en_passant_move(from_index, dest_index, en_passant_an.data.index)
         elif self.is_move_castle(from_index, dest_index):
             self.make_castle_move(from_index, dest_index)
@@ -218,8 +218,8 @@ class Fen:
         pawn_fen = FenChars.WHITE_PAWN.value if self.is_white_turn() else FenChars.BLACK_PAWN.value
         if self.data.en_passant_rights == '-': return False
         if self[from_index] != pawn_fen: return False
-        from_an = AN.get_an_from_index(from_index)
-        dest_an = AN.get_an_from_index(dest_index)
+        from_an = get_an_from_index(from_index)
+        dest_an = get_an_from_index(dest_index)
         return from_an.data.file != dest_an.data.file and \
             self[dest_index] == FenChars.BLANK_PIECE.value
 
@@ -287,7 +287,7 @@ def validate_fen_castling_rights(castling_rights: str) -> bool:
 
 def validate_fen_en_passant_rights(en_passant_rights: str) -> bool:
     if len(en_passant_rights) > 2: raise Exception('too many digits')
-    if en_passant_rights != FenChars.EMPTY_INFO.value: AN.validate_file_and_rank(*en_passant_rights)
+    if en_passant_rights != FenChars.EMPTY_INFO.value: validate_file_and_rank(*en_passant_rights)
     return True
 
 

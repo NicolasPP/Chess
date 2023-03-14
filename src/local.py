@@ -3,12 +3,12 @@ import sys
 
 import pygame
 
-import chess.chess_data as CHESS
-import chess.match as MATCH
-import chess.player as PLAYER
-import utils.asset as ASSETS
-import utils.debug as DB
-from config import *
+import src.chess.board as chess_board
+from src.chess.match import Match
+from src.chess.player import Player, parse_command_local, STATE
+from src.utils.asset import PieceSetAssets, BoardAssets
+from src.utils.debug import debug
+from src.config import *
 
 pygame.init()
 window_size = pygame.math.Vector2(WINDOW_SIZE)
@@ -16,25 +16,25 @@ pygame.display.set_mode(window_size)
 done = False
 clock = pygame.time.Clock()
 
-match = MATCH.Match()
-white_player = PLAYER.Player(
-    side=CHESS.SIDE.WHITE,
-    piece_set=random.choice(list(ASSETS.PieceSetAssets)),
-    board_asset=random.choice(list(ASSETS.BoardAssets)),
+match = Match()
+white_player = Player(
+    side=chess_board.SIDE.WHITE,
+    piece_set=random.choice(list(PieceSetAssets)),
+    board_asset=random.choice(list(BoardAssets)),
     scale=BOARD_SCALE
 )
 
-black_player = PLAYER.Player(
-    side=CHESS.SIDE.BLACK,
-    piece_set=random.choice(list(ASSETS.PieceSetAssets)),
-    board_asset=random.choice(list(ASSETS.BoardAssets)),
+black_player = Player(
+    side=chess_board.SIDE.BLACK,
+    piece_set=random.choice(list(PieceSetAssets)),
+    board_asset=random.choice(list(BoardAssets)),
     scale=BOARD_SCALE
 )
 white_player.update_turn(match.fen)
 black_player.update_turn(match.fen)
 
 
-def update_window_caption(*players: PLAYER.Player) -> None:
+def update_window_caption(*players: Player) -> None:
     for player in players:
         if player.game_over:
             pygame.display.set_caption('GAME OVER')
@@ -44,9 +44,9 @@ def update_window_caption(*players: PLAYER.Player) -> None:
         return
 
 
-def get_colors(player: PLAYER.Player) -> tuple[str, str]:
-    bg = 'white' if player.side == CHESS.SIDE.WHITE else 'black'
-    font = 'black' if player.side == CHESS.SIDE.WHITE else 'white'
+def get_colors(player: Player) -> tuple[str, str]:
+    bg = 'white' if player.side == chess_board.SIDE.WHITE else 'black'
+    font = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
     return bg, font
 
 
@@ -66,7 +66,7 @@ while not done:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: done = True
-        if event.type == pygame.KEYDOWN and current_player.state is not PLAYER.STATE.PICK_PROMOTION:
+        if event.type == pygame.KEYDOWN and current_player.state is not STATE.PICK_PROMOTION:
             is_white = not is_white
             white_player.is_render_required = True
             black_player.is_render_required = True
@@ -76,11 +76,11 @@ while not done:
 
     match.process_local_move()
 
-    PLAYER.parse_command_local(match.fen, white_player, black_player)
+    parse_command_local(match.fen, white_player, black_player)
 
     current_player.render(bg_color)
 
-    DB.debug(fps, bg_color, font_color)
+    debug(fps, bg_color, font_color)
 
     pygame.display.flip()
 
