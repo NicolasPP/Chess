@@ -25,7 +25,7 @@ ValidOptions()
 {
 	echo "---------------- VALID OPTIONS ----------------"
 	  echo "	-a | --all        : run all tests"
-    echo "	-i | --integrated : run integrated tests only"
+    echo "	-p | --played-games : test already played games"
     echo "	-t | --type-check : run mypy check"
 }
 
