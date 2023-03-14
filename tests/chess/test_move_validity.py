@@ -6,7 +6,7 @@ import chess.validate_move as validate_move
 
 @pytest.mark.parametrize("from_fen_val,is_white_turn,expected",
                          [('p', True, False), ('P', True, True), ('p', False, True), ('P', False, False)])
-def test_is_from_correct_side(load_pieces_info, from_fen_val: str, is_white_turn: bool, expected: bool):
+def test_is_from_correct_side(from_fen_val: str, is_white_turn: bool, expected: bool):
     assert validate_move.is_from_correct_side(from_fen_val, is_white_turn) is expected
 
 

@@ -10,5 +10,5 @@ from utils.Forsyth_Edwards_notation import Fen
     Fen('r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/8/8 w KQkq - 0 1'),
     Fen('6Rk/8/5N2/8/8/8/8/8 w KQkq - 0 1')
 ])
-def test_checkmate(load_pieces_info, fen: Fen):
+def test_checkmate(fen: Fen):
     assert validate_move.is_opponent_in_checkmate(fen)

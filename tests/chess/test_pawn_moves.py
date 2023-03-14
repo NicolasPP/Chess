@@ -6,37 +6,37 @@ from chess.piece import get_available_moves
 fen = Fen("8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8 w KQkq - 0 1")
 
 
-def test_first_turn_double_move(load_pieces_info):
+def test_first_turn_double_move():
     from_index = 50
     assert len(get_available_moves('P', from_index, fen)) is 2
 
 
-def test_first_turn_double_move_and_possible_take(load_pieces_info):
+def test_first_turn_double_move_and_possible_take():
     from_index = 53
     assert len(get_available_moves('P', from_index, fen)) is 3
 
 
-def test_regular_move(load_pieces_info):
+def test_regular_move():
     from_index = 41
     assert len(get_available_moves('P', from_index, fen)) is 1
 
 
-def test_blocked_by_piece(load_pieces_info):
+def test_blocked_by_piece():
     from_index = 26
     assert len(get_available_moves('P', from_index, fen)) is 0
 
 
-def test_blocked_by_piece_and_possible_take(load_pieces_info):
+def test_blocked_by_piece_and_possible_take():
     from_index = 21
     assert len(get_available_moves('P', from_index, fen)) is 1
 
 
-def test_first_turn_double_move_blocked(load_pieces_info):
+def test_first_turn_double_move_blocked():
     from_index = 55
     assert len(get_available_moves('P', from_index, fen)) is 1
 
 
-def test_first_turn_blocked(load_pieces_info):
+def test_first_turn_blocked():
     from_index = 52
     assert len(get_available_moves('P', from_index, fen)) is 0
 
