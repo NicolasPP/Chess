@@ -15,7 +15,7 @@ from src.utils.debug import debug
 from src.utils.network import Network
 import src.chess.board as chess_board
 
-from config import *
+from src.config import *
 
 logging.basicConfig(
     filename='../log/client.log',

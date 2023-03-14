@@ -8,7 +8,7 @@ from src.chess.match import Match
 from src.chess.player import Player, parse_command_local, STATE
 from src.utils.asset import PieceSetAssets, BoardAssets
 from src.utils.debug import debug
-from config import *
+from src.config import *
 
 pygame.init()
 window_size = pygame.math.Vector2(WINDOW_SIZE)

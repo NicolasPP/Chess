@@ -10,7 +10,7 @@ from src.utils.forsyth_edwards_notation import encode_fen_data
 from src.utils.commands import Command
 from src.utils.network import Net
 
-from config import *
+from src.config import *
 
 '''
 [Errno 48] Address already in use
