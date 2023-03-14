@@ -13,7 +13,6 @@ from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
 
 
-
 # -- Enums --
 class MOUSECLICK(enum.Enum):
     LEFT: int = 1
@@ -90,7 +89,8 @@ class Player:
 
     def handle_mouse_down_left(self, network: NET.Network | None, local: bool) -> None:
         if self.state is STATE.DROP_PIECE: return
-        if self.state is STATE.PICK_PROMOTION: self.handle_pick_promotion(local, network)
+        if self.state is STATE.PICK_PROMOTION:
+            self.handle_pick_promotion(local, network)
         elif self.state is STATE.PICK_PIECE:
             board_square = CHESS.get_collided_board_square(self.board)
             if not board_square: return
@@ -112,6 +112,7 @@ class Player:
             CHESS.reset_picked_up(self.board)
             self.state = STATE.PICK_PIECE
             self.is_render_required = True
+
     # ---------------------------
 
     # -- rendering players game --
