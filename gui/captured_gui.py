@@ -8,6 +8,7 @@ import utils.asset as ASSETS
 
 
 # TODO: 16x32 pieces dont look good at the bottom of the board, maybe show only the characters
+# FIXME: castling causes makes the game think a rook has been captured
 class CapturedGui:
     def __init__(
             self,
