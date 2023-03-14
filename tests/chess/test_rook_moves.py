@@ -1,6 +1,6 @@
 import pytest
 
-from utils.Forsyth_Edwards_notation import Fen
+from utils.forsyth_edwards_notation import Fen
 from chess.piece import get_available_moves
 
 

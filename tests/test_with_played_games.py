@@ -1,6 +1,6 @@
 import pytest
 
-from utils.Forsyth_Edwards_notation import Fen
+from utils.forsyth_edwards_notation import Fen
 from chess.validate_move import is_move_valid
 import utils.portable_game_notation as game_notation
 

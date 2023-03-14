@@ -4,7 +4,7 @@ import pygame
 
 import chess.board as chess_board
 import chess.piece as chess_piece
-from utils.Forsyth_Edwards_notation import Fen, FenChars
+from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
 import utils.commands as command_manager
 import utils.network as network_manager

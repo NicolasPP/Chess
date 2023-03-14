@@ -1,6 +1,6 @@
 import pytest
 
-from utils.Forsyth_Edwards_notation import Fen
+from utils.forsyth_edwards_notation import Fen
 from chess.piece import get_available_moves
 
 
@@ -18,7 +18,7 @@ def test_fully_blocked():
 
 
 def test_jump_over_piece():
-    assert(len(get_available_moves('n', 36, Fen('8/8/3P1P2/2PpppP1/3pkp2/2PpppP1/3P1P2/8 b KQkq - 0 1'))) == 4)
+    assert (len(get_available_moves('n', 36, Fen('8/8/3P1P2/2PpppP1/3pkp2/2PpppP1/3P1P2/8 b KQkq - 0 1'))) == 4)
 
 
 def test_possible_take():

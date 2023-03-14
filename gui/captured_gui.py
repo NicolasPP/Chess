@@ -3,7 +3,7 @@ import pygame
 import chess.board as chess_board
 import chess.piece as chess_piece
 
-import utils.Forsyth_Edwards_notation as FEN
+import utils.forsyth_edwards_notation as FEN
 import utils.asset as ASSETS
 
 

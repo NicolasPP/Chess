@@ -5,7 +5,7 @@ import enum
 import typing
 
 import utils.asset as ASSETS
-import utils.Forsyth_Edwards_notation as FEN
+import utils.forsyth_edwards_notation as FEN
 import chess.piece_movement as movement
 
 AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, FEN.Fen, None | bool], list[int]]

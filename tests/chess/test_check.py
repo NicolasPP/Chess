@@ -1,8 +1,9 @@
 import pytest
 
-from utils.Forsyth_Edwards_notation import Fen, FenChars
+from utils.forsyth_edwards_notation import Fen, FenChars
 import chess.validate_move as validate_move
 import chess.piece as chess_piece
+
 
 def test_check():
     assert validate_move.is_opponent_in_check(Fen('8/8/8/3PpP2/3pkp2/3PpP2/8/8 w KQkq - 0 1'))

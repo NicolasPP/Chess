@@ -4,7 +4,7 @@ import chess.board as chess_board
 import chess.validate_move as validate_move
 
 from utils.algebraic_notation import get_index_from_an
-from utils.Forsyth_Edwards_notation import encode_fen_data, Fen
+from utils.forsyth_edwards_notation import encode_fen_data, Fen
 import utils.commands as command_manager
 from config import *
 

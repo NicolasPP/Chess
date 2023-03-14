@@ -7,7 +7,7 @@ import typing
 import pygame
 
 from utils.algebraic_notation import AlgebraicNotation
-from utils.Forsyth_Edwards_notation import FenChars
+from utils.forsyth_edwards_notation import FenChars
 import utils.asset as asset_manager
 from config import *
 

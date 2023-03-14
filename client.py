@@ -8,7 +8,7 @@ import click
 import pygame
 
 from chess.player import parse_command, Player
-from utils.Forsyth_Edwards_notation import Fen
+from utils.forsyth_edwards_notation import Fen
 from utils.commands import split_command_info
 from utils.asset import PieceSetAssets, BoardAssets
 from utils.debug import debug

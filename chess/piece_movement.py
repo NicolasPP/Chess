@@ -1,9 +1,9 @@
-import utils.Forsyth_Edwards_notation as FEN
-import utils.algebraic_notation as AN
+import utils.forsyth_edwards_notation as notation
+from utils.algebraic_notation import AlgebraicNotation
 from config import *
 
 
-def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+def pawn_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     up = get_fen_offset_index(is_white_turn, from_index, 1, 0)  # up
@@ -16,17 +16,17 @@ def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
     # pawn moves up twice in the first move
     if from_index in double_moves:
         if (double_up and up) and \
-                (fen[double_up] == FEN.FenChars.BLANK_PIECE.value) and \
-                (fen[up] == FEN.FenChars.BLANK_PIECE.value): moves.append(double_up)
+                (fen[double_up] == notation.FenChars.BLANK_PIECE.value) and \
+                (fen[up] == notation.FenChars.BLANK_PIECE.value): moves.append(double_up)
 
     # en passant move
-    if fen.data.en_passant_rights != FEN.FenChars.EMPTY_INFO.value:
-        en_passant_an = AN.AlgebraicNotation(*fen.data.en_passant_rights)
+    if fen.data.en_passant_rights != notation.FenChars.EMPTY_INFO.value:
+        en_passant_an = AlgebraicNotation(*fen.data.en_passant_rights)
         if from_index + 1 == en_passant_an.data.index or from_index - 1 == en_passant_an.data.index:
             move = get_fen_offset_index(is_white_turn, en_passant_an.data.index, 1, 0)
             if move is not None: moves.append(move)
 
-    if (up is not None) and (fen[up] == FEN.FenChars.BLANK_PIECE.value): moves.append(up)
+    if (up is not None) and (fen[up] == notation.FenChars.BLANK_PIECE.value): moves.append(up)
 
     for move in [up_right, up_left]:
         if move is None:
@@ -39,7 +39,7 @@ def pawn_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
     return moves
 
 
-def knight_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+def knight_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     moves_offset = [
@@ -58,7 +58,7 @@ def knight_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | 
     return moves
 
 
-def rook_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+def rook_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     up, down, right, left = get_flat_offsets()
@@ -71,7 +71,7 @@ def rook_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
     return moves
 
 
-def bishop_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+def bishop_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
 
@@ -85,7 +85,7 @@ def bishop_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | 
     return moves
 
 
-def queen_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+def queen_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     moves += bishop_available_moves(from_index, fen, is_white_turn)
@@ -93,7 +93,7 @@ def queen_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | b
     return moves
 
 
-def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bool = None) -> list[int]:
+def king_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
 
     moves = []
@@ -114,20 +114,20 @@ def king_available_moves(from_index: int, fen: FEN.Fen, is_white_turn: None | bo
     king_in_between = [61, 62] if is_white_turn else [5, 6]
     queen_in_between = [57, 58, 59] if is_white_turn else [1, 2, 3]
 
-    king_fen = FEN.FenChars.WHITE_KING.value if is_white_turn else FEN.FenChars.BLACK_KING.value
-    queen_fen = FEN.FenChars.WHITE_QUEEN.value if is_white_turn else FEN.FenChars.BLACK_QUEEN.value
-    rook_fen = FEN.FenChars.WHITE_ROOK.value if is_white_turn else FEN.FenChars.BLACK_ROOK.value
+    king_fen = notation.FenChars.WHITE_KING.value if is_white_turn else notation.FenChars.BLACK_KING.value
+    queen_fen = notation.FenChars.WHITE_QUEEN.value if is_white_turn else notation.FenChars.BLACK_QUEEN.value
+    rook_fen = notation.FenChars.WHITE_ROOK.value if is_white_turn else notation.FenChars.BLACK_ROOK.value
 
     if king_fen in fen.data.castling_rights and fen[king_side_rook_index] is rook_fen:
         king_castle = True
         for move in king_in_between:
-            if fen[move] is not FEN.FenChars.BLANK_PIECE.value: king_castle = False
+            if fen[move] is not notation.FenChars.BLANK_PIECE.value: king_castle = False
         if king_castle: moves.append(king_side_rook_index)
 
     if queen_fen in fen.data.castling_rights and fen[queen_side_rook_index] is rook_fen:
         queen_castle = True
         for move in queen_in_between:
-            if fen[move] is not FEN.FenChars.BLANK_PIECE.value: queen_castle = False
+            if fen[move] is not notation.FenChars.BLANK_PIECE.value: queen_castle = False
         if queen_castle: moves.append(queen_side_rook_index)
 
     moves += move_fixed_amount(moves_offset, from_index, fen, is_white_turn)
@@ -174,7 +174,7 @@ def get_flat_offsets(
 def move_until_friendly(
         moves_offset: list[tuple[int, int]],
         from_index: int,
-        fen: FEN.Fen,
+        fen: notation.Fen,
         is_white_turn: bool
 ) -> list[int]:
     moves = []
@@ -182,7 +182,7 @@ def move_until_friendly(
         move = get_fen_offset_index(is_white_turn, from_index, *offset)
         if move is None: continue
         if move == from_index: continue
-        if fen[move] == FEN.FenChars.BLANK_PIECE.value:
+        if fen[move] == notation.FenChars.BLANK_PIECE.value:
             moves.append(move)
         elif is_white_turn:
             if fen[move].islower(): moves.append(move)
@@ -196,18 +196,17 @@ def move_until_friendly(
 def move_fixed_amount(
         moves_offset: list[tuple[int, int]],
         from_index: int,
-        fen: FEN.Fen,
+        fen: notation.Fen,
         is_white_turn: bool
 ) -> list[int]:
     moves = []
     for offset in moves_offset:
         move = get_fen_offset_index(is_white_turn, from_index, *offset)
         if move is None: continue
-        if fen[move] == FEN.FenChars.BLANK_PIECE.value:
+        if fen[move] == notation.FenChars.BLANK_PIECE.value:
             moves.append(move)
         elif is_white_turn:
             if fen[move].islower(): moves.append(move)
         else:
             if fen[move].isupper(): moves.append(move)
     return moves
-
