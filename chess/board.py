@@ -6,89 +6,95 @@ import typing
 
 import pygame
 
-import utils.algebraic_notation as AN
-import utils.Forsyth_Edwards_notation as FEN
-import utils.asset as ASSETS
+from utils.algebraic_notation import AlgebraicNotation
+from utils.Forsyth_Edwards_notation import FenChars
+import utils.asset as asset_manager
 from config import *
 
 
-# -- Enums --
 class SIDE(enum.Enum):
     WHITE = enum.auto()
     BLACK = enum.auto()
 
 
-# -----------
+class RenderPos(typing.NamedTuple):
+    x: float
+    y: float
 
 
-# -- Classes --
+class BoardSquareIndex(typing.NamedTuple):
+    row: int
+    col: int
+    algebraic_notation: AlgebraicNotation
+
 
 class BoardSquare:
 
     @staticmethod
-    def create_board_grid(board_sprite: ASSETS.Sprite, pos_rect: pygame.rect.Rect, side: SIDE) -> list[BoardSquare]:
+    def create_board_grid(board_sprite: asset_manager.Sprite, pos_rect: pygame.rect.Rect, side: SIDE) -> \
+            list[BoardSquare]:
         grid = []
         size = Board.get_grid_surface_size(board_sprite) / BOARD_SIZE
         board_offset = pygame.math.Vector2(pos_rect.topleft)
         grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
-        for row, col, algebraic_notation in BoardSquare.board_square_info(side):
-            pos = pygame.math.Vector2(col * size.x, row * size.y)
+        for index in BoardSquare.get_board_squares_index(side):
+            pos = pygame.math.Vector2(index.col * size.x, index.row * size.y)
             rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
-            grid.append(BoardSquare(rect, algebraic_notation, []))
+            grid.append(BoardSquare(rect, index.algebraic_notation, []))
         if side is SIDE.BLACK: grid = grid[::-1]
         return grid
 
     @staticmethod
-    def board_square_info(side: SIDE) -> typing.Generator[tuple[int, int, AN.AlgebraicNotation], None, None]:
+    def get_board_squares_index(side: SIDE) -> typing.Generator[BoardSquareIndex, None, None]:
         files = string.ascii_lowercase[:BOARD_SIZE]
         files = files[::-1] if side is SIDE.BLACK else files
         for rank in range(BOARD_SIZE):
             for col, file in enumerate(files):
                 str_rank = str(BOARD_SIZE - rank) if side is SIDE.WHITE else str(rank + 1)
-                yield rank, col, AN.AlgebraicNotation(file, str_rank)
+                yield BoardSquareIndex(rank, col, AlgebraicNotation(file, str_rank))
 
     def __init__(
             self,
             rect: pygame.rect.Rect,
-            algebraic_notation: AN.AlgebraicNotation,
+            algebraic_notation: AlgebraicNotation,
             available_moves: list[int],
-            FEN_val: str = FEN.FenChars.BLANK_PIECE.value
+            fen_val: str = FenChars.BLANK_PIECE.value
     ):
         self.rect = rect
         self.algebraic_notation = algebraic_notation
         self.available_moves = available_moves
-        self.FEN_val = FEN_val
+        self.fen_val = fen_val
         self.picked_up: bool = False
 
     def get_piece_render_pos(self, board_offset: pygame.math.Vector2,
-                             piece_surface: pygame.surface.Surface) -> tuple[float, float]:
+                             piece_surface: pygame.surface.Surface) -> RenderPos:
         if self.picked_up: return self.get_picked_up_piece_render_pos(piece_surface)
         return self.get_not_picked_up_piece_render_pos(board_offset, piece_surface)
 
     def get_not_picked_up_piece_render_pos(self, board_offset: pygame.math.Vector2,
-                                           piece_surface: pygame.surface.Surface) -> tuple[float, float]:
+                                           piece_surface: pygame.surface.Surface) -> RenderPos:
         piece_rect = piece_surface.get_rect(topleft=self.rect.topleft)
         piece_rect.bottom = self.rect.bottom
         pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
-        return pos.x, pos.y
+        return RenderPos(pos.x, pos.y)
 
     def get_picked_up_piece_render_pos(self, piece_surface: pygame.surface.Surface) \
-            -> tuple[float, float]:
+            -> RenderPos:
         piece_rect = piece_surface.get_rect(topleft=self.rect.topleft)
         piece_rect.midbottom = pygame.mouse.get_pos()
-        return piece_rect.x, piece_rect.y
+        return RenderPos(piece_rect.x, piece_rect.y)
 
 
 class Board:
 
     @staticmethod
-    def get_grid_surface_size(board_sprite: ASSETS.Sprite) -> pygame.math.Vector2:
+    def get_grid_surface_size(board_sprite: asset_manager.Sprite) -> pygame.math.Vector2:
         offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
         board_size = pygame.math.Vector2(board_sprite.surface.get_size())
         return board_size - (offset * 2)
 
-    def __init__(self, board_asset: ASSETS.Asset, side: SIDE, scale: float):
-        self.sprite: ASSETS.Sprite = ASSETS.load_board(board_asset, scale)
+    def __init__(self, board_asset: asset_manager.Asset, side: SIDE, scale: float):
+        self.sprite: asset_manager.Sprite = asset_manager.load_board(board_asset, scale)
         replace_board_axis_vals(self.sprite, scale, side)
         if side is SIDE.BLACK: self.sprite.surface = pygame.transform.flip(self.sprite.surface, True, True)
         self.pos_rect: pygame.rect.Rect = self.sprite.surface.get_rect()
@@ -108,7 +114,7 @@ class Board:
         raise Exception(' no piece picked up ')
 
     def set_picked_up(self, board_square: BoardSquare) -> None:
-        if board_square.FEN_val == FEN.FenChars.BLANK_PIECE.value: return
+        if board_square.fen_val == FenChars.BLANK_PIECE.value: return
         self.reset_picked_up()
         board_square.picked_up = True
 
@@ -135,7 +141,8 @@ class Board:
             yield available_surface, board_offset + pos
 
 
-def replace_board_axis_info(board_sprite: ASSETS.Sprite) -> typing.Generator[tuple[int, pygame.rect.Rect], None, None]:
+def replace_board_axis_info(board_sprite: asset_manager.Sprite) -> \
+        typing.Generator[tuple[int, pygame.rect.Rect], None, None]:
     size = Board.get_grid_surface_size(board_sprite) / BOARD_SIZE
     board_offset = pygame.math.Vector2(board_sprite.surface.get_rect().topleft)
     grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
@@ -148,13 +155,13 @@ def replace_board_axis_info(board_sprite: ASSETS.Sprite) -> typing.Generator[tup
             yield index, rect
 
 
-def replace_board_axis_vals(board_sprite: ASSETS.Sprite, scale: float, side: SIDE) -> None:
+def replace_board_axis_vals(board_sprite: asset_manager.Sprite, scale: float, side: SIDE) -> None:
     nums = list(range(8, 0, -1))
     nums_index = 0
     letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     letters_index = 0
     color = board_sprite.surface.get_at((0, 0))
-    font = pygame.font.Font("assets/fonts/Oleaguid.ttf", 25)
+    font = pygame.font.Font(FONT_FILE, 25)
     is_black_turn = True if side is SIDE.BLACK else False
 
     for index, rect in replace_board_axis_info(board_sprite):
