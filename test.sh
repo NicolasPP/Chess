@@ -31,7 +31,7 @@ ValidOptions()
 
 TypeCheck()
 {
-  mypy . --check-untyped-defs --explicit-package-bases
+  mypy src/ --check-untyped-defs --explicit-package-bases
 }
 
 
