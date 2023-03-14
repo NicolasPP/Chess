@@ -4,11 +4,10 @@ import pygame
 
 import chess.board as chess_board
 import chess.piece as chess_piece
-
-import utils.Forsyth_Edwards_notation as FEN
-import utils.asset as ASSETS
-import utils.commands as CMD
-import utils.network as NET
+from utils.Forsyth_Edwards_notation import Fen, FenChars
+from utils.asset import PieceSetAssets, BoardAssets
+import utils.commands as command_manager
+import utils.network as network_manager
 
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
@@ -34,8 +33,8 @@ class STATE(enum.Enum):
 class Player:
     def __init__(self,
                  side: chess_board.SIDE,
-                 piece_set: ASSETS.PieceSetAssets,
-                 board_asset: ASSETS.BoardAssets,
+                 piece_set: PieceSetAssets,
+                 board_asset: BoardAssets,
                  scale: float):
         chess_piece.Pieces.load(piece_set.value, scale)
         self.side: chess_board.SIDE = side
@@ -53,15 +52,15 @@ class Player:
     def parse_input(
             self,
             event: pygame.event.Event,
-            fen: FEN.Fen,
-            network: NET.Network | None = None,
+            fen: Fen,
+            network: network_manager.Network | None = None,
             local: bool = False) -> None:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSECLICK.LEFT.value: self.handle_mouse_down_left(network, local)
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == MOUSECLICK.LEFT.value: self.handle_left_mouse_up(network, local, fen)
 
-    def handle_left_mouse_up(self, network: NET.Network | None, local: bool, fen: FEN.Fen) -> None:
+    def handle_left_mouse_up(self, network: network_manager.Network | None, local: bool, fen: Fen) -> None:
         if self.state is not STATE.DROP_PIECE: return
 
         dest_board_square = self.board.get_collided_board_square()
@@ -70,13 +69,25 @@ class Player:
 
         # invalid move
         target_fen = from_board_square.FEN_val
-        move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, from_coordinates, self.side.name, target_fen)
+        move = command_manager.get(
+            command_manager.COMMANDS.MOVE,
+            from_coordinates,
+            from_coordinates,
+            self.side.name,
+            target_fen
+        )
         is_promotion = False
 
         if dest_board_square:
             is_promotion = is_pawn_promotion(from_board_square, dest_board_square, fen)
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
-            move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, dest_coordinates, self.side.name, target_fen)
+            move = command_manager.get(
+                command_manager.COMMANDS.MOVE,
+                from_coordinates,
+                dest_coordinates,
+                self.side.name,
+                target_fen
+            )
 
         if not is_promotion:
             send_move(local, network, move)
@@ -88,18 +99,18 @@ class Player:
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
 
-    def handle_mouse_down_left(self, network: NET.Network | None, local: bool) -> None:
+    def handle_mouse_down_left(self, network: network_manager.Network | None, local: bool) -> None:
         if self.state is STATE.DROP_PIECE: return
         if self.state is STATE.PICK_PROMOTION:
             self.handle_pick_promotion(local, network)
         elif self.state is STATE.PICK_PIECE:
             board_square = self.board.get_collided_board_square()
             if not board_square: return
-            if board_square.FEN_val is FEN.FenChars.BLANK_PIECE.value: return
+            if board_square.FEN_val is FenChars.BLANK_PIECE.value: return
             self.board.set_picked_up(board_square)
             self.state = STATE.DROP_PIECE
 
-    def handle_pick_promotion(self, local: bool, network: NET.Network | None) -> None:
+    def handle_pick_promotion(self, local: bool, network: network_manager.Network | None) -> None:
         for surface, rect, val in self.promotion_gui.promotion_pieces:
             if not rect.collidepoint(pygame.mouse.get_pos()): continue
             from_board_square = self.board.get_picked_up()
@@ -108,7 +119,13 @@ class Player:
             from_coordinates = from_board_square.algebraic_notation.data.coordinates
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
 
-            move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, dest_coordinates, self.side.name, val)
+            move = command_manager.get(
+                command_manager.COMMANDS.MOVE,
+                from_coordinates,
+                dest_coordinates,
+                self.side.name,
+                val
+            )
             send_move(local, network, move)
             self.board.reset_picked_up()
             self.state = STATE.PICK_PIECE
@@ -132,18 +149,18 @@ class Player:
         if self.state is STATE.DROP_PIECE: self.show_available_moves()
 
     def render_pieces(self) -> None:  # move to
+        def render_board_square(bs: chess_board.BoardSquare, offset: pygame.math.Vector2) -> None:
+            piece_surface = chess_piece.Pieces.sprites[bs.FEN_val].surface
+            piece_pos = chess_board.BoardSquare.get_piece_render_pos(bs, offset, piece_surface)
+            pygame.display.get_surface().blit(piece_surface, piece_pos)
+
         grid = self.board.grid if self.side is chess_board.SIDE.WHITE else self.board.grid[::-1]
         board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
         for board_square in grid:
-            if board_square.FEN_val is FEN.FenChars.BLANK_PIECE.value: continue
+            if board_square.FEN_val is FenChars.BLANK_PIECE.value: continue
             if board_square.picked_up: continue
-            self.render_board_square(board_square, board_offset)
-        if self.state is STATE.DROP_PIECE: self.render_board_square(self.board.get_picked_up(), board_offset)
-
-    def render_board_square(self, board_square, board_offset) -> None:
-        piece_surface = chess_piece.Pieces.sprites[board_square.FEN_val].surface
-        piece_pos = chess_board.BoardSquare.get_piece_render_pos(board_square, board_offset, piece_surface)
-        pygame.display.get_surface().blit(piece_surface, piece_pos)
+            render_board_square(board_square, board_offset)
+        if self.state is STATE.DROP_PIECE: render_board_square(self.board.get_picked_up(), board_offset)
 
     def show_available_moves(self) -> None:
         if not self.turn: return
@@ -155,7 +172,7 @@ class Player:
         for surface, pos in self.board.get_available_moves_surface(picked):
             pygame.display.get_surface().blit(surface, pos)
 
-    def update_pieces_location(self, fen: FEN.Fen) -> None:
+    def update_pieces_location(self, fen: Fen) -> None:
         for index, fen_val in enumerate(fen.expanded):
             board_square = self.board.grid[index]
             board_square.FEN_val = fen_val
@@ -172,7 +189,7 @@ class Player:
         self.turn = False
         self.game_over = True
 
-    def update_turn(self, fen: FEN.Fen) -> None:
+    def update_turn(self, fen: Fen) -> None:
         if self.side is chess_board.SIDE.WHITE:
             if fen.is_white_turn():
                 self.turn = True
@@ -193,42 +210,35 @@ class Player:
         return f"{opposite_side.name}s TURN"
 
 
-# -------------
-
-
-# -- Parsing Commands --
-def parse_command(command: str, info: str, match_fen: FEN.Fen, *players: Player, local: bool = False) -> None:
-    match CMD.COMMANDS(command):
-        case CMD.COMMANDS.UPDATE_POS:
+def parse_command(command: str, info: str, match_fen: Fen, *players: Player, local: bool = False) -> None:
+    match command_manager.COMMANDS(command):
+        case command_manager.COMMANDS.UPDATE_POS:
             if not local: match_fen.notation = info
             list(map(lambda player: player.update_pieces_location(match_fen), players))
             list(map(lambda player: player.update_turn(match_fen), players))
-        case CMD.COMMANDS.END_GAME:
+        case command_manager.COMMANDS.END_GAME:
             list(map(lambda player: player.end_turn(), players))
-        case CMD.COMMANDS.INVALID_MOVE:
+        case command_manager.COMMANDS.INVALID_MOVE:
             list(map(lambda player: player.set_require_render(True), players))
-        case CMD.COMMANDS.UPDATE_CAP_PIECES:
+        case command_manager.COMMANDS.UPDATE_CAP_PIECES:
             list(map(lambda player: player.captured_gui.set_captured_pieces(info), players))
         case _:
             assert False, f" {command} : Command not recognised"
 
 
-def parse_command_local(match_fen: FEN.Fen, *players: Player) -> None:
-    command = CMD.read_from(CMD.PLAYER)
+def parse_command_local(match_fen: Fen, *players: Player) -> None:
+    command = command_manager.read_from(command_manager.PLAYER)
     if command is None: return
-    cmd, info = CMD.split_command_info(command.info)
+    cmd, info = command_manager.split_command_info(command.info)
     parse_command(cmd, info, match_fen, *players, local=True)
 
 
-# -----------------
-
-# --
-def update_available_moves(board_square: chess_board.BoardSquare, match_fen: FEN.Fen,
+def update_available_moves(board_square: chess_board.BoardSquare, match_fen: Fen,
                            player_side: chess_board.SIDE) -> None:
     is_black_and_lower = player_side is chess_board.SIDE.BLACK and board_square.FEN_val.islower()
     is_white_and_upper = player_side is chess_board.SIDE.WHITE and board_square.FEN_val.isupper()
     correct_side = True if is_black_and_lower or is_white_and_upper else False
-    if board_square.FEN_val == FEN.FenChars.BLANK_PIECE.value or not correct_side:
+    if board_square.FEN_val == FenChars.BLANK_PIECE.value or not correct_side:
         board_square.available_moves = []
         return None
     board_square.available_moves = chess_piece.get_available_moves(
@@ -239,8 +249,8 @@ def update_available_moves(board_square: chess_board.BoardSquare, match_fen: FEN
 
 
 def is_pawn_promotion(from_board_square: chess_board.BoardSquare, dest_board_square: chess_board.BoardSquare,
-                      fen: FEN.Fen) -> bool:
-    pawn_fen = FEN.FenChars.WHITE_PAWN.value if fen.is_white_turn() else FEN.FenChars.BLACK_PAWN.value
+                      fen: Fen) -> bool:
+    pawn_fen = FenChars.WHITE_PAWN.value if fen.is_white_turn() else FenChars.BLACK_PAWN.value
     rank = '8' if fen.is_white_turn() else '1'
     from_index = from_board_square.algebraic_notation.data.index
     dest_index = dest_board_square.algebraic_notation.data.index
@@ -253,8 +263,8 @@ def is_pawn_promotion(from_board_square: chess_board.BoardSquare, dest_board_squ
     return True
 
 
-def send_move(local: bool, network: NET.Network | None, move: CMD.Command) -> None:
+def send_move(local: bool, network: network_manager.Network | None, move: command_manager.Command) -> None:
     if local:
-        CMD.send_to(CMD.MATCH, move)
+        command_manager.send_to(command_manager.MATCH, move)
     else:
         if network: network.socket.send(str.encode(move.info))
