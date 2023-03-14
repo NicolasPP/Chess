@@ -1,7 +1,8 @@
 import enum
 
-import chess.chess_data as CHESS
-import chess.game as GAME
+import chess.board as chess_board
+import chess.validate_move as validate_move
+
 import utils.algebraic_notation as AN
 import utils.Forsyth_Edwards_notation as FEN
 import utils.commands as CMD
@@ -44,7 +45,7 @@ class Match:
         before_move_fen = FEN.Fen(FEN.encode_fen_data(self.fen.data))
 
         if not is_command_destination_valid(cmd_dest, self.fen.is_white_turn()) or \
-            not GAME.is_move_valid(from_index, dest_index, self.fen): return [MoveTags.INVALID]
+            not validate_move.is_move_valid(from_index, dest_index, self.fen): return [MoveTags.INVALID]
 
         self.fen.make_move(from_index, dest_index, target_fen)
         self.moves.append(command_info)
@@ -56,13 +57,13 @@ class Match:
 
         is_en_passant = before_move_fen.is_move_en_passant(from_index, dest_index)
         pawn_fen = 'p' if before_move_fen.is_white_turn() else 'P'
-        if GAME.is_take(before_move_fen, dest_index, is_en_passant):
+        if validate_move.is_take(before_move_fen, dest_index, is_en_passant):
             if is_en_passant: self.captured_pieces += pawn_fen
             else: self.captured_pieces += before_move_fen[dest_index]
             tags.append(MoveTags.TAKE)
 
-        if GAME.is_opponent_in_checkmate(self.fen, not self.fen.is_white_turn()): tags.append(MoveTags.CHECKMATE)
-        elif GAME.is_opponent_in_check(self.fen, not self.fen.is_white_turn()): tags.append(MoveTags.CHECK)
+        if validate_move.is_opponent_in_checkmate(self.fen, not self.fen.is_white_turn()): tags.append(MoveTags.CHECKMATE)
+        elif validate_move.is_opponent_in_check(self.fen, not self.fen.is_white_turn()): tags.append(MoveTags.CHECK)
         else: tags.append(MoveTags.REGULAR)
 
         return tags
@@ -98,7 +99,7 @@ class Match:
 
 
 def is_command_destination_valid(cmd_dest: str, is_white: bool) -> bool:
-    if cmd_dest == CHESS.SIDE.WHITE.name and is_white: return True
-    if cmd_dest == CHESS.SIDE.BLACK.name and not is_white: return True
+    if cmd_dest == chess_board.SIDE.WHITE.name and is_white: return True
+    if cmd_dest == chess_board.SIDE.BLACK.name and not is_white: return True
     return False
 # -------------------------

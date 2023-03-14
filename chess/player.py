@@ -2,8 +2,9 @@ import enum
 
 import pygame
 
-import chess.chess_data as CHESS
-import chess.game as GAME
+import chess.board as chess_board
+import chess.piece as chess_piece
+
 import utils.Forsyth_Edwards_notation as FEN
 import utils.asset as ASSETS
 import utils.commands as CMD
@@ -32,20 +33,20 @@ class STATE(enum.Enum):
 
 class Player:
     def __init__(self,
-                 side: CHESS.SIDE,
+                 side: chess_board.SIDE,
                  piece_set: ASSETS.PieceSetAssets,
                  board_asset: ASSETS.BoardAssets,
                  scale: float):
-        self.side: CHESS.SIDE = side
-        self.board: CHESS.Board = CHESS.get_board(board_asset.value, side, scale)
-        self.pieces: dict[str, CHESS.Piece] = CHESS.get_pieces(piece_set.value, scale)
-        self.turn: bool = side is CHESS.SIDE.WHITE
+        chess_piece.Pieces.load(piece_set.value, scale)
+        self.side: chess_board.SIDE = side
+        self.board: chess_board.Board = chess_board.Board(board_asset.value, side, scale)
+        self.turn: bool = side is chess_board.SIDE.WHITE
         self.state: STATE = STATE.PICK_PIECE
         self.is_render_required: bool = True
         self.game_over = False
-        self.promotion_gui = PromotionGui(self.pieces, self.side, self.board.sprite.surface.get_rect())
-        self.captured_gui = CapturedGui('', self.pieces, self.board.pos_rect,
-                                        'white' if self.side is CHESS.SIDE.WHITE else 'black')
+        self.promotion_gui = PromotionGui(self.side, self.board.sprite.surface.get_rect())
+        self.captured_gui = CapturedGui('', self.board.pos_rect,
+                                        'white' if self.side is chess_board.SIDE.WHITE else 'black')
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
 
     # -- reading playing input --
@@ -63,8 +64,8 @@ class Player:
     def handle_left_mouse_up(self, network: NET.Network | None, local: bool, fen: FEN.Fen) -> None:
         if self.state is not STATE.DROP_PIECE: return
 
-        dest_board_square = CHESS.get_collided_board_square(self.board)
-        from_board_square = CHESS.get_picked_up(self.board)
+        dest_board_square = self.board.get_collided_board_square()
+        from_board_square = self.board.get_picked_up()
         from_coordinates = from_board_square.algebraic_notation.data.coordinates
 
         # invalid move
@@ -80,7 +81,7 @@ class Player:
         if not is_promotion:
             send_move(local, network, move)
             self.state = STATE.PICK_PIECE
-            CHESS.reset_picked_up(self.board)
+            self.board.reset_picked_up()
 
         else:
             self.state = STATE.PICK_PROMOTION
@@ -92,24 +93,24 @@ class Player:
         if self.state is STATE.PICK_PROMOTION:
             self.handle_pick_promotion(local, network)
         elif self.state is STATE.PICK_PIECE:
-            board_square = CHESS.get_collided_board_square(self.board)
+            board_square = self.board.get_collided_board_square()
             if not board_square: return
             if board_square.FEN_val is FEN.FenChars.BLANK_PIECE.value: return
-            CHESS.set_picked_up(board_square, self.board)
+            self.board.set_picked_up(board_square)
             self.state = STATE.DROP_PIECE
 
     def handle_pick_promotion(self, local: bool, network: NET.Network | None) -> None:
         for surface, rect, val in self.promotion_gui.promotion_pieces:
             if not rect.collidepoint(pygame.mouse.get_pos()): continue
-            from_board_square = CHESS.get_picked_up(self.board)
-            dest_board_square = CHESS.get_collided_board_square(self.board, self.prev_left_mouse_up)
+            from_board_square = self.board.get_picked_up()
+            dest_board_square = self.board.get_collided_board_square(self.prev_left_mouse_up)
             if dest_board_square is None or from_board_square is None: continue
             from_coordinates = from_board_square.algebraic_notation.data.coordinates
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
 
             move = CMD.get(CMD.COMMANDS.MOVE, from_coordinates, dest_coordinates, self.side.name, val)
             send_move(local, network, move)
-            CHESS.reset_picked_up(self.board)
+            self.board.reset_picked_up()
             self.state = STATE.PICK_PIECE
             self.is_render_required = True
 
@@ -126,32 +127,32 @@ class Player:
             self.promotion_gui.render()
         self.is_render_required = False
 
-    def render_board(self) -> None:
+    def render_board(self) -> None:  # move to board
         pygame.display.get_surface().blit(self.board.sprite.surface, self.board.pos_rect)
         if self.state is STATE.DROP_PIECE: self.show_available_moves()
 
-    def render_pieces(self) -> None:
-        grid = self.board.grid if self.side is CHESS.SIDE.WHITE else self.board.grid[::-1]
+    def render_pieces(self) -> None:  # move to
+        grid = self.board.grid if self.side is chess_board.SIDE.WHITE else self.board.grid[::-1]
         board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
         for board_square in grid:
             if board_square.FEN_val is FEN.FenChars.BLANK_PIECE.value: continue
             if board_square.picked_up: continue
             self.render_board_square(board_square, board_offset)
-        if self.state is STATE.DROP_PIECE: self.render_board_square(CHESS.get_picked_up(self.board), board_offset)
+        if self.state is STATE.DROP_PIECE: self.render_board_square(self.board.get_picked_up(), board_offset)
 
     def render_board_square(self, board_square, board_offset) -> None:
-        piece_surface = self.pieces[board_square.FEN_val].sprite.surface
-        pygame.display.get_surface().blit(piece_surface,
-                                          CHESS.get_piece_render_pos(board_square, board_offset, piece_surface))
+        piece_surface = chess_piece.Pieces.sprites[board_square.FEN_val].surface
+        piece_pos = chess_board.BoardSquare.get_piece_render_pos(board_square, board_offset, piece_surface)
+        pygame.display.get_surface().blit(piece_surface, piece_pos)
 
     def show_available_moves(self) -> None:
         if not self.turn: return
-        picked = CHESS.get_picked_up(self.board)
-        if self.side is CHESS.SIDE.WHITE:
+        picked = self.board.get_picked_up()
+        if self.side is chess_board.SIDE.WHITE:
             if picked.FEN_val.islower(): return
-        if self.side is CHESS.SIDE.BLACK:
+        if self.side is chess_board.SIDE.BLACK:
             if picked.FEN_val.isupper(): return
-        for surface, pos in CHESS.get_available_moves_surface(picked, self.board):
+        for surface, pos in self.board.get_available_moves_surface(picked):
             pygame.display.get_surface().blit(surface, pos)
 
     def update_pieces_location(self, fen: FEN.Fen) -> None:
@@ -172,7 +173,7 @@ class Player:
         self.game_over = True
 
     def update_turn(self, fen: FEN.Fen) -> None:
-        if self.side is CHESS.SIDE.WHITE:
+        if self.side is chess_board.SIDE.WHITE:
             if fen.is_white_turn():
                 self.turn = True
             else:
@@ -188,7 +189,7 @@ class Player:
 
     def get_window_title(self):
         if self.turn: return f"{self.side.name}s TURN"
-        opposite_side = CHESS.SIDE.WHITE if self.side is CHESS.SIDE.BLACK else CHESS.SIDE.BLACK
+        opposite_side = chess_board.SIDE.WHITE if self.side is chess_board.SIDE.BLACK else chess_board.SIDE.BLACK
         return f"{opposite_side.name}s TURN"
 
 
@@ -222,20 +223,23 @@ def parse_command_local(match_fen: FEN.Fen, *players: Player) -> None:
 # -----------------
 
 # --
-def update_available_moves(board_square: CHESS.BoardSquare, match_fen: FEN.Fen, player_side: CHESS.SIDE) -> None:
-    is_black_and_lower = player_side is CHESS.SIDE.BLACK and board_square.FEN_val.islower()
-    is_white_and_upper = player_side is CHESS.SIDE.WHITE and board_square.FEN_val.isupper()
+def update_available_moves(board_square: chess_board.BoardSquare, match_fen: FEN.Fen,
+                           player_side: chess_board.SIDE) -> None:
+    is_black_and_lower = player_side is chess_board.SIDE.BLACK and board_square.FEN_val.islower()
+    is_white_and_upper = player_side is chess_board.SIDE.WHITE and board_square.FEN_val.isupper()
     correct_side = True if is_black_and_lower or is_white_and_upper else False
     if board_square.FEN_val == FEN.FenChars.BLANK_PIECE.value or not correct_side:
         board_square.available_moves = []
         return None
-    name = CHESS.get_name_from_fen(board_square.FEN_val)
-    board_square.available_moves = GAME.get_available_moves(name,
-                                                            board_square.algebraic_notation.data.index,
-                                                            match_fen)
+    board_square.available_moves = chess_piece.get_available_moves(
+        board_square.FEN_val,
+        board_square.algebraic_notation.data.index,
+        match_fen
+    )
 
 
-def is_pawn_promotion(from_board_square: CHESS.BoardSquare, dest_board_square: CHESS.BoardSquare, fen: FEN.Fen) -> bool:
+def is_pawn_promotion(from_board_square: chess_board.BoardSquare, dest_board_square: chess_board.BoardSquare,
+                      fen: FEN.Fen) -> bool:
     pawn_fen = FEN.FenChars.WHITE_PAWN.value if fen.is_white_turn() else FEN.FenChars.BLACK_PAWN.value
     rank = '8' if fen.is_white_turn() else '1'
     from_index = from_board_square.algebraic_notation.data.index
@@ -243,9 +247,9 @@ def is_pawn_promotion(from_board_square: CHESS.BoardSquare, dest_board_square: C
     dest_rank = dest_board_square.algebraic_notation.data.rank
     if from_board_square.FEN_val != pawn_fen: return False
     if dest_rank != rank: return False
-    if dest_index not in GAME.get_available_moves('PAWN', from_index, fen): return False
-    if not GAME.is_king_safe(from_board_square.algebraic_notation.data.index,
-                             dest_board_square.algebraic_notation.data.index, fen): return False
+    if dest_index not in chess_piece.get_available_moves('P', from_index, fen): return False
+    if not chess_piece.is_king_safe(from_board_square.algebraic_notation.data.index,
+                                    dest_board_square.algebraic_notation.data.index, fen): return False
     return True
 
 

@@ -3,7 +3,7 @@ import sys
 
 import pygame
 
-import chess.chess_data as CHESS
+import chess.board as chess_board
 import chess.match as MATCH
 import chess.player as PLAYER
 import utils.asset as ASSETS
@@ -18,14 +18,14 @@ clock = pygame.time.Clock()
 
 match = MATCH.Match()
 white_player = PLAYER.Player(
-    side=CHESS.SIDE.WHITE,
+    side=chess_board.SIDE.WHITE,
     piece_set=random.choice(list(ASSETS.PieceSetAssets)),
     board_asset=random.choice(list(ASSETS.BoardAssets)),
     scale=BOARD_SCALE
 )
 
 black_player = PLAYER.Player(
-    side=CHESS.SIDE.BLACK,
+    side=chess_board.SIDE.BLACK,
     piece_set=random.choice(list(ASSETS.PieceSetAssets)),
     board_asset=random.choice(list(ASSETS.BoardAssets)),
     scale=BOARD_SCALE
@@ -45,8 +45,8 @@ def update_window_caption(*players: PLAYER.Player) -> None:
 
 
 def get_colors(player: PLAYER.Player) -> tuple[str, str]:
-    bg = 'white' if player.side == CHESS.SIDE.WHITE else 'black'
-    font = 'black' if player.side == CHESS.SIDE.WHITE else 'white'
+    bg = 'white' if player.side == chess_board.SIDE.WHITE else 'black'
+    font = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
     return bg, font
 
 
