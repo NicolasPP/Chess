@@ -1,6 +1,7 @@
 MainTests()
 {
   pytest tests/utils tests/chess
+  ShowCovBrowser
 }
 
 OnlyPlayedGames()
@@ -12,6 +13,12 @@ TestAll()
 {
   pytest tests/utils tests/chess tests/test_with_played_games.py
   TypeCheck
+  ShowCovBrowser
+}
+
+ShowCovBrowser()
+{
+  open htmlcov/index.html
 }
 
 InvalidOption()
