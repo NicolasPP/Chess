@@ -1,7 +1,6 @@
 MainTests()
 {
   pytest tests/utils tests/chess
-  ShowCovBrowser
 }
 
 OnlyPlayedGames()
@@ -28,10 +27,6 @@ InvalidOption()
 	exit 1
 }
 
-LineCount()
-{
-  cloc src/ tests/
-}
 
 ValidOptions()
 {
@@ -39,7 +34,6 @@ ValidOptions()
 	  echo "	-a | --all        : run all tests"
     echo "	-p | --played-games : test already played games"
     echo "	-t | --type-check : run mypy check"
-    echo "	-l | --line-count : line count"
 }
 
 TypeCheck()
@@ -54,7 +48,6 @@ while [ $# -gt 0 ] ; do
     -a | --all) TestAll ;;
     -p | --played-games) OnlyPlayedGames ;;
     -t | --type-check) TypeCheck ;;
-    -l | --line-count) LineCount ;;
 	*) InvalidOption $1 ;;
 
   esac
