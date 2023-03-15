@@ -142,7 +142,8 @@ class Player:
         if self.state is STATE.DROP_PIECE: self.show_available_moves()
 
     def render_pieces(self) -> None:
-        def render_board_square(bs: chess_board.BoardSquare, offset: pygame.math.Vector2) -> None:
+        def render_board_square(bs: chess_board.BoardSquare,
+                                offset: pygame.math.Vector2) -> None:
             piece_surface = chess_piece.Pieces.sprites[bs.fen_val].surface
             piece_pos: chess_board.RenderPos = chess_board.BoardSquare.get_piece_render_pos(bs, offset, piece_surface)
             pygame.display.get_surface().blit(piece_surface, (piece_pos.x, piece_pos.y))
@@ -200,7 +201,8 @@ class Player:
         return f"{opposite_side.name}s TURN"
 
 
-def parse_command(command: str, info: str, match_fen: Fen, *players: Player, local: bool = False) -> None:
+def parse_command(command: str, info: str, match_fen: Fen,
+                  *players: Player, local: bool = False) -> None:
     match command_manager.COMMANDS(command):
         case command_manager.COMMANDS.UPDATE_FEN:
             if not local: match_fen.notation = info
@@ -238,8 +240,8 @@ def update_available_moves(board_square: chess_board.BoardSquare, match_fen: Fen
     )
 
 
-def is_pawn_promotion(from_board_square: chess_board.BoardSquare, dest_board_square: chess_board.BoardSquare,
-                      fen: Fen) -> bool:
+def is_pawn_promotion(from_board_square: chess_board.BoardSquare,
+                      dest_board_square: chess_board.BoardSquare, fen: Fen) -> bool:
     pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(fen.is_white_turn())
     rank = '8' if fen.is_white_turn() else '1'
     from_index = from_board_square.algebraic_notation.data.index
