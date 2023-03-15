@@ -60,11 +60,11 @@ class Match:
 
         is_en_passant = before_move_fen.is_move_en_passant(from_index, dest_index)
         is_castle = before_move_fen.is_move_castle(from_index, dest_index)
-        pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(before_move_fen.is_white_turn())
+        opponent_pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(not before_move_fen.is_white_turn())
 
         if validate_move.is_take(before_move_fen, dest_index, is_en_passant, is_castle):
             if is_en_passant:
-                self.captured_pieces += pawn_fen
+                self.captured_pieces += opponent_pawn_fen
             else:
                 self.captured_pieces += before_move_fen[dest_index]
             tags.append(MoveTags.TAKE)
