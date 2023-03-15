@@ -212,7 +212,7 @@ class Player:
 
 def parse_command(command: str, info: str, match_fen: Fen, *players: Player, local: bool = False) -> None:
     match command_manager.COMMANDS(command):
-        case command_manager.COMMANDS.UPDATE_POS:
+        case command_manager.COMMANDS.UPDATE_FEN:
             if not local: match_fen.notation = info
             list(map(lambda player: player.update_pieces_location(match_fen), players))
             list(map(lambda player: player.update_turn(match_fen), players))

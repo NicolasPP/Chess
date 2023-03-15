@@ -6,7 +6,7 @@ from src.config import *
 
 
 class COMMANDS(enum.Enum):
-    UPDATE_POS: str = 'update_pos'
+    UPDATE_FEN: str = 'update_pos'
     END_GAME: str = 'end_game'
     MOVE: str = 'move'
     INVALID_MOVE: str = 'invalid_move'
@@ -40,8 +40,8 @@ def read_from(command_q: queue.Queue) -> Command | None:
 # -- Command Getters --
 def get(command: COMMANDS, *args) -> Command:
     match command:
-        case COMMANDS.UPDATE_POS:
-            return get_update_pieces_pos(*args)
+        case COMMANDS.UPDATE_FEN:
+            return get_update_fen(*args)
         case COMMANDS.END_GAME:
             return get_end_game()
         case COMMANDS.INVALID_MOVE:
@@ -62,8 +62,8 @@ def get_move(from_coordinates: str, dest_coordinates: str, player_side: str, tar
     return Command(I_SPLIT.join([from_coordinates, dest_coordinates, player_side, target_fen]))
 
 
-def get_update_pieces_pos(fen_notation: str) -> Command:
-    return Command(I_SPLIT.join([COMMANDS.UPDATE_POS.value, fen_notation]))
+def get_update_fen(fen_notation: str) -> Command:
+    return Command(I_SPLIT.join([COMMANDS.UPDATE_FEN.value, fen_notation]))
 
 
 def get_end_game() -> Command:
