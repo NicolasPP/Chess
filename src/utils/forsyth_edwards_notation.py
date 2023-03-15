@@ -108,7 +108,6 @@ class Fen:
 
     def get_en_passant_rights(self, from_piece_val: str, from_index: int, dest_index: int) -> str:
         pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(self.is_white_turn())
-        # pawn_fen = FenChars.WHITE_PAWN.value if self.is_white_turn() else FenChars.BLACK_PAWN.value
         double_moves_start = list(range(48, 56)) if self.is_white_turn() else list(range(8, 16))
         double_moves_end = list(range(32, 40)) if self.is_white_turn() else list(range(24, 32))
 
@@ -240,7 +239,6 @@ class Fen:
         self.data.active_color = self.get_next_active_color()
 
 
-# -- Helpers --
 def iterate(piece_placement: str) -> typing.Generator[str, None, None]:
     for fen_row in piece_placement.split(FenChars.SPLIT.value):
         for piece_fen in fen_row: yield piece_fen
@@ -331,4 +329,3 @@ def decode_fen_notation(fen_notation: str) -> FenData:
     fen_data = FenData(*data)
     validate_fen_data(fen_data)
     return fen_data
-# -------------

@@ -5,7 +5,6 @@ import pygame
 from src.config import *
 
 
-# -- Classes and Enums --
 class TYPE(enum.Enum):
     SPRITE: int = 0
     SHEET: int = 1
@@ -53,9 +52,6 @@ class PieceSetAssets(enum.Enum):
     )
 
 
-# -----------------------
-
-# -- helper functions --
 def scale(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
     size = pygame.math.Vector2(surface.get_size()) * surface_scale
     return pygame.transform.scale(surface, (round(size.x), round(size.y)))
@@ -92,13 +88,9 @@ def load_sprite(file: str, sprite_scale: float) -> Sprite:
     return Sprite(surface, sprite_scale)
 
 
-# ----------------------
-
-# --  user will call these functions --
 def load_board(asset: Asset, asset_scale: float) -> Sprite:
     return load_sprite(asset.file, asset_scale)
 
 
 def load_piece_set(piece_set: PieceSet, piece_scale: float) -> tuple[list[Sprite], list[Sprite]]:
     return load_sprite_sheet(piece_set.white_asset, piece_scale), load_sprite_sheet(piece_set.black_asset, piece_scale)
-# -------------------------------------

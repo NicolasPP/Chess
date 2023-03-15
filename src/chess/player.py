@@ -13,7 +13,6 @@ from src.gui.promotion_gui import PromotionGui
 from src.gui.captured_gui import CapturedGui
 
 
-# -- Enums --
 class MOUSECLICK(enum.Enum):
     LEFT: int = 1
     MIDDLE: int = 2
@@ -27,8 +26,6 @@ class STATE(enum.Enum):
     DROP_PIECE: int = 1
     PICK_PROMOTION: int = 2
 
-
-# -----------
 
 class Player:
     def __init__(self,
@@ -48,7 +45,6 @@ class Player:
                                         'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
 
-    # -- reading playing input --
     def parse_input(
             self,
             event: pygame.event.Event,
@@ -131,9 +127,6 @@ class Player:
             self.state = STATE.PICK_PIECE
             self.is_render_required = True
 
-    # ---------------------------
-
-    # -- rendering players game --
     def render(self, bg_color) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
             pygame.display.get_surface().fill(bg_color)
@@ -179,9 +172,6 @@ class Player:
             update_available_moves(board_square, fen, self.side)
         self.is_render_required = True
 
-    # ----------------------------
-
-    # -- helpers --
     def progress_state(self) -> None:
         self.state = STATE((self.state.value + 1) % len(list(STATE)))
 

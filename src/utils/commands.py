@@ -13,7 +13,6 @@ class COMMANDS(enum.Enum):
     UPDATE_CAP_PIECES: str = 'update_cap_pieces'
 
 
-# -- Data --
 @dataclasses.dataclass
 class Command:
     info: str = ''
@@ -23,9 +22,6 @@ MATCH: queue.Queue[Command] = queue.Queue()
 PLAYER: queue.Queue[Command] = queue.Queue()
 
 
-# ----------
-
-# -- Read and Write to Q -- 
 def send_to(dest: queue.Queue, command: Command) -> None:
     dest.put(command)
 
@@ -34,10 +30,6 @@ def read_from(command_q: queue.Queue) -> Command | None:
     if command_q.empty(): return EMPTY_Q
     return command_q.get()
 
-
-# -------------------------
-
-# -- Command Getters --
 def get(command: COMMANDS, *args) -> Command:
     match command:
         case COMMANDS.UPDATE_FEN:
@@ -76,4 +68,3 @@ def get_invalid_move() -> Command:
 
 def get_update_captured_pieces(captured_pieces: str) -> Command:
     return Command(I_SPLIT.join([COMMANDS.UPDATE_CAP_PIECES.value, captured_pieces]))
-# ---------------------
