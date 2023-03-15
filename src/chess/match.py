@@ -4,7 +4,7 @@ import src.chess.board as chess_board
 import src.chess.validate_move as validate_move
 
 from src.utils.algebraic_notation import get_index_from_an
-from src.utils.forsyth_edwards_notation import encode_fen_data, Fen
+from src.utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
 import src.utils.commands as command_manager
 from src.config import *
 
@@ -26,7 +26,7 @@ class Match:
         self.update_fen: bool = False
         command_manager.send_to(
             command_manager.PLAYER,
-            command_manager.get(command_manager.COMMANDS.UPDATE_POS, self.fen.notation)
+            command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
         )
 
     def process_local_move(self) -> None:
@@ -59,8 +59,10 @@ class Match:
         tags = []
 
         is_en_passant = before_move_fen.is_move_en_passant(from_index, dest_index)
-        pawn_fen = 'p' if before_move_fen.is_white_turn() else 'P'
-        if validate_move.is_take(before_move_fen, dest_index, is_en_passant):
+        is_castle = before_move_fen.is_move_castle(from_index, dest_index)
+        pawn_fen = FenChars.WHITE_PAWN if before_move_fen.is_white_turn() else FenChars.BLACK_PAWN
+
+        if validate_move.is_take(before_move_fen, dest_index, is_en_passant, is_castle):
             if is_en_passant:
                 self.captured_pieces += pawn_fen
             else:
@@ -80,15 +82,15 @@ class Match:
         ext_commands = []
         match tag:
             case MoveTags.CHECK:
-                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_POS, self.fen.notation)
+                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
                 ext_commands.append(update_pos_command)
             case MoveTags.CHECKMATE:
                 end_game_command = command_manager.get(command_manager.COMMANDS.END_GAME)
-                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_POS, self.fen.notation)
+                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
                 ext_commands.append(end_game_command)
                 ext_commands.append(update_pos_command)
             case MoveTags.REGULAR:
-                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_POS, self.fen.notation)
+                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
                 ext_commands.append(update_pos_command)
             case MoveTags.INVALID:
                 invalid_move_command = command_manager.get(command_manager.COMMANDS.INVALID_MOVE)
