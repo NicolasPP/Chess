@@ -30,6 +30,7 @@ def read_from(command_q: queue.Queue) -> Command | None:
     if command_q.empty(): return EMPTY_Q
     return command_q.get()
 
+
 def get(command: COMMANDS, *args) -> Command:
     match command:
         case COMMANDS.UPDATE_FEN:
