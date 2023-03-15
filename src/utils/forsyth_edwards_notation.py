@@ -12,18 +12,16 @@ class FenChars(enum.Enum):
     WHITE_ACTIVE_COLOR: str = 'w'
     BLACK_ACTIVE_COLOR: str = 'b'
     EMPTY_INFO: str = '-'
-    WHITE_PAWN: str = 'P'
-    WHITE_KING: str = 'K'
-    WHITE_QUEEN: str = 'Q'
-    WHITE_BISHOP: str = 'B'
-    WHITE_ROOK: str = 'R'
-    WHITE_KNIGHT: str = 'N'
-    BLACK_PAWN: str = 'p'
-    BLACK_KING: str = 'k'
-    BLACK_QUEEN: str = 'q'
-    BLACK_BISHOP: str = 'b'
-    BLACK_ROOK: str = 'r'
-    BLACK_KNIGHT: str = 'n'
+    DEFAULT_PAWN = "P"
+    DEFAULT_KING = "K"
+    DEFAULT_QUEEN = "Q"
+    DEFAULT_BISHOP = "B"
+    DEFAULT_ROOK = "R"
+    DEFAULT_KNIGHT = "N"
+
+    def get_piece_fen(self, is_white_turn: bool) -> str:
+        if is_white_turn: return self.value
+        return self.value.lower()
 
 
 @dataclasses.dataclass
@@ -79,8 +77,10 @@ class Fen:
         return self.data.active_color == FenChars.WHITE_ACTIVE_COLOR.value
 
     def get_next_active_color(self) -> str:
-        if self.is_white_turn(): return FenChars.BLACK_ACTIVE_COLOR.value
-        else: return FenChars.WHITE_ACTIVE_COLOR.value
+        if self.is_white_turn():
+            return FenChars.BLACK_ACTIVE_COLOR.value
+        else:
+            return FenChars.WHITE_ACTIVE_COLOR.value
 
     def get_castling_rights(self, from_piece_val: str, from_index: int) -> str:
         if self.data.castling_rights == FenChars.EMPTY_INFO.value: return self.data.castling_rights
@@ -89,9 +89,9 @@ class Fen:
         king_side_rook_index = 63 if is_white_turn else 7
         queen_side_rook_index = 56 if is_white_turn else 0
         king_index = 60 if is_white_turn else 4
-        king_fen = FenChars.WHITE_KING.value if is_white_turn else FenChars.BLACK_KING.value
-        queen_fen = FenChars.WHITE_QUEEN.value if is_white_turn else FenChars.BLACK_QUEEN.value
-        rook_fen = FenChars.WHITE_ROOK.value if is_white_turn else FenChars.BLACK_ROOK.value
+        king_fen = FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
+        queen_fen = FenChars.DEFAULT_QUEEN.get_piece_fen(is_white_turn)
+        rook_fen = FenChars.DEFAULT_ROOK.get_piece_fen(is_white_turn)
         if from_piece_val == rook_fen:
             if from_index == king_side_rook_index:
                 castling_rights = castling_rights.replace(king_fen, '')
@@ -107,11 +107,12 @@ class Fen:
         return castling_rights
 
     def get_en_passant_rights(self, from_piece_val: str, from_index: int, dest_index: int) -> str:
-        pawn_fen = FenChars.WHITE_PAWN.value if self.is_white_turn() else FenChars.BLACK_PAWN.value
+        pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(self.is_white_turn())
+        # pawn_fen = FenChars.WHITE_PAWN.value if self.is_white_turn() else FenChars.BLACK_PAWN.value
         double_moves_start = list(range(48, 56)) if self.is_white_turn() else list(range(8, 16))
         double_moves_end = list(range(32, 40)) if self.is_white_turn() else list(range(24, 32))
 
-        if from_piece_val is not pawn_fen: return FenChars.EMPTY_INFO.value
+        if from_piece_val != pawn_fen: return FenChars.EMPTY_INFO.value
         if from_index not in double_moves_start: return FenChars.EMPTY_INFO.value
         if dest_index not in double_moves_end: return FenChars.EMPTY_INFO.value
 
@@ -121,9 +122,8 @@ class Fen:
         return en_passant_rights
 
     def get_half_move_clock(self, from_piece_val: str, dest_piece_val: str) -> str:
-        pawn_fen = FenChars.WHITE_PAWN.value if self.is_white_turn() else FenChars.BLACK_PAWN.value
-        if from_piece_val is pawn_fen or \
-            dest_piece_val is not FenChars.BLANK_PIECE.value: return '0'
+        pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(self.is_white_turn())
+        if from_piece_val == pawn_fen or dest_piece_val != FenChars.BLANK_PIECE.value: return '0'
         half_move_clock = str(int(self.data.half_move_clock) + 1)
         validate_fen_half_move_clock(half_move_clock)
         return half_move_clock
@@ -205,7 +205,7 @@ class Fen:
 
         if dest_index == king_side_rook_index:
             self.make_regular_move(from_index, ks_king_index, self[from_index])
-            self.make_regular_move(dest_index, ks_rook_index,  self[dest_index])
+            self.make_regular_move(dest_index, ks_rook_index, self[dest_index])
         if dest_index == queen_side_rook_index:
             self.make_regular_move(from_index, qs_king_index, self[from_index])
             self.make_regular_move(dest_index, qs_rook_index, self[dest_index])
@@ -215,7 +215,7 @@ class Fen:
         self[from_index] = FenChars.BLANK_PIECE.value
 
     def is_move_en_passant(self, from_index: int, dest_index: int) -> bool:
-        pawn_fen = FenChars.WHITE_PAWN.value if self.is_white_turn() else FenChars.BLACK_PAWN.value
+        pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(self.is_white_turn())
         if self.data.en_passant_rights == '-': return False
         if self[from_index] != pawn_fen: return False
         from_an = get_an_from_index(from_index)
@@ -224,8 +224,8 @@ class Fen:
             self[dest_index] == FenChars.BLANK_PIECE.value
 
     def is_move_castle(self, from_index: int, dest_index: int) -> bool:
-        king_fen = FenChars.WHITE_KING.value if self.is_white_turn() else FenChars.BLACK_KING.value
-        rook_fen = FenChars.WHITE_ROOK.value if self.is_white_turn() else FenChars.BLACK_ROOK.value
+        king_fen = FenChars.DEFAULT_KING.get_piece_fen(self.is_white_turn())
+        rook_fen = FenChars.DEFAULT_ROOK.get_piece_fen(self.is_white_turn())
         if self.data.castling_rights == FenChars.EMPTY_INFO.value: return False
         if self[from_index] != king_fen: return False
         if self[dest_index] != rook_fen: return False

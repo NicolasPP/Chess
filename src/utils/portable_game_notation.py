@@ -198,7 +198,7 @@ def disambiguate_pgn_from_move(dest_an: AlgebraicNotation, pgn_from_info: str, f
 
 
 def parse_pgn_from_info(pgn_from_info: str, is_white_turn: bool) -> tuple[str, str | None, str | None]:
-    pawn_fen = FenChars.WHITE_PAWN.value if is_white_turn else FenChars.BLACK_PAWN.value
+    pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(is_white_turn)
     if not pgn_from_info: return pawn_fen, None, None
 
     possible_fen = ['B', 'Q', 'R', 'N', 'K']

@@ -11,21 +11,20 @@ def is_move_valid(from_index: int, dest_index: int, fen: notation.Fen) -> bool:
 
 def is_opponent_in_check(fen: notation.Fen, is_white_turn: None | bool = None) -> bool:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    king_fen = notation.FenChars.BLACK_KING.value if is_white_turn else notation.FenChars.WHITE_KING.value
-    king_index = fen.get_indexes_for_piece(king_fen)
-    threats = chess_piece.get_possible_threats(king_index[0], fen, not is_white_turn)
+    opponent_king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(not is_white_turn)
+    opponents_king_index = fen.get_indexes_for_piece(opponent_king_fen)
+    threats = chess_piece.get_possible_threats(opponents_king_index[0], fen, not is_white_turn)
     return len(threats) != 0
 
 
-def is_opponent_in_checkmate(fen: notation.Fen, is_white_turn: None | bool = None) -> bool:
-    if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    opponents_moves = get_all_available_moves(fen, is_white_turn, own_moves=False)
+def is_opponent_in_checkmate(fen: notation.Fen) -> bool:
+    opponents_moves = get_all_available_moves(fen, not fen.is_white_turn(), own_moves=False)
     return len(opponents_moves) == 0
 
 
 def is_take(fen: notation.Fen, dest_index: int, is_en_passant: bool, is_castle: bool) -> bool:
     if is_castle: return False
-    return (fen[dest_index] is not notation.FenChars.BLANK_PIECE.value) or is_en_passant
+    return (fen[dest_index] != notation.FenChars.BLANK_PIECE.value) or is_en_passant
 
 
 def get_all_available_moves(fen: notation.Fen, is_white_turn: None | bool = None, *, own_moves: bool) -> list[int]:

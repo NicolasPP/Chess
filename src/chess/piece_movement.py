@@ -114,20 +114,20 @@ def king_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None
     king_in_between = [61, 62] if is_white_turn else [5, 6]
     queen_in_between = [57, 58, 59] if is_white_turn else [1, 2, 3]
 
-    king_fen = notation.FenChars.WHITE_KING.value if is_white_turn else notation.FenChars.BLACK_KING.value
-    queen_fen = notation.FenChars.WHITE_QUEEN.value if is_white_turn else notation.FenChars.BLACK_QUEEN.value
-    rook_fen = notation.FenChars.WHITE_ROOK.value if is_white_turn else notation.FenChars.BLACK_ROOK.value
+    king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
+    queen_fen = notation.FenChars.DEFAULT_QUEEN.get_piece_fen(is_white_turn)
+    rook_fen = notation.FenChars.DEFAULT_ROOK.get_piece_fen(is_white_turn)
 
-    if king_fen in fen.data.castling_rights and fen[king_side_rook_index] is rook_fen:
+    if king_fen in fen.data.castling_rights and fen[king_side_rook_index] == rook_fen:
         king_castle = True
         for move in king_in_between:
-            if fen[move] is not notation.FenChars.BLANK_PIECE.value: king_castle = False
+            if fen[move] != notation.FenChars.BLANK_PIECE.value: king_castle = False
         if king_castle: moves.append(king_side_rook_index)
 
-    if queen_fen in fen.data.castling_rights and fen[queen_side_rook_index] is rook_fen:
+    if queen_fen in fen.data.castling_rights and fen[queen_side_rook_index] == rook_fen:
         queen_castle = True
         for move in queen_in_between:
-            if fen[move] is not notation.FenChars.BLANK_PIECE.value: queen_castle = False
+            if fen[move] != notation.FenChars.BLANK_PIECE.value: queen_castle = False
         if queen_castle: moves.append(queen_side_rook_index)
 
     moves += move_fixed_amount(moves_offset, from_index, fen, is_white_turn)
