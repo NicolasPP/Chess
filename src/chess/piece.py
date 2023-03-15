@@ -7,6 +7,8 @@ import src.utils.asset as asset_manager
 import src.utils.forsyth_edwards_notation as notation
 import src.chess.piece_movement as movement
 
+from src.config import *
+
 AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, notation.Fen, None | bool], list[int]]
 
 
@@ -32,12 +34,12 @@ class Pieces:
 
     @staticmethod
     def load_pieces_info():
-        Pieces.info[notation.FenChars.DEFAULT_PAWN.value] = PieceInfo(0, movement.pawn_available_moves)
-        Pieces.info[notation.FenChars.DEFAULT_KNIGHT.value] = PieceInfo(1, movement.knight_available_moves)
-        Pieces.info[notation.FenChars.DEFAULT_ROOK.value] = PieceInfo(2, movement.rook_available_moves)
-        Pieces.info[notation.FenChars.DEFAULT_BISHOP.value] = PieceInfo(3, movement.bishop_available_moves)
-        Pieces.info[notation.FenChars.DEFAULT_QUEEN.value] = PieceInfo(4, movement.queen_available_moves)
-        Pieces.info[notation.FenChars.DEFAULT_KING.value] = PieceInfo(5, movement.king_available_moves)
+        Pieces.info[notation.FenChars.DEFAULT_PAWN.value] = PieceInfo(P_ASSET_INDEX, movement.pawn_available_moves)
+        Pieces.info[notation.FenChars.DEFAULT_KNIGHT.value] = PieceInfo(N_ASSET_INDEX, movement.knight_available_moves)
+        Pieces.info[notation.FenChars.DEFAULT_ROOK.value] = PieceInfo(R_ASSET_INDEX, movement.rook_available_moves)
+        Pieces.info[notation.FenChars.DEFAULT_BISHOP.value] = PieceInfo(B_ASSET_INDEX, movement.bishop_available_moves)
+        Pieces.info[notation.FenChars.DEFAULT_QUEEN.value] = PieceInfo(Q_ASSET_INDEX, movement.queen_available_moves)
+        Pieces.info[notation.FenChars.DEFAULT_KING.value] = PieceInfo(K_ASSET_INDEX, movement.king_available_moves)
 
     @staticmethod
     def load(piece_set: asset_manager.PieceSet, scale: float) -> None:
@@ -52,9 +54,9 @@ class Pieces:
         return info
 
 
-def get_available_moves(fen_val: str,from_index: int,
+def get_available_moves(fen_val: str, from_index: int,
                         fen: notation.Fen, is_white_turn: None | bool = None
-) -> list[int]:
+                        ) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     available_moves = Pieces.get_info_from_fen(fen_val).available_moves(from_index, fen, is_white_turn)
 
@@ -106,12 +108,8 @@ def get_possible_threats(piece_index: int, fen: notation.Fen, is_white_turn: boo
     return possible_threats
 
 
-def process_regular_available_moves(
-        from_index: int,
-        is_white_turn: bool,
-        fen: notation.Fen,
-        available_moves: list[int]
-) -> list[int]:
+def process_regular_available_moves(from_index: int, is_white_turn: bool,
+                                    fen: notation.Fen, available_moves: list[int]) -> list[int]:
     safe_moves = []
     for move in available_moves:
         if is_king_safe(from_index, move, fen, is_white_turn):
@@ -119,12 +117,8 @@ def process_regular_available_moves(
     return safe_moves
 
 
-def process_king_available_moves(
-        from_index: int,
-        is_white_turn: bool,
-        fen: notation.Fen,
-        available_moves: list[int]
-) -> list[int]:
+def process_king_available_moves(from_index: int, is_white_turn: bool,
+                                 fen: notation.Fen, available_moves: list[int]) -> list[int]:
     safe_moves = []
     king_side_rook_index = 63 if is_white_turn else 7
     queen_side_rook_index = 56 if is_white_turn else 0

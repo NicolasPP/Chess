@@ -25,3 +25,11 @@ C_SPLIT: str = '%'
 
 # -- File Name --
 FONT_FILE: str = "assets/fonts/Oleaguid.ttf"
+
+# -- Indexes --
+P_ASSET_INDEX = 0
+N_ASSET_INDEX = 1
+R_ASSET_INDEX = 2
+B_ASSET_INDEX = 3
+Q_ASSET_INDEX = 4
+K_ASSET_INDEX = 5
