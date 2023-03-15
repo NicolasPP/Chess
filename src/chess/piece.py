@@ -21,12 +21,14 @@ class Pieces:
     info: dict[str, PieceInfo] = {}
 
     @staticmethod
-    def load_pieces_sprites(piece_set: asset_manager.PieceSet, scale: float):
+    def load_pieces_sprites(piece_set: asset_manager.PieceSet, scale: float) -> dict[str, asset_manager.Sprite]:
+        sprites = {}
         white_sprites, black_sprites = asset_manager.load_piece_set(piece_set, scale)
         assert len(white_sprites) == len(black_sprites)
         for fen_value, piece_info in Pieces.info.items():
-            Pieces.sprites[fen_value.upper()] = white_sprites[piece_info.asset_index]  # White
-            Pieces.sprites[fen_value.lower()] = black_sprites[piece_info.asset_index]  # Black
+            sprites[fen_value.upper()] = white_sprites[piece_info.asset_index]  # White
+            sprites[fen_value.lower()] = black_sprites[piece_info.asset_index]  # Black
+        return sprites
 
     @staticmethod
     def load_pieces_info():
@@ -40,7 +42,7 @@ class Pieces:
     @staticmethod
     def load(piece_set: asset_manager.PieceSet, scale: float) -> None:
         Pieces.load_pieces_info()
-        Pieces.load_pieces_sprites(piece_set, scale)
+        Pieces.sprites = Pieces.load_pieces_sprites(piece_set, scale)
 
     @staticmethod
     def get_info_from_fen(fen_val: str) -> PieceInfo:
