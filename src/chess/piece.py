@@ -52,11 +52,8 @@ class Pieces:
         return info
 
 
-def get_available_moves(
-        fen_val: str,
-        from_index: int,
-        fen: notation.Fen,
-        is_white_turn: None | bool = None
+def get_available_moves(fen_val: str,from_index: int,
+                        fen: notation.Fen, is_white_turn: None | bool = None
 ) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     available_moves = Pieces.get_info_from_fen(fen_val).available_moves(from_index, fen, is_white_turn)
