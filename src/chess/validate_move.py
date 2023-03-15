@@ -23,7 +23,8 @@ def is_opponent_in_checkmate(fen: notation.Fen, is_white_turn: None | bool = Non
     return len(opponents_moves) == 0
 
 
-def is_take(fen: notation.Fen, dest_index: int, is_en_passant: bool) -> bool:
+def is_take(fen: notation.Fen, dest_index: int, is_en_passant: bool, is_castle: bool) -> bool:
+    if is_castle: return False
     return (fen[dest_index] is not notation.FenChars.BLANK_PIECE.value) or is_en_passant
 
 
