@@ -19,14 +19,14 @@ clock = pygame.time.Clock()
 match = Match()
 white_player = Player(
     side=chess_board.SIDE.WHITE,
-    piece_set=random.choice(list(PieceSetAssets)),
+    piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
     board_asset=random.choice(list(BoardAssets)),
     scale=BOARD_SCALE
 )
 
 black_player = Player(
     side=chess_board.SIDE.BLACK,
-    piece_set=random.choice(list(PieceSetAssets)),
+    piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
     board_asset=random.choice(list(BoardAssets)),
     scale=BOARD_SCALE
 )

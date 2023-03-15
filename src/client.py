@@ -69,7 +69,7 @@ def get_player(network: Network) -> Player:
     side = chess_board.SIDE.WHITE if network.id % 2 == 0 else chess_board.SIDE.BLACK
     player = Player(
         side=side,
-        piece_set=random.choice(list(PieceSetAssets)),
+        piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
         board_asset=random.choice(list(BoardAssets)),
         scale=BOARD_SCALE)
     return player
