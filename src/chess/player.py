@@ -45,7 +45,7 @@ class Player:
         self.game_over = False
         self.promotion_gui = PromotionGui(self.side, self.board.sprite.surface.get_rect())
         self.captured_gui = CapturedGui('', self.board.pos_rect,
-                                        'white' if self.side is chess_board.SIDE.WHITE else 'black')
+                                        'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
 
     # -- reading playing input --
