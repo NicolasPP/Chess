@@ -137,11 +137,11 @@ class Player:
             self.promotion_gui.render()
         self.is_render_required = False
 
-    def render_board(self) -> None:  # move to board
+    def render_board(self) -> None:
         pygame.display.get_surface().blit(self.board.sprite.surface, self.board.pos_rect)
         if self.state is STATE.DROP_PIECE: self.show_available_moves()
 
-    def render_pieces(self) -> None:  # move to
+    def render_pieces(self) -> None:
         def render_board_square(bs: chess_board.BoardSquare, offset: pygame.math.Vector2) -> None:
             piece_surface = chess_piece.Pieces.sprites[bs.fen_val].surface
             piece_pos: chess_board.RenderPos = chess_board.BoardSquare.get_piece_render_pos(bs, offset, piece_surface)
