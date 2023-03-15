@@ -4,19 +4,20 @@ import src.chess.board as chess_board
 import src.chess.piece as chess_piece
 
 from src.utils.forsyth_edwards_notation import validate_fen_val
-from src.utils.asset import scale
+from src.utils.asset import scale, PieceSetAssets
 
 
 # TODO: 16x32 pieces dont look good at the bottom of the board, maybe show only the characters
-# FIXME: castling causes makes the game think a rook has been captured
 class CapturedGui:
     def __init__(
             self,
             captured_pieces: str,
             board_rect: pygame.rect.Rect,
             bg_color: str,
+            base_scale_factor: float,
             scale_factor: float = 3 / 5
     ):
+        self.base_scale_factor = base_scale_factor
         self.scale_factor = scale_factor
         self.board_rect = board_rect
         self.captured_pieces = captured_pieces
@@ -60,7 +61,8 @@ class CapturedGui:
 
     def copy_and_resize_pieces(self) -> dict[str, pygame.surface.Surface]:
         copy_pieces: dict[str, pygame.surface.Surface] = {}
-        for fen_val, sprite in chess_piece.Pieces.sprites.items():
+        for fen_val, sprite in chess_piece.Pieces.load_pieces_sprites(
+                PieceSetAssets.SIMPLE16x16.value, self.base_scale_factor).items():
             copy_pieces[fen_val] = scale(sprite.surface, self.scale_factor)
         return copy_pieces
 
