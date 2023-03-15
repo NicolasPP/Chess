@@ -130,9 +130,9 @@ class Player:
     def render(self, bg_color) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
             pygame.display.get_surface().fill(bg_color)
+            self.captured_gui.render(self.side)
             self.render_board()
             self.render_pieces()
-            self.captured_gui.render(self.side)
         if self.state is STATE.PICK_PROMOTION:
             self.promotion_gui.render()
         self.is_render_required = False
