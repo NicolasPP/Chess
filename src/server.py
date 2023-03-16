@@ -96,6 +96,8 @@ def client_listener(client_socket: skt.socket, server: Server):
             for tag in move_tags:
                 commands.extend(server.match.process_tag(tag))
 
+            commands.extend(server.match.process_match_state(commands))
+
             server.match.update_fen = True
             server.match.commands = commands
 
