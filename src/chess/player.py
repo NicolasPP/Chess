@@ -176,7 +176,7 @@ class Player:
     def progress_state(self) -> None:
         self.state = STATE((self.state.value + 1) % len(list(STATE)))
 
-    def end_turn(self) -> None:
+    def end_game(self) -> None:
         self.turn = False
         self.game_over = True
 
@@ -209,7 +209,7 @@ def parse_command(command: str, info: str, match_fen: Fen,
             list(map(lambda player: player.update_pieces_location(match_fen), players))
             list(map(lambda player: player.update_turn(match_fen), players))
         case command_manager.COMMANDS.END_GAME:
-            list(map(lambda player: player.end_turn(), players))
+            list(map(lambda player: player.end_game(), players))
         case command_manager.COMMANDS.INVALID_MOVE:
             list(map(lambda player: player.set_require_render(True), players))
         case command_manager.COMMANDS.UPDATE_CAP_PIECES:
