@@ -9,6 +9,7 @@ from src.chess.match import MoveTags, Match
 from src.utils.forsyth_edwards_notation import encode_fen_data
 from src.utils.commands import Command
 from src.utils.network import Net
+from src.chess.chess_timer import DefaultConfigs
 
 from src.config import *
 
@@ -30,7 +31,7 @@ class Server(Net):
     def __init__(self, server_ip: str):
         super().__init__(server_ip)
         self.client_id: int = -1
-        self.match: Match = Match()
+        self.match: Match = Match(DefaultConfigs.RAPID_15_10)
         self.client_sockets: list[skt.socket] = []
         chess_piece.Pieces.load_pieces_info()
 
@@ -67,6 +68,12 @@ class Server(Net):
         for client_socket in self.client_sockets:
             client_socket.send(str.encode(data))
 
+    def client_init(self, client_socket: skt.socket) -> str:
+        client_id = self.get_id()
+        client_socket.send(str.encode(client_id))
+        client_socket.send(str.encode(encode_fen_data(self.match.fen.data)))
+        return client_id
+
 
 def game_logic(server: Server):
     while True:
@@ -79,9 +86,7 @@ def game_logic(server: Server):
 
 def client_listener(client_socket: skt.socket, server: Server):
     with client_socket:
-        p_id = server.get_id()
-        client_socket.send(str.encode(p_id))
-        client_socket.send(str.encode(encode_fen_data(server.match.fen.data)))
+        p_id = server.client_init(client_socket)
         while True:
             data: bytes = client_socket.recv(DATA_SIZE)
             if not data: break
