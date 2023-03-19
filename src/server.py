@@ -4,14 +4,14 @@ import socket as skt
 
 import click
 
-import src.chess.piece as chess_piece
-from src.chess.match import MoveTags, Match
-from src.utils.forsyth_edwards_notation import encode_fen_data
-from src.utils.commands import Command
-from src.utils.network import Net
-from src.chess.chess_timer import DefaultConfigs
+import chess.piece as chess_piece
+from chess.match import MoveTags, Match
+from utils.forsyth_edwards_notation import encode_fen_data
+from utils.commands import Command
+from utils.network import Net
+from chess.chess_timer import DefaultConfigs
 
-from src.config import *
+from config import *
 
 '''
 [Errno 48] Address already in use
@@ -19,7 +19,7 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 '''
 
 logging.basicConfig(
-    filename='../log/server.log',
+    filename='../Chess/log/server.log',
     encoding='utf-8',
     level=logging.DEBUG,
     filemode='w',

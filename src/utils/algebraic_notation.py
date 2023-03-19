@@ -1,7 +1,7 @@
 import dataclasses
 import string
 
-from src.config import *
+from config import *
 
 
 @dataclasses.dataclass

@@ -8,6 +8,7 @@ mypy-extensions==0.4.3
 packaging==21.3
 pluggy==1.0.0
 pygame==2.1.2
+-e git+https://github.com/NicolasPP/Chess.git@3fe69e25c5d119defad9f24943bae86e6f10eeab#egg=pygame_chess
 pyparsing==3.0.9
 pytest==7.2.1
 pytest-cov==4.0.0

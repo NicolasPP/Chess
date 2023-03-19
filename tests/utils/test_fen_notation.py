@@ -1,5 +1,5 @@
 import pytest
-import src.utils.forsyth_edwards_notation as notation
+import utils.forsyth_edwards_notation as notation
 
 
 @pytest.mark.parametrize("index,expected", [

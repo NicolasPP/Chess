@@ -1,4 +1,4 @@
-from src.chess.piece import Pieces
+from chess.piece import Pieces
 
 
 def pytest_sessionstart(session):

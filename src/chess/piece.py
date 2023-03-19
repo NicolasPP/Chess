@@ -3,11 +3,11 @@ from __future__ import annotations
 import dataclasses
 import typing
 
-import src.utils.asset as asset_manager
-import src.utils.forsyth_edwards_notation as notation
-import src.chess.piece_movement as movement
+import utils.asset as asset_manager
+import utils.forsyth_edwards_notation as notation
+import chess.piece_movement as movement
 
-from src.config import *
+from config import *
 
 AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, notation.Fen, None | bool], list[int]]
 

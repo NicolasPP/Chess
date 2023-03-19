@@ -1,8 +1,8 @@
 import pytest
 
-from src.utils.forsyth_edwards_notation import Fen, FenChars
-import src.chess.validate_move as validate_move
-import src.chess.piece as chess_piece
+from utils.forsyth_edwards_notation import Fen, FenChars
+import chess.validate_move as validate_move
+import chess.piece as chess_piece
 
 
 def test_check():

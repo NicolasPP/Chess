@@ -7,10 +7,10 @@ import typing
 import pygame
 
 
-from src.utils.algebraic_notation import AlgebraicNotation
-from src.utils.forsyth_edwards_notation import FenChars
-import src.utils.asset as asset_manager
-from src.config import *
+from utils.algebraic_notation import AlgebraicNotation
+from utils.forsyth_edwards_notation import FenChars
+import utils.asset as asset_manager
+from config import *
 
 
 class SIDE(enum.Enum):

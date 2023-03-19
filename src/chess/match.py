@@ -1,13 +1,13 @@
 import enum
 
-import src.chess.board as chess_board
-import src.chess.validate_move as validate_move
+import chess.board as chess_board
+import chess.validate_move as validate_move
 
-from src.utils.algebraic_notation import get_index_from_an
-from src.utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
-from src.chess.chess_timer import TimerConfig
-import src.utils.commands as command_manager
-from src.config import *
+from utils.algebraic_notation import get_index_from_an
+from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
+from chess.chess_timer import TimerConfig
+import utils.commands as command_manager
+from config import *
 
 
 class MoveTags(enum.Enum):

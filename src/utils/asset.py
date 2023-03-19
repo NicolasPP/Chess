@@ -2,7 +2,7 @@ import dataclasses
 import enum
 import pygame
 
-from src.config import *
+from config import *
 
 
 class TYPE(enum.Enum):

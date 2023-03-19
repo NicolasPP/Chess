@@ -1,5 +1,5 @@
-import src.utils.forsyth_edwards_notation as notation
-import src.chess.piece as chess_piece
+import utils.forsyth_edwards_notation as notation
+import chess.piece as chess_piece
 
 
 def is_move_valid(from_index: int, dest_index: int, fen: notation.Fen) -> bool:

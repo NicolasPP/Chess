@@ -1,7 +1,7 @@
 import pygame
 
-import src.chess.board as chess_board
-import src.chess.piece as chess_piece
+import chess.board as chess_board
+import chess.piece as chess_piece
 
 
 class PromotionGui:
