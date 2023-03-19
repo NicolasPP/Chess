@@ -1,5 +1,6 @@
 import random
 import sys
+import time
 
 import pygame
 
@@ -7,7 +8,7 @@ import src.chess.board as chess_board
 from src.chess.match import Match
 from src.chess.player import Player, parse_command_local, STATE
 from src.utils.asset import PieceSetAssets, BoardAssets
-from src.utils.debug import debug
+import src.chess.chess_timer as chess_timer
 from src.config import *
 
 pygame.init()
@@ -15,8 +16,10 @@ window_size = pygame.math.Vector2(WINDOW_SIZE)
 pygame.display.set_mode(window_size)
 done = False
 clock = pygame.time.Clock()
+prev_time = time.time()
+delta_time = 0
 
-match = Match()
+match = Match(chess_timer.DefaultConfigs.RAPID_15_10)
 white_player = Player(
     side=chess_board.SIDE.WHITE,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
@@ -32,6 +35,13 @@ black_player = Player(
 )
 white_player.update_turn(match.fen)
 black_player.update_turn(match.fen)
+
+
+def set_delta_time():
+    global prev_time, delta_time
+    now = time.time()
+    delta_time = now - prev_time
+    prev_time = now
 
 
 def update_window_caption(*players: Player) -> None:
@@ -59,6 +69,8 @@ is_white = True
 
 while not done:
 
+    set_delta_time()
+
     fps = round(clock.get_fps())
 
     current_player = white_player if is_white else black_player
@@ -79,9 +91,6 @@ while not done:
     parse_command_local(match.fen, white_player, black_player)
 
     current_player.render(bg_color)
-
-    debug(fps, bg_color, font_color)
-
     pygame.display.flip()
 
     clock.tick()

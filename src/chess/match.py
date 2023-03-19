@@ -5,6 +5,7 @@ import src.chess.validate_move as validate_move
 
 from src.utils.algebraic_notation import get_index_from_an
 from src.utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
+from src.chess.chess_timer import TimerConfig
 import src.utils.commands as command_manager
 from src.config import *
 
@@ -18,12 +19,13 @@ class MoveTags(enum.Enum):
 
 
 class Match:
-    def __init__(self):
+    def __init__(self, timer_config: TimerConfig):
         self.fen: Fen = Fen()
         self.moves: list[str] = []
         self.captured_pieces: str = ''
         self.commands: list[command_manager.Command] = []
         self.update_fen: bool = False
+        self.timer_config = timer_config
         command_manager.send_to(
             command_manager.PLAYER,
             command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
@@ -39,6 +41,8 @@ class Match:
         for tag in move_tags:
             commands.extend(self.process_tag(tag))
 
+        commands.extend(self.process_match_state(commands))
+
         list(map(lambda cmd: command_manager.send_to(command_manager.PLAYER, cmd), commands))
 
     def process_move(self, command_info: str) -> list[MoveTags]:
@@ -52,7 +56,6 @@ class Match:
 
         self.fen.make_move(from_index, dest_index, target_fen)
         self.moves.append(command_info)
-
         return self.get_move_tags(before_move_fen, from_index, dest_index)
 
     def get_move_tags(self, before_move_fen: Fen, from_index: int, dest_index: int) -> list[MoveTags]:
@@ -102,8 +105,30 @@ class Match:
                 )
                 ext_commands.append(update_captured_pieces)
             case _:
-                assert False, "INVALID MATCH.MOVE_TYPE"
+                assert False, "INVALID MATCH.MOVE_TAG"
         return ext_commands
+
+    def process_match_state(self, commands: list[command_manager.Command]) -> list[command_manager.Command]:
+        # -- WIN / LOOSE --
+
+        # Checkmate
+        if command_manager.COMMANDS.END_GAME in commands: return []
+
+        # Resignation
+        # Timeout
+
+        # -- DRAW --
+        # Stalemate
+        # Insufficient Material
+
+        # 50 move-rule
+        if int(self.fen.data.half_move_clock) >= HALF_MOVE_LIMIT:
+            return [command_manager.get(command_manager.COMMANDS.END_GAME)]
+
+        # Repetition
+        # Agreement
+
+        return []
 
 
 def is_command_destination_valid(cmd_dest: str, is_white: bool) -> bool:

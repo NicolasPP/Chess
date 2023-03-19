@@ -39,6 +39,7 @@ class Fen:
         self._notation: str = fen_notation
         self.data: FenData = decode_fen_notation(fen_notation)
         self.expanded: list[str] = self.get_expanded()
+        self.first_move = False
 
     def __getitem__(self, index: int) -> str:
         if index < 0: raise IndexError("no negative index")
@@ -128,9 +129,7 @@ class Fen:
         return half_move_clock
 
     def get_full_move_number(self) -> str:
-        if self.is_white_turn() and \
-                self.data.full_move_number == '1':
-            return self.data.full_move_number
+        if not self.first_move: return self.data.full_move_number
         full_move_number = str(int(self.data.full_move_number) + 1)
         validate_fen_full_move_number(full_move_number)
         return full_move_number
@@ -176,6 +175,8 @@ class Fen:
         return packed
 
     def make_move(self, from_index: int, dest_index: int, target_fen: str) -> None:
+        if not self.first_move: self.first_move = True
+
         from_piece_val = self[from_index]
         dest_piece_val = self[dest_index]
 
