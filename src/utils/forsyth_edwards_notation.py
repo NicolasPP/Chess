@@ -175,8 +175,6 @@ class Fen:
         return packed
 
     def make_move(self, from_index: int, dest_index: int, target_fen: str) -> None:
-        if not self.first_move: self.first_move = True
-
         from_piece_val = self[from_index]
         dest_piece_val = self[dest_index]
 
@@ -189,6 +187,8 @@ class Fen:
             self.make_regular_move(from_index, dest_index, target_fen)
 
         self.update_fen_data(from_index, dest_index, from_piece_val, dest_piece_val)
+
+        if not self.first_move: self.first_move = True
 
     def make_en_passant_move(self, from_index: int, dest_index: int, en_passant_index: int) -> None:
         self.make_regular_move(from_index, dest_index, self[from_index])
