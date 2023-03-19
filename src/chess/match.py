@@ -5,7 +5,7 @@ import src.chess.validate_move as validate_move
 
 from src.utils.algebraic_notation import get_index_from_an
 from src.utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
-from src.chess.chess_timer import ChessTimer
+from src.chess.chess_timer import TimerConfig
 import src.utils.commands as command_manager
 from src.config import *
 
@@ -19,13 +19,13 @@ class MoveTags(enum.Enum):
 
 
 class Match:
-    def __init__(self):
+    def __init__(self, timer_config: TimerConfig):
         self.fen: Fen = Fen()
         self.moves: list[str] = []
         self.captured_pieces: str = ''
         self.commands: list[command_manager.Command] = []
         self.update_fen: bool = False
-        self.chess_timer: ChessTimer = ChessTimer()
+        self.timer_config = timer_config
         command_manager.send_to(
             command_manager.PLAYER,
             command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
@@ -40,6 +40,8 @@ class Match:
 
         for tag in move_tags:
             commands.extend(self.process_tag(tag))
+
+        commands.extend(self.process_match_state(commands))
 
         list(map(lambda cmd: command_manager.send_to(command_manager.PLAYER, cmd), commands))
 
@@ -113,10 +115,7 @@ class Match:
         if command_manager.COMMANDS.END_GAME in commands: return []
 
         # Resignation
-
         # Timeout
-        if self.chess_timer.is_time_over(self.fen):
-            return [command_manager.get(command_manager.COMMANDS.END_GAME)]
 
         # -- DRAW --
         # Stalemate
