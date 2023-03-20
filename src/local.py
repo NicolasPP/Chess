@@ -4,12 +4,12 @@ import time
 
 import pygame
 
-import src.chess.board as chess_board
-from src.chess.match import Match
-from src.chess.player import Player, parse_command_local, STATE
-from src.utils.asset import PieceSetAssets, BoardAssets
-import src.chess.chess_timer as chess_timer
-from src.config import *
+import chess.board as chess_board
+from chess.match import Match
+from chess.player import Player, parse_command_local, STATE
+from utils.asset import PieceSetAssets, BoardAssets
+import chess.chess_timer as chess_timer
+from config import *
 
 pygame.init()
 window_size = pygame.math.Vector2(WINDOW_SIZE)
