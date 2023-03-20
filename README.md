@@ -1,6 +1,6 @@
 # Chess
 Chess in pygame\
-requires python 3.10
+Requires python 3.10+
 
 # Features
 - Local : 
