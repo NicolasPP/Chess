@@ -17,7 +17,7 @@ pygame.display.set_mode(window_size)
 done = False
 clock = pygame.time.Clock()
 prev_time = time.time()
-delta_time = 0
+delta_time: float = 0
 
 match = Match(chess_timer.DefaultConfigs.RAPID_15_10)
 white_player = Player(
@@ -37,7 +37,7 @@ white_player.update_turn(match.fen)
 black_player.update_turn(match.fen)
 
 
-def set_delta_time():
+def set_delta_time() -> None:
     global prev_time, delta_time
     now = time.time()
     delta_time = now - prev_time
