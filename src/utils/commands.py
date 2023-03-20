@@ -6,7 +6,7 @@ from config import *
 
 
 class COMMANDS(enum.Enum):
-    UPDATE_FEN: str = 'update_pos'
+    UPDATE_FEN: str = 'update_fen'
     END_GAME: str = 'end_game'
     MOVE: str = 'move'
     INVALID_MOVE: str = 'invalid_move'

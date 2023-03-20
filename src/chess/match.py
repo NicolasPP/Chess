@@ -85,16 +85,16 @@ class Match:
         ext_commands = []
         match tag:
             case MoveTags.CHECK:
-                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
-                ext_commands.append(update_pos_command)
+                update_fen_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
+                ext_commands.append(update_fen_command)
             case MoveTags.CHECKMATE:
                 end_game_command = command_manager.get(command_manager.COMMANDS.END_GAME)
-                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
+                update_fen_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
                 ext_commands.append(end_game_command)
-                ext_commands.append(update_pos_command)
+                ext_commands.append(update_fen_command)
             case MoveTags.REGULAR:
-                update_pos_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
-                ext_commands.append(update_pos_command)
+                update_fen_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
+                ext_commands.append(update_fen_command)
             case MoveTags.INVALID:
                 invalid_move_command = command_manager.get(command_manager.COMMANDS.INVALID_MOVE)
                 ext_commands.append(invalid_move_command)
