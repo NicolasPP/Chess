@@ -13,18 +13,18 @@ requires python 3.10
 Local :
 - start local game
 ```
-- python local.py
+- python src/local.py
 ```
 Network :
 - start the server
 ```
-python server.py	// default ip address = 127.0.0.1
-python server.py --ip	// specified ip adress
+python src/server.py	// default ip address = 127.0.0.1
+python src/server.py --ip	// specified ip adress
 ```
 - start the client
 ```
-python client.py		// default ip address = 127.0.0.1
-python client.py --server_ip	// specified server ip address
+python src/client.py		// default ip address = 127.0.0.1
+python src/client.py --server_ip	// specified server ip address
 ```
 
 # Resources
