@@ -49,14 +49,14 @@ class Player:
             self,
             event: pygame.event.Event,
             fen: Fen,
-            network: network_manager.Network | None = None,
+            network: network_manager.ChessNetwork | None = None,
             local: bool = False) -> None:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSECLICK.LEFT.value: self.handle_mouse_down_left(network, local)
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == MOUSECLICK.LEFT.value: self.handle_left_mouse_up(network, local, fen)
 
-    def handle_left_mouse_up(self, network: network_manager.Network | None, local: bool, fen: Fen) -> None:
+    def handle_left_mouse_up(self, network: network_manager.ChessNetwork | None, local: bool, fen: Fen) -> None:
         if self.state is not STATE.DROP_PIECE: return
 
         dest_board_square = self.board.get_collided_board_square()
@@ -95,7 +95,7 @@ class Player:
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
 
-    def handle_mouse_down_left(self, network: network_manager.Network | None, local: bool) -> None:
+    def handle_mouse_down_left(self, network: network_manager.ChessNetwork | None, local: bool) -> None:
         if self.state is STATE.DROP_PIECE: return
         if self.state is STATE.PICK_PROMOTION:
             self.handle_pick_promotion(local, network)
@@ -106,7 +106,7 @@ class Player:
             self.board.set_picked_up(board_square)
             self.state = STATE.DROP_PIECE
 
-    def handle_pick_promotion(self, local: bool, network: network_manager.Network | None) -> None:
+    def handle_pick_promotion(self, local: bool, network: network_manager.ChessNetwork | None) -> None:
         for surface, rect, val in self.promotion_gui.promotion_pieces:
             if not rect.collidepoint(pygame.mouse.get_pos()): continue
             from_board_square = self.board.get_picked_up()
@@ -255,7 +255,7 @@ def is_pawn_promotion(from_board_square: chess_board.BoardSquare,
     return True
 
 
-def send_move(local: bool, network: network_manager.Network | None, move: command_manager.Command) -> None:
+def send_move(local: bool, network: network_manager.ChessNetwork | None, move: command_manager.Command) -> None:
     if local:
         command_manager.send_to(command_manager.MATCH, move)
     else:
