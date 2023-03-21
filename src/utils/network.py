@@ -31,7 +31,8 @@ class ChessNetwork(Net):
             print(f'error connecting : {e}')
             return None
         init_data = self.read().split(C_SPLIT)
-        if not is_init_data_valid(init_data): return None
+        if not is_init_data_valid(init_data):
+            raise Exception("initial data corrupted, try connecting again")
         self.id = int(init_data[0])
         return ClientInitInfo(*init_data)
 

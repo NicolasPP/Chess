@@ -97,8 +97,6 @@ def run_main_loop(server_ip: str) -> None:
     network = ChessNetwork(server_ip)
     init_info: ClientInitInfo = network.connect()
 
-    if init_info is None: return
-
     match_fen = Fen(init_info.fen_str)
     player = get_player(network)
     player.update_turn(match_fen)
