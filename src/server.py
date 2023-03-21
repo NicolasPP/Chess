@@ -47,7 +47,6 @@ class Server(Net):
             self.socket.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
             self.socket.bind(self.address)
         except skt.error as e:
-            logging.debug(f"error binding : {e}")
             logging.debug("error binding : %s", e)
 
         self.socket.listen()
@@ -98,9 +97,12 @@ def client_listener(client_socket: skt.socket, server: Server):
             if not data: break
             commands = []
             move_info = data.decode('utf-8')
+
             print(f"client : {p_id}, sent move {move_info} to server")
             logging.debug("client : %s, sent move %s to server", p_id, move_info)
+
             move_tags: list[MoveTags] = server.match.process_move(move_info)
+
             print(f"move tags : ", *list(map(lambda m_tag: m_tag.name, move_tags)), sep=' ')
             logging.debug("move tags : %s", str(move_tags))
 
@@ -113,6 +115,7 @@ def client_listener(client_socket: skt.socket, server: Server):
             server.match.commands = commands
 
         server.client_sockets.remove(client_socket)
+
         print(f'client : {p_id}  disconnected')
         logging.info("client : %s  disconnected", p_id)
 
@@ -120,10 +123,6 @@ def client_listener(client_socket: skt.socket, server: Server):
 @click.command()
 @click.option('--ip', default='', help='set ip address of server, default = 127.0.0.1')
 def start_server(ip: str) -> None:
-    if ip:
-        print(f'server started at {ip}')
-    else:
-        print('online server started !')
     Server(ip).run()
 
 
