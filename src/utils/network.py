@@ -6,7 +6,6 @@ from config import *
 
 
 class ClientInitInfo(typing.NamedTuple):
-    client_id: str
     fen_str: str
     time_left: str
 
@@ -33,7 +32,7 @@ class ChessNetwork(Net):
         init_data = self.read().split(C_SPLIT)
         if not is_init_data_valid(init_data):
             raise Exception("initial data corrupted, try connecting again")
-        self.id = int(init_data[0])
+        self.id = int(init_data.pop(0))
         return ClientInitInfo(*init_data)
 
     def read(self) -> str:
