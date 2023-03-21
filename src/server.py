@@ -5,6 +5,7 @@ import socket as skt
 import click
 
 import chess.piece as chess_piece
+from chess.board import SIDE
 from chess.match import MoveTags, Match
 from utils.forsyth_edwards_notation import encode_fen_data
 import utils.commands as command_manager
@@ -71,10 +72,12 @@ class Server(Net):
 
     def client_init(self, client_socket: skt.socket) -> str:
         client_id = self.get_id()
+        side_name = SIDE.WHITE.name if int(client_id) % 2 == 0 else SIDE.BLACK.name
         data = C_SPLIT.join([
-            str(client_id),
+            side_name,
             encode_fen_data(self.match.fen.data),
-            str(self.match.timer_config.time)])
+            str(self.match.timer_config.time)
+        ])
         client_socket.send(str.encode(data))
         return client_id
 
