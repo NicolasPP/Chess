@@ -1,11 +1,13 @@
 import socket as skt
 import typing
+from chess.board import SIDE
 from utils.forsyth_edwards_notation import FenData, validate_fen_data
 
 from config import *
 
 
 class ClientInitInfo(typing.NamedTuple):
+    side: str
     fen_str: str
     time_left: str
 
@@ -21,7 +23,6 @@ class Net:
 class ChessNetwork(Net):
     def __init__(self, server_ip: str):
         super().__init__(server_ip)
-        self.id: int = -1
 
     def connect(self) -> ClientInitInfo | None:
         try:
@@ -32,7 +33,6 @@ class ChessNetwork(Net):
         init_data = self.read().split(C_SPLIT)
         if not is_init_data_valid(init_data):
             raise Exception("initial data corrupted, try connecting again")
-        self.id = int(init_data.pop(0))
         return ClientInitInfo(*init_data)
 
     def read(self) -> str:
@@ -41,11 +41,15 @@ class ChessNetwork(Net):
 
 def is_init_data_valid(init_data: list[str]) -> bool:
     if len(init_data) != 3: return False
-    client_id, fen_str, time_left = init_data
-    if not client_id.isnumeric(): return False
+    side, fen_str, time_left = init_data
+    if side != SIDE.WHITE.name and side != SIDE.BLACK.name: return False
     if not time_left.isnumeric(): return False
     data = fen_str.split()
     if len(data) != 6: return False
     fen_data = FenData(*data)
-    if not validate_fen_data(fen_data): return False
-    return True
+
+    is_valid = False
+    try:
+        is_valid = validate_fen_data(fen_data)
+    finally:
+        return is_valid
