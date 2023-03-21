@@ -7,7 +7,7 @@ import click
 import chess.piece as chess_piece
 from chess.match import MoveTags, Match
 from utils.forsyth_edwards_notation import encode_fen_data
-from utils.commands import Command
+import utils.commands as command_manager
 from utils.network import Net
 from chess.chess_timer import DefaultConfigs
 
@@ -28,6 +28,12 @@ logging.basicConfig(
 
 
 class Server(Net):
+
+    @staticmethod
+    def send_all(connections: list[skt.socket], data: str) -> None:
+        for client_socket in connections:
+            client_socket.send(str.encode(data))
+
     def __init__(self, server_ip: str):
         super().__init__(server_ip)
         self.client_id: int = -1
@@ -64,22 +70,22 @@ class Server(Net):
         self.client_id += 1
         return str(self.client_id)
 
-    def send_all_clients(self, data: str):
-        for client_socket in self.client_sockets:
-            client_socket.send(str.encode(data))
-
     def client_init(self, client_socket: skt.socket) -> str:
         client_id = self.get_id()
-        client_socket.send(str.encode(client_id))
-        client_socket.send(str.encode(encode_fen_data(self.match.fen.data)))
+        data = C_SPLIT.join([
+            str(client_id),
+            encode_fen_data(self.match.fen.data),
+            str(self.match.timer_config.time)])
+        client_socket.send(str.encode(data))
         return client_id
 
 
 def game_logic(server: Server):
     while True:
         if server.match.update_fen:
-            server.match.commands.append(Command(END_MARKER))
-            server.send_all_clients(C_SPLIT.join(list(map(lambda cmd: cmd.info, server.match.commands))))
+            server.match.commands.append(command_manager.Command(END_MARKER))
+            data: str = C_SPLIT.join(list(map(lambda cmd: cmd.info, server.match.commands)))
+            Server.send_all(server.client_sockets, data)
             server.match.update_fen = False
             server.match.commands = []
 

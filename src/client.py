@@ -12,7 +12,7 @@ from utils.forsyth_edwards_notation import Fen
 from utils.commands import split_command_info
 from utils.asset import PieceSetAssets, BoardAssets
 from utils.debug import debug
-from utils.network import Network
+from utils.network import ChessNetwork, ClientInitInfo
 import chess.board as chess_board
 
 from config import *
@@ -65,7 +65,7 @@ def update_window_caption(player: Player) -> None:
         pygame.display.set_caption(player.get_window_title())
 
 
-def get_player(network: Network) -> Player:
+def get_player(network: ChessNetwork) -> Player:
     side = chess_board.SIDE.WHITE if network.id % 2 == 0 else chess_board.SIDE.BLACK
     player = Player(
         side=side,
@@ -93,9 +93,13 @@ def run_main_loop(server_ip: str) -> None:
     pygame.display.set_mode(window_size)
 
     clock = pygame.time.Clock()
-    network = Network(server_ip)
-    game_state = network.read()
-    match_fen = Fen(game_state)
+
+    network = ChessNetwork(server_ip)
+    init_info: ClientInitInfo = network.connect()
+
+    if init_info is None: return
+
+    match_fen = Fen(init_info.fen_str)
     player = get_player(network)
     player.update_turn(match_fen)
     bg_color, font_color = get_colors(player)
