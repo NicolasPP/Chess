@@ -65,8 +65,8 @@ def update_window_caption(player: Player) -> None:
         pygame.display.set_caption(player.get_window_title())
 
 
-def get_player(network: ChessNetwork) -> Player:
-    side = chess_board.SIDE.WHITE if network.id % 2 == 0 else chess_board.SIDE.BLACK
+def get_player(side_name: str) -> Player:
+    side = chess_board.SIDE.WHITE if side_name == chess_board.SIDE.WHITE.name else chess_board.SIDE.BLACK
     player = Player(
         side=side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
@@ -88,25 +88,23 @@ def get_colors(player: Player) -> tuple[str, str]:
 
 def run_main_loop(server_ip: str) -> None:
     pygame.init()
-
     window_size = pygame.math.Vector2(WINDOW_SIZE)
     pygame.display.set_mode(window_size)
-
     clock = pygame.time.Clock()
 
     network = ChessNetwork(server_ip)
     init_info: ClientInitInfo = network.connect()
 
     match_fen = Fen(init_info.fen_str)
-    player = get_player(network)
-    player.update_turn(match_fen)
+    player = get_player(init_info.side)
+
     bg_color, font_color = get_colors(player)
-
-    thread.start_new_thread(server_listener, (player, network.socket, match_fen))
-
     center_board(player, window_size)
+
+    player.update_turn(match_fen)
     player.update_pieces_location(match_fen)
 
+    thread.start_new_thread(server_listener, (player, network.socket, match_fen))
     done = False
     while not done:
 
