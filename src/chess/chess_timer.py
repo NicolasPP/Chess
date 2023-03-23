@@ -1,5 +1,4 @@
 import dataclasses
-from utils.forsyth_edwards_notation import Fen
 
 
 @dataclasses.dataclass
