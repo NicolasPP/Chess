@@ -9,11 +9,9 @@ import click
 import pygame
 
 from chess.player import parse_command, Player
-from chess.chess_timer import ChessTimer
 from utils.forsyth_edwards_notation import Fen
 from utils.commands import split_command_info
 from utils.asset import PieceSetAssets, BoardAssets
-from utils.debug import debug
 from utils.network import ChessNetwork, ClientInitInfo
 import chess.board as chess_board
 
@@ -130,8 +128,6 @@ def run_main_loop(server_ip: str) -> None:
         player.render(bg_color)
         player.update(delta_time)
 
-        debug(ChessTimer.format_seconds(player.timer.time_left))
-        debug(ChessTimer.format_seconds(player.opponent_timer.time_left), x=200)
         pygame.display.flip()
 
     pygame.quit()
