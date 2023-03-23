@@ -140,10 +140,14 @@ class Match:
 
         # Resignation
         # Timeout
+        if self.white_time_left <= 0 or self.black_time_left <= 0:
+            return [command_manager.get(command_manager.COMMANDS.END_GAME)]
 
         # -- DRAW --
         # Stalemate
         # Insufficient Material
+        if self.fen.is_material_insufficient():
+            return [command_manager.get(command_manager.COMMANDS.END_GAME)]
 
         # 50 move-rule
         if int(self.fen.data.half_move_clock) >= HALF_MOVE_LIMIT:
