@@ -15,7 +15,7 @@ class CapturedGui:
             board_rect: pygame.rect.Rect,
             bg_color: str,
             base_scale_factor: float,
-            scale_factor: float = 3 / 5
+            scale_factor: float = 1 / 3
     ):
         self.base_scale_factor = base_scale_factor
         self.scale_factor = scale_factor
