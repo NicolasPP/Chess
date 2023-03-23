@@ -33,7 +33,8 @@ class ChessTimer:
         if len(seconds) == 1: seconds.append("0")
         minutes = int(div)
         secs, m_secs = seconds
-        return f"{minutes} : {secs} : {m_secs}"
+        if secs == "0": secs += "0"
+        return f"{minutes}:{secs}"
 
     def __init__(self, seconds: float):
         self.time_left: float = seconds
