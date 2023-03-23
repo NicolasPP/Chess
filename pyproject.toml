@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-addopts = "--cov-report html --cov=src/chess --cov=src/utils"
+addopts = "--cov-report html --cov=chess --cov=utils"
 testpaths = [
     "tests",
 ]
