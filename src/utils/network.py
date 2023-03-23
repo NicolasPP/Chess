@@ -24,12 +24,12 @@ class ChessNetwork(Net):
     def __init__(self, server_ip: str):
         super().__init__(server_ip)
 
-    def connect(self) -> ClientInitInfo | None:
+    def connect(self) -> ClientInitInfo:
         try:
             self.socket.connect(self.address)
         except skt.error as e:
             print(f'error connecting : {e}')
-            return None
+            raise Exception("error connecting")
         init_data = self.read().split(C_SPLIT)
         if not is_init_data_valid(init_data):
             raise Exception("initial data corrupted, try connecting again")
