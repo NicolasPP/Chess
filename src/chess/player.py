@@ -16,6 +16,7 @@ from gui.captured_gui import CapturedGui
 
 from config import I_SPLIT
 
+
 class MOUSECLICK(enum.Enum):
     LEFT: int = 1
     MIDDLE: int = 2
@@ -49,6 +50,7 @@ class Player:
                                         'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
         self.timer = ChessTimer(time_left)
+        self.opponent_timer = ChessTimer(time_left)
 
     def parse_input(
             self,
@@ -139,6 +141,7 @@ class Player:
 
     def update(self, delta_time: float) -> None:
         self.timer.tick(delta_time)
+        self.opponent_timer.tick(delta_time)
 
     def render(self, bg_color) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
@@ -211,13 +214,17 @@ class Player:
 
         if match_fen.data.active_color == current_active_color:
             self.timer.start()
+            self.opponent_timer.stop()
         else:
             self.timer.stop()
+            self.opponent_timer.start()
 
         if self.side == chess_board.SIDE.WHITE:
             self.timer.set_time_left(white_time_left)
+            self.opponent_timer.set_time_left(black_time_left)
         else:
             self.timer.set_time_left(black_time_left)
+            self.opponent_timer.set_time_left(white_time_left)
 
     def set_require_render(self, is_render_required: bool) -> None:
         self.is_render_required = is_render_required

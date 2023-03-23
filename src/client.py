@@ -131,6 +131,7 @@ def run_main_loop(server_ip: str) -> None:
         player.update(delta_time)
 
         debug(ChessTimer.format_seconds(player.timer.time_left))
+        debug(ChessTimer.format_seconds(player.opponent_timer.time_left), x=200)
         pygame.display.flip()
 
     pygame.quit()

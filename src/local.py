@@ -101,6 +101,7 @@ while not done:
     current_player.update(delta_time)
 
     debug(chess_timer.ChessTimer.format_seconds(current_player.timer.time_left))
+    debug(chess_timer.ChessTimer.format_seconds(current_player.opponent_timer.time_left), x=200)
 
     pygame.display.flip()
 
