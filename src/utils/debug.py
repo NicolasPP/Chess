@@ -1,7 +1,8 @@
 import pygame
+from config import FONT_FILE
 
 pygame.font.init()
-font = pygame.font.Font(None, 30)
+font = pygame.font.Font(FONT_FILE, 25)
 
 
 def debug(info, bg_color='white', font_color='black', y=10, x=10):
