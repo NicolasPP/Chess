@@ -48,15 +48,21 @@ def get(command: COMMANDS, *args) -> Command:
 
 
 def split_command_info(command_info: str) -> list[str]:
-    return command_info.split(I_SPLIT)
+    return command_info.split(I_SPLIT, 1)
 
 
-def get_move(from_coordinates: str, dest_coordinates: str, player_side: str, target_fen: str) -> Command:
-    return Command(I_SPLIT.join([from_coordinates, dest_coordinates, player_side, target_fen]))
+def get_move(
+        from_coordinates: str,
+        dest_coordinates: str,
+        player_side: str,
+        target_fen: str,
+        move_time_iso: str
+) -> Command:
+    return Command(I_SPLIT.join([from_coordinates, dest_coordinates, player_side, target_fen, move_time_iso]))
 
 
-def get_update_fen(fen_notation: str) -> Command:
-    return Command(I_SPLIT.join([COMMANDS.UPDATE_FEN.value, fen_notation]))
+def get_update_fen(fen_notation: str, white_time_left: float, black_time_left: float) -> Command:
+    return Command(I_SPLIT.join([COMMANDS.UPDATE_FEN.value, fen_notation, str(white_time_left), str(black_time_left)]))
 
 
 def get_end_game() -> Command:
