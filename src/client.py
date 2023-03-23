@@ -3,11 +3,13 @@ import logging
 import random
 import socket as skt
 import sys
+import time
 
 import click
 import pygame
 
 from chess.player import parse_command, Player
+from chess.chess_timer import ChessTimer
 from utils.forsyth_edwards_notation import Fen
 from utils.commands import split_command_info
 from utils.asset import PieceSetAssets, BoardAssets
@@ -24,6 +26,9 @@ logging.basicConfig(
     filemode='w',
     format='%(asctime)s\t%(levelname)s\t%(message)s'
 )
+
+prev_time = time.time()
+delta_time: float = 0
 
 
 def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -> None:
@@ -65,13 +70,15 @@ def update_window_caption(player: Player) -> None:
         pygame.display.set_caption(player.get_window_title())
 
 
-def get_player(side_name: str) -> Player:
-    side = chess_board.SIDE.WHITE if side_name == chess_board.SIDE.WHITE.name else chess_board.SIDE.BLACK
+def get_player(init_info: ClientInitInfo) -> Player:
+    side = chess_board.SIDE.WHITE if init_info.side == chess_board.SIDE.WHITE.name else chess_board.SIDE.BLACK
     player = Player(
         side=side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
         board_asset=random.choice(list(BoardAssets)),
-        scale=BOARD_SCALE)
+        scale=BOARD_SCALE,
+        time_left=float(init_info.time_left)
+    )
     return player
 
 
@@ -86,17 +93,23 @@ def get_colors(player: Player) -> tuple[str, str]:
     return bg_color, font_color
 
 
+def set_delta_time() -> None:
+    global prev_time, delta_time
+    now = time.time()
+    delta_time = now - prev_time
+    prev_time = now
+
+
 def run_main_loop(server_ip: str) -> None:
     pygame.init()
     window_size = pygame.math.Vector2(WINDOW_SIZE)
     pygame.display.set_mode(window_size)
-    clock = pygame.time.Clock()
 
     network = ChessNetwork(server_ip)
     init_info: ClientInitInfo = network.connect()
 
+    player = get_player(init_info)
     match_fen = Fen(init_info.fen_str)
-    player = get_player(init_info.side)
 
     bg_color, font_color = get_colors(player)
     center_board(player, window_size)
@@ -107,8 +120,7 @@ def run_main_loop(server_ip: str) -> None:
     thread.start_new_thread(server_listener, (player, network.socket, match_fen))
     done = False
     while not done:
-
-        fps = round(clock.get_fps())
+        set_delta_time()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: done = True
@@ -116,10 +128,10 @@ def run_main_loop(server_ip: str) -> None:
 
         update_window_caption(player)
         player.render(bg_color)
+        player.update(delta_time)
 
-        debug(fps, bg_color, font_color)
+        debug(ChessTimer.format_seconds(player.timer.time_left))
         pygame.display.flip()
-        clock.tick()
 
     pygame.quit()
     sys.exit()

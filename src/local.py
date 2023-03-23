@@ -8,6 +8,7 @@ import chess.board as chess_board
 from chess.match import Match
 from chess.player import Player, parse_command_local, STATE
 from utils.asset import PieceSetAssets, BoardAssets
+from utils.debug import debug
 import chess.chess_timer as chess_timer
 from config import *
 
@@ -24,17 +25,23 @@ white_player = Player(
     side=chess_board.SIDE.WHITE,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
     board_asset=random.choice(list(BoardAssets)),
-    scale=BOARD_SCALE
+    scale=BOARD_SCALE,
+    time_left=match.timer_config.time
 )
 
 black_player = Player(
     side=chess_board.SIDE.BLACK,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
     board_asset=random.choice(list(BoardAssets)),
-    scale=BOARD_SCALE
+    scale=BOARD_SCALE,
+    time_left=match.timer_config.time
 )
+
 white_player.update_turn(match.fen)
 black_player.update_turn(match.fen)
+
+white_player.update_pieces_location(match.fen)
+black_player.update_pieces_location(match.fen)
 
 
 def set_delta_time() -> None:
@@ -91,6 +98,10 @@ while not done:
     parse_command_local(match.fen, white_player, black_player)
 
     current_player.render(bg_color)
+    current_player.update(delta_time)
+
+    debug(chess_timer.ChessTimer.format_seconds(current_player.timer.time_left))
+
     pygame.display.flip()
 
     clock.tick()
