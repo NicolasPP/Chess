@@ -1,11 +1,12 @@
 import enum
+import datetime
 
 import chess.board as chess_board
 import chess.validate_move as validate_move
 
 from utils.algebraic_notation import get_index_from_an
 from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
-from chess.chess_timer import TimerConfig
+from chess.chess_timer import TimerConfig, ChessTimer
 import utils.commands as command_manager
 from config import *
 
@@ -26,10 +27,9 @@ class Match:
         self.commands: list[command_manager.Command] = []
         self.update_fen: bool = False
         self.timer_config = timer_config
-        command_manager.send_to(
-            command_manager.PLAYER,
-            command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
-        )
+        self.prev_time: datetime.datetime | None = None
+        self.white_time_left: float = timer_config.time
+        self.black_time_left: float = timer_config.time
 
     def process_local_move(self) -> None:
         command = command_manager.read_from(command_manager.MATCH)
@@ -46,7 +46,7 @@ class Match:
         list(map(lambda cmd: command_manager.send_to(command_manager.PLAYER, cmd), commands))
 
     def process_move(self, command_info: str) -> list[MoveTags]:
-        fc, dc, cmd_dest, target_fen = command_info.split(I_SPLIT)
+        fc, dc, cmd_dest, target_fen, move_time = command_info.split(I_SPLIT)
         from_index, dest_index = get_index_from_an(*fc), get_index_from_an(*dc)
         before_move_fen = Fen(encode_fen_data(self.fen.data))
 
@@ -54,6 +54,15 @@ class Match:
                 or not validate_move.is_move_valid(from_index, dest_index, self.fen):
             return [MoveTags.INVALID]
 
+        time = datetime.datetime.fromisoformat(move_time)
+        if self.prev_time is not None:
+            diff = time - self.prev_time
+            if self.fen.data.active_color == FenChars.WHITE_ACTIVE_COLOR.value:
+                self.white_time_left -= diff.total_seconds()
+            else:
+                self.black_time_left -= diff.total_seconds()
+
+        self.prev_time = time
         self.fen.make_move(from_index, dest_index, target_fen)
         self.moves.append(command_info)
         return self.get_move_tags(before_move_fen, from_index, dest_index)
@@ -85,15 +94,30 @@ class Match:
         ext_commands = []
         match tag:
             case MoveTags.CHECK:
-                update_fen_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
+                update_fen_command = command_manager.get(
+                    command_manager.COMMANDS.UPDATE_FEN,
+                    self.fen.notation,
+                    self.white_time_left,
+                    self.black_time_left
+                )
                 ext_commands.append(update_fen_command)
             case MoveTags.CHECKMATE:
                 end_game_command = command_manager.get(command_manager.COMMANDS.END_GAME)
-                update_fen_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
+                update_fen_command = command_manager.get(
+                    command_manager.COMMANDS.UPDATE_FEN,
+                    self.fen.notation,
+                    self.white_time_left,
+                    self.black_time_left
+                )
                 ext_commands.append(end_game_command)
                 ext_commands.append(update_fen_command)
             case MoveTags.REGULAR:
-                update_fen_command = command_manager.get(command_manager.COMMANDS.UPDATE_FEN, self.fen.notation)
+                update_fen_command = command_manager.get(
+                    command_manager.COMMANDS.UPDATE_FEN,
+                    self.fen.notation,
+                    self.white_time_left,
+                    self.black_time_left
+                )
                 ext_commands.append(update_fen_command)
             case MoveTags.INVALID:
                 invalid_move_command = command_manager.get(command_manager.COMMANDS.INVALID_MOVE)
