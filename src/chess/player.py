@@ -5,9 +5,9 @@ import pygame
 
 import chess.board as chess_board
 import chess.piece as chess_piece
-from chess.chess_timer import ChessTimer
 from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
+from gui.timer_gui import TimerGui
 import utils.commands as command_manager
 import utils.network as network_manager
 
@@ -48,9 +48,8 @@ class Player:
         self.promotion_gui = PromotionGui(self.side, self.board.sprite.surface.get_rect())
         self.captured_gui = CapturedGui('', self.board.pos_rect,
                                         'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
+        self.timer_gui = TimerGui(time_left)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
-        self.timer = ChessTimer(time_left)
-        self.opponent_timer = ChessTimer(time_left)
 
     def parse_input(
             self,
@@ -140,22 +139,22 @@ class Player:
             self.is_render_required = True
 
     def update(self, delta_time: float) -> None:
-        self.timer.tick(delta_time)
-        self.opponent_timer.tick(delta_time)
+        self.timer_gui.tick(delta_time)
 
     def render(self, bg_color) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
             pygame.display.get_surface().fill(bg_color)
             self.captured_gui.render(self.side)
             self.render_board()
-            self.render_pieces()
         if self.state is STATE.PICK_PROMOTION:
             self.promotion_gui.render()
         self.is_render_required = False
+        self.timer_gui.render()
 
     def render_board(self) -> None:
         pygame.display.get_surface().blit(self.board.sprite.surface, self.board.pos_rect)
         if self.state is STATE.DROP_PIECE: self.show_available_moves()
+        self.render_pieces()
 
     def render_pieces(self) -> None:
         def render_board_square(bs: chess_board.BoardSquare,
@@ -208,24 +207,6 @@ class Player:
             else:
                 self.turn = False
 
-    def update_timer(self, match_fen: Fen, white_time_left: float, black_time_left: float) -> None:
-        current_active_color = FenChars.WHITE_ACTIVE_COLOR.value \
-            if self.side == chess_board.SIDE.WHITE else FenChars.BLACK_ACTIVE_COLOR.value
-
-        if match_fen.data.active_color == current_active_color:
-            self.timer.start()
-            self.opponent_timer.stop()
-        else:
-            self.timer.stop()
-            self.opponent_timer.start()
-
-        if self.side == chess_board.SIDE.WHITE:
-            self.timer.set_time_left(white_time_left)
-            self.opponent_timer.set_time_left(black_time_left)
-        else:
-            self.timer.set_time_left(black_time_left)
-            self.opponent_timer.set_time_left(white_time_left)
-
     def set_require_render(self, is_render_required: bool) -> None:
         self.is_render_required = is_render_required
 
@@ -243,7 +224,9 @@ def parse_command(command: str, info: str, match_fen: Fen,
             if not local: match_fen.notation = match_info
             list(map(lambda player: player.update_pieces_location(match_fen), players))
             list(map(lambda player: player.update_turn(match_fen), players))
-            list(map(lambda player: player.update_timer(match_fen, float(white_time), float(black_time)), players))
+            list(map(lambda player: player.timer_gui.update(
+                player.side, match_fen.data.active_color, float(white_time), float(black_time)
+            ), players))
         case command_manager.COMMANDS.END_GAME:
             list(map(lambda player: player.end_game(), players))
         case command_manager.COMMANDS.INVALID_MOVE:
