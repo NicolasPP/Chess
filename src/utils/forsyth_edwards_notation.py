@@ -231,6 +231,25 @@ class Fen:
         if self[dest_index] != rook_fen: return False
         return True
 
+    def is_material_insufficient(self) -> bool:
+        piece_count: dict[str, int] = {}
+        for piece_fen in iterate(self.data.piece_placement):
+            if piece_fen == FenChars.BLANK_PIECE.value: continue
+            if piece_fen in piece_count:
+                piece_count[piece_fen] += 1
+            else:
+                piece_count[piece_fen] = 0
+
+        # TODO: implement these
+        # King vs king
+        # King + minor piece (bishop or knight) vs king
+        # King + two knights vs king
+        # King + minor piece vs king + minor piece
+        # Lone king vs all the pieces
+        #   - in this case even if the player with all the pieces runs out of time its still a draw
+
+        return False
+
     def update_fen_data(self, from_index: int, dest_index: int, from_piece_val: str, dest_piece_val: str) -> None:
         self.data.piece_placement = self.get_packed()
         self.data.castling_rights = self.get_castling_rights(from_piece_val, from_index)
