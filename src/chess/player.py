@@ -1,9 +1,11 @@
 import enum
+import datetime
 
 import pygame
 
 import chess.board as chess_board
 import chess.piece as chess_piece
+from chess.chess_timer import ChessTimer
 from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
 import utils.commands as command_manager
@@ -12,6 +14,7 @@ import utils.network as network_manager
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
 
+from config import I_SPLIT
 
 class MOUSECLICK(enum.Enum):
     LEFT: int = 1
@@ -32,7 +35,8 @@ class Player:
                  side: chess_board.SIDE,
                  piece_set: PieceSetAssets,
                  board_asset: BoardAssets,
-                 scale: float):
+                 scale: float,
+                 time_left: float):
         chess_piece.Pieces.load(piece_set.value, scale)
         self.side: chess_board.SIDE = side
         self.board: chess_board.Board = chess_board.Board(board_asset.value, side, scale)
@@ -44,6 +48,7 @@ class Player:
         self.captured_gui = CapturedGui('', self.board.pos_rect,
                                         'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
+        self.timer = ChessTimer(time_left)
 
     def parse_input(
             self,
@@ -64,13 +69,16 @@ class Player:
         from_coordinates = from_board_square.algebraic_notation.data.coordinates
 
         # invalid move
+        time_iso = datetime.datetime.now().isoformat()
+
         target_fen = from_board_square.fen_val
         move = command_manager.get(
             command_manager.COMMANDS.MOVE,
             from_coordinates,
             from_coordinates,
             self.side.name,
-            target_fen
+            target_fen,
+            time_iso
         )
         is_promotion = False
 
@@ -82,7 +90,8 @@ class Player:
                 from_coordinates,
                 dest_coordinates,
                 self.side.name,
-                target_fen
+                target_fen,
+                time_iso
             )
 
         if not is_promotion:
@@ -120,12 +129,16 @@ class Player:
                 from_coordinates,
                 dest_coordinates,
                 self.side.name,
-                val
+                val,
+                datetime.datetime.now().isoformat()
             )
             send_move(local, network, move)
             self.board.reset_picked_up()
             self.state = STATE.PICK_PIECE
             self.is_render_required = True
+
+    def update(self, delta_time: float) -> None:
+        self.timer.tick(delta_time)
 
     def render(self, bg_color) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
@@ -192,6 +205,20 @@ class Player:
             else:
                 self.turn = False
 
+    def update_timer(self, match_fen: Fen, white_time_left: float, black_time_left: float) -> None:
+        current_active_color = FenChars.WHITE_ACTIVE_COLOR.value \
+            if self.side == chess_board.SIDE.WHITE else FenChars.BLACK_ACTIVE_COLOR.value
+
+        if match_fen.data.active_color == current_active_color:
+            self.timer.start()
+        else:
+            self.timer.stop()
+
+        if self.side == chess_board.SIDE.WHITE:
+            self.timer.set_time_left(white_time_left)
+        else:
+            self.timer.set_time_left(black_time_left)
+
     def set_require_render(self, is_render_required: bool) -> None:
         self.is_render_required = is_render_required
 
@@ -205,9 +232,11 @@ def parse_command(command: str, info: str, match_fen: Fen,
                   *players: Player, local: bool = False) -> None:
     match command_manager.COMMANDS(command):
         case command_manager.COMMANDS.UPDATE_FEN:
-            if not local: match_fen.notation = info
+            match_info, white_time, black_time = info.split(I_SPLIT)
+            if not local: match_fen.notation = match_info
             list(map(lambda player: player.update_pieces_location(match_fen), players))
             list(map(lambda player: player.update_turn(match_fen), players))
+            list(map(lambda player: player.update_timer(match_fen, float(white_time), float(black_time)), players))
         case command_manager.COMMANDS.END_GAME:
             list(map(lambda player: player.end_game(), players))
         case command_manager.COMMANDS.INVALID_MOVE:
