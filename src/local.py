@@ -66,10 +66,8 @@ def get_colors(player: Player) -> tuple[str, str]:
     return bg, font
 
 
-# placing boards in the middle of the screen
-screen_center = window_size / 2
-white_player.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
-black_player.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
+white_player.center_board(window_size)
+black_player.center_board(window_size)
 
 is_white = True
 

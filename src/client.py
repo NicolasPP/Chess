@@ -80,11 +80,6 @@ def get_player(init_info: ClientInitInfo) -> Player:
     return player
 
 
-def center_board(player: Player, window_size: pygame.math.Vector2) -> None:
-    screen_center = window_size / 2
-    player.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
-
-
 def get_colors(player: Player) -> tuple[str, str]:
     bg_color = 'white' if player.side == chess_board.SIDE.WHITE else 'black'
     font_color = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
@@ -110,7 +105,7 @@ def run_main_loop(server_ip: str) -> None:
     match_fen = Fen(init_info.fen_str)
 
     bg_color, font_color = get_colors(player)
-    center_board(player, window_size)
+    player.center_board(window_size)
 
     player.update_turn(match_fen)
     player.update_pieces_location(match_fen)
