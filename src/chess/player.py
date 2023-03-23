@@ -48,7 +48,7 @@ class Player:
         self.promotion_gui = PromotionGui(self.side, self.board.sprite.surface.get_rect())
         self.captured_gui = CapturedGui('', self.board.pos_rect,
                                         'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
-        self.timer_gui = TimerGui(time_left)
+        self.timer_gui = TimerGui(time_left, self.board.pos_rect)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
 
     def parse_input(
@@ -214,6 +214,11 @@ class Player:
         if self.turn: return f"{self.side.name}s TURN"
         opposite_side = chess_board.SIDE.WHITE if self.side is chess_board.SIDE.BLACK else chess_board.SIDE.BLACK
         return f"{opposite_side.name}s TURN"
+
+    def center_board(self, window_size: pygame.math.Vector2) -> None:
+        screen_center = window_size / 2
+        self.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
+        self.timer_gui.recalculate_pos()
 
 
 def parse_command(command: str, info: str, match_fen: Fen,
