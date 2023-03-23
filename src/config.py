@@ -6,6 +6,7 @@ WINDOW_SIZE: tuple[int, int] = 570, 570
 BOARD_SCALE: float = 3.5
 BOARD_SIZE: int = 8
 DATA_SIZE: int = 4096
+TIMER_FONT_SIZE: int = 20
 
 # -- Colors --
 AVAILABLE_MOVE_COLOR: str = 'green'
