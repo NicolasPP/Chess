@@ -36,29 +36,21 @@ class ChessTimer:
         secs, m_secs = seconds
         return f"{minutes} : {secs} : {m_secs}"
 
-    def __init__(self, cfg: TimerConfig):
-        self.white_time_left: float = cfg.time
-        self.black_time_left: float = cfg.time
+    def __init__(self, seconds: float):
+        self.time_left: float = seconds
+        self.decrement_time = False
 
-    def is_time_over(self, fen: Fen) -> bool:
-        if fen.is_white_turn():
-            return self.white_time_left <= 0
-        else:
-            return self.black_time_left <= 0
+    def is_time_over(self) -> bool:
+        return self.time_left <= 0
 
-    def tick(self, dt: float, fen: Fen) -> None:
-        if not fen.first_move: return
-        if fen.is_white_turn():
-            self.decrement_white_time(dt)
-        else:
-            self.decrement_black_time(dt)
+    def tick(self, dt: float) -> None:
+        if not self.decrement_time: return
+        if self.time_left <= 0: return
+        self.time_left -= dt
+        if self.time_left < 0: self.time_left = 0
 
-    def decrement_white_time(self, dt: float):
-        if self.white_time_left <= 0: return
-        self.white_time_left -= dt
-        if self.white_time_left < 0: self.white_time_left = 0
+    def set_time_left(self, time_left):
+        self.time_left = time_left
 
-    def decrement_black_time(self, dt: float):
-        if self.black_time_left <= 0: return
-        self.black_time_left -= dt
-        if self.black_time_left < 0: self.black_time_left = 0
+    def start(self) -> None: self.decrement_time = True
+    def stop(self) -> None: self.decrement_time = False
