@@ -87,9 +87,6 @@ def get_pgn_moves_and_result(line: str) -> tuple[list[PGNMove], str]:
         if len(time_set) == 1: time_set.append('')
         if len(move_set) == 3:
             result = move_set.pop(-1)
-        elif is_result(move_set[0]):
-            result = move_set[0]
-            move_set[0] = ''
         elif is_result(move_set[1]):
             result = move_set[1]
             move_set[1] = ''
