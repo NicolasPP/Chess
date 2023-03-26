@@ -59,8 +59,10 @@ class Match:
             diff = time - self.prev_time
             if self.fen.data.active_color == FenChars.WHITE_ACTIVE_COLOR.value:
                 self.white_time_left -= diff.total_seconds()
+                self.white_time_left += self.timer_config.increment
             else:
                 self.black_time_left -= diff.total_seconds()
+                self.black_time_left += self.timer_config.increment
 
         self.prev_time = time
         self.fen.make_move(from_index, dest_index, target_fen)
