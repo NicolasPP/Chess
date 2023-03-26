@@ -26,7 +26,7 @@ C_SPLIT: str = '%'
 
 # -- File Name --
 FONT_FILE: str = "assets/fonts/Oleaguid.ttf"
-PIXEL_FONT_FILE: str = "assets/fonts/thirteen_pixel_fonts.ttf"
+FIVE_FONT_FILE: str = "assets/fonts/QuinqueFive.ttf"
 
 # -- Indexes --
 P_ASSET_INDEX = 0

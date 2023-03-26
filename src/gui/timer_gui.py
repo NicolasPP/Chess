@@ -3,12 +3,12 @@ import pygame
 from chess.chess_timer import ChessTimer
 from chess.board import SIDE
 from utils.forsyth_edwards_notation import FenChars
-from config import PIXEL_FONT_FILE, TIMER_FONT_SIZE
+from config import FIVE_FONT_FILE, TIMER_FONT_SIZE
 
 
 class TimerGui:
     pygame.font.init()
-    font = pygame.font.Font(PIXEL_FONT_FILE, TIMER_FONT_SIZE)
+    font = pygame.font.Font(FIVE_FONT_FILE, TIMER_FONT_SIZE)
 
     @staticmethod
     def calculate_timers_pos(board_rect: pygame.rect.Rect) -> tuple[pygame.math.Vector2, pygame.math.Vector2]:
