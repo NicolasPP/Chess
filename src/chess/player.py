@@ -50,6 +50,7 @@ class Player:
                                         'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
         self.timer_gui = TimerGui(time_left, self.board.pos_rect)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
+        self.read_input: bool = True
 
     def parse_input(
             self,
@@ -57,6 +58,7 @@ class Player:
             fen: Fen,
             network: network_manager.ChessNetwork | None = None,
             local: bool = False) -> None:
+        if not self.read_input: return
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSECLICK.LEFT.value: self.handle_mouse_down_left(network, local)
         if event.type == pygame.MOUSEBUTTONUP:
@@ -97,6 +99,7 @@ class Player:
 
         if not is_promotion:
             send_move(local, network, move)
+            self.set_read_input(False)
             self.state = STATE.PICK_PIECE
             self.board.reset_picked_up()
 
@@ -220,6 +223,9 @@ class Player:
         self.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
         self.timer_gui.recalculate_pos()
 
+    def set_read_input(self, read_input: bool) -> None:
+        self.read_input = read_input
+
 
 def parse_command(command: str, info: str, match_fen: Fen,
                   *players: Player, local: bool = False) -> None:
@@ -232,10 +238,12 @@ def parse_command(command: str, info: str, match_fen: Fen,
             list(map(lambda player: player.timer_gui.update(
                 player.side, match_fen.data.active_color, float(white_time), float(black_time)
             ), players))
+            list(map(lambda player: player.set_read_input(True), players))
         case command_manager.COMMANDS.END_GAME:
             list(map(lambda player: player.end_game(), players))
         case command_manager.COMMANDS.INVALID_MOVE:
             list(map(lambda player: player.set_require_render(True), players))
+            list(map(lambda player: player.set_read_input(True), players))
         case command_manager.COMMANDS.UPDATE_CAP_PIECES:
             list(map(lambda player: player.captured_gui.set_captured_pieces(info), players))
         case _:
