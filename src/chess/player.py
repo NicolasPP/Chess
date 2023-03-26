@@ -72,7 +72,7 @@ class Player:
         from_coordinates = from_board_square.algebraic_notation.data.coordinates
 
         # invalid move
-        time_iso = datetime.datetime.now().isoformat()
+        time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         target_fen = from_board_square.fen_val
         move = command_manager.get(
@@ -134,7 +134,7 @@ class Player:
                 dest_coordinates,
                 self.side.name,
                 val,
-                datetime.datetime.now().isoformat()
+                datetime.datetime.now(datetime.timezone.utc).isoformat()
             )
             send_move(local, network, move)
             self.board.reset_picked_up()
