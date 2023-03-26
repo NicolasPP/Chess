@@ -27,13 +27,28 @@ class DefaultConfigs:
 
 class ChessTimer:
     @staticmethod
-    def format_seconds(time: float) -> str:
+    def format_seconds(time: float, milli_seconds: bool = False) -> str:
+
+        def format_time(f_time: str) -> str:
+            if len(f_time) == 1:
+                if f_time == "0":
+                    return f_time + "0"
+                else:
+                    return "0" + f_time
+            return f_time
+
         div, mod = divmod(time, 60)
         seconds = str(round(mod, 1)).split('.')
         if len(seconds) == 1: seconds.append("0")
         minutes = int(div)
         secs, m_secs = seconds
+        minutes = format_time(str(minutes))
+        secs = format_time(secs)
+        m_secs = format_time(m_secs)
+
         if secs == "0": secs += "0"
+        if milli_seconds:
+            return f"{minutes}:{secs}:{m_secs}"
         return f"{minutes}:{secs}"
 
     def __init__(self, seconds: float):
@@ -52,5 +67,8 @@ class ChessTimer:
     def set_time_left(self, time_left):
         self.time_left = time_left
 
-    def start(self) -> None: self.decrement_time = True
-    def stop(self) -> None: self.decrement_time = False
+    def start(self) -> None:
+        self.decrement_time = True
+
+    def stop(self) -> None:
+        self.decrement_time = False

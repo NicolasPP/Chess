@@ -12,7 +12,7 @@ class TimerGui:
 
     @staticmethod
     def calculate_timers_pos(board_rect: pygame.rect.Rect) -> tuple[pygame.math.Vector2, pygame.math.Vector2]:
-        text_width, text_height = TimerGui.font.size(ChessTimer.format_seconds(650))
+        text_width, text_height = TimerGui.font.size(ChessTimer.format_seconds(650, True))
 
         own_rect = pygame.rect.Rect(0, 0, text_width, text_height)
         opp_rect = pygame.rect.Rect(0, 0, text_width, text_height)
@@ -35,8 +35,8 @@ class TimerGui:
         bg_color = 'white'
         fg_color = 'black'
 
-        own_info = ChessTimer.format_seconds(self.own_timer.time_left)
-        opp_info = ChessTimer.format_seconds(self.opponents_timer.time_left)
+        own_info = ChessTimer.format_seconds(self.own_timer.time_left, True)
+        opp_info = ChessTimer.format_seconds(self.opponents_timer.time_left, True)
 
         own_render = TimerGui.font.render(own_info, True, fg_color)
         opp_render = TimerGui.font.render(opp_info, True, fg_color)
