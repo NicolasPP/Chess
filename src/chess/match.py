@@ -22,7 +22,6 @@ class MoveTags(enum.Enum):
 class Match:
     def __init__(self, timer_config: TimerConfig):
         self.fen: Fen = Fen()
-        self.moves: list[str] = []
         self.captured_pieces: str = ''
         self.commands: list[Command] = []
         self.update_fen: bool = False
@@ -31,35 +30,47 @@ class Match:
         self.white_time_left: float = timer_config.time
         self.black_time_left: float = timer_config.time
 
-    # def process_local_move(self) -> None:
-    #     command = command_manager.read_from(command_manager.MATCH)
-    #     if command is None: return
-    #     move_tags = self.process_move(command.info)
-    #
-    #     commands = []
-    #
-    #     for tag in move_tags:
-    #         commands.extend(self.process_tag(tag))
-    #
-    #     commands.extend(self.process_match_state(commands))
-    #
-    #     list(map(lambda cmd: command_manager.send_to(command_manager.PLAYER, cmd), commands))
+    def process_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command])\
+            -> tuple[list[MoveTags], list[Command]]:
+        if command.name == Type.PICKING_PROMOTION.name:
+            commands.append(CommandManager.get(Type.PICKING_PROMOTION))
+
+        elif command.name == Type.MOVE.name:
+            move_tags = self.process_move(command)
+
+        else:
+            assert False, f" {command} : Command not recognised"
+
+        for tag in move_tags:
+            commands.extend(self.process_tag(tag))
+
+        commands.extend(self.process_match_state(commands))
+
+        return move_tags, commands
+
+    def process_local_move(self) -> None:
+        command: Command = CommandManager.read_from(CommandManager.MATCH)
+        if command is None: return
+        move_tags: list[MoveTags] = []
+        commands: list[Command] = []
+
+        move_tags, commands = self.process_command(command, move_tags, commands)
+
+        list(map(lambda cmd: CommandManager.send_to(CommandManager.PLAYER, cmd), commands))
 
     def process_move(self, command: Command) -> list[MoveTags]:
-        # fc, dc, cmd_dest, target_fen, move_time = command_info.split(I_SPLIT)
-        from_index = get_index_from_an(*command.info['from_coordinates'])
-        dest_index = get_index_from_an(*command.info['dest_coordinates'])
-        side = command.info['side']
-        target_fen = command.info['target_fen']
-        move_time = command.info['time_iso']
-        # from_index, dest_index = get_index_from_an(*fc), get_index_from_an(*dc)
+        from_index = get_index_from_an(*command.info[CommandManager.from_coordinates])
+        dest_index = get_index_from_an(*command.info[CommandManager.dest_coordinates])
+        side = command.info[CommandManager.side]
+        target_fen = command.info[CommandManager.target_fen]
+        time_iso = command.info[CommandManager.time_iso]
         before_move_fen = Fen(encode_fen_data(self.fen.data))
 
         if not is_side_valid(side, self.fen.is_white_turn()) \
                 or not validate_move.is_move_valid(from_index, dest_index, self.fen):
             return [MoveTags.INVALID]
 
-        time = datetime.datetime.fromisoformat(move_time)
+        time = datetime.datetime.fromisoformat(time_iso)
         if self.prev_time is not None:
             diff = time - self.prev_time
             if self.fen.data.active_color == FenChars.WHITE_ACTIVE_COLOR.value:
@@ -71,7 +82,6 @@ class Match:
 
         self.prev_time = time
         self.fen.make_move(from_index, dest_index, target_fen)
-        # self.moves.append(command_info)
         return self.get_move_tags(before_move_fen, from_index, dest_index)
 
     def get_move_tags(self, before_move_fen: Fen, from_index: int, dest_index: int) -> list[MoveTags]:
@@ -101,39 +111,39 @@ class Match:
         ext_commands = []
         match tag:
             case MoveTags.CHECK:
-                update_fen_command = CommandManager.get(
-                    Type.UPDATE_FEN,
-                    fen_notation=self.fen.notation,
-                    white_time_left=self.white_time_left,
-                    black_time_left=self.black_time_left
-                )
+                update_fen_info: dict[str, str] = {
+                    CommandManager.fen_notation: self.fen.notation,
+                    CommandManager.white_time_left: str(self.white_time_left),
+                    CommandManager.black_time_left: str(self.black_time_left)
+                }
+                update_fen_command: Command = CommandManager.get(Type.UPDATE_FEN, update_fen_info)
                 ext_commands.append(update_fen_command)
             case MoveTags.CHECKMATE:
-                end_game_command = CommandManager.get(Type.END_GAME)
-                update_fen_command = CommandManager.get(
-                    Type.UPDATE_FEN,
-                    fen_notation=self.fen.notation,
-                    white_time_left=self.white_time_left,
-                    black_time_left=self.black_time_left
-                )
+                end_game_command: Command = CommandManager.get(Type.END_GAME)
+                update_fen_info: dict[str, str] = {
+                    CommandManager.fen_notation: self.fen.notation,
+                    CommandManager.white_time_left: str(self.white_time_left),
+                    CommandManager.black_time_left: str(self.black_time_left)
+                }
+                update_fen_command: Command = CommandManager.get(Type.UPDATE_FEN, update_fen_info)
                 ext_commands.append(end_game_command)
                 ext_commands.append(update_fen_command)
             case MoveTags.REGULAR:
-                update_fen_command = CommandManager.get(
-                    Type.UPDATE_FEN,
-                    fen_notation=self.fen.notation,
-                    white_time_left=self.white_time_left,
-                    black_time_left=self.black_time_left
-                )
+                update_fen_info: dict[str, str] = {
+                    CommandManager.fen_notation: self.fen.notation,
+                    CommandManager.white_time_left: str(self.white_time_left),
+                    CommandManager.black_time_left: str(self.black_time_left)
+                }
+                update_fen_command: Command = CommandManager.get(Type.UPDATE_FEN, update_fen_info)
                 ext_commands.append(update_fen_command)
             case MoveTags.INVALID:
-                invalid_move_command = CommandManager.get(Type.INVALID_MOVE)
+                invalid_move_command: Command = CommandManager.get(Type.INVALID_MOVE)
                 ext_commands.append(invalid_move_command)
             case MoveTags.TAKE:
-                update_captured_pieces = CommandManager.get(
-                    Type.UPDATE_CAP_PIECES,
-                    captured_pieces=self.captured_pieces
-                )
+                update_captured_info: dict[str, str] = {
+                    CommandManager.captured_pieces: self.captured_pieces
+                }
+                update_captured_pieces = CommandManager.get(Type.UPDATE_CAP_PIECES, update_captured_info)
                 ext_commands.append(update_captured_pieces)
             case _:
                 assert False, "INVALID MATCH.MOVE_TAG"
