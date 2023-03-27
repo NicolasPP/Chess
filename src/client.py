@@ -13,7 +13,7 @@ from utils.forsyth_edwards_notation import Fen
 from utils.command_manager import CommandManager, Command
 from utils.asset import PieceSetAssets, BoardAssets
 from utils.network import ChessNetwork
-import chess.board as chess_board
+from chess.piece import Side
 
 from config import *
 
@@ -53,7 +53,7 @@ def update_window_caption(player: Player) -> None:
 def get_player(init_info: Command) -> Player:
     side = init_info.info[CommandManager.side]
     time_left = init_info.info[CommandManager.time]
-    player_side = chess_board.SIDE.WHITE if side == chess_board.SIDE.WHITE.name else chess_board.SIDE.BLACK
+    player_side = Side.WHITE if side == Side.WHITE.name else Side.BLACK
     player = Player(
         side=player_side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
@@ -65,8 +65,8 @@ def get_player(init_info: Command) -> Player:
 
 
 def get_colors(player: Player) -> tuple[str, str]:
-    bg_color = 'white' if player.side == chess_board.SIDE.WHITE else 'black'
-    fg_color = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
+    bg_color = 'white' if player.side == Side.WHITE else 'black'
+    fg_color = 'black' if player.side == Side.WHITE else 'white'
     return bg_color, fg_color
 
 

@@ -1,5 +1,6 @@
 import dataclasses
 import typing
+import enum
 
 import utils.asset as asset_manager
 import utils.forsyth_edwards_notation as notation
@@ -8,6 +9,11 @@ import chess.piece_movement as movement
 from config import *
 
 AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, notation.Fen, None | bool], list[int]]
+
+
+class Side(enum.Enum):
+    WHITE = enum.auto()
+    BLACK = enum.auto()
 
 
 @dataclasses.dataclass

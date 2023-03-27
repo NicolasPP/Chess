@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import enum
 import string
 import typing
 
@@ -9,13 +8,9 @@ import pygame
 
 from utils.algebraic_notation import AlgebraicNotation
 from utils.forsyth_edwards_notation import FenChars
+from chess.piece import Side
 import utils.asset as asset_manager
 from config import *
-
-
-class SIDE(enum.Enum):
-    WHITE = enum.auto()
-    BLACK = enum.auto()
 
 
 class RenderPos(typing.NamedTuple):
@@ -32,7 +27,7 @@ class BoardSquareIndex(typing.NamedTuple):
 class BoardSquare:
 
     @staticmethod
-    def create_board_grid(board_sprite: asset_manager.Sprite, pos_rect: pygame.rect.Rect, side: SIDE) -> \
+    def create_board_grid(board_sprite: asset_manager.Sprite, pos_rect: pygame.rect.Rect, side: Side) -> \
             list[BoardSquare]:
         grid = []
         size = Board.get_grid_surface_size(board_sprite) / BOARD_SIZE
@@ -42,16 +37,16 @@ class BoardSquare:
             pos = pygame.math.Vector2(index.col * size.x, index.row * size.y)
             rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
             grid.append(BoardSquare(rect, index.algebraic_notation, []))
-        if side is SIDE.BLACK: grid = grid[::-1]
+        if side is Side.BLACK: grid = grid[::-1]
         return grid
 
     @staticmethod
-    def get_board_squares_index(side: SIDE) -> typing.Generator[BoardSquareIndex, None, None]:
+    def get_board_squares_index(side: Side) -> typing.Generator[BoardSquareIndex, None, None]:
         files = string.ascii_lowercase[:BOARD_SIZE]
-        files = files[::-1] if side is SIDE.BLACK else files
+        files = files[::-1] if side is Side.BLACK else files
         for rank in range(BOARD_SIZE):
             for col, file in enumerate(files):
-                str_rank = str(BOARD_SIZE - rank) if side is SIDE.WHITE else str(rank + 1)
+                str_rank = str(BOARD_SIZE - rank) if side is Side.WHITE else str(rank + 1)
                 yield BoardSquareIndex(rank, col, AlgebraicNotation(file, str_rank))
 
     def __init__(
@@ -94,10 +89,10 @@ class Board:
         board_size = pygame.math.Vector2(board_sprite.surface.get_size())
         return board_size - (offset * 2)
 
-    def __init__(self, board_asset: asset_manager.Asset, side: SIDE, scale: float):
+    def __init__(self, board_asset: asset_manager.Asset, side: Side, scale: float):
         self.sprite: asset_manager.Sprite = asset_manager.load_board(board_asset, scale)
         replace_board_axis_vals(self.sprite, scale, side)
-        if side is SIDE.BLACK: self.sprite.surface = pygame.transform.flip(self.sprite.surface, True, True)
+        if side is Side.BLACK: self.sprite.surface = pygame.transform.flip(self.sprite.surface, True, True)
         self.pos_rect: pygame.rect.Rect = self.sprite.surface.get_rect()
         self.grid: list[BoardSquare] = BoardSquare.create_board_grid(self.sprite, self.pos_rect, side)
 
@@ -156,14 +151,14 @@ def replace_board_axis_info(board_sprite: asset_manager.Sprite) -> \
             yield index, rect
 
 
-def replace_board_axis_vals(board_sprite: asset_manager.Sprite, scale: float, side: SIDE) -> None:
+def replace_board_axis_vals(board_sprite: asset_manager.Sprite, scale: float, side: Side) -> None:
     nums = list(range(8, 0, -1))
     nums_index = 0
     letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     letters_index = 0
     color = board_sprite.surface.get_at((0, 0))
     font = pygame.font.Font(FONT_FILE, 25)
-    is_black_turn = True if side is SIDE.BLACK else False
+    is_black_turn = True if side is Side.BLACK else False
 
     for index, rect in replace_board_axis_info(board_sprite):
         if index % 8 == 0:

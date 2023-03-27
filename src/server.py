@@ -4,8 +4,7 @@ import socket as skt
 
 import click
 
-import chess.piece as chess_piece
-from chess.board import SIDE
+from chess.piece import Pieces, Side
 from chess.match import MoveTags, Match
 from utils.forsyth_edwards_notation import encode_fen_data
 from utils.command_manager import CommandManager, Command, Type
@@ -45,7 +44,7 @@ class Server(Net):
         self.client_id: int = -1
         self.match: Match = Match(DefaultConfigs.RAPID_15_10)
         self.client_sockets: list[skt.socket] = []
-        chess_piece.Pieces.load_pieces_info()
+        Pieces.load_pieces_info()
 
     def start(self) -> None:
         logging.info('Server started')
@@ -77,7 +76,7 @@ class Server(Net):
 
     def client_init(self, client_socket: skt.socket) -> str:
         client_id = self.get_id()
-        side_name = SIDE.WHITE.name if int(client_id) % 2 == 0 else SIDE.BLACK.name
+        side_name = Side.WHITE.name if int(client_id) % 2 == 0 else Side.BLACK.name
         init_info: dict[str, str] = {
             CommandManager.side: side_name,
             CommandManager.fen_notation: encode_fen_data(self.match.fen.data),

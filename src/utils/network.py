@@ -1,5 +1,5 @@
 import socket as skt
-from chess.board import SIDE
+from chess.piece import Side
 from utils.forsyth_edwards_notation import FenData, validate_fen_data
 from utils.command_manager import CommandManager, Command
 
@@ -37,7 +37,7 @@ def is_init_data_valid(init_info: Command) -> bool:
     side = init_info.info[CommandManager.side]
     fen_str = init_info.info[CommandManager.fen_notation]
     time_left = init_info.info[CommandManager.time]
-    if side != SIDE.WHITE.name and side != SIDE.BLACK.name: return False
+    if side != Side.WHITE.name and side != Side.BLACK.name: return False
     if not time_left.isnumeric(): return False
     data = fen_str.split()
     if len(data) != 6: return False

@@ -4,11 +4,11 @@ import time
 
 import pygame
 
-import chess.board as chess_board
 from chess.match import Match
 from chess.player import Player, parse_command_local, STATE
+from chess.piece import Side
 from utils.asset import PieceSetAssets, BoardAssets
-import chess.chess_timer as chess_timer
+from chess.chess_timer import DefaultConfigs
 from config import *
 
 pygame.init()
@@ -19,9 +19,9 @@ clock = pygame.time.Clock()
 prev_time = time.time()
 delta_time: float = 0
 
-match = Match(chess_timer.DefaultConfigs.RAPID_15_10)
+match = Match(DefaultConfigs.RAPID_15_10)
 white_player = Player(
-    side=chess_board.SIDE.WHITE,
+    side=Side.WHITE,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
     board_asset=random.choice(list(BoardAssets)),
     scale=BOARD_SCALE,
@@ -29,7 +29,7 @@ white_player = Player(
 )
 
 black_player = Player(
-    side=chess_board.SIDE.BLACK,
+    side=Side.BLACK,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
     board_asset=random.choice(list(BoardAssets)),
     scale=BOARD_SCALE,
@@ -61,8 +61,8 @@ def update_window_caption(*players: Player) -> None:
 
 
 def get_colors(player: Player) -> tuple[str, str]:
-    bg = 'white' if player.side == chess_board.SIDE.WHITE else 'black'
-    font = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
+    bg = 'white' if player.side == Side.WHITE else 'black'
+    font = 'black' if player.side == Side.WHITE else 'white'
     return bg, font
 
 

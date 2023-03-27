@@ -1,12 +1,12 @@
 import enum
 import datetime
 
-import chess.board as chess_board
 import chess.validate_move as validate_move
 
 from utils.algebraic_notation import get_index_from_an
 from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
 from chess.chess_timer import TimerConfig
+from chess.piece import Side
 from utils.command_manager import Command, CommandManager, Type
 from config import *
 
@@ -164,6 +164,6 @@ class Match:
 
 
 def is_side_valid(side: str, is_white: bool) -> bool:
-    if side == chess_board.SIDE.WHITE.name and is_white: return True
-    if side == chess_board.SIDE.BLACK.name and not is_white: return True
+    if side == Side.WHITE.name and is_white: return True
+    if side == Side.BLACK.name and not is_white: return True
     return False

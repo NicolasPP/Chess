@@ -1,7 +1,7 @@
 import pygame
 
 from chess.chess_timer import ChessTimer
-from chess.board import SIDE
+from chess.piece import Side
 from utils.forsyth_edwards_notation import FenChars
 from config import FIVE_FONT_FILE, TIMER_FONT_SIZE
 
@@ -55,9 +55,9 @@ class TimerGui:
         self.own_timer.tick(delta_time)
         self.opponents_timer.tick(delta_time)
 
-    def update(self, side: SIDE, active_color: str, white_time_left: float, black_time_left: float) -> None:
+    def update(self, side: Side, active_color: str, white_time_left: float, black_time_left: float) -> None:
         current_active_color = FenChars.WHITE_ACTIVE_COLOR.value \
-            if side == SIDE.WHITE else FenChars.BLACK_ACTIVE_COLOR.value
+            if side == Side.WHITE else FenChars.BLACK_ACTIVE_COLOR.value
 
         if active_color == current_active_color:
             self.own_timer.start()
@@ -66,7 +66,7 @@ class TimerGui:
             self.own_timer.stop()
             self.opponents_timer.start()
 
-        if side == SIDE.WHITE:
+        if side == Side.WHITE:
             self.own_timer.set_time_left(white_time_left)
             self.opponents_timer.set_time_left(black_time_left)
         else:
