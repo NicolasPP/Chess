@@ -53,9 +53,9 @@ def update_window_caption(player: Player) -> None:
 def get_player(init_info: Command) -> Player:
     side = init_info.info[CommandManager.side]
     time_left = init_info.info[CommandManager.time]
-    side = chess_board.SIDE.WHITE if side == chess_board.SIDE.WHITE.name else chess_board.SIDE.BLACK
+    player_side = chess_board.SIDE.WHITE if side == chess_board.SIDE.WHITE.name else chess_board.SIDE.BLACK
     player = Player(
-        side=side,
+        side=player_side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
         board_asset=random.choice(list(BoardAssets)),
         scale=BOARD_SCALE,

@@ -48,7 +48,7 @@ class Player:
                                         'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
         self.timer_gui = TimerGui(time_left, self.board.pos_rect)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
-        self.prev_time_iso: datetime.datetime | None = None
+        self.prev_time_iso: str | None = None
         self.read_input: bool = True
         self.opponent_promoting: bool = False
 
@@ -75,14 +75,14 @@ class Player:
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         # invalid move
-        move_info: dict[str, str] = {
+        invalid_move_info: dict[str, str] = {
             CommandManager.from_coordinates: from_coordinates,
             CommandManager.dest_coordinates: from_coordinates,
             CommandManager.side: self.side.name,
             CommandManager.target_fen: target_fen,
             CommandManager.time_iso: time_iso
         }
-        move = CommandManager.get(Type.MOVE, move_info)
+        move = CommandManager.get(Type.MOVE, invalid_move_info)
         is_promotion = False
 
         if dest_board_square:
@@ -133,7 +133,7 @@ class Player:
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
 
             if self.prev_time_iso is None: return
-            move_info = {
+            move_info: dict[str, str] = {
                 CommandManager.from_coordinates: from_coordinates,
                 CommandManager.dest_coordinates: dest_coordinates,
                 CommandManager.side: self.side.name,

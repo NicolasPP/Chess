@@ -42,14 +42,14 @@ class ChessTimer:
         if len(seconds) == 1: seconds.append("0")
         minutes = int(div)
         secs, m_secs = seconds
-        minutes = format_time(str(minutes))
+        str_minutes = format_time(str(minutes))
         secs = format_time(secs)
         m_secs = format_time(m_secs)
 
         if secs == "0": secs += "0"
         if milli_seconds:
-            return f"{minutes}:{secs}:{m_secs}"
-        return f"{minutes}:{secs}"
+            return f"{str_minutes}:{secs}:{m_secs}"
+        return f"{str_minutes}:{secs}"
 
     def __init__(self, seconds: float):
         self.time_left: float = seconds
