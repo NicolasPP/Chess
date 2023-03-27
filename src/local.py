@@ -78,11 +78,17 @@ while not done:
     fps = round(clock.get_fps())
 
     current_player = white_player if is_white else black_player
-    bg_color, font_color = get_colors(current_player)
+    bg_color, fg_color = get_colors(current_player)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: done = True
         if event.type == pygame.KEYDOWN and current_player.state is not STATE.PICK_PROMOTION:
+            if is_white:
+                black_player.timer_gui.own_timer.set_time_left(current_player.timer_gui.opponents_timer.time_left)
+                black_player.timer_gui.opponents_timer.set_time_left(current_player.timer_gui.own_timer.time_left)
+            else:
+                white_player.timer_gui.own_timer.set_time_left(current_player.timer_gui.opponents_timer.time_left)
+                white_player.timer_gui.opponents_timer.set_time_left(current_player.timer_gui.own_timer.time_left)
             is_white = not is_white
             white_player.is_render_required = True
             black_player.is_render_required = True
@@ -95,7 +101,7 @@ while not done:
     parse_command_local(match.fen, white_player, black_player)
 
     current_player.update(delta_time)
-    current_player.render(bg_color)
+    current_player.render(fg_color, bg_color)
 
     pygame.display.flip()
 
