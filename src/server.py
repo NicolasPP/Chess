@@ -84,7 +84,7 @@ class Server(Net):
 
 def game_logic(server: Server):
     while True:
-        if server.match.update_fen:
+        if server.match.update_fen and len(server.match.commands) > 0:
             server.match.commands.append(command_manager.Command(END_MARKER))
             data: str = C_SPLIT.join(list(map(lambda cmd: cmd.info, server.match.commands)))
             Server.send_all(server.client_sockets, data)
@@ -99,12 +99,16 @@ def client_listener(client_socket: skt.socket, server: Server):
             data: bytes = client_socket.recv(DATA_SIZE)
             if not data: break
             commands = []
-            move_info = data.decode('utf-8')
+            command = data.decode('utf-8')
 
-            print(f"client : {p_id}, sent move {move_info} to server")
-            logging.debug("client : %s, sent move %s to server", p_id, move_info)
+            print(f"client : {p_id}, sent move {command} to server")
+            logging.debug("client : %s, sent move %s to server", p_id, command)
 
-            move_tags: list[MoveTags] = server.match.process_move(move_info)
+            move_tags: list[MoveTags] = []
+            if command == command_manager.COMMANDS.PICKING_PROMOTION.value:
+                commands.append(command_manager.get(command_manager.COMMANDS.PICKING_PROMOTION))
+            else:
+                move_tags = server.match.process_move(command)
 
             print(f"move tags : ", *list(map(lambda m_tag: m_tag.name, move_tags)), sep=' ')
             logging.debug("move tags : %s", str(move_tags))

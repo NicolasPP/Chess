@@ -50,7 +50,9 @@ class Player:
                                         'white' if self.side is chess_board.SIDE.WHITE else 'black', scale)
         self.timer_gui = TimerGui(time_left, self.board.pos_rect)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
+        self.prev_time_iso: datetime.datetime | None = None
         self.read_input: bool = True
+        self.opponent_promoting: bool = False
 
     def parse_input(
             self,
@@ -105,8 +107,10 @@ class Player:
 
         else:
             self.state = STATE.PICK_PROMOTION
+            network.socket.send(str.encode(command_manager.COMMANDS.PICKING_PROMOTION.value))
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
+        self.prev_time_iso = time_iso
 
     def handle_mouse_down_left(self, network: network_manager.ChessNetwork | None, local: bool) -> None:
         if self.state is STATE.DROP_PIECE: return
@@ -128,20 +132,25 @@ class Player:
             from_coordinates = from_board_square.algebraic_notation.data.coordinates
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
 
+            if self.prev_time_iso is None: return
+
             move = command_manager.get(
                 command_manager.COMMANDS.MOVE,
                 from_coordinates,
                 dest_coordinates,
                 self.side.name,
                 val,
-                datetime.datetime.now(datetime.timezone.utc).isoformat()
+                self.prev_time_iso
             )
+
             send_move(local, network, move)
             self.board.reset_picked_up()
             self.state = STATE.PICK_PIECE
             self.is_render_required = True
 
     def update(self, delta_time: float) -> None:
+        if self.state == STATE.PICK_PROMOTION: return
+        if self.opponent_promoting: return
         self.timer_gui.tick(delta_time)
 
     def render(self, fg_color: str, bg_color: str) -> None:
@@ -226,6 +235,9 @@ class Player:
     def set_read_input(self, read_input: bool) -> None:
         self.read_input = read_input
 
+    def set_opponent_promoting(self, promoting: bool) -> None:
+        self.opponent_promoting = promoting
+
 
 def parse_command(command: str, info: str, match_fen: Fen,
                   *players: Player, local: bool = False) -> None:
@@ -239,6 +251,7 @@ def parse_command(command: str, info: str, match_fen: Fen,
                 player.side, match_fen.data.active_color, float(white_time), float(black_time)
             ), players))
             list(map(lambda player: player.set_read_input(True), players))
+            list(map(lambda player: player.set_opponent_promoting(False), players))
         case command_manager.COMMANDS.END_GAME:
             list(map(lambda player: player.end_game(), players))
         case command_manager.COMMANDS.INVALID_MOVE:
@@ -246,6 +259,8 @@ def parse_command(command: str, info: str, match_fen: Fen,
             list(map(lambda player: player.set_read_input(True), players))
         case command_manager.COMMANDS.UPDATE_CAP_PIECES:
             list(map(lambda player: player.captured_gui.set_captured_pieces(info), players))
+        case command_manager.COMMANDS.PICKING_PROMOTION:
+            list(map(lambda player: player.set_opponent_promoting(True), players))
         case _:
             assert False, f" {command} : Command not recognised"
 

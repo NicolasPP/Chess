@@ -11,6 +11,7 @@ class COMMANDS(enum.Enum):
     MOVE: str = 'move'
     INVALID_MOVE: str = 'invalid_move'
     UPDATE_CAP_PIECES: str = 'update_cap_pieces'
+    PICKING_PROMOTION: str = 'picking_promotion'
 
 
 @dataclasses.dataclass
@@ -43,6 +44,8 @@ def get(command: COMMANDS, *args) -> Command:
             return get_move(*args)
         case COMMANDS.UPDATE_CAP_PIECES:
             return get_update_captured_pieces(*args)
+        case COMMANDS.PICKING_PROMOTION:
+            return get_picking_promotion()
         case _:
             assert False, f" {command.name} : Command not recognised"
 
@@ -67,6 +70,10 @@ def get_update_fen(fen_notation: str, white_time_left: float, black_time_left: f
 
 def get_end_game() -> Command:
     return Command(I_SPLIT.join([COMMANDS.END_GAME.value, NO_INFO]))
+
+
+def get_picking_promotion() -> Command:
+    return Command(I_SPLIT.join([COMMANDS.PICKING_PROMOTION.value, NO_INFO]))
 
 
 def get_invalid_move() -> Command:
