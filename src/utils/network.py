@@ -1,15 +1,7 @@
 import socket as skt
-import typing
 from chess.board import SIDE
 from utils.forsyth_edwards_notation import FenData, validate_fen_data
-
-from config import *
-
-
-class ClientInitInfo(typing.NamedTuple):
-    side: str
-    fen_str: str
-    time_left: str
+from utils.command_manager import CommandManager, Command
 
 
 class Net:
@@ -24,24 +16,27 @@ class ChessNetwork(Net):
     def __init__(self, server_ip: str):
         super().__init__(server_ip)
 
-    def connect(self) -> ClientInitInfo:
+    def connect(self) -> Command:
         try:
             self.socket.connect(self.address)
         except skt.error as e:
             print(f'error connecting : {e}')
             raise Exception("error connecting")
-        init_data = self.read().split(C_SPLIT)
-        if not is_init_data_valid(init_data):
+        init_data: bytes = self.read()
+        init_info: Command = CommandManager.deserialize_command_bytes(init_data)
+
+        if not is_init_data_valid(init_info):
             raise Exception("initial data corrupted, try connecting again")
-        return ClientInitInfo(*init_data)
+        return init_info
 
-    def read(self) -> str:
-        return self.socket.recv(2048).decode()
+    def read(self) -> bytes:
+        return self.socket.recv(2048)
 
 
-def is_init_data_valid(init_data: list[str]) -> bool:
-    if len(init_data) != 3: return False
-    side, fen_str, time_left = init_data
+def is_init_data_valid(init_info: Command) -> bool:
+    side = init_info.info[CommandManager.side]
+    fen_str = init_info.info[CommandManager.fen_notation]
+    time_left = init_info.info[CommandManager.time]
     if side != SIDE.WHITE.name and side != SIDE.BLACK.name: return False
     if not time_left.isnumeric(): return False
     data = fen_str.split()
