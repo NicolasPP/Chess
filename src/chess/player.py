@@ -107,7 +107,8 @@ class Player:
 
         else:
             self.state = STATE.PICK_PROMOTION
-            network.socket.send(str.encode(command_manager.COMMANDS.PICKING_PROMOTION.value))
+            if not local:
+                network.socket.send(str.encode(command_manager.COMMANDS.PICKING_PROMOTION.value))
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
         self.prev_time_iso = time_iso
