@@ -144,7 +144,7 @@ class Player:
     def update(self, delta_time: float) -> None:
         self.timer_gui.tick(delta_time)
 
-    def render(self, bg_color) -> None:
+    def render(self, fg_color: str, bg_color: str) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
             pygame.display.get_surface().fill(bg_color)
             self.captured_gui.render(self.side)
@@ -152,7 +152,7 @@ class Player:
         if self.state is STATE.PICK_PROMOTION:
             self.promotion_gui.render()
         self.is_render_required = False
-        self.timer_gui.render()
+        self.timer_gui.render(fg_color, bg_color)
 
     def render_board(self) -> None:
         pygame.display.get_surface().blit(self.board.sprite.surface, self.board.pos_rect)
