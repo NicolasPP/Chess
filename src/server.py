@@ -8,7 +8,8 @@ import chess.piece as chess_piece
 from chess.board import SIDE
 from chess.match import MoveTags, Match
 from utils.forsyth_edwards_notation import encode_fen_data
-import utils.commands as command_manager
+# import utils.commands as command_manager
+from utils.command_manager import CommandManager, Command, Type
 from utils.network import Net
 from chess.chess_timer import DefaultConfigs
 
@@ -34,6 +35,11 @@ class Server(Net):
     def send_all(connections: list[skt.socket], data: str) -> None:
         for client_socket in connections:
             client_socket.send(str.encode(data))
+
+    @staticmethod
+    def send_all_bytes(connections: list[skt.socket], data: bytes) -> None:
+        for client_socket in connections:
+            client_socket.send(data)
 
     def __init__(self, server_ip: str):
         super().__init__(server_ip)
@@ -85,9 +91,10 @@ class Server(Net):
 def game_logic(server: Server):
     while True:
         if server.match.update_fen and len(server.match.commands) > 0:
-            server.match.commands.append(command_manager.Command(END_MARKER))
-            data: str = C_SPLIT.join(list(map(lambda cmd: cmd.info, server.match.commands)))
-            Server.send_all(server.client_sockets, data)
+            # server.match.commands.append(command_manager.Command(END_MARKER))
+            # data: str = C_SPLIT.join(list(map(lambda cmd: cmd.info, server.match.commands)))
+            data: bytes = CommandManager.serialize_command_list(server.match.commands)
+            Server.send_all_bytes(server.client_sockets, data)
             server.match.update_fen = False
             server.match.commands = []
 
@@ -99,14 +106,18 @@ def client_listener(client_socket: skt.socket, server: Server):
             data: bytes = client_socket.recv(DATA_SIZE)
             if not data: break
             commands = []
-            command = data.decode('utf-8')
+            # command = data.decode('utf-8')
+
+            command: Command = CommandManager.deserialize_command_bytes(data)
 
             print(f"client : {p_id}, sent move {command} to server")
             logging.debug("client : %s, sent move %s to server", p_id, command)
 
+            print(command.info)
+
             move_tags: list[MoveTags] = []
-            if command == command_manager.COMMANDS.PICKING_PROMOTION.value:
-                commands.append(command_manager.get(command_manager.COMMANDS.PICKING_PROMOTION))
+            if command.name == Type.PICKING_PROMOTION.name:
+                commands.append(CommandManager.get(Type.PICKING_PROMOTION))
             else:
                 move_tags = server.match.process_move(command)
 

@@ -10,7 +10,8 @@ import pygame
 
 from chess.player import parse_command, Player
 from utils.forsyth_edwards_notation import Fen
-from utils.commands import split_command_info
+# from utils.commands import split_command_info
+from utils.command_manager import CommandManager
 from utils.asset import PieceSetAssets, BoardAssets
 from utils.network import ChessNetwork, ClientInitInfo
 import chess.board as chess_board
@@ -34,14 +35,15 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
         while True:
             data_b: bytes = server_socket.recv(DATA_SIZE)
             if not data_b: break
-            prev_data_tail = ''
-            data, prev_data_tail = correct_data(data_b.decode('utf-8'), prev_data_tail)
+            commands = CommandManager.deserialize_command_list_bytes(data_b)
+            # prev_data_tail = ''
+            # data, prev_data_tail = correct_data(data_b.decode('utf-8'), prev_data_tail)
             logging.debug("server sent commands :")
-            for command_info in data[:-1].split(C_SPLIT):
-                command, info = split_command_info(command_info)
+            for command in commands:
                 logging.debug(" - %s ", command)
-                logging.debug(" - - %s", info)
-                parse_command(command, info, match_fen, player)
+                # print(command.name)
+                # print(command.info)
+                parse_command(command, match_fen, player)
 
         logging.debug("server disconnected")
 
