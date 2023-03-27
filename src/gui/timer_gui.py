@@ -31,29 +31,25 @@ class TimerGui:
     def recalculate_pos(self):
         self.own_pos, self.opponents_pos = TimerGui.calculate_timers_pos(self.board_rect)
 
-    def render(self) -> None:
-        bg_color = 'white'
-        fg_color = 'black'
+    def render(self, fg_color: str, bg_color: str) -> None:
+        def render_timer(time_left: float, pos: pygame.math.Vector2, offset_height: bool = False) -> None:
+            info = ChessTimer.format_seconds(time_left, True)
+            info_render = TimerGui.font.render(info, True, fg_color)
+            render_pos = pos
+            render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
 
-        own_info = ChessTimer.format_seconds(self.own_timer.time_left, True)
-        opp_info = ChessTimer.format_seconds(self.opponents_timer.time_left, True)
+            # this will only work for FIVE_FONT_FILE - "assets/fonts/QuinqueFive.ttf"
+            if offset_height:
+                render_pos = pos + pygame.math.Vector2(0, (render_rect.height // 6) * -1)
+                render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
 
-        own_render = TimerGui.font.render(own_info, True, fg_color)
-        opp_render = TimerGui.font.render(opp_info, True, fg_color)
+            info_bg_surface = pygame.surface.Surface(render_rect.size)
+            info_bg_surface.fill(bg_color)
+            pygame.display.get_surface().blit(info_bg_surface, render_rect)
+            pygame.display.get_surface().blit(info_render, render_rect)
 
-        own_rect = own_render.get_rect(topleft=(self.own_pos.x, self.own_pos.y))
-        opp_rect = opp_render.get_rect(topleft=(self.opponents_pos.x, self.opponents_pos.y))
-
-        own_bg_surface = pygame.surface.Surface(own_rect.size)
-        own_bg_surface.fill(bg_color)
-        opp_bg_surface = pygame.surface.Surface(opp_rect.size)
-        opp_bg_surface.fill(bg_color)
-
-        pygame.display.get_surface().blit(own_bg_surface, own_rect)
-        pygame.display.get_surface().blit(own_render, own_rect)
-
-        pygame.display.get_surface().blit(opp_bg_surface, opp_rect)
-        pygame.display.get_surface().blit(opp_render, opp_rect)
+        render_timer(self.own_timer.time_left, self.own_pos)
+        render_timer(self.opponents_timer.time_left, self.opponents_pos, True)
 
     def tick(self, delta_time: float) -> None:
         self.own_timer.tick(delta_time)
