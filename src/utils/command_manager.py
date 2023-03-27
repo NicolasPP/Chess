@@ -1,5 +1,6 @@
 import enum
 import pickle
+import queue
 
 
 class Type(enum.Enum):
@@ -9,6 +10,7 @@ class Type(enum.Enum):
     INVALID_MOVE = enum.auto()
     UPDATE_CAP_PIECES = enum.auto()
     PICKING_PROMOTION = enum.auto()
+    INIT_INFO = enum.auto()
 
 
 class Destination(enum.Enum):
@@ -32,6 +34,21 @@ class Command:
 
 
 class CommandManager:
+    # for local commands
+    MATCH: queue.Queue[Command] = queue.Queue()
+    PLAYER: queue.Queue[Command] = queue.Queue()
+
+    # command info keys
+    fen_notation = 'fen_notation'
+    white_time_left = 'white_time_left'
+    black_time_left = 'black_time_left'
+    from_coordinates = 'from_coordinates'
+    dest_coordinates = 'dest_coordinates'
+    side = 'side'
+    target_fen = 'target_fen'
+    time_iso = 'time_iso'
+    time = 'time'
+    captured_pieces = 'captured_pieces'
 
     @staticmethod
     def serialize_command(command: Command) -> bytes:
@@ -50,5 +67,15 @@ class CommandManager:
         return pickle.loads(command_bytes)
 
     @staticmethod
-    def get(cmd_type: Type, **information) -> Command:
+    def get(cmd_type: Type, information: dict[str, str] | None = None) -> Command:
+        if information is None: return Command(cmd_type.name)
         return Command(cmd_type.name, **information)
+
+    @staticmethod
+    def send_to(dest: queue.Queue, command: Command) -> None:
+        dest.put(command)
+
+    @staticmethod
+    def read_from(command_q: queue.Queue) -> Command | None:
+        if command_q.empty(): return None
+        return command_q.get()
