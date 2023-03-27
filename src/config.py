@@ -18,12 +18,6 @@ GRID_OFFSET: int = 7
 NO_SURFACE: None = None
 EMPTY_Q: None = None
 
-# -- Data operations --
-END_MARKER: str = '#'
-NO_INFO: str = '<>'
-I_SPLIT: str = '*'
-C_SPLIT: str = '%'
-
 # -- File Name --
 FONT_FILE: str = "assets/fonts/Oleaguid.ttf"
 FIVE_FONT_FILE: str = "assets/fonts/QuinqueFive.ttf"

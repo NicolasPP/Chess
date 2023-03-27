@@ -8,13 +8,11 @@ import chess.piece as chess_piece
 from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
 from gui.timer_gui import TimerGui
-import utils.commands as command_manager
+from utils.command_manager import CommandManager, Type, Command
 import utils.network as network_manager
 
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
-
-from config import I_SPLIT
 
 
 class MOUSECLICK(enum.Enum):
@@ -71,36 +69,36 @@ class Player:
 
         dest_board_square = self.board.get_collided_board_square()
         from_board_square = self.board.get_picked_up()
-        from_coordinates = from_board_square.algebraic_notation.data.coordinates
 
-        # invalid move
+        from_coordinates = from_board_square.algebraic_notation.data.coordinates
+        target_fen = from_board_square.fen_val
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
-        target_fen = from_board_square.fen_val
-        move = command_manager.get(
-            command_manager.COMMANDS.MOVE,
-            from_coordinates,
-            from_coordinates,
-            self.side.name,
-            target_fen,
-            time_iso
-        )
+        # invalid move
+        move_info: dict[str, str] = {
+            CommandManager.from_coordinates: from_coordinates,
+            CommandManager.dest_coordinates: from_coordinates,
+            CommandManager.side: self.side.name,
+            CommandManager.target_fen: target_fen,
+            CommandManager.time_iso: time_iso
+        }
+        move = CommandManager.get(Type.MOVE, move_info)
         is_promotion = False
 
         if dest_board_square:
             is_promotion = is_pawn_promotion(from_board_square, dest_board_square, fen)
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
-            move = command_manager.get(
-                command_manager.COMMANDS.MOVE,
-                from_coordinates,
-                dest_coordinates,
-                self.side.name,
-                target_fen,
-                time_iso
-            )
+            move_info: dict[str, str] = {
+                CommandManager.from_coordinates: from_coordinates,
+                CommandManager.dest_coordinates: dest_coordinates,
+                CommandManager.side: self.side.name,
+                CommandManager.target_fen: target_fen,
+                CommandManager.time_iso: time_iso
+            }
+            move = CommandManager.get(Type.MOVE, move_info)
 
         if not is_promotion:
-            send_move(local, network, move)
+            send_command(local, network, move)
             self.set_read_input(False)
             self.state = STATE.PICK_PIECE
             self.board.reset_picked_up()
@@ -108,7 +106,8 @@ class Player:
         else:
             self.state = STATE.PICK_PROMOTION
             if not local:
-                network.socket.send(str.encode(command_manager.COMMANDS.PICKING_PROMOTION.value))
+                picking_promotion = CommandManager.get(Type.PICKING_PROMOTION)
+                send_command(local, network, picking_promotion)
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
         self.prev_time_iso = time_iso
@@ -134,17 +133,16 @@ class Player:
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
 
             if self.prev_time_iso is None: return
+            move_info = {
+                CommandManager.from_coordinates: from_coordinates,
+                CommandManager.dest_coordinates: dest_coordinates,
+                CommandManager.side: self.side.name,
+                CommandManager.target_fen: val,
+                CommandManager.time_iso: self.prev_time_iso
+            }
+            move = CommandManager.get(Type.MOVE, move_info)
 
-            move = command_manager.get(
-                command_manager.COMMANDS.MOVE,
-                from_coordinates,
-                dest_coordinates,
-                self.side.name,
-                val,
-                self.prev_time_iso
-            )
-
-            send_move(local, network, move)
+            send_command(local, network, move)
             self.board.reset_picked_up()
             self.state = STATE.PICK_PIECE
             self.is_render_required = True
@@ -240,37 +238,43 @@ class Player:
         self.opponent_promoting = promoting
 
 
-def parse_command(command: str, info: str, match_fen: Fen,
+def parse_command(command: Command, match_fen: Fen,
                   *players: Player, local: bool = False) -> None:
-    match command_manager.COMMANDS(command):
-        case command_manager.COMMANDS.UPDATE_FEN:
-            match_info, white_time, black_time = info.split(I_SPLIT)
-            if not local: match_fen.notation = match_info
-            list(map(lambda player: player.update_pieces_location(match_fen), players))
-            list(map(lambda player: player.update_turn(match_fen), players))
-            list(map(lambda player: player.timer_gui.update(
-                player.side, match_fen.data.active_color, float(white_time), float(black_time)
-            ), players))
-            list(map(lambda player: player.set_read_input(True), players))
-            list(map(lambda player: player.set_opponent_promoting(False), players))
-        case command_manager.COMMANDS.END_GAME:
-            list(map(lambda player: player.end_game(), players))
-        case command_manager.COMMANDS.INVALID_MOVE:
-            list(map(lambda player: player.set_require_render(True), players))
-            list(map(lambda player: player.set_read_input(True), players))
-        case command_manager.COMMANDS.UPDATE_CAP_PIECES:
-            list(map(lambda player: player.captured_gui.set_captured_pieces(info), players))
-        case command_manager.COMMANDS.PICKING_PROMOTION:
-            list(map(lambda player: player.set_opponent_promoting(True), players))
-        case _:
-            assert False, f" {command} : Command not recognised"
+    if command.name == Type.UPDATE_FEN.name:
+        fen_notation: str = command.info[CommandManager.fen_notation]
+        white_time: str = command.info[CommandManager.white_time_left]
+        black_time: str = command.info[CommandManager.black_time_left]
+        if not local: match_fen.notation = fen_notation
+        list(map(lambda player: player.update_pieces_location(match_fen), players))
+        list(map(lambda player: player.update_turn(match_fen), players))
+        list(map(lambda player: player.timer_gui.update(
+            player.side, match_fen.data.active_color, float(white_time), float(black_time)
+        ), players))
+        list(map(lambda player: player.set_read_input(True), players))
+        list(map(lambda player: player.set_opponent_promoting(False), players))
+
+    elif command.name == Type.END_GAME.name:
+        list(map(lambda player: player.end_game(), players))
+
+    elif command.name == Type.INVALID_MOVE.name:
+        list(map(lambda player: player.set_require_render(True), players))
+        list(map(lambda player: player.set_read_input(True), players))
+
+    elif command.name == Type.UPDATE_CAP_PIECES.name:
+        captured_pieces: str = command.info[CommandManager.captured_pieces]
+        list(map(lambda player: player.captured_gui.set_captured_pieces(captured_pieces), players))
+
+    elif command.name == Type.PICKING_PROMOTION.name:
+        list(map(lambda player: player.set_opponent_promoting(True), players))
+
+    else:
+        assert False, f" {command} : Command not recognised"
 
 
 def parse_command_local(match_fen: Fen, *players: Player) -> None:
-    command = command_manager.read_from(command_manager.PLAYER)
+    command = CommandManager.read_from(CommandManager.PLAYER)
     if command is None: return
-    cmd, info = command_manager.split_command_info(command.info)
-    parse_command(cmd, info, match_fen, *players, local=True)
+    parse_command(command, match_fen, *players, local=True)
 
 
 def update_available_moves(board_square: chess_board.BoardSquare, match_fen: Fen,
@@ -303,8 +307,8 @@ def is_pawn_promotion(from_board_square: chess_board.BoardSquare,
     return True
 
 
-def send_move(local: bool, network: network_manager.ChessNetwork | None, move: command_manager.Command) -> None:
+def send_command(local: bool, network: network_manager.ChessNetwork | None, command: Command) -> None:
     if local:
-        command_manager.send_to(command_manager.MATCH, move)
+        CommandManager.send_to(CommandManager.MATCH, command)
     else:
-        if network: network.socket.send(str.encode(move.info))
+        if network: network.socket.send(CommandManager.serialize_command(command))
