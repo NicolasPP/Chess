@@ -82,8 +82,8 @@ def get_player(init_info: ClientInitInfo) -> Player:
 
 def get_colors(player: Player) -> tuple[str, str]:
     bg_color = 'white' if player.side == chess_board.SIDE.WHITE else 'black'
-    font_color = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
-    return bg_color, font_color
+    fg_color = 'black' if player.side == chess_board.SIDE.WHITE else 'white'
+    return bg_color, fg_color
 
 
 def set_delta_time() -> None:
@@ -104,7 +104,7 @@ def run_main_loop(server_ip: str) -> None:
     player = get_player(init_info)
     match_fen = Fen(init_info.fen_str)
 
-    bg_color, font_color = get_colors(player)
+    bg_color, fg_color = get_colors(player)
     player.center_board(window_size)
 
     player.update_turn(match_fen)
@@ -120,7 +120,7 @@ def run_main_loop(server_ip: str) -> None:
             player.parse_input(event, match_fen, network=network)
 
         update_window_caption(player)
-        player.render(bg_color)
+        player.render(fg_color, bg_color)
         player.update(delta_time)
 
         pygame.display.flip()
