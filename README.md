@@ -18,8 +18,7 @@ Local :
 Network :
 - start the server
 ```
-python src/server.py	// default ip address = 127.0.0.1
-python src/server.py --ip	// specified ip adress
+python src/server.py
 ```
 - start the client
 ```
