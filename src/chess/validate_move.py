@@ -1,5 +1,5 @@
 import utils.forsyth_edwards_notation as notation
-import chess.piece as chess_piece
+from chess.piece_movement import get_available_moves, get_possible_threats
 
 
 def is_move_valid(from_index: int, dest_index: int, fen: notation.Fen) -> bool:
@@ -13,7 +13,7 @@ def is_opponent_in_check(fen: notation.Fen, is_white_turn: None | bool = None) -
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     opponent_king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(not is_white_turn)
     opponents_king_index = fen.get_indexes_for_piece(opponent_king_fen)
-    threats = chess_piece.get_possible_threats(opponents_king_index[0], fen, not is_white_turn)
+    threats = get_possible_threats(opponents_king_index[0], fen, not is_white_turn)
     return len(threats) != 0
 
 
@@ -35,7 +35,7 @@ def get_all_available_moves(fen: notation.Fen, is_white_turn: None | bool = None
         if fen_char == notation.FenChars.BLANK_PIECE.value: continue
         if not same_side if own_moves else same_side: continue
 
-        moves += chess_piece.get_available_moves(fen_char, index, fen, own_moves == is_white_turn)
+        moves += get_available_moves(fen_char, index, fen, own_moves == is_white_turn)
 
     return moves
 
@@ -59,7 +59,7 @@ def is_side_valid(from_index: int, dest_index: int, fen: notation.Fen) -> bool:
 
 
 def is_destination_valid(from_index: int, dest_index: int, fen: notation.Fen) -> bool:
-    available_moves = chess_piece.get_available_moves(fen[from_index], from_index, fen)
+    available_moves = get_available_moves(fen[from_index], from_index, fen)
     if dest_index not in available_moves: return False
     return True
 

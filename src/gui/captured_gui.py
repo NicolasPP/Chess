@@ -1,6 +1,7 @@
 import pygame
 
-from chess.piece import Pieces, Side
+from chess.piece_assets import PieceAssets
+from chess.piece_movement import Side
 from utils.forsyth_edwards_notation import validate_fen_val
 from utils.asset import scale, PieceSetAssets
 
@@ -59,7 +60,7 @@ class CapturedGui:
 
     def copy_and_resize_pieces(self) -> dict[str, pygame.surface.Surface]:
         copy_pieces: dict[str, pygame.surface.Surface] = {}
-        for fen_val, sprite in Pieces.load_pieces_sprites(
+        for fen_val, sprite in PieceAssets.load_pieces_sprites(
                 PieceSetAssets.SIMPLE16x16.value, self.base_scale_factor).items():
             copy_pieces[fen_val] = scale(sprite.surface, self.scale_factor)
         return copy_pieces

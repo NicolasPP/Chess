@@ -3,7 +3,7 @@ import enum
 import re
 import typing
 
-from chess.piece import get_available_moves
+from chess.piece_movement import get_available_moves
 from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.algebraic_notation import AlgebraicNotation, get_an_from_index
 

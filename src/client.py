@@ -13,7 +13,7 @@ from utils.forsyth_edwards_notation import Fen
 from utils.command_manager import CommandManager, Command
 from utils.asset import PieceSetAssets, BoardAssets
 from utils.network import ChessNetwork
-from chess.piece import Side
+from chess.piece_movement import Side
 
 from config import *
 

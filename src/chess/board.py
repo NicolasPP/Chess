@@ -8,7 +8,7 @@ import pygame
 
 from utils.algebraic_notation import AlgebraicNotation
 from utils.forsyth_edwards_notation import FenChars
-from chess.piece import Side
+from chess.piece_movement import Side
 import utils.asset as asset_manager
 from config import *
 

@@ -1,7 +1,7 @@
 import pytest
 
 from utils.forsyth_edwards_notation import Fen, FenChars
-from chess.piece import get_available_moves
+from chess.piece_movement import get_available_moves
 
 fen = Fen("8/5pp1/2p2P2/2P5/7p/1P2p3/2P1PP1P/8 w KQkq - 0 1")
 

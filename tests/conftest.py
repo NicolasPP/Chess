@@ -1,5 +1,5 @@
-from chess.piece import Pieces
+from chess.piece_movement import PieceMovement
 
 
 def pytest_sessionstart(session):
-    Pieces.load_pieces_info()
+    PieceMovement.load()

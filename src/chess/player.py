@@ -3,8 +3,9 @@ import datetime
 
 import pygame
 
+from chess.piece_assets import PieceAssets
+from chess.piece_movement import Side, PieceMovement, get_available_moves, is_king_safe
 from chess.board import Board, BoardSquare, RenderPos
-from chess.piece import Side, Pieces, get_available_moves, is_king_safe
 from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
 from gui.timer_gui import TimerGui
@@ -36,7 +37,8 @@ class Player:
                  board_asset: BoardAssets,
                  scale: float,
                  time_left: float):
-        Pieces.load(piece_set.value, scale)
+        PieceAssets.load(piece_set.value, scale)
+        PieceMovement.load()
         self.side: Side = side
         self.board: Board = Board(board_asset.value, side, scale)
         self.turn: bool = side is Side.WHITE
@@ -170,7 +172,7 @@ class Player:
     def render_pieces(self) -> None:
         def render_board_square(bs: BoardSquare,
                                 offset: pygame.math.Vector2) -> None:
-            piece_surface = Pieces.sprites[bs.fen_val].surface
+            piece_surface = PieceAssets.sprites[bs.fen_val].surface
             piece_pos: RenderPos = BoardSquare.get_piece_render_pos(bs, offset, piece_surface)
             pygame.display.get_surface().blit(piece_surface, (piece_pos.x, piece_pos.y))
 

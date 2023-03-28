@@ -6,7 +6,7 @@ import pygame
 
 from chess.match import Match
 from chess.player import Player, parse_command_local, STATE
-from chess.piece import Side
+from chess.piece_movement import Side
 from utils.asset import PieceSetAssets, BoardAssets
 from chess.chess_timer import DefaultConfigs
 from config import *

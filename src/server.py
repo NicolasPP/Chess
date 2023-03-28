@@ -4,7 +4,8 @@ import socket as skt
 
 import click
 
-from chess.piece import Pieces, Side
+# from chess.piece import Pieces, Side
+from chess.piece_movement import PieceMovement, Side
 from chess.match import MoveTags, Match
 from utils.forsyth_edwards_notation import encode_fen_data
 from utils.command_manager import CommandManager, Command, Type
@@ -44,7 +45,7 @@ class Server(Net):
         self.client_id: int = -1
         self.match: Match = Match(DefaultConfigs.RAPID_15_10)
         self.client_sockets: list[skt.socket] = []
-        Pieces.load_pieces_info()
+        PieceMovement.load_pieces_info()
 
     def start(self) -> None:
         logging.info('Server started')

@@ -6,7 +6,7 @@ import chess.validate_move as validate_move
 from utils.algebraic_notation import get_index_from_an
 from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
 from chess.chess_timer import TimerConfig
-from chess.piece import Side
+from chess.piece_movement import Side
 from utils.command_manager import Command, CommandManager, Type
 from config import *
 
