@@ -6,7 +6,6 @@ from utils.forsyth_edwards_notation import validate_fen_val
 from utils.asset import scale, PieceSetAssets
 
 
-# TODO: 16x32 pieces dont look good at the bottom of the board, maybe show only the characters
 class CapturedGui:
     def __init__(
             self,
