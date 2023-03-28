@@ -2,9 +2,6 @@ import _thread as thread
 import logging
 import socket as skt
 
-import click
-
-# from chess.piece import Pieces, Side
 from chess.piece_movement import PieceMovement, Side
 from chess.match import MoveTags, Match
 from utils.forsyth_edwards_notation import encode_fen_data
@@ -125,11 +122,5 @@ def client_listener(client_socket: skt.socket, server: Server):
         logging.info("client : %s  disconnected", p_id)
 
 
-@click.command()
-@click.option('--ip', default='', help='set ip address of server, default = 127.0.0.1')
-def start_server(ip: str) -> None:
-    Server(ip).run()
-
-
 if __name__ == '__main__':
-    start_server()
+    Server('').run()
