@@ -11,7 +11,6 @@ from utils.asset import PieceSetAssets, BoardAssets
 from gui.timer_gui import TimerGui
 from utils.command_manager import CommandManager, ClientCommand, ServerCommand, Command
 from gui.end_game_gui import EndGameGui
-from gui.game_over_gui import GameOverGui
 from utils.network import ChessNetwork
 
 from gui.promotion_gui import PromotionGui
@@ -27,9 +26,11 @@ class MOUSECLICK(enum.Enum):
 
 
 class STATE(enum.Enum):
-    PICK_PIECE: int = 0
-    DROP_PIECE: int = 1
-    PROMPT: int = 2
+    PICK_PIECE = enum.auto()
+    DROP_PIECE = enum.auto()
+    PICKING_PROMOTION = enum.auto()
+    OFFERED_DRAW = enum.auto()
+    RESPOND_DRAW = enum.auto()
 
 
 class Player:
@@ -61,7 +62,6 @@ class Player:
         self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect,
                                                    self.board.board_sprite.background,
                                                    self.board.board_sprite.foreground)
-        self.game_over_gui: GameOverGui = GameOverGui(self.board.board_sprite.background)
 
     def parse_input(
             self,
@@ -83,9 +83,14 @@ class Player:
             self,
             network: ChessNetwork | None = None,
             local: bool = False) -> None:
+        if self.state == STATE.RESPOND_DRAW: return
+        if self.state == STATE.OFFERED_DRAW: return
         mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
-            print('offering a draw')
+            self.state = STATE.OFFERED_DRAW
+            draw_info: dict[str, str] = {CommandManager.side: self.side.name}
+            offer_draw = CommandManager.get(ClientCommand.OFFER_DRAW, draw_info)
+            send_command(local, network, offer_draw)
 
         elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
             end_game = CommandManager.get(ClientCommand.RESIGN)
@@ -131,7 +136,7 @@ class Player:
             self.board.reset_picked_up()
 
         else:
-            self.state = STATE.PROMPT
+            self.state = STATE.PICKING_PROMOTION
             if not local:
                 picking_promotion = CommandManager.get(ClientCommand.PICKING_PROMOTION)
                 send_command(local, network, picking_promotion)
@@ -141,7 +146,7 @@ class Player:
 
     def handle_mouse_down_left(self, network: ChessNetwork | None, local: bool) -> None:
         if self.state is STATE.DROP_PIECE: return
-        if self.state is STATE.PROMPT:
+        if self.state is STATE.PICKING_PROMOTION:
             self.handle_pick_promotion(local, network)
         elif self.state is STATE.PICK_PIECE:
             board_square = self.board.get_collided_board_square()
@@ -176,13 +181,21 @@ class Player:
 
     def update(self, delta_time: float) -> None:
         if self.game_over: return
-        if self.state == STATE.PROMPT: return
+        if self.state == STATE.PICKING_PROMOTION: return
+        if self.state == STATE.OFFERED_DRAW: return
+        if self.state == STATE.RESPOND_DRAW: return
         if self.opponent_promoting: return
         self.timer_gui.tick(delta_time)
 
+    def handle_draw_offer(self, side: str) -> None:
+        self.end_game_gui.offer_draw.set_hover(False)
+        self.end_game_gui.resign.set_hover(False)
+        if self.side.name != side:
+            self.state = STATE.RESPOND_DRAW
+
     def render(self) -> None:
         if self.game_over:
-            self.game_over_gui.render()
+            self.end_game_gui.game_over_gui.render()
             return
 
         if self.is_render_required or self.state is STATE.DROP_PIECE:
@@ -194,8 +207,11 @@ class Player:
                 self.show_available_moves()
                 self.board.get_picked_up().render(self.board.pos_rect.topleft)
 
-        if self.state is STATE.PROMPT:
+        if self.state is STATE.PICKING_PROMOTION:
             self.promotion_gui.render()
+
+        if self.state is STATE.RESPOND_DRAW: pass
+        if self.state is STATE.OFFERED_DRAW: pass
 
         self.is_render_required = False
         self.timer_gui.render()
@@ -218,13 +234,10 @@ class Player:
             update_available_moves(board_square, fen, self.side)
         self.is_render_required = True
 
-    def progress_state(self) -> None:
-        self.state = STATE((self.state.value + 1) % len(list(STATE)))
-
     def end_game(self) -> None:
         self.turn = False
         self.game_over = True
-        self.game_over_gui.set_final_frame()
+        self.end_game_gui.game_over_gui.set_final_frame()
 
     def update_turn(self, fen: Fen) -> None:
         if self.side is Side.WHITE:
@@ -288,6 +301,9 @@ def process_server_command(command: Command, match_fen: Fen,
 
     elif command.name == ServerCommand.CLIENT_PROMOTING.name:
         list(map(lambda player: player.set_opponent_promoting(True), players))
+
+    elif command.name == ServerCommand.CLIENT_DRAW_OFFER.name:
+        list(map(lambda player: player.handle_draw_offer(command.info[CommandManager.side]), players))
 
     else:
         assert False, f" {command.name} : Command not recognised"
