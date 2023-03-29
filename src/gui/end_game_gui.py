@@ -1,4 +1,5 @@
 import pygame
+from gui.game_over_gui import GameOverGui
 from gui.button_gui import ButtonGui
 
 from config import *
@@ -6,9 +7,10 @@ from config import *
 
 class EndGameGui:
     def __init__(self, board_rect: pygame.rect.Rect, bg_color: tuple[int, int, int], fg_color: tuple[int, int, int]):
-        self.board_rect = board_rect
-        self.offer_draw = ButtonGui(DRAW_BUTTON_WIDTH, DRAW_BUTTON_HEIGHT, bg_color)
-        self.resign = ButtonGui(RESIGN_BUTTON_WIDTH, RESIGN_BUTTON_HEIGHT, bg_color)
+        self.board_rect: pygame.rect.Rect = board_rect
+        self.offer_draw: ButtonGui = ButtonGui(DRAW_BUTTON_WIDTH, DRAW_BUTTON_HEIGHT, bg_color)
+        self.resign: ButtonGui = ButtonGui(RESIGN_BUTTON_WIDTH, RESIGN_BUTTON_HEIGHT, bg_color)
+        self.game_over_gui: GameOverGui = GameOverGui(bg_color)
         self.bg_color: tuple[int, int, int] = bg_color
         self.fg_color: tuple[int, int, int] = fg_color
 
