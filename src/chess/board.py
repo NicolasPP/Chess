@@ -94,12 +94,13 @@ class Board:
         board_size = pygame.math.Vector2(board_sprite.surface.get_size())
         return board_size - (offset * 2)
 
-    def __init__(self, board_asset: asset_manager.Asset, side: Side, scale: float):
-        self.sprite: asset_manager.Sprite = asset_manager.load_board(board_asset, scale)
-        replace_board_axis_vals(self.sprite, scale, side)
-        if side is Side.BLACK: self.sprite.surface = pygame.transform.flip(self.sprite.surface, True, True)
-        self.pos_rect: pygame.rect.Rect = self.sprite.surface.get_rect()
-        self.grid: list[BoardSquare] = BoardSquare.create_board_grid(self.sprite, self.pos_rect, side)
+    def __init__(self, board_asset: asset_manager.BoardAsset, side: Side, scale: float):
+        self.board_sprite: asset_manager.BoardSprite = asset_manager.load_board(board_asset, scale)
+        replace_board_axis_vals(self.board_sprite.sprite, scale, side)
+        if side is Side.BLACK:
+            self.board_sprite.sprite.surface = pygame.transform.flip(self.board_sprite.sprite.surface, True, True)
+        self.pos_rect: pygame.rect.Rect = self.board_sprite.sprite.surface.get_rect()
+        self.grid: list[BoardSquare] = BoardSquare.create_board_grid(self.board_sprite.sprite, self.pos_rect, side)
 
     def reset_picked_up(self) -> None:
         for sqr in self.grid: sqr.picked_up = False
@@ -135,11 +136,12 @@ class Board:
         board_offset = pygame.math.Vector2(self.pos_rect.topleft)
         for index in picked.available_moves:
             board_square = self.grid[index]
-            pos = pygame.math.Vector2(board_square.rect.topleft)
-            available_surface = pygame.surface.Surface(board_square.rect.size)
+            board_square_size = pygame.math.Vector2(board_square.rect.size) * AVAILABLE_MOVE_SCALE
+            available_surface = pygame.surface.Surface(board_square_size)
+            pos = available_surface.get_rect(center=board_square.rect.center)
             available_surface.fill(AVAILABLE_MOVE_COLOR)
             available_surface.set_alpha(AVAILABLE_ALPHA)
-            yield available_surface, board_offset + pos
+            yield available_surface, board_offset + pos.topleft
 
 
 def replace_board_axis_info(board_sprite: asset_manager.Sprite) -> \
