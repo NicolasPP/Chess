@@ -22,8 +22,6 @@ class EndGameGui:
         self.offer_draw.render()
         self.resign.render()
 
-    def update(self) -> None: pass
-
     def recalculate_pos(self) -> None:
         self.offer_draw.rect.bottomleft = self.board_rect.bottomright
         self.resign.rect.bottomleft = self.board_rect.bottomright
