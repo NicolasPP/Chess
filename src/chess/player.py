@@ -12,7 +12,7 @@ from gui.timer_gui import TimerGui
 from utils.command_manager import CommandManager, ClientCommand, ServerCommand, Command
 from gui.end_game_gui import EndGameGui
 from gui.game_over_gui import GameOverGui
-import utils.network as network_manager
+from utils.network import ChessNetwork
 
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
@@ -67,7 +67,7 @@ class Player:
             self,
             event: pygame.event.Event,
             fen: Fen,
-            network: network_manager.ChessNetwork | None = None,
+            network: ChessNetwork | None = None,
             local: bool = False) -> None:
         if self.game_over: return
         if not self.read_input: return
@@ -81,7 +81,7 @@ class Player:
 
     def handle_end_game_mouse_down(
             self,
-            network: network_manager.ChessNetwork | None = None,
+            network: ChessNetwork | None = None,
             local: bool = False) -> None:
         mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
@@ -91,7 +91,7 @@ class Player:
             end_game = CommandManager.get(ClientCommand.RESIGN)
             send_command(local, network, end_game)
 
-    def handle_left_mouse_up(self, network: network_manager.ChessNetwork | None, local: bool, fen: Fen) -> None:
+    def handle_left_mouse_up(self, network: ChessNetwork | None, local: bool, fen: Fen) -> None:
         if self.state is not STATE.DROP_PIECE: return
 
         dest_board_square = self.board.get_collided_board_square()
@@ -139,7 +139,7 @@ class Player:
         self.prev_left_mouse_up = pygame.mouse.get_pos()
         self.prev_time_iso = time_iso
 
-    def handle_mouse_down_left(self, network: network_manager.ChessNetwork | None, local: bool) -> None:
+    def handle_mouse_down_left(self, network: ChessNetwork | None, local: bool) -> None:
         if self.state is STATE.DROP_PIECE: return
         if self.state is STATE.PICK_PROMOTION:
             self.handle_pick_promotion(local, network)
@@ -150,7 +150,7 @@ class Player:
             self.board.set_picked_up(board_square)
             self.state = STATE.DROP_PIECE
 
-    def handle_pick_promotion(self, local: bool, network: network_manager.ChessNetwork | None) -> None:
+    def handle_pick_promotion(self, local: bool, network: ChessNetwork | None) -> None:
         for surface, rect, val in self.promotion_gui.promotion_pieces:
             if not rect.collidepoint(pygame.mouse.get_pos()): continue
             from_board_square = self.board.get_picked_up()
@@ -329,7 +329,7 @@ def is_pawn_promotion(from_board_square: BoardSquare,
     return True
 
 
-def send_command(local: bool, network: network_manager.ChessNetwork | None, command: Command) -> None:
+def send_command(local: bool, network: ChessNetwork | None, command: Command) -> None:
     if local:
         CommandManager.send_to(CommandManager.MATCH, command)
     else:

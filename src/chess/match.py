@@ -8,7 +8,7 @@ from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
 from chess.chess_timer import TimerConfig
 from chess.piece_movement import Side
 from utils.command_manager import Command, CommandManager, ClientCommand, ServerCommand
-from config import *
+from config import HALF_MOVE_LIMIT
 
 
 class MoveTags(enum.Enum):
