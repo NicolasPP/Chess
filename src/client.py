@@ -64,12 +64,6 @@ def get_player(init_info: Command) -> Player:
     return player
 
 
-def get_colors(player: Player) -> tuple[str, str]:
-    bg_color = 'white' if player.side == Side.WHITE else 'black'
-    fg_color = 'black' if player.side == Side.WHITE else 'white'
-    return bg_color, fg_color
-
-
 def set_delta_time() -> None:
     global prev_time, delta_time
     now = time.time()
@@ -88,7 +82,6 @@ def run_main_loop(server_ip: str) -> None:
     player = get_player(init_info)
     match_fen = Fen(init_info.info[CommandManager.fen_notation])
 
-    bg_color, fg_color = get_colors(player)
     player.set_to_default_pos(window_size)
 
     player.update_turn(match_fen)
@@ -104,7 +97,7 @@ def run_main_loop(server_ip: str) -> None:
             player.parse_input(event, match_fen, network=network)
 
         update_window_caption(player)
-        player.render(fg_color, bg_color)
+        player.render()
         player.update(delta_time)
 
         pygame.display.flip()
