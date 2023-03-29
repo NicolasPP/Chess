@@ -60,12 +60,6 @@ def update_window_caption(*players: Player) -> None:
         return
 
 
-def get_colors(player: Player) -> tuple[str, str]:
-    bg = 'white' if player.side == Side.WHITE else 'black'
-    font = 'black' if player.side == Side.WHITE else 'white'
-    return bg, font
-
-
 white_player.set_to_default_pos(window_size)
 black_player.set_to_default_pos(window_size)
 
@@ -78,7 +72,6 @@ while not done:
     fps = round(clock.get_fps())
 
     current_player = white_player if is_white else black_player
-    bg_color, fg_color = get_colors(current_player)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: done = True
@@ -96,7 +89,7 @@ while not done:
 
     white_player.update(delta_time)
     black_player.update(delta_time)
-    current_player.render(fg_color, bg_color)
+    current_player.render()
 
     pygame.display.flip()
 

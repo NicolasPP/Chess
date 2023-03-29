@@ -10,6 +10,7 @@ from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
 from gui.timer_gui import TimerGui
 from utils.command_manager import CommandManager, Type, Command
+from gui.end_game_gui import EndGameGui
 import utils.network as network_manager
 
 from gui.promotion_gui import PromotionGui
@@ -39,20 +40,27 @@ class Player:
                  time_left: float):
         PieceAssets.load(piece_set.value, scale)
         PieceMovement.load()
-        self.side: Side = side
+
         self.board: Board = Board(board_asset.value, side, scale)
-        self.turn: bool = side is Side.WHITE
+        self.side: Side = side
         self.state: STATE = STATE.PICK_PIECE
-        self.is_render_required: bool = True
-        self.game_over = False
-        self.promotion_gui = PromotionGui(self.side, self.board.sprite.surface.get_rect())
-        self.captured_gui = CapturedGui('', self.board.pos_rect,
-                                        'white' if self.side is Side.WHITE else 'black', scale)
-        self.timer_gui = TimerGui(time_left, self.board.pos_rect)
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
         self.prev_time_iso: str | None = None
+
+        self.turn: bool = side is Side.WHITE
+        self.is_render_required: bool = True
+        self.game_over: bool = False
         self.read_input: bool = True
         self.opponent_promoting: bool = False
+
+        self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.board_sprite.sprite.surface.get_rect())
+        self.captured_gui: CapturedGui = CapturedGui('', self.board.pos_rect,
+                                                     'white' if self.side is Side.WHITE else 'black', scale)
+        self.timer_gui: TimerGui = TimerGui(time_left, self.board.pos_rect,
+                                            self.board.board_sprite.background, self.board.board_sprite.foreground)
+        self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect,
+                                                   self.board.board_sprite.background,
+                                                   self.board.board_sprite.foreground)
 
     def parse_input(
             self,
@@ -154,18 +162,19 @@ class Player:
         if self.opponent_promoting: return
         self.timer_gui.tick(delta_time)
 
-    def render(self, fg_color: str, bg_color: str) -> None:
+    def render(self) -> None:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
-            pygame.display.get_surface().fill(bg_color)
+            pygame.display.get_surface().fill(self.board.board_sprite.background)
             self.captured_gui.render(self.side)
             self.render_board()
         if self.state is STATE.PICK_PROMOTION:
             self.promotion_gui.render()
         self.is_render_required = False
-        self.timer_gui.render(fg_color, bg_color)
+        self.timer_gui.render()
+        self.end_game_gui.render()
 
     def render_board(self) -> None:
-        pygame.display.get_surface().blit(self.board.sprite.surface, self.board.pos_rect)
+        pygame.display.get_surface().blit(self.board.board_sprite.sprite.surface, self.board.pos_rect)
         if self.state is STATE.DROP_PIECE: self.show_available_moves()
         self.render_pieces()
 
@@ -233,6 +242,7 @@ class Player:
         self.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
         self.board.pos_rect.x = 0
         self.timer_gui.recalculate_pos()
+        self.end_game_gui.recalculate_pos()
 
     def set_read_input(self, read_input: bool) -> None:
         self.read_input = read_input
