@@ -31,7 +31,7 @@ class PieceMovement:
         PieceMovement.load_pieces_info()
 
     @staticmethod
-    def get_getter_from_fen(fen_val: str) -> AvailableMovesGetter:
+    def available_moves_getter(fen_val: str) -> AvailableMovesGetter:
         if len(PieceMovement.getters) == 0: raise Exception("Pieces info has not been loaded")
         getter = PieceMovement.getters.get(fen_val.upper())
         if getter is None: raise Exception(f"fen value not found {fen_val}")
@@ -42,7 +42,7 @@ def get_available_moves(fen_val: str, from_index: int,
                         fen: notation.Fen, is_white_turn: None | bool = None
                         ) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    available_moves = PieceMovement.get_getter_from_fen(fen_val)(from_index, fen, is_white_turn)
+    available_moves = PieceMovement.available_moves_getter(fen_val)(from_index, fen, is_white_turn)
 
     if fen_val.upper() == notation.FenChars.DEFAULT_KING.value:
         return process_king_available_moves(from_index, is_white_turn, fen, available_moves)
@@ -82,7 +82,7 @@ def get_possible_threats(piece_index: int, fen: notation.Fen, is_white_turn: boo
     for threat_index in rest_possible_threats:
         if fen[threat_index] == notation.FenChars.BLANK_PIECE.value: continue
 
-        threat_available_moves_getter: AvailableMovesGetter = PieceMovement.get_getter_from_fen(fen[threat_index])
+        threat_available_moves_getter: AvailableMovesGetter = PieceMovement.available_moves_getter(fen[threat_index])
         threat_possible_moves = threat_available_moves_getter(threat_index, fen, not is_white_turn)
 
         for move in threat_possible_moves:
