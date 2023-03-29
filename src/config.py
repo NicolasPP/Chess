@@ -1,6 +1,7 @@
 # -- Alpha --
 AVAILABLE_ALPHA: int = 100
 GAME_OVER_ALPHA: int = 100
+HOVER_ALPHA: int = 70
 OPAQUE: int = 255
 
 
