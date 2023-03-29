@@ -16,6 +16,8 @@ import utils.network as network_manager
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
 
+from config import GAME_OVER_ALPHA, GAME_OVER_COLOR
+
 
 class MOUSECLICK(enum.Enum):
     LEFT: int = 1
@@ -61,6 +63,9 @@ class Player:
         self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect,
                                                    self.board.board_sprite.background,
                                                    self.board.board_sprite.foreground)
+        self.game_over_surface: pygame.surface.Surface = pygame.surface.Surface(pygame.display.get_surface().get_size())
+        self.game_over_surface.set_alpha(GAME_OVER_ALPHA)
+        self.game_over_surface.fill(GAME_OVER_COLOR)
 
     def parse_input(
             self,
@@ -68,22 +73,27 @@ class Player:
             fen: Fen,
             network: network_manager.ChessNetwork | None = None,
             local: bool = False) -> None:
+        if self.game_over: return
         if not self.read_input: return
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSECLICK.LEFT.value:
                 self.handle_mouse_down_left(network, local)
-                self.handle_end_game_mouse_down()
+                self.handle_end_game_mouse_down(network, local)
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == MOUSECLICK.LEFT.value:
                 self.handle_left_mouse_up(network, local, fen)
 
-    def handle_end_game_mouse_down(self) -> None:
+    def handle_end_game_mouse_down(
+            self,
+            network: network_manager.ChessNetwork | None = None,
+            local: bool = False) -> None:
         mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
             print('offering a draw')
 
         elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
-            print('resigning game')
+            end_game = CommandManager.get(Type.END_GAME)
+            send_command(local, network, end_game)
 
     def handle_left_mouse_up(self, network: network_manager.ChessNetwork | None, local: bool, fen: Fen) -> None:
         if self.state is not STATE.DROP_PIECE: return
@@ -169,6 +179,7 @@ class Player:
             self.is_render_required = True
 
     def update(self, delta_time: float) -> None:
+        if self.game_over: return
         if self.state == STATE.PICK_PROMOTION: return
         if self.opponent_promoting: return
         self.timer_gui.tick(delta_time)
@@ -180,9 +191,12 @@ class Player:
             self.render_board()
         if self.state is STATE.PICK_PROMOTION:
             self.promotion_gui.render()
-        self.is_render_required = False
+        if not self.game_over:
+            self.is_render_required = False
         self.timer_gui.render()
         self.end_game_gui.render()
+        if self.game_over:
+            pygame.display.get_surface().blit(self.game_over_surface, (0, 0))
 
     def render_board(self) -> None:
         pygame.display.get_surface().blit(self.board.board_sprite.sprite.surface, self.board.pos_rect)
@@ -227,6 +241,7 @@ class Player:
     def end_game(self) -> None:
         self.turn = False
         self.game_over = True
+        self.is_render_required = True
 
     def update_turn(self, fen: Fen) -> None:
         if self.side is Side.WHITE:
@@ -292,7 +307,7 @@ def parse_command(command: Command, match_fen: Fen,
         list(map(lambda player: player.set_opponent_promoting(True), players))
 
     else:
-        assert False, f" {command} : Command not recognised"
+        assert False, f" {command.name} : Command not recognised"
 
 
 def parse_command_local(match_fen: Fen, *players: Player) -> None:
