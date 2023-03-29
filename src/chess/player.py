@@ -8,13 +8,13 @@ from chess.piece_movement import Side, PieceMovement, get_available_moves, is_ki
 from chess.board import Board, BoardSquare
 from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
-from gui.timer_gui import TimerGui
 from utils.command_manager import CommandManager, ClientCommand, ServerCommand, Command
-from gui.end_game_gui import EndGameGui
 from utils.network import ChessNetwork
-
+from gui.timer_gui import TimerGui
+from gui.end_game_gui import EndGameGui
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
+from gui.yes_or_gui import YesOrNoGui
 
 
 class MOUSECLICK(enum.Enum):
@@ -31,6 +31,8 @@ class STATE(enum.Enum):
     PICKING_PROMOTION = enum.auto()
     OFFERED_DRAW = enum.auto()
     RESPOND_DRAW = enum.auto()
+    DRAW_DOUBLE_CHECK = enum.auto()
+    RESIGN_DOUBLE_CHECK = enum.auto()
 
 
 class Player:
@@ -62,6 +64,7 @@ class Player:
         self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect,
                                                    self.board.board_sprite.background,
                                                    self.board.board_sprite.foreground)
+        self.yes_or_no_gui: YesOrNoGui = YesOrNoGui(self.board.pos_rect)
 
     def parse_input(
             self,
@@ -74,27 +77,20 @@ class Player:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSECLICK.LEFT.value:
                 self.handle_mouse_down_left(network, local)
-                self.handle_end_game_mouse_down(network, local)
+                self.handle_end_game_mouse_down()
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == MOUSECLICK.LEFT.value:
                 self.handle_left_mouse_up(network, local, fen)
 
-    def handle_end_game_mouse_down(
-            self,
-            network: ChessNetwork | None = None,
-            local: bool = False) -> None:
+    def handle_end_game_mouse_down(self) -> None:
         if self.state == STATE.RESPOND_DRAW: return
         if self.state == STATE.OFFERED_DRAW: return
         mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
-            self.state = STATE.OFFERED_DRAW
-            draw_info: dict[str, str] = {CommandManager.side: self.side.name}
-            offer_draw = CommandManager.get(ClientCommand.OFFER_DRAW, draw_info)
-            send_command(local, network, offer_draw)
+            self.state = STATE.DRAW_DOUBLE_CHECK
 
         elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
-            end_game = CommandManager.get(ClientCommand.RESIGN)
-            send_command(local, network, end_game)
+            self.state = STATE.RESIGN_DOUBLE_CHECK
 
     def handle_left_mouse_up(self, network: ChessNetwork | None, local: bool, fen: Fen) -> None:
         if self.state is not STATE.DROP_PIECE: return
@@ -154,6 +150,33 @@ class Player:
             if board_square.fen_val == FenChars.BLANK_PIECE.value: return
             self.board.set_picked_up(board_square)
             self.state = STATE.DROP_PIECE
+        elif self.state is STATE.RESPOND_DRAW:
+            self.handle_yes_or_no_response()
+            if self.yes_or_no_gui.result is None: return
+            draw_response_info: dict[str, str] = {
+                CommandManager.draw_offer_result: str(int(self.yes_or_no_gui.result))
+            }
+            draw_response = CommandManager.get(ClientCommand.DRAW_RESPONSE, draw_response_info)
+            send_command(local, network, draw_response)
+            self.yes_or_no_gui.set_result(None)
+        elif self.state is STATE.DRAW_DOUBLE_CHECK or self.state is STATE.RESIGN_DOUBLE_CHECK:
+            self.handle_yes_or_no_response()
+            if self.yes_or_no_gui.result is None: return
+            if not self.yes_or_no_gui.result:
+                self.state = STATE.PICK_PIECE
+                self.set_require_render(True)
+                return
+            if self.state is STATE.DRAW_DOUBLE_CHECK:
+                self.state = STATE.OFFERED_DRAW
+                draw_info: dict[str, str] = {CommandManager.side: self.side.name}
+                offer_draw = CommandManager.get(ClientCommand.OFFER_DRAW, draw_info)
+                send_command(local, network, offer_draw)
+            else:
+                end_game = CommandManager.get(ClientCommand.RESIGN)
+                send_command(local, network, end_game)
+
+            self.yes_or_no_gui.set_result(None)
+            self.set_require_render(True)
 
     def handle_pick_promotion(self, local: bool, network: ChessNetwork | None) -> None:
         for surface, rect, val in self.promotion_gui.promotion_pieces:
@@ -193,6 +216,19 @@ class Player:
         if self.side.name != side:
             self.state = STATE.RESPOND_DRAW
 
+    def handle_yes_or_no_response(self) -> None:
+        mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
+        if self.yes_or_no_gui.yes.rect.collidepoint(mouse_pos):
+            self.yes_or_no_gui.set_result(True)
+
+        elif self.yes_or_no_gui.no.rect.collidepoint(mouse_pos):
+            self.yes_or_no_gui.set_result(False)
+
+    def continue_game(self) -> None:
+        self.end_game_gui.offer_draw.set_hover(True)
+        self.end_game_gui.resign.set_hover(True)
+        self.state = STATE.PICK_PIECE
+
     def render(self) -> None:
         if self.game_over:
             self.end_game_gui.game_over_gui.render()
@@ -210,7 +246,11 @@ class Player:
         if self.state is STATE.PICKING_PROMOTION:
             self.promotion_gui.render()
 
-        if self.state is STATE.RESPOND_DRAW: pass
+        if self.state is STATE.RESPOND_DRAW or \
+           self.state is STATE.DRAW_DOUBLE_CHECK or \
+           self.state is STATE.RESIGN_DOUBLE_CHECK:
+            self.yes_or_no_gui.render()
+
         if self.state is STATE.OFFERED_DRAW: pass
 
         self.is_render_required = False
@@ -265,6 +305,7 @@ class Player:
         self.board.pos_rect.x = 0
         self.timer_gui.recalculate_pos()
         self.end_game_gui.recalculate_pos()
+        self.yes_or_no_gui.recalculate_pos()
 
     def set_read_input(self, read_input: bool) -> None:
         self.read_input = read_input
@@ -304,6 +345,10 @@ def process_server_command(command: Command, match_fen: Fen,
 
     elif command.name == ServerCommand.CLIENT_DRAW_OFFER.name:
         list(map(lambda player: player.handle_draw_offer(command.info[CommandManager.side]), players))
+
+    elif command.name == ServerCommand.CONTINUE.name:
+        list(map(lambda player: player.continue_game(), players))
+        list(map(lambda player: player.set_require_render(True), players))
 
     else:
         assert False, f" {command.name} : Command not recognised"
