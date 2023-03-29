@@ -1,5 +1,7 @@
 # -- Alpha --
 AVAILABLE_ALPHA: int = 100
+GAME_OVER_ALPHA: int = 100
+
 
 # -- Size --
 WINDOW_SIZE: tuple[int, int] = 570, 570
@@ -20,7 +22,8 @@ PIECE_ASSET_COL: int = 6
 
 # -- Colors --
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = 76, 155, 87
-PIECE_BG: tuple[int, int, int] = 0, 0, 0
+PIECE_BG: tuple[int, int, int] = (0, 0, 0)
+GAME_OVER_COLOR: tuple[int, int, int] = (255, 255, 255)
 
 PLAIN1_BG: tuple[int, int, int] = (234, 240, 217)
 PLAIN1_FG: tuple[int, int, int] = (89, 96, 111)
