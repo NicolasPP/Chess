@@ -33,8 +33,14 @@ class BoardSquare:
         size = Board.get_grid_surface_size(board_sprite) / BOARD_SIZE
         board_offset = pygame.math.Vector2(pos_rect.topleft)
         grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
+
+        # don't really know why the white perspective is offset by a pixel on each axis
+        # but it is so here we are
+        white_offset = pygame.math.Vector2(1)
+
         for index in BoardSquare.get_board_squares_index(side):
             pos = pygame.math.Vector2(index.col * size.x, index.row * size.y)
+            if side is Side.WHITE: pos += white_offset
             rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
             grid.append(BoardSquare(rect, index.algebraic_notation, []))
         if side is Side.BLACK: grid = grid[::-1]
@@ -85,7 +91,7 @@ class Board:
 
     @staticmethod
     def get_grid_surface_size(board_sprite: asset_manager.Sprite) -> pygame.math.Vector2:
-        offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
+        offset = pygame.math.Vector2(GRID_OFFSET * board_sprite.scale)
         board_size = pygame.math.Vector2(board_sprite.surface.get_size())
         return board_size - (offset * 2)
 
