@@ -14,8 +14,13 @@ class TYPE(enum.Enum):
 class Asset:
     file: str
     a_type: TYPE
-    rows: int = 1
-    cols: int = 6
+
+
+@dataclasses.dataclass
+class BoardAsset:
+    asset: Asset
+    background: tuple[int, int, int]
+    foreground: tuple[int, int, int]
 
 
 @dataclasses.dataclass
@@ -25,16 +30,23 @@ class Sprite:
 
 
 @dataclasses.dataclass
+class BoardSprite:
+    sprite: Sprite
+    background: tuple[int, int, int]
+    foreground: tuple[int, int, int]
+
+
+@dataclasses.dataclass
 class PieceSet:
     white_asset: Asset
     black_asset: Asset
 
 
 class BoardAssets(enum.Enum):
-    PLAIN1: Asset = Asset('assets/boards/board_plain_01.png', TYPE.SPRITE)
-    PLAIN2: Asset = Asset('assets/boards/board_plain_02.png', TYPE.SPRITE)
-    PLAIN3: Asset = Asset('assets/boards/board_plain_03.png', TYPE.SPRITE)
-    PLAIN4: Asset = Asset('assets/boards/board_plain_04.png', TYPE.SPRITE)
+    PLAIN1: BoardAsset = BoardAsset(Asset('assets/boards/board_plain_01.png', TYPE.SPRITE), PLAIN1_BG, PLAIN1_FG)
+    PLAIN2: BoardAsset = BoardAsset(Asset('assets/boards/board_plain_02.png', TYPE.SPRITE), PLAIN2_BG, PLAIN2_FG)
+    PLAIN3: BoardAsset = BoardAsset(Asset('assets/boards/board_plain_03.png', TYPE.SPRITE), PLAIN3_BG, PLAIN3_FG)
+    PLAIN4: BoardAsset = BoardAsset(Asset('assets/boards/board_plain_04.png', TYPE.SPRITE), PLAIN4_BG, PLAIN4_FG)
 
 
 class PieceSetAssets(enum.Enum):
@@ -57,9 +69,9 @@ def scale(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surfa
     return pygame.transform.scale(surface, (round(size.x), round(size.y)))
 
 
-def sheet_surface_gen(asset: Asset, surface_size: pygame.math.Vector2):
-    for r in range(asset.rows):
-        for c in range(asset.cols):
+def sheet_surface_gen(surface_size: pygame.math.Vector2):
+    for r in range(PIECE_ASSET_ROW):
+        for c in range(PIECE_ASSET_COL):
             surface = pygame.surface.Surface(surface_size)
             surface.set_colorkey(PIECE_BG)
             index = pygame.math.Vector2(c, r).elementwise()
@@ -68,13 +80,13 @@ def sheet_surface_gen(asset: Asset, surface_size: pygame.math.Vector2):
 
 def load_sprite_sheet(asset: Asset, asset_scale: float) -> list[Sprite]:
     sheet_sprite = load_sprite(asset.file, sprite_scale=1)
-    sheet_dimensions = pygame.math.Vector2(asset.cols, asset.rows)
+    sheet_dimensions = pygame.math.Vector2(PIECE_ASSET_COL, PIECE_ASSET_ROW)
     sheet_size = pygame.math.Vector2(sheet_sprite.surface.get_size()).elementwise()
     surface_size = sheet_size / sheet_dimensions
 
     sprites = []
 
-    for surface, index in sheet_surface_gen(asset, surface_size):
+    for surface, index in sheet_surface_gen(surface_size):
         surface.blit(sheet_sprite.surface, surface_size * index * -1)
         surface = scale(surface, asset_scale)
         sprites.append(Sprite(surface, asset_scale))
@@ -88,8 +100,8 @@ def load_sprite(file: str, sprite_scale: float) -> Sprite:
     return Sprite(surface, sprite_scale)
 
 
-def load_board(asset: Asset, asset_scale: float) -> Sprite:
-    return load_sprite(asset.file, asset_scale)
+def load_board(board_asset: BoardAsset, asset_scale: float) -> BoardSprite:
+    return BoardSprite(load_sprite(board_asset.asset.file, asset_scale), board_asset.background, board_asset.foreground)
 
 
 def load_piece_set(piece_set: PieceSet, piece_scale: float) -> tuple[list[Sprite], list[Sprite]]:
