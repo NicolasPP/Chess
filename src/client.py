@@ -89,7 +89,7 @@ def run_main_loop(server_ip: str) -> None:
     match_fen = Fen(init_info.info[CommandManager.fen_notation])
 
     bg_color, fg_color = get_colors(player)
-    player.center_board(window_size)
+    player.set_to_default_pos(window_size)
 
     player.update_turn(match_fen)
     player.update_pieces_location(match_fen)

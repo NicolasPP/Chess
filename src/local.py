@@ -66,8 +66,8 @@ def get_colors(player: Player) -> tuple[str, str]:
     return bg, font
 
 
-white_player.center_board(window_size)
-black_player.center_board(window_size)
+white_player.set_to_default_pos(window_size)
+black_player.set_to_default_pos(window_size)
 
 is_white = True
 

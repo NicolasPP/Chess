@@ -228,9 +228,10 @@ class Player:
         opposite_side = Side.WHITE if self.side is Side.BLACK else Side.BLACK
         return f"{opposite_side.name}s TURN"
 
-    def center_board(self, window_size: pygame.math.Vector2) -> None:
+    def set_to_default_pos(self, window_size: pygame.math.Vector2) -> None:
         screen_center = window_size / 2
         self.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
+        self.board.pos_rect.x = 0
         self.timer_gui.recalculate_pos()
 
     def set_read_input(self, read_input: bool) -> None:
