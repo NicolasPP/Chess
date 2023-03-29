@@ -11,12 +11,11 @@ from utils.asset import PieceSetAssets, BoardAssets
 from gui.timer_gui import TimerGui
 from utils.command_manager import CommandManager, Type, Command
 from gui.end_game_gui import EndGameGui
+from gui.game_over_gui import GameOverGui
 import utils.network as network_manager
 
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
-
-from config import GAME_OVER_ALPHA, GAME_OVER_COLOR
 
 
 class MOUSECLICK(enum.Enum):
@@ -63,9 +62,7 @@ class Player:
         self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect,
                                                    self.board.board_sprite.background,
                                                    self.board.board_sprite.foreground)
-        self.game_over_surface: pygame.surface.Surface = pygame.surface.Surface(pygame.display.get_surface().get_size())
-        self.game_over_surface.set_alpha(GAME_OVER_ALPHA)
-        self.game_over_surface.fill(GAME_OVER_COLOR)
+        self.game_over_gui: GameOverGui = GameOverGui(self.board.board_sprite.background)
 
     def parse_input(
             self,
@@ -185,18 +182,19 @@ class Player:
         self.timer_gui.tick(delta_time)
 
     def render(self) -> None:
+        if self.game_over:
+            self.game_over_gui.render()
+            return
+
         if self.is_render_required or self.state is STATE.DROP_PIECE:
             pygame.display.get_surface().fill(self.board.board_sprite.background)
             self.captured_gui.render(self.side)
             self.render_board()
         if self.state is STATE.PICK_PROMOTION:
             self.promotion_gui.render()
-        if not self.game_over:
-            self.is_render_required = False
+        self.is_render_required = False
         self.timer_gui.render()
         self.end_game_gui.render()
-        if self.game_over:
-            pygame.display.get_surface().blit(self.game_over_surface, (0, 0))
 
     def render_board(self) -> None:
         pygame.display.get_surface().blit(self.board.board_sprite.sprite.surface, self.board.pos_rect)
@@ -241,7 +239,7 @@ class Player:
     def end_game(self) -> None:
         self.turn = False
         self.game_over = True
-        self.is_render_required = True
+        self.game_over_gui.set_final_frame()
 
     def update_turn(self, fen: Fen) -> None:
         if self.side is Side.WHITE:
