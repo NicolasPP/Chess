@@ -13,11 +13,6 @@ class Type(enum.Enum):
     INIT_INFO = enum.auto()
 
 
-class Destination(enum.Enum):
-    CLIENT = enum.auto()
-    SERVER = enum.auto()
-
-
 class Command:
     @staticmethod
     def is_name_valid(name: str) -> bool:
