@@ -30,7 +30,7 @@ class Match:
         self.white_time_left: float = timer_config.time
         self.black_time_left: float = timer_config.time
 
-    def process_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command])\
+    def process_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command]) \
             -> tuple[list[MoveTags], list[Command]]:
         if command.name == Type.PICKING_PROMOTION.name:
             commands.append(CommandManager.get(Type.PICKING_PROMOTION))
@@ -115,24 +115,23 @@ class Match:
             CommandManager.black_time_left: str(self.black_time_left)
         }
         update_fen_command: Command = CommandManager.get(Type.UPDATE_FEN, update_fen_info)
-        match tag:
-            case MoveTags.CHECK:
-                ext_commands.append(update_fen_command)
-            case MoveTags.CHECKMATE:
-                end_game_command: Command = CommandManager.get(Type.END_GAME)
-                ext_commands.append(end_game_command)
-                ext_commands.append(update_fen_command)
-            case MoveTags.REGULAR:
-                ext_commands.append(update_fen_command)
-            case MoveTags.INVALID:
-                invalid_move_command: Command = CommandManager.get(Type.INVALID_MOVE)
-                ext_commands.append(invalid_move_command)
-            case MoveTags.TAKE:
-                update_captured_info: dict[str, str] = {CommandManager.captured_pieces: self.captured_pieces}
-                update_captured_pieces = CommandManager.get(Type.UPDATE_CAP_PIECES, update_captured_info)
-                ext_commands.append(update_captured_pieces)
-            case _:
-                assert False, "INVALID MATCH.MOVE_TAG"
+        if tag == MoveTags.CHECK:
+            ext_commands.append(update_fen_command)
+        elif tag == MoveTags.CHECKMATE:
+            end_game_command: Command = CommandManager.get(Type.END_GAME)
+            ext_commands.append(end_game_command)
+            ext_commands.append(update_fen_command)
+        elif tag == MoveTags.REGULAR:
+            ext_commands.append(update_fen_command)
+        elif tag == MoveTags.INVALID:
+            invalid_move_command: Command = CommandManager.get(Type.INVALID_MOVE)
+            ext_commands.append(invalid_move_command)
+        elif tag == MoveTags.TAKE:
+            update_captured_info: dict[str, str] = {CommandManager.captured_pieces: self.captured_pieces}
+            update_captured_pieces = CommandManager.get(Type.UPDATE_CAP_PIECES, update_captured_info)
+            ext_commands.append(update_captured_pieces)
+        else:
+            assert False, "INVALID MATCH.MOVE_TAG"
         return ext_commands
 
     def process_match_state(self, commands: list[Command]) -> list[Command]:
