@@ -5,7 +5,7 @@ import pygame
 
 from chess.piece_assets import PieceAssets
 from chess.piece_movement import Side, PieceMovement, get_available_moves, is_king_safe
-from chess.board import Board, BoardSquare, RenderPos
+from chess.board import Board, BoardSquare
 from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
 from gui.timer_gui import TimerGui
@@ -55,8 +55,7 @@ class Player:
         self.opponent_promoting: bool = False
 
         self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.board_sprite.sprite.surface.get_rect())
-        self.captured_gui: CapturedGui = CapturedGui('', self.board.pos_rect,
-                                                     'white' if self.side is Side.WHITE else 'black', scale)
+        self.captured_gui: CapturedGui = CapturedGui('', self.board.pos_rect, self.board.board_sprite.background, scale)
         self.timer_gui: TimerGui = TimerGui(time_left, self.board.pos_rect,
                                             self.board.board_sprite.background, self.board.board_sprite.foreground)
         self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect,
@@ -189,32 +188,18 @@ class Player:
         if self.is_render_required or self.state is STATE.DROP_PIECE:
             pygame.display.get_surface().fill(self.board.board_sprite.background)
             self.captured_gui.render(self.side)
-            self.render_board()
+            self.board.render()
+            self.board.render_pieces(self.side is Side.WHITE)
+            if self.state is STATE.DROP_PIECE:
+                self.show_available_moves()
+                self.board.get_picked_up().render(self.board.pos_rect.topleft)
+
         if self.state is STATE.PICK_PROMOTION:
             self.promotion_gui.render()
+
         self.is_render_required = False
         self.timer_gui.render()
         self.end_game_gui.render()
-
-    def render_board(self) -> None:
-        pygame.display.get_surface().blit(self.board.board_sprite.sprite.surface, self.board.pos_rect)
-        if self.state is STATE.DROP_PIECE: self.show_available_moves()
-        self.render_pieces()
-
-    def render_pieces(self) -> None:
-        def render_board_square(bs: BoardSquare,
-                                offset: pygame.math.Vector2) -> None:
-            piece_surface = PieceAssets.sprites[bs.fen_val].surface
-            piece_pos: RenderPos = BoardSquare.get_piece_render_pos(bs, offset, piece_surface)
-            pygame.display.get_surface().blit(piece_surface, (piece_pos.x, piece_pos.y))
-
-        grid = self.board.grid if self.side is Side.WHITE else self.board.grid[::-1]
-        board_offset = pygame.math.Vector2(self.board.pos_rect.topleft)
-        for board_square in grid:
-            if board_square.fen_val == FenChars.BLANK_PIECE.value: continue
-            if board_square.picked_up: continue
-            render_board_square(board_square, board_offset)
-        if self.state is STATE.DROP_PIECE: render_board_square(self.board.get_picked_up(), board_offset)
 
     def show_available_moves(self) -> None:
         if not self.turn: return

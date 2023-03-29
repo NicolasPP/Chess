@@ -7,6 +7,7 @@ import pygame
 
 from utils.algebraic_notation import AlgebraicNotation
 from utils.forsyth_edwards_notation import FenChars
+from chess.piece_assets import PieceAssets
 from chess.piece_movement import Side
 import utils.asset as asset_manager
 from config import *
@@ -85,6 +86,12 @@ class BoardSquare:
         piece_rect.midbottom = pygame.mouse.get_pos()
         return RenderPos(piece_rect.x, piece_rect.y)
 
+    def render(self, board_pos: tuple[int, int]) -> None:
+        offset = pygame.math.Vector2(board_pos)
+        piece_surface = PieceAssets.sprites[self.fen_val].surface
+        piece_pos: RenderPos = BoardSquare.get_piece_render_pos(self, offset, piece_surface)
+        pygame.display.get_surface().blit(piece_surface, (piece_pos.x, piece_pos.y))
+
 
 class Board:
 
@@ -142,6 +149,16 @@ class Board:
             available_surface.fill(AVAILABLE_MOVE_COLOR)
             available_surface.set_alpha(AVAILABLE_ALPHA)
             yield available_surface, board_offset + pos.topleft
+
+    def render(self) -> None:
+        pygame.display.get_surface().blit(self.board_sprite.sprite.surface, self.pos_rect)
+
+    def render_pieces(self, is_white: bool) -> None:
+        grid = self.grid if is_white else self.grid[::-1]
+        for board_square in grid:
+            if board_square.fen_val == FenChars.BLANK_PIECE.value: continue
+            if board_square.picked_up: continue
+            board_square.render(self.pos_rect.topleft)
 
 
 def replace_board_axis_info(board_sprite: asset_manager.Sprite) -> \
