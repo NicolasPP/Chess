@@ -75,7 +75,7 @@ while not done:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: done = True
-        if event.type == pygame.KEYDOWN and current_player.state is not STATE.PICK_PROMOTION:
+        if event.type == pygame.KEYDOWN and current_player.state is not STATE.PROMPT:
             is_white = not is_white
             white_player.is_render_required = True
             black_player.is_render_required = True

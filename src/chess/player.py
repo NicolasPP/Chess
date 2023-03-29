@@ -29,7 +29,7 @@ class MOUSECLICK(enum.Enum):
 class STATE(enum.Enum):
     PICK_PIECE: int = 0
     DROP_PIECE: int = 1
-    PICK_PROMOTION: int = 2
+    PROMPT: int = 2
 
 
 class Player:
@@ -131,7 +131,7 @@ class Player:
             self.board.reset_picked_up()
 
         else:
-            self.state = STATE.PICK_PROMOTION
+            self.state = STATE.PROMPT
             if not local:
                 picking_promotion = CommandManager.get(ClientCommand.PICKING_PROMOTION)
                 send_command(local, network, picking_promotion)
@@ -141,7 +141,7 @@ class Player:
 
     def handle_mouse_down_left(self, network: ChessNetwork | None, local: bool) -> None:
         if self.state is STATE.DROP_PIECE: return
-        if self.state is STATE.PICK_PROMOTION:
+        if self.state is STATE.PROMPT:
             self.handle_pick_promotion(local, network)
         elif self.state is STATE.PICK_PIECE:
             board_square = self.board.get_collided_board_square()
@@ -176,7 +176,7 @@ class Player:
 
     def update(self, delta_time: float) -> None:
         if self.game_over: return
-        if self.state == STATE.PICK_PROMOTION: return
+        if self.state == STATE.PROMPT: return
         if self.opponent_promoting: return
         self.timer_gui.tick(delta_time)
 
@@ -194,7 +194,7 @@ class Player:
                 self.show_available_moves()
                 self.board.get_picked_up().render(self.board.pos_rect.topleft)
 
-        if self.state is STATE.PICK_PROMOTION:
+        if self.state is STATE.PROMPT:
             self.promotion_gui.render()
 
         self.is_render_required = False
