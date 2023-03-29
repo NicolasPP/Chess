@@ -70,9 +70,20 @@ class Player:
             local: bool = False) -> None:
         if not self.read_input: return
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == MOUSECLICK.LEFT.value: self.handle_mouse_down_left(network, local)
+            if event.button == MOUSECLICK.LEFT.value:
+                self.handle_mouse_down_left(network, local)
+                self.handle_end_game_mouse_down()
         if event.type == pygame.MOUSEBUTTONUP:
-            if event.button == MOUSECLICK.LEFT.value: self.handle_left_mouse_up(network, local, fen)
+            if event.button == MOUSECLICK.LEFT.value:
+                self.handle_left_mouse_up(network, local, fen)
+
+    def handle_end_game_mouse_down(self) -> None:
+        mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
+        if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
+            print('offering a draw')
+
+        elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
+            print('resigning game')
 
     def handle_left_mouse_up(self, network: network_manager.ChessNetwork | None, local: bool, fen: Fen) -> None:
         if self.state is not STATE.DROP_PIECE: return
