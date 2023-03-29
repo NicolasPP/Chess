@@ -85,12 +85,18 @@ class Player:
     def handle_end_game_mouse_down(self) -> None:
         if self.state == STATE.RESPOND_DRAW: return
         if self.state == STATE.OFFERED_DRAW: return
+        if self.state == STATE.RESIGN_DOUBLE_CHECK: return
+        if self.state == STATE.DRAW_DOUBLE_CHECK: return
         mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
             self.state = STATE.DRAW_DOUBLE_CHECK
+            self.end_game_gui.offer_draw.set_hover(False)
+            self.end_game_gui.resign.set_hover(False)
 
         elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
             self.state = STATE.RESIGN_DOUBLE_CHECK
+            self.end_game_gui.offer_draw.set_hover(False)
+            self.end_game_gui.resign.set_hover(False)
 
     def handle_left_mouse_up(self, network: ChessNetwork | None, local: bool, fen: Fen) -> None:
         if self.state is not STATE.DROP_PIECE: return

@@ -4,6 +4,11 @@ from gui.button_gui import ButtonGui
 
 from config import *
 
+# TODO: center the buttons
+# TODO: add background
+# TODO: add boarder
+# TODO: add description
+
 
 class YesOrNoGui:
     def __init__(self, board_rect: pygame.rect.Rect):
