@@ -8,6 +8,7 @@ class ClientCommand(enum.Enum):
     MOVE = enum.auto()
     PICKING_PROMOTION = enum.auto()
     RESIGN = enum.auto()
+    OFFER_DRAW = enum.auto()
 
 
 class ServerCommand(enum.Enum):
@@ -18,6 +19,7 @@ class ServerCommand(enum.Enum):
     UPDATE_CAP_PIECES = enum.auto()
     INIT_INFO = enum.auto()
     CLIENT_PROMOTING = enum.auto()
+    CLIENT_DRAW_OFFER = enum.auto()
 
 
 class Command:
