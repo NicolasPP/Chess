@@ -164,10 +164,11 @@ def replace_board_axis_vals(board_sprite: asset_manager.Sprite, scale: float, si
     color = board_sprite.surface.get_at((0, 0))
     font = pygame.font.Font(FONT_FILE, 25)
     is_black_turn = True if side is Side.BLACK else False
-
+    anti_alias: bool = False
+    font_color: tuple[int, int, int] = 255, 255, 255
     for index, rect in replace_board_axis_info(board_sprite):
         if index % 8 == 0:
-            val = font.render(str(nums[nums_index]), False, (255, 255, 255))
+            val = font.render(str(nums[nums_index]), anti_alias, font_color)
 
             size: tuple[float, float] = 6 * scale, rect.height
             surface = pygame.surface.Surface(size)
@@ -189,7 +190,7 @@ def replace_board_axis_vals(board_sprite: asset_manager.Sprite, scale: float, si
 
             nums_index += 1
         if index >= 56:
-            val = font.render(letters[letters_index], False, (255, 255, 255))
+            val = font.render(letters[letters_index], anti_alias, font_color)
 
             size = rect.width, 6 * scale
             surface = pygame.surface.Surface(size)
