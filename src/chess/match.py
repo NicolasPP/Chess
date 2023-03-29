@@ -41,6 +41,9 @@ class Match:
         elif command.name == ClientCommand.RESIGN.name:
             commands.append(CommandManager.get(ServerCommand.END_GAME))
 
+        elif command.name == ClientCommand.OFFER_DRAW.name:
+            commands.append(CommandManager.get(ServerCommand.CLIENT_DRAW_OFFER, command.info))
+
         else:
             assert False, f" {command.name} : Command not recognised"
 
