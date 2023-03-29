@@ -3,27 +3,30 @@ import pickle
 import queue
 
 
-class Type(enum.Enum):
+class ClientCommand(enum.Enum):
+    # commands that the client can send to the server
+    MOVE = enum.auto()
+    PICKING_PROMOTION = enum.auto()
+    RESIGN = enum.auto()
+
+
+class ServerCommand(enum.Enum):
+    # commands that the server can send to the client
     UPDATE_FEN = enum.auto()
     END_GAME = enum.auto()
-    MOVE = enum.auto()
     INVALID_MOVE = enum.auto()
     UPDATE_CAP_PIECES = enum.auto()
-    PICKING_PROMOTION = enum.auto()
     INIT_INFO = enum.auto()
+    CLIENT_PROMOTING = enum.auto()
 
 
 class Command:
     @staticmethod
     def is_name_valid(name: str) -> bool:
-        try:
-            cmd = Type[name]
-            return True
-        except KeyError:
-            return False
+        return name in [command.name for command in list(ClientCommand) + list(ServerCommand)]
 
     def __init__(self, name: str, **information):
-        assert Command.is_name_valid(name)
+        assert Command.is_name_valid(name), f"{name} IS NOT A VALID COMMAND NAME"
         self.name = name
         self.info: dict[str, str] = {key: str(value) for key, value in information.items()}
 
@@ -62,7 +65,7 @@ class CommandManager:
         return pickle.loads(command_bytes)
 
     @staticmethod
-    def get(cmd_type: Type, information: dict[str, str] | None = None) -> Command:
+    def get(cmd_type: ClientCommand | ServerCommand, information: dict[str, str] | None = None) -> Command:
         if information is None: return Command(cmd_type.name)
         return Command(cmd_type.name, **information)
 

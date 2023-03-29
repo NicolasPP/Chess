@@ -8,7 +8,7 @@ import time
 import click
 import pygame
 
-from chess.player import parse_command, Player
+from chess.player import process_server_command, Player
 from utils.forsyth_edwards_notation import Fen
 from utils.command_manager import CommandManager, Command
 from utils.asset import PieceSetAssets, BoardAssets
@@ -38,7 +38,7 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
             logging.debug("server sent commands :")
             for command in commands:
                 logging.debug(" - %s ", command.name)
-                parse_command(command, match_fen, player)
+                process_server_command(command, match_fen, player)
 
         logging.debug("server disconnected")
 

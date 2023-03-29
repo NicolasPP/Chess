@@ -9,7 +9,7 @@ from chess.board import Board, BoardSquare, RenderPos
 from utils.forsyth_edwards_notation import Fen, FenChars
 from utils.asset import PieceSetAssets, BoardAssets
 from gui.timer_gui import TimerGui
-from utils.command_manager import CommandManager, Type, Command
+from utils.command_manager import CommandManager, ClientCommand, ServerCommand, Command
 from gui.end_game_gui import EndGameGui
 from gui.game_over_gui import GameOverGui
 import utils.network as network_manager
@@ -89,7 +89,7 @@ class Player:
             print('offering a draw')
 
         elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
-            end_game = CommandManager.get(Type.END_GAME)
+            end_game = CommandManager.get(ClientCommand.RESIGN)
             send_command(local, network, end_game)
 
     def handle_left_mouse_up(self, network: network_manager.ChessNetwork | None, local: bool, fen: Fen) -> None:
@@ -110,7 +110,7 @@ class Player:
             CommandManager.target_fen: target_fen,
             CommandManager.time_iso: time_iso
         }
-        move = CommandManager.get(Type.MOVE, invalid_move_info)
+        move = CommandManager.get(ClientCommand.MOVE, invalid_move_info)
         is_promotion = False
 
         if dest_board_square:
@@ -123,7 +123,7 @@ class Player:
                 CommandManager.target_fen: target_fen,
                 CommandManager.time_iso: time_iso
             }
-            move = CommandManager.get(Type.MOVE, move_info)
+            move = CommandManager.get(ClientCommand.MOVE, move_info)
 
         if not is_promotion:
             send_command(local, network, move)
@@ -134,7 +134,7 @@ class Player:
         else:
             self.state = STATE.PICK_PROMOTION
             if not local:
-                picking_promotion = CommandManager.get(Type.PICKING_PROMOTION)
+                picking_promotion = CommandManager.get(ClientCommand.PICKING_PROMOTION)
                 send_command(local, network, picking_promotion)
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
@@ -168,7 +168,7 @@ class Player:
                 CommandManager.target_fen: val,
                 CommandManager.time_iso: self.prev_time_iso
             }
-            move = CommandManager.get(Type.MOVE, move_info)
+            move = CommandManager.get(ClientCommand.MOVE, move_info)
 
             send_command(local, network, move)
             self.board.reset_picked_up()
@@ -275,9 +275,9 @@ class Player:
         self.opponent_promoting = promoting
 
 
-def parse_command(command: Command, match_fen: Fen,
-                  *players: Player, local: bool = False) -> None:
-    if command.name == Type.UPDATE_FEN.name:
+def process_server_command(command: Command, match_fen: Fen,
+                           *players: Player, local: bool = False) -> None:
+    if command.name == ServerCommand.UPDATE_FEN.name:
         fen_notation: str = command.info[CommandManager.fen_notation]
         white_time: str = command.info[CommandManager.white_time_left]
         black_time: str = command.info[CommandManager.black_time_left]
@@ -290,18 +290,18 @@ def parse_command(command: Command, match_fen: Fen,
         list(map(lambda player: player.set_read_input(True), players))
         list(map(lambda player: player.set_opponent_promoting(False), players))
 
-    elif command.name == Type.END_GAME.name:
+    elif command.name == ServerCommand.END_GAME.name:
         list(map(lambda player: player.end_game(), players))
 
-    elif command.name == Type.INVALID_MOVE.name:
+    elif command.name == ServerCommand.INVALID_MOVE.name:
         list(map(lambda player: player.set_require_render(True), players))
         list(map(lambda player: player.set_read_input(True), players))
 
-    elif command.name == Type.UPDATE_CAP_PIECES.name:
+    elif command.name == ServerCommand.UPDATE_CAP_PIECES.name:
         captured_pieces: str = command.info[CommandManager.captured_pieces]
         list(map(lambda player: player.captured_gui.set_captured_pieces(captured_pieces), players))
 
-    elif command.name == Type.PICKING_PROMOTION.name:
+    elif command.name == ServerCommand.CLIENT_PROMOTING.name:
         list(map(lambda player: player.set_opponent_promoting(True), players))
 
     else:
@@ -311,7 +311,7 @@ def parse_command(command: Command, match_fen: Fen,
 def parse_command_local(match_fen: Fen, *players: Player) -> None:
     command = CommandManager.read_from(CommandManager.PLAYER)
     if command is None: return
-    parse_command(command, match_fen, *players, local=True)
+    process_server_command(command, match_fen, *players, local=True)
 
 
 def update_available_moves(board_square: BoardSquare, match_fen: Fen,

@@ -7,7 +7,7 @@ from utils.algebraic_notation import get_index_from_an
 from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
 from chess.chess_timer import TimerConfig
 from chess.piece_movement import Side
-from utils.command_manager import Command, CommandManager, Type
+from utils.command_manager import Command, CommandManager, ClientCommand, ServerCommand
 from config import *
 
 
@@ -30,16 +30,16 @@ class Match:
         self.white_time_left: float = timer_config.time
         self.black_time_left: float = timer_config.time
 
-    def process_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command]) \
+    def process_client_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command]) \
             -> tuple[list[MoveTags], list[Command]]:
-        if command.name == Type.PICKING_PROMOTION.name:
-            commands.append(CommandManager.get(Type.PICKING_PROMOTION))
+        if command.name == ClientCommand.PICKING_PROMOTION.name:
+            commands.append(CommandManager.get(ServerCommand.CLIENT_PROMOTING))
 
-        elif command.name == Type.MOVE.name:
+        elif command.name == ClientCommand.MOVE.name:
             move_tags = self.process_move(command)
 
-        elif command.name == Type.END_GAME.name:
-            commands.append(CommandManager.get(Type.END_GAME))
+        elif command.name == ClientCommand.RESIGN.name:
+            commands.append(CommandManager.get(ServerCommand.END_GAME))
 
         else:
             assert False, f" {command.name} : Command not recognised"
@@ -56,8 +56,7 @@ class Match:
         if command is None: return
         move_tags: list[MoveTags] = []
         commands: list[Command] = []
-        print(command.name)
-        move_tags, commands = self.process_command(command, move_tags, commands)
+        move_tags, commands = self.process_client_command(command, move_tags, commands)
 
         list(map(lambda cmd: CommandManager.send_to(CommandManager.PLAYER, cmd), commands))
 
@@ -117,21 +116,21 @@ class Match:
             CommandManager.white_time_left: str(self.white_time_left),
             CommandManager.black_time_left: str(self.black_time_left)
         }
-        update_fen_command: Command = CommandManager.get(Type.UPDATE_FEN, update_fen_info)
+        update_fen_command: Command = CommandManager.get(ServerCommand.UPDATE_FEN, update_fen_info)
         if tag == MoveTags.CHECK:
             ext_commands.append(update_fen_command)
         elif tag == MoveTags.CHECKMATE:
-            end_game_command: Command = CommandManager.get(Type.END_GAME)
+            end_game_command: Command = CommandManager.get(ServerCommand.END_GAME)
             ext_commands.append(end_game_command)
             ext_commands.append(update_fen_command)
         elif tag == MoveTags.REGULAR:
             ext_commands.append(update_fen_command)
         elif tag == MoveTags.INVALID:
-            invalid_move_command: Command = CommandManager.get(Type.INVALID_MOVE)
+            invalid_move_command: Command = CommandManager.get(ServerCommand.INVALID_MOVE)
             ext_commands.append(invalid_move_command)
         elif tag == MoveTags.TAKE:
             update_captured_info: dict[str, str] = {CommandManager.captured_pieces: self.captured_pieces}
-            update_captured_pieces = CommandManager.get(Type.UPDATE_CAP_PIECES, update_captured_info)
+            update_captured_pieces = CommandManager.get(ServerCommand.UPDATE_CAP_PIECES, update_captured_info)
             ext_commands.append(update_captured_pieces)
         else:
             assert False, "INVALID MATCH.MOVE_TAG"
@@ -142,22 +141,22 @@ class Match:
 
         # Checkmate
         for command in commands:
-            if command.name == Type.END_GAME.name: return []
+            if command.name == ServerCommand.END_GAME.name: return []
 
         # Resignation
         # Timeout
         if self.white_time_left <= 0 or self.black_time_left <= 0:
-            return [CommandManager.get(Type.END_GAME)]
+            return [CommandManager.get(ServerCommand.END_GAME)]
 
         # -- DRAW --
         # Stalemate
         # Insufficient Material
         if self.fen.is_material_insufficient():
-            return [CommandManager.get(Type.END_GAME)]
+            return [CommandManager.get(ServerCommand.END_GAME)]
 
         # 50 move-rule
         if int(self.fen.data.half_move_clock) >= HALF_MOVE_LIMIT:
-            return [CommandManager.get(Type.END_GAME)]
+            return [CommandManager.get(ServerCommand.END_GAME)]
 
         # Repetition
         # Agreement
