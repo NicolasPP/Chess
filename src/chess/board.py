@@ -148,7 +148,7 @@ class Board:
             pos = available_surface.get_rect(center=board_square.rect.center)
             available_surface.fill(AVAILABLE_MOVE_COLOR)
             available_surface.set_alpha(AVAILABLE_ALPHA)
-            yield available_surface, board_offset + pos.topleft
+            yield available_surface, board_offset + pygame.math.Vector2(pos.topleft)
 
     def render(self) -> None:
         pygame.display.get_surface().blit(self.board_sprite.sprite.surface, self.pos_rect)
