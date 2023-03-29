@@ -38,8 +38,11 @@ class Match:
         elif command.name == Type.MOVE.name:
             move_tags = self.process_move(command)
 
+        elif command.name == Type.END_GAME.name:
+            commands.append(CommandManager.get(Type.END_GAME))
+
         else:
-            assert False, f" {command} : Command not recognised"
+            assert False, f" {command.name} : Command not recognised"
 
         for tag in move_tags:
             commands.extend(self.process_tag(tag))
@@ -53,7 +56,7 @@ class Match:
         if command is None: return
         move_tags: list[MoveTags] = []
         commands: list[Command] = []
-
+        print(command.name)
         move_tags, commands = self.process_command(command, move_tags, commands)
 
         list(map(lambda cmd: CommandManager.send_to(CommandManager.PLAYER, cmd), commands))
