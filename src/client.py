@@ -41,6 +41,7 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
                 process_server_command(command, match_fen, player)
 
         logging.debug("server disconnected")
+        pygame.event.post(pygame.event.Event(pygame.QUIT))
 
 
 def update_window_caption(player: Player) -> None:
