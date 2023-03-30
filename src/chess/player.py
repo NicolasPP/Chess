@@ -58,6 +58,7 @@ class Player:
         self.game_over: bool = False
         self.read_input: bool = True
         self.opponent_promoting: bool = False
+        self.timed_out: bool = False
 
         self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.board_sprite.sprite.surface.get_rect())
         self.captured_gui: CapturedGui = CapturedGui('', self.board.pos_rect, self.board.board_sprite.background, scale)
@@ -184,8 +185,11 @@ class Player:
                 offer_draw = CommandManager.get(ClientCommand.OFFER_DRAW, draw_info)
                 send_command(local, network, offer_draw)
             else:
-                end_game = CommandManager.get(ClientCommand.RESIGN)
-                send_command(local, network, end_game)
+                resign_info: dict[str, str] = {
+                    CommandManager.side: self.side.name
+                }
+                resign = CommandManager.get(ClientCommand.RESIGN, resign_info)
+                send_command(local, network, resign)
 
             self.yes_or_no_gui.set_result(None)
             self.set_require_render(True)
@@ -214,13 +218,18 @@ class Player:
             self.state = STATE.PICK_PIECE
             self.set_require_render(True)
 
-    def update(self, delta_time: float) -> None:
+    def update(self, delta_time: float, local: bool = False, network: ChessNetwork | None = None) -> None:
         if self.game_over: return
         if self.state == STATE.PICKING_PROMOTION: return
         if self.state == STATE.OFFERED_DRAW: return
         if self.state == STATE.RESPOND_DRAW: return
         if self.opponent_promoting: return
+        if self.timed_out: return
         self.timer_gui.tick(delta_time)
+        if self.timer_gui.own_timer.time_left <= 0:
+            time_out = CommandManager.get(ClientCommand.TIME_OUT)
+            send_command(local, network, time_out)
+            self.set_timed_out(True)
 
     def handle_draw_offer(self, side: str) -> None:
         self.end_game_gui.offer_draw.set_hover(False)
@@ -261,8 +270,8 @@ class Player:
             self.promotion_gui.render()
 
         if self.state is STATE.RESPOND_DRAW or \
-           self.state is STATE.DRAW_DOUBLE_CHECK or \
-           self.state is STATE.RESIGN_DOUBLE_CHECK:
+                self.state is STATE.DRAW_DOUBLE_CHECK or \
+                self.state is STATE.RESIGN_DOUBLE_CHECK:
             self.yes_or_no_gui.render()
 
         if self.state is STATE.OFFERED_DRAW: pass
@@ -339,6 +348,9 @@ class Player:
     def set_turn(self, turn: bool) -> None:
         self.turn = turn
 
+    def set_timed_out(self, timed_out: bool) -> None:
+        self.timed_out = timed_out
+
     def get_window_title(self):
         if self.turn: return f"{self.side.name}s TURN"
         opposite_side = Side.WHITE if self.side is Side.BLACK else Side.BLACK
@@ -375,6 +387,8 @@ def process_server_command(command: Command, match_fen: Fen,
         list(map(lambda player: player.set_opponent_promoting(False), players))
 
     elif command.name == ServerCommand.END_GAME.name:
+        print(command.info[CommandManager.game_result_type])
+        print(command.info[CommandManager.game_result])
         list(map(lambda player: player.end_game(), players))
 
     elif command.name == ServerCommand.INVALID_MOVE.name:
@@ -399,7 +413,7 @@ def process_server_command(command: Command, match_fen: Fen,
         assert False, f" {command.name} : Command not recognised"
 
 
-def parse_command_local(match_fen: Fen, *players: Player) -> None:
+def process_command_local(match_fen: Fen, *players: Player) -> None:
     command = CommandManager.read_from(CommandManager.PLAYER)
     if command is None: return
     process_server_command(command, match_fen, *players, local=True)
