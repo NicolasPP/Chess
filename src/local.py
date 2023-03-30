@@ -5,7 +5,7 @@ import time
 import pygame
 
 from chess.match import Match
-from chess.player import Player, parse_command_local, STATE
+from chess.player import Player, process_command_local, STATE
 from chess.piece_movement import Side
 from utils.asset import PieceSetAssets, BoardAssets
 from chess.chess_timer import DefaultConfigs
@@ -82,7 +82,7 @@ while not done:
 
     match.process_local_move()
 
-    parse_command_local(match.fen, white_player, black_player)
+    process_command_local(match.fen, white_player, black_player)
 
     white_player.update(delta_time)
     black_player.update(delta_time)
