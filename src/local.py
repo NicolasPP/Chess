@@ -15,7 +15,6 @@ pygame.init()
 window_size = pygame.math.Vector2(WINDOW_SIZE)
 pygame.display.set_mode(window_size)
 done = False
-clock = pygame.time.Clock()
 prev_time = time.time()
 delta_time: float = 0
 
@@ -69,8 +68,6 @@ while not done:
 
     set_delta_time()
 
-    fps = round(clock.get_fps())
-
     current_player = white_player if is_white else black_player
 
     for event in pygame.event.get():
@@ -92,8 +89,6 @@ while not done:
     current_player.render()
 
     pygame.display.flip()
-
-    clock.tick()
 
 pygame.quit()
 sys.exit()

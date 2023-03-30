@@ -281,6 +281,7 @@ class Player:
         self.set_require_render(True)
 
     def end_game(self) -> None:
+        self.state = STATE.PICK_PIECE
         self.set_require_render(True)
         self.render()
         self.set_turn(False)
