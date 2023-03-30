@@ -16,6 +16,8 @@ from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
 from gui.yes_or_gui import YesOrNoGui
 
+from config import *
+
 
 class MOUSECLICK(enum.Enum):
     LEFT: int = 1
@@ -90,11 +92,13 @@ class Player:
         mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
             self.state = STATE.DRAW_DOUBLE_CHECK
+            self.yes_or_no_gui.set_action_label(DRAW_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
         elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
             self.state = STATE.RESIGN_DOUBLE_CHECK
+            self.yes_or_no_gui.set_action_label(RESIGN_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
@@ -171,6 +175,8 @@ class Player:
             if not self.yes_or_no_gui.result:
                 self.state = STATE.PICK_PIECE
                 self.set_require_render(True)
+                self.end_game_gui.resign.set_hover(True)
+                self.end_game_gui.offer_draw.set_hover(True)
                 return
             if self.state is STATE.DRAW_DOUBLE_CHECK:
                 self.state = STATE.OFFERED_DRAW
@@ -221,6 +227,8 @@ class Player:
         self.end_game_gui.resign.set_hover(False)
         if self.side.name != side:
             self.state = STATE.RESPOND_DRAW
+            self.yes_or_no_gui.set_action_label('')
+            self.yes_or_no_gui.set_description_label(RESPOND_DRAW_LABEL)
 
     def handle_yes_or_no_response(self) -> None:
         mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
