@@ -17,6 +17,7 @@ class ButtonGui:
         self.surface: pygame.surface.Surface = pygame.surface.Surface(self.rect.size)
         self.hover_surface: pygame.surface.Surface = pygame.surface.Surface(self.rect.size)
         self.hover: bool = True
+        self.bg_color: tuple[int, int, int] = bg_color
         self.font_info: FontRenderInfo | None = None
         self.surface.fill(bg_color)
         self.hover_surface.fill(bg_color)
@@ -27,8 +28,9 @@ class ButtonGui:
 
     def set_label(self, text: str) -> None:
         if self.font_info is None: raise Exception('Font not initialised')
+        self.surface.fill(self.bg_color)
         label_surface = self.font_info.font.render(text, self.font_info.anti_alias, self.font_info.color)
-        label_pos: pygame.rect.Rect = label_surface.get_rect(center=self.rect.center)
+        label_pos: pygame.rect.Rect = label_surface.get_rect(center=self.surface.get_rect().center)
         self.surface.blit(label_surface, label_pos)
 
     def set_hover(self, hover: bool) -> None:
