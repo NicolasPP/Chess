@@ -174,7 +174,7 @@ class Fen:
         validate_fen_piece_placement(packed)
         return packed
 
-    def make_move(self, from_index: int, dest_index: int, target_fen: str) -> None:
+    def make_move(self, from_index: int, dest_index: int, target_fen: str, update_data: bool = True) -> None:
         from_piece_val = self[from_index]
         dest_piece_val = self[dest_index]
 
@@ -186,7 +186,8 @@ class Fen:
         else:
             self.make_regular_move(from_index, dest_index, target_fen)
 
-        self.update_fen_data(from_index, dest_index, from_piece_val, dest_piece_val)
+        if update_data:
+            self.update_fen_data(from_index, dest_index, from_piece_val, dest_piece_val)
 
         if not self.first_move: self.first_move = True
 
@@ -310,6 +311,7 @@ def validate_fen_en_passant_rights(en_passant_rights: str) -> bool:
 
 
 def validate_fen_half_move_clock(half_move_clock: str) -> bool:
+    print(half_move_clock)
     if not half_move_clock.isnumeric(): raise Exception('half move clock cannot be a letter')
     if int(half_move_clock) < 0: raise Exception('half move clock cannot be negative')
     if int(half_move_clock) > 100: raise Exception('half move clock cannot be over 100')
