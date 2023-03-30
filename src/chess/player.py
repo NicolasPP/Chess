@@ -263,6 +263,28 @@ class Player:
         self.timer_gui.render()
         self.end_game_gui.render()
 
+    def change_assets(
+            self,
+            piece_set: PieceSetAssets,
+            board_asset: BoardAssets,
+            scale: float,
+            fen: Fen,
+            window_size: pygame.math.Vector2
+    ) -> None:
+        PieceAssets.load(piece_set.value, scale)
+        self.board = Board(board_asset.value, self.side, scale)
+        self.set_to_default_pos(window_size)
+        self.update_pieces_location(fen)
+
+        self.captured_gui.bg_color = self.board.board_sprite.background
+        self.timer_gui.bg_color = self.board.board_sprite.background
+        self.timer_gui.fg_color = self.board.board_sprite.foreground
+        self.end_game_gui = EndGameGui(
+            self.board.pos_rect,
+            self.board.board_sprite.background,
+            self.board.board_sprite.foreground)
+        self.end_game_gui.recalculate_pos()
+
     def show_available_moves(self) -> None:
         if not self.turn: return
         picked = self.board.get_picked_up()

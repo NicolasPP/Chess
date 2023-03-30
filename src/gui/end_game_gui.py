@@ -13,10 +13,11 @@ class EndGameGui:
         self.game_over_gui: GameOverGui = GameOverGui(bg_color)
         self.bg_color: tuple[int, int, int] = bg_color
         self.fg_color: tuple[int, int, int] = fg_color
+        self.button_init()
 
-        # setting up buttons
-        self.offer_draw.set_font(FONT_FILE, OFFER_DRAW_FONT_SIZE, False, fg_color)
-        self.resign.set_font(FONT_FILE, RESIGN_FONT_SIZE, False, fg_color)
+    def button_init(self) -> None:
+        self.offer_draw.set_font(FONT_FILE, OFFER_DRAW_FONT_SIZE, False, self.fg_color)
+        self.resign.set_font(FONT_FILE, RESIGN_FONT_SIZE, False, self.fg_color)
         self.offer_draw.set_label(OFFER_DRAW_LABEL)
         self.resign.set_label(RESIGN_LABEL)
 
