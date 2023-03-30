@@ -99,7 +99,7 @@ def run_main_loop(server_ip: str) -> None:
 
         update_window_caption(player)
         player.render()
-        player.update(delta_time)
+        player.update(delta_time, network=network)
 
         pygame.display.flip()
 
