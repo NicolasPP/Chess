@@ -5,14 +5,13 @@ HOVER_ALPHA: int = 70
 YES_OR_NO_BG_ALPHA: int = 100
 OPAQUE: int = 255
 
-
 # -- Size --
 WINDOW_SIZE: tuple[int, int] = 570, 570
 YES_OR_NO_BG_SIZE: tuple[int, int] = 250, 100
 YES_OR_NO_SPACING: int = 5
 YES_OR_NO_FONT_SIZE: int = 18
 BOARD_SCALE: float = 3.5
-AVAILABLE_MOVE_SCALE: float = 1/3
+AVAILABLE_MOVE_SCALE: float = 1 / 3
 BOARD_SIZE: int = 8
 DATA_SIZE: int = 4096
 TIMER_FONT_SIZE: int = 15
@@ -48,7 +47,6 @@ PLAIN3_FG: tuple[int, int, int] = (89, 96, 111)
 PLAIN4_BG: tuple[int, int, int] = (230, 234, 216)
 PLAIN4_FG: tuple[int, int, int] = (69, 77, 94)
 
-
 # -- Default vals --
 GAME_START_FEN: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 GRID_OFFSET: int = 7
@@ -64,6 +62,20 @@ RESPOND_DRAW_LABEL: str = "opponent has offered a draw"
 # -- File Name --
 FONT_FILE: str = "assets/fonts/Oleaguid.ttf"
 FIVE_FONT_FILE: str = "assets/fonts/QuinqueFive.ttf"
+
+PLAIN1_FILE: str = 'assets/boards/board_plain_01.png'
+PLAIN2_FILE: str = 'assets/boards/board_plain_02.png'
+PLAIN3_FILE: str = 'assets/boards/board_plain_03.png'
+PLAIN4_FILE: str = 'assets/boards/board_plain_04.png'
+
+SIMPLE16x16_PIECE_FILE_WHITE: str = 'assets/pieces-16-16/WhitePieces_Simplified.png'
+SIMPLE16x16_PIECE_FILE_BLACK: str = 'assets/pieces-16-16/BlackPieces_Simplified.png'
+
+NORMAL16x16_PIECE_FILE_WHITE: str = 'assets/pieces-16-16/WhitePieces.png'
+NORMAL16x16_PIECE_FILE_BLACK: str = 'assets/pieces-16-16/BlackPieces.png'
+
+NORMAL16x32_PIECE_FILE_WHITE: str = 'assets/pieces-16-32/WhitePieces-Sheet.png'
+NORMAL16x32_PIECE_FILE_BLACK: str = 'assets/pieces-16-32/BlackPieces-Sheet.png'
 
 # -- Indexes --
 P_ASSET_INDEX = 0

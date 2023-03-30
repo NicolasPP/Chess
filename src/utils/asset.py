@@ -43,24 +43,24 @@ class PieceSet:
 
 
 class BoardAssets(enum.Enum):
-    PLAIN1: BoardAsset = BoardAsset(Asset('assets/boards/board_plain_01.png', TYPE.SPRITE), PLAIN1_BG, PLAIN1_FG)
-    PLAIN2: BoardAsset = BoardAsset(Asset('assets/boards/board_plain_02.png', TYPE.SPRITE), PLAIN2_BG, PLAIN2_FG)
-    PLAIN3: BoardAsset = BoardAsset(Asset('assets/boards/board_plain_03.png', TYPE.SPRITE), PLAIN3_BG, PLAIN3_FG)
-    PLAIN4: BoardAsset = BoardAsset(Asset('assets/boards/board_plain_04.png', TYPE.SPRITE), PLAIN4_BG, PLAIN4_FG)
+    PLAIN1: BoardAsset = BoardAsset(Asset(PLAIN1_FILE, TYPE.SPRITE), PLAIN1_BG, PLAIN1_FG)
+    PLAIN2: BoardAsset = BoardAsset(Asset(PLAIN2_FILE, TYPE.SPRITE), PLAIN2_BG, PLAIN2_FG)
+    PLAIN3: BoardAsset = BoardAsset(Asset(PLAIN3_FILE, TYPE.SPRITE), PLAIN3_BG, PLAIN3_FG)
+    PLAIN4: BoardAsset = BoardAsset(Asset(PLAIN4_FILE, TYPE.SPRITE), PLAIN4_BG, PLAIN4_FG)
 
 
 class PieceSetAssets(enum.Enum):
     SIMPLE16x16: PieceSet = PieceSet(
-        white_asset=Asset('assets/pieces-16-16/WhitePieces_Simplified.png', TYPE.SHEET),
-        black_asset=Asset('assets/pieces-16-16/BlackPieces_Simplified.png', TYPE.SHEET)
+        white_asset=Asset(SIMPLE16x16_PIECE_FILE_WHITE, TYPE.SHEET),
+        black_asset=Asset(SIMPLE16x16_PIECE_FILE_BLACK, TYPE.SHEET)
     )
     NORMAL16x16: PieceSet = PieceSet(
-        white_asset=Asset('assets/pieces-16-16/WhitePieces.png', TYPE.SHEET),
-        black_asset=Asset('assets/pieces-16-16/BlackPieces.png', TYPE.SHEET)
+        white_asset=Asset(NORMAL16x16_PIECE_FILE_WHITE, TYPE.SHEET),
+        black_asset=Asset(NORMAL16x16_PIECE_FILE_BLACK, TYPE.SHEET)
     )
     NORMAL16x32: PieceSet = PieceSet(
-        white_asset=Asset('assets/pieces-16-32/WhitePieces-Sheet.png', TYPE.SHEET),
-        black_asset=Asset('assets/pieces-16-32/BlackPieces-Sheet.png', TYPE.SHEET)
+        white_asset=Asset(NORMAL16x32_PIECE_FILE_WHITE, TYPE.SHEET),
+        black_asset=Asset(NORMAL16x32_PIECE_FILE_BLACK, TYPE.SHEET)
     )
 
 
