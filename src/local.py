@@ -77,8 +77,8 @@ while not done:
         if event.type == pygame.QUIT: done = True
         if event.type == pygame.KEYDOWN and current_player.state is not STATE.PICKING_PROMOTION:
             is_white = not is_white
-            white_player.is_render_required = True
-            black_player.is_render_required = True
+            white_player.set_require_render(True)
+            black_player.set_require_render(True)
         current_player.parse_input(event, match.fen, local=True)
 
     update_window_caption(white_player, black_player)

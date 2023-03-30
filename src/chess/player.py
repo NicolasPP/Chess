@@ -206,7 +206,7 @@ class Player:
             send_command(local, network, move)
             self.board.reset_picked_up()
             self.state = STATE.PICK_PIECE
-            self.is_render_required = True
+            self.set_require_render(True)
 
     def update(self, delta_time: float) -> None:
         if self.game_over: return
@@ -259,7 +259,7 @@ class Player:
 
         if self.state is STATE.OFFERED_DRAW: pass
 
-        self.is_render_required = False
+        self.set_require_render(False)
         self.timer_gui.render()
         self.end_game_gui.render()
 
@@ -278,27 +278,35 @@ class Player:
             board_square = self.board.grid[index]
             board_square.fen_val = fen_val
             update_available_moves(board_square, fen, self.side)
-        self.is_render_required = True
+        self.set_require_render(True)
 
     def end_game(self) -> None:
-        self.turn = False
-        self.game_over = True
+        self.set_require_render(True)
+        self.render()
+        self.set_turn(False)
+        self.set_game_over(True)
         self.end_game_gui.game_over_gui.set_final_frame()
 
     def update_turn(self, fen: Fen) -> None:
         if self.side is Side.WHITE:
             if fen.is_white_turn():
-                self.turn = True
+                self.set_turn(True)
             else:
-                self.turn = False
+                self.set_turn(False)
         else:
             if not fen.is_white_turn():
-                self.turn = True
+                self.set_turn(True)
             else:
-                self.turn = False
+                self.set_turn(False)
 
     def set_require_render(self, is_render_required: bool) -> None:
         self.is_render_required = is_render_required
+
+    def set_game_over(self, game_over: bool) -> None:
+        self.game_over = game_over
+
+    def set_turn(self, turn: bool) -> None:
+        self.turn = turn
 
     def get_window_title(self):
         if self.turn: return f"{self.side.name}s TURN"
