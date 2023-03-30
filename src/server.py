@@ -105,12 +105,10 @@ def client_listener(client_socket: skt.socket, server: Server):
 
             command: Command = CommandManager.deserialize_command_bytes(data)
 
-            print(f"client : {p_id}, sent move {command.name} to server")
             logging.debug("client : %s, sent move %s to server", p_id, command.name)
 
             move_tags, commands = server.match.process_client_command(command, move_tags, commands)
 
-            print(f"move tags : ", *list(map(lambda m_tag: m_tag.name, move_tags)), sep=' ')
             logging.debug("move tags : %s", str(move_tags))
 
             server.match.update_fen = True
