@@ -227,7 +227,10 @@ class Player:
         if self.timed_out: return
         self.timer_gui.tick(delta_time)
         if self.timer_gui.own_timer.time_left <= 0:
-            time_out = CommandManager.get(ClientCommand.TIME_OUT)
+            time_out_info: dict[str, str] = {
+                CommandManager.side: self.side.name
+            }
+            time_out = CommandManager.get(ClientCommand.TIME_OUT, time_out_info)
             send_command(local, network, time_out)
             self.set_timed_out(True)
 

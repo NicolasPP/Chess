@@ -8,7 +8,7 @@ from chess.match import Match
 from chess.player import Player, process_command_local, STATE
 from chess.piece_movement import Side
 from utils.asset import PieceSetAssets, BoardAssets
-from chess.chess_timer import DefaultConfigs
+from chess.chess_timer import DefaultConfigs, TimerConfig
 from config import *
 
 pygame.init()
@@ -18,7 +18,7 @@ done = False
 prev_time = time.time()
 delta_time: float = 0
 
-match = Match(DefaultConfigs.RAPID_15_10)
+match = Match(TimerConfig(5, 0))
 white_player = Player(
     side=Side.WHITE,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
@@ -84,8 +84,8 @@ while not done:
 
     process_command_local(match.fen, white_player, black_player)
 
-    white_player.update(delta_time)
-    black_player.update(delta_time)
+    white_player.update(delta_time, local=True)
+    black_player.update(delta_time, local=True)
     current_player.render()
 
     pygame.display.flip()

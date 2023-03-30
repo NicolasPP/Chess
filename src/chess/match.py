@@ -1,14 +1,13 @@
-import enum
 import datetime
+import enum
 
 import chess.validate_move as validate_move
-
-from utils.algebraic_notation import get_index_from_an
-from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
 from chess.chess_timer import TimerConfig
 from chess.piece_movement import Side
-from utils.command_manager import Command, CommandManager, ClientCommand, ServerCommand
 from config import HALF_MOVE_LIMIT
+from utils.algebraic_notation import get_index_from_an
+from utils.command_manager import Command, CommandManager, ClientCommand, ServerCommand
+from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
 
 
 class MoveTags(enum.Enum):
@@ -47,7 +46,6 @@ class Match:
         self.prev_time: datetime.datetime | None = None
         self.white_time_left: float = timer_config.time
         self.black_time_left: float = timer_config.time
-        self.fen.data.half_move_clock = "98"
 
     def process_client_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command]) \
             -> tuple[list[MoveTags], list[Command]]:
@@ -59,7 +57,7 @@ class Match:
 
         elif command.name == ClientCommand.RESIGN.name:
             side = command.info[CommandManager.side]
-            result = MatchResult.BLACK.name if side is Side.WHITE else MatchResult.WHITE.name
+            result = MatchResult.BLACK.name if side == Side.WHITE.name else MatchResult.WHITE.name
             end_game_info: dict[str, str] = {
                 CommandManager.game_result_type: MatchResultType.RESIGNATION.name,
                 CommandManager.game_result: result
@@ -72,15 +70,19 @@ class Match:
         elif command.name == ClientCommand.DRAW_RESPONSE.name:
             if bool(int(command.info[CommandManager.draw_offer_result])):
                 end_game_info: dict[str, str] = {
-                    CommandManager.game_result_type: MatchResultType.AGREEMENT.name
+                    CommandManager.game_result_type: MatchResultType.AGREEMENT.name,
+                    CommandManager.game_result: MatchResult.DRAW.name
                 }
                 commands.append(CommandManager.get(ServerCommand.END_GAME, end_game_info))
             else:
                 commands.append(CommandManager.get(ServerCommand.CONTINUE))
 
         elif command.name == ClientCommand.TIME_OUT.name:
+            side = command.info[CommandManager.side]
+            result = MatchResult.BLACK.name if side == Side.WHITE.name else MatchResult.WHITE.name
             end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.TIMEOUT.name
+                CommandManager.game_result_type: MatchResultType.TIMEOUT.name,
+                CommandManager.game_result: result
             }
             commands.append(CommandManager.get(ServerCommand.END_GAME, end_game_info))
 
@@ -163,8 +165,10 @@ class Match:
         if tag == MoveTags.CHECK:
             ext_commands.append(update_fen_command)
         elif tag == MoveTags.CHECKMATE:
+            result = MatchResult.BLACK.name if self.fen.is_white_turn() else MatchResult.WHITE.name
             end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.CHECKMATE.name
+                CommandManager.game_result_type: MatchResultType.CHECKMATE.name,
+                CommandManager.game_result: result
             }
             end_game_command: Command = CommandManager.get(ServerCommand.END_GAME, end_game_info)
             ext_commands.append(end_game_command)
@@ -194,14 +198,16 @@ class Match:
         # Insufficient Material
         if self.fen.is_material_insufficient():
             end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.INSUFFICIENT_MATERIAL.name
+                CommandManager.game_result_type: MatchResultType.INSUFFICIENT_MATERIAL.name,
+                CommandManager.game_result: MatchResult.DRAW.name
             }
             return [CommandManager.get(ServerCommand.END_GAME, end_game_info)]
 
         # 50 move-rule
         if int(self.fen.data.half_move_clock) >= HALF_MOVE_LIMIT:
             end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.FIFTY_MOVE_RULE.name
+                CommandManager.game_result_type: MatchResultType.FIFTY_MOVE_RULE.name,
+                CommandManager.game_result: MatchResult.DRAW.name
             }
             return [CommandManager.get(ServerCommand.END_GAME, end_game_info)]
 
