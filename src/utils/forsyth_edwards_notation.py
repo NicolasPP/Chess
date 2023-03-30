@@ -311,7 +311,6 @@ def validate_fen_en_passant_rights(en_passant_rights: str) -> bool:
 
 
 def validate_fen_half_move_clock(half_move_clock: str) -> bool:
-    print(half_move_clock)
     if not half_move_clock.isnumeric(): raise Exception('half move clock cannot be a letter')
     if int(half_move_clock) < 0: raise Exception('half move clock cannot be negative')
     if int(half_move_clock) > 100: raise Exception('half move clock cannot be over 100')
