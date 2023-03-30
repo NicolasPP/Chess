@@ -8,7 +8,7 @@ import time
 import click
 import pygame
 
-from chess.player import parse_command, Player
+from chess.player import process_server_command, Player
 from utils.forsyth_edwards_notation import Fen
 from utils.command_manager import CommandManager, Command
 from utils.asset import PieceSetAssets, BoardAssets
@@ -38,9 +38,10 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
             logging.debug("server sent commands :")
             for command in commands:
                 logging.debug(" - %s ", command.name)
-                parse_command(command, match_fen, player)
+                process_server_command(command, match_fen, player)
 
         logging.debug("server disconnected")
+        pygame.event.post(pygame.event.Event(pygame.QUIT))
 
 
 def update_window_caption(player: Player) -> None:
@@ -64,12 +65,6 @@ def get_player(init_info: Command) -> Player:
     return player
 
 
-def get_colors(player: Player) -> tuple[str, str]:
-    bg_color = 'white' if player.side == Side.WHITE else 'black'
-    fg_color = 'black' if player.side == Side.WHITE else 'white'
-    return bg_color, fg_color
-
-
 def set_delta_time() -> None:
     global prev_time, delta_time
     now = time.time()
@@ -88,8 +83,7 @@ def run_main_loop(server_ip: str) -> None:
     player = get_player(init_info)
     match_fen = Fen(init_info.info[CommandManager.fen_notation])
 
-    bg_color, fg_color = get_colors(player)
-    player.center_board(window_size)
+    player.set_to_default_pos(window_size)
 
     player.update_turn(match_fen)
     player.update_pieces_location(match_fen)
@@ -104,7 +98,7 @@ def run_main_loop(server_ip: str) -> None:
             player.parse_input(event, match_fen, network=network)
 
         update_window_caption(player)
-        player.render(fg_color, bg_color)
+        player.render()
         player.update(delta_time)
 
         pygame.display.flip()

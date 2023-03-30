@@ -22,19 +22,26 @@ class TimerGui:
 
         return pygame.math.Vector2(own_rect.topleft), pygame.math.Vector2(opp_rect.topleft)
 
-    def __init__(self, match_time: float, board_rect: pygame.rect.Rect) -> None:
-        self.own_timer = ChessTimer(match_time)
-        self.opponents_timer = ChessTimer(match_time)
-        self.board_rect = board_rect
+    def __init__(
+            self,
+            match_time: float,
+            board_rect: pygame.rect.Rect,
+            bg_color: tuple[int, int, int],
+            fg_color: tuple[int, int, int]) -> None:
+        self.own_timer: ChessTimer = ChessTimer(match_time)
+        self.opponents_timer: ChessTimer = ChessTimer(match_time)
+        self.board_rect: pygame.rect.Rect = board_rect
         self.own_pos, self.opponents_pos = TimerGui.calculate_timers_pos(board_rect)
+        self.bg_color: tuple[int, int, int] = bg_color
+        self.fg_color: tuple[int, int, int] = fg_color
 
-    def recalculate_pos(self):
+    def recalculate_pos(self) -> None:
         self.own_pos, self.opponents_pos = TimerGui.calculate_timers_pos(self.board_rect)
 
-    def render(self, fg_color: str, bg_color: str) -> None:
+    def render(self) -> None:
         def render_timer(time_left: float, pos: pygame.math.Vector2, offset_height: bool = False) -> None:
             info = ChessTimer.format_seconds(time_left, True)
-            info_render = TimerGui.font.render(info, True, fg_color)
+            info_render = TimerGui.font.render(info, True, self.fg_color)
             render_pos = pos
             render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
 
@@ -44,7 +51,7 @@ class TimerGui:
                 render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
 
             info_bg_surface = pygame.surface.Surface(render_rect.size)
-            info_bg_surface.fill(bg_color)
+            info_bg_surface.fill(self.bg_color)
             pygame.display.get_surface().blit(info_bg_surface, render_rect)
             pygame.display.get_surface().blit(info_render, render_rect)
 

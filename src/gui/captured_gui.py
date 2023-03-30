@@ -11,7 +11,7 @@ class CapturedGui:
             self,
             captured_pieces: str,
             board_rect: pygame.rect.Rect,
-            bg_color: str,
+            bg_color: tuple[int, int, int],
             base_scale_factor: float,
             scale_factor: float = 1 / 3
     ):

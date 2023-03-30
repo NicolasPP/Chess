@@ -15,7 +15,6 @@ pygame.init()
 window_size = pygame.math.Vector2(WINDOW_SIZE)
 pygame.display.set_mode(window_size)
 done = False
-clock = pygame.time.Clock()
 prev_time = time.time()
 delta_time: float = 0
 
@@ -60,14 +59,8 @@ def update_window_caption(*players: Player) -> None:
         return
 
 
-def get_colors(player: Player) -> tuple[str, str]:
-    bg = 'white' if player.side == Side.WHITE else 'black'
-    font = 'black' if player.side == Side.WHITE else 'white'
-    return bg, font
-
-
-white_player.center_board(window_size)
-black_player.center_board(window_size)
+white_player.set_to_default_pos(window_size)
+black_player.set_to_default_pos(window_size)
 
 is_white = True
 
@@ -75,17 +68,14 @@ while not done:
 
     set_delta_time()
 
-    fps = round(clock.get_fps())
-
     current_player = white_player if is_white else black_player
-    bg_color, fg_color = get_colors(current_player)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: done = True
-        if event.type == pygame.KEYDOWN and current_player.state is not STATE.PICK_PROMOTION:
+        if event.type == pygame.KEYDOWN and current_player.state is not STATE.PICKING_PROMOTION:
             is_white = not is_white
-            white_player.is_render_required = True
-            black_player.is_render_required = True
+            white_player.set_require_render(True)
+            black_player.set_require_render(True)
         current_player.parse_input(event, match.fen, local=True)
 
     update_window_caption(white_player, black_player)
@@ -96,11 +86,9 @@ while not done:
 
     white_player.update(delta_time)
     black_player.update(delta_time)
-    current_player.render(fg_color, bg_color)
+    current_player.render()
 
     pygame.display.flip()
-
-    clock.tick()
 
 pygame.quit()
 sys.exit()

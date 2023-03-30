@@ -5,7 +5,7 @@ import socket as skt
 from chess.piece_movement import PieceMovement, Side
 from chess.match import MoveTags, Match
 from utils.forsyth_edwards_notation import encode_fen_data
-from utils.command_manager import CommandManager, Command, Type
+from utils.command_manager import CommandManager, Command, ServerCommand
 from utils.network import Net
 from chess.chess_timer import DefaultConfigs
 
@@ -80,7 +80,7 @@ class Server(Net):
             CommandManager.fen_notation: encode_fen_data(self.match.fen.data),
             CommandManager.time: str(self.match.timer_config.time)
         }
-        init: Command = CommandManager.get(Type.INIT_INFO, init_info)
+        init: Command = CommandManager.get(ServerCommand.INIT_INFO, init_info)
         Server.send_all_bytes([client_socket], CommandManager.serialize_command(init))
         return client_id
 
@@ -108,7 +108,7 @@ def client_listener(client_socket: skt.socket, server: Server):
             print(f"client : {p_id}, sent move {command.name} to server")
             logging.debug("client : %s, sent move %s to server", p_id, command.name)
 
-            move_tags, commands = server.match.process_command(command, move_tags, commands)
+            move_tags, commands = server.match.process_client_command(command, move_tags, commands)
 
             print(f"move tags : ", *list(map(lambda m_tag: m_tag.name, move_tags)), sep=' ')
             logging.debug("move tags : %s", str(move_tags))
