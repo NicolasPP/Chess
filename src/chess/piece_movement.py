@@ -55,7 +55,7 @@ def is_king_safe(from_index: int, dest_index: int, fen: notation.Fen, is_white_t
     king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
 
     new_fen = notation.Fen(fen.notation)
-    new_fen.make_move(from_index, dest_index, new_fen[from_index])
+    new_fen.make_move(from_index, dest_index, new_fen[from_index], False)
 
     own_king_indexes = new_fen.get_indexes_for_piece(king_fen)
     own_king_index = -1 if len(own_king_indexes) == 0 else own_king_indexes[0]
