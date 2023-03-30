@@ -10,6 +10,7 @@ class ClientCommand(enum.Enum):
     RESIGN = enum.auto()
     OFFER_DRAW = enum.auto()
     DRAW_RESPONSE = enum.auto()
+    TIME_OUT = enum.auto()
 
 
 class ServerCommand(enum.Enum):
@@ -52,6 +53,8 @@ class CommandManager:
     time = 'time'
     captured_pieces = 'captured_pieces'
     draw_offer_result = 'draw_offer_result'
+    game_result_type = 'game_result_type'
+    game_result = 'game_result'
 
     @staticmethod
     def serialize_command(command: Command) -> bytes:
