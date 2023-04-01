@@ -7,7 +7,7 @@ from chess.match import MoveTags, Match
 from utils.forsyth_edwards_notation import encode_fen_data
 from utils.command_manager import CommandManager, Command, ServerCommand
 from utils.network import Net
-from chess.chess_timer import DefaultConfigs, TimerConfig
+from chess.chess_timer import DefaultConfigs
 
 from config import *
 
@@ -40,7 +40,7 @@ class Server(Net):
     def __init__(self, server_ip: str):
         super().__init__(server_ip)
         self.client_id: int = -1
-        self.match: Match = Match(TimerConfig(5, 0))
+        self.match: Match = Match(DefaultConfigs.BLITZ_5)
         self.client_sockets: list[skt.socket] = []
         PieceMovement.load_pieces_info()
 
