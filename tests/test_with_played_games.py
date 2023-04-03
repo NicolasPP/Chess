@@ -1,8 +1,8 @@
 import pytest
 
 from chess.validate_move import is_move_valid
-from utils.forsyth_edwards_notation import Fen
-import utils.portable_game_notation as game_notation
+from chess.notation.forsyth_edwards_notation import Fen
+import chess.notation.portable_game_notation as game_notation
 
 
 def get_games() -> list[game_notation.Game]:

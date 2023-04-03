@@ -9,10 +9,10 @@ import click
 import pygame
 
 from chess.player import process_server_command, Player
-from utils.forsyth_edwards_notation import Fen
-from utils.command_manager import CommandManager, Command
-from utils.asset import PieceSetAssets, BoardAssets
-from utils.network import ChessNetwork
+from chess.notation.forsyth_edwards_notation import Fen
+from chess.network.command_manager import CommandManager, Command
+from chess.asset.chess_assets import PieceSetAssets, BoardAssets
+from chess.network.chess_network import ChessNetwork
 from chess.piece_movement import Side
 
 from config import *
@@ -55,10 +55,11 @@ def get_player(init_info: Command) -> Player:
     side = init_info.info[CommandManager.side]
     time_left = init_info.info[CommandManager.time]
     player_side = Side.WHITE if side == Side.WHITE.name else Side.BLACK
+    board_assets = [BoardAssets.PLAIN1, BoardAssets.PLAIN2, BoardAssets.PLAIN3, BoardAssets.PLAIN4]
     player = Player(
         side=player_side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
-        board_asset=random.choice(list(BoardAssets)),
+        board_asset=random.choice(list(board_assets)),
         scale=BOARD_SCALE,
         time_left=float(time_left)
     )

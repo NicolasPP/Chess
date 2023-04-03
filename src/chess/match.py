@@ -5,9 +5,9 @@ import chess.validate_move as validate_move
 from chess.chess_timer import TimerConfig
 from chess.piece_movement import Side
 from config import HALF_MOVE_LIMIT
-from utils.algebraic_notation import get_index_from_an
-from utils.command_manager import Command, CommandManager, ClientCommand, ServerCommand
-from utils.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
+from chess.notation.algebraic_notation import get_index_from_an
+from chess.network.command_manager import Command, CommandManager, ClientCommand, ServerCommand
+from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
 
 
 class MoveTags(enum.Enum):

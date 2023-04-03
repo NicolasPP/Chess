@@ -2,7 +2,7 @@ import dataclasses
 import enum
 import typing
 
-from utils.algebraic_notation import AlgebraicNotation, validate_file_and_rank, get_an_from_index
+from chess.notation.algebraic_notation import AlgebraicNotation, validate_file_and_rank, get_an_from_index
 from config import *
 
 

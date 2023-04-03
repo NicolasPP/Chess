@@ -2,7 +2,7 @@ import pygame
 
 from chess.chess_timer import ChessTimer
 from chess.piece_movement import Side
-from utils.forsyth_edwards_notation import FenChars
+from chess.notation.forsyth_edwards_notation import FenChars
 from config import FIVE_FONT_FILE, TIMER_FONT_SIZE
 
 

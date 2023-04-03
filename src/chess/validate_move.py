@@ -1,4 +1,4 @@
-import utils.forsyth_edwards_notation as notation
+import chess.notation.forsyth_edwards_notation as notation
 from chess.piece_movement import get_available_moves, get_possible_threats
 
 

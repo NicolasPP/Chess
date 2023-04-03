@@ -1,6 +1,6 @@
 import pytest
 
-from utils.algebraic_notation import get_an_from_index, get_index_from_an
+from chess.notation.algebraic_notation import get_an_from_index, get_index_from_an
 
 
 @pytest.mark.parametrize("index,expected", [

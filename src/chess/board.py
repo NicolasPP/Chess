@@ -5,11 +5,11 @@ import typing
 import pygame
 
 
-from utils.algebraic_notation import AlgebraicNotation
-from utils.forsyth_edwards_notation import FenChars
-from chess.piece_assets import PieceAssets
+from chess.notation.algebraic_notation import AlgebraicNotation
+from chess.notation.forsyth_edwards_notation import FenChars
+from chess.asset.asset_manager import AssetManager
 from chess.piece_movement import Side
-import utils.asset as asset_manager
+from chess.asset.chess_assets import Sprite, BoardSprite
 from config import *
 
 
@@ -27,7 +27,7 @@ class BoardSquareIndex(typing.NamedTuple):
 class BoardSquare:
 
     @staticmethod
-    def create_board_grid(board_sprite: asset_manager.Sprite, pos_rect: pygame.rect.Rect, side: Side) -> \
+    def create_board_grid(board_sprite: Sprite, pos_rect: pygame.rect.Rect, side: Side) -> \
             list[BoardSquare]:
         grid = []
         size = Board.get_grid_surface_size(board_sprite) / BOARD_SIZE
@@ -62,10 +62,10 @@ class BoardSquare:
             available_moves: list[int],
             fen_val: str = FenChars.BLANK_PIECE.value
     ):
-        self.rect = rect
-        self.algebraic_notation = algebraic_notation
-        self.available_moves = available_moves
-        self.fen_val = fen_val
+        self.rect: pygame.rect.Rect = rect
+        self.algebraic_notation: AlgebraicNotation = algebraic_notation
+        self.available_moves: list[int] = available_moves
+        self.fen_val: str = fen_val
         self.picked_up: bool = False
 
     def get_piece_render_pos(self, board_offset: pygame.math.Vector2,
@@ -88,7 +88,7 @@ class BoardSquare:
 
     def render(self, board_pos: tuple[int, int]) -> None:
         offset = pygame.math.Vector2(board_pos)
-        piece_surface = PieceAssets.sprites[self.fen_val].surface
+        piece_surface = AssetManager.get_piece(self.fen_val).surface
         piece_pos: RenderPos = BoardSquare.get_piece_render_pos(self, offset, piece_surface)
         pygame.display.get_surface().blit(piece_surface, (piece_pos.x, piece_pos.y))
 
@@ -96,18 +96,24 @@ class BoardSquare:
 class Board:
 
     @staticmethod
-    def get_grid_surface_size(board_sprite: asset_manager.Sprite) -> pygame.math.Vector2:
+    def get_grid_surface_size(board_sprite: Sprite) -> pygame.math.Vector2:
         offset = pygame.math.Vector2(GRID_OFFSET * board_sprite.scale)
         board_size = pygame.math.Vector2(board_sprite.surface.get_size())
         return board_size - (offset * 2)
 
-    def __init__(self, board_asset: asset_manager.BoardAsset, side: Side, scale: float):
-        self.board_sprite: asset_manager.BoardSprite = asset_manager.load_board(board_asset, scale)
+    def __init__(self, side: Side, scale: float):
+        self.board_sprite: BoardSprite = AssetManager.get_board()
         replace_board_axis_vals(self.board_sprite.sprite, scale, side)
         if side is Side.BLACK:
             self.board_sprite.sprite.surface = pygame.transform.flip(self.board_sprite.sprite.surface, True, True)
         self.pos_rect: pygame.rect.Rect = self.board_sprite.sprite.surface.get_rect()
         self.grid: list[BoardSquare] = BoardSquare.create_board_grid(self.board_sprite.sprite, self.pos_rect, side)
+
+    def init_board_asset(self, side: Side, scale: float) -> None:
+        self.board_sprite: BoardSprite = AssetManager.get_board()
+        replace_board_axis_vals(self.board_sprite.sprite, scale, side)
+        if side is Side.BLACK:
+            self.board_sprite.sprite.surface = pygame.transform.flip(self.board_sprite.sprite.surface, True, True)
 
     def reset_picked_up(self) -> None:
         for sqr in self.grid: sqr.picked_up = False
@@ -161,7 +167,7 @@ class Board:
             board_square.render(self.pos_rect.topleft)
 
 
-def replace_board_axis_info(board_sprite: asset_manager.Sprite) -> \
+def replace_board_axis_info(board_sprite: Sprite) -> \
         typing.Generator[tuple[int, pygame.rect.Rect], None, None]:
     size = Board.get_grid_surface_size(board_sprite) / BOARD_SIZE
     board_offset = pygame.math.Vector2(board_sprite.surface.get_rect().topleft)
@@ -175,7 +181,7 @@ def replace_board_axis_info(board_sprite: asset_manager.Sprite) -> \
             yield index, rect
 
 
-def replace_board_axis_vals(board_sprite: asset_manager.Sprite, scale: float, side: Side) -> None:
+def replace_board_axis_vals(board_sprite: Sprite, scale: float, side: Side) -> None:
     nums = list(range(8, 0, -1))
     nums_index = 0
     letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
