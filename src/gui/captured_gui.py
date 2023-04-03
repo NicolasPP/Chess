@@ -2,8 +2,8 @@ import pygame
 
 from chess.piece_assets import PieceAssets
 from chess.piece_movement import Side
-from utils.forsyth_edwards_notation import validate_fen_val
-from utils.asset import scale, PieceSetAssets
+from chess.notation.forsyth_edwards_notation import validate_fen_val
+from chess.asset.chess_assets import scale, PieceSetAssets
 
 
 class CapturedGui:

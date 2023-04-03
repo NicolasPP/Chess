@@ -1,7 +1,7 @@
 import dataclasses
 
-import utils.asset as asset_manager
-import utils.forsyth_edwards_notation as notation
+import chess.asset.chess_assets as asset_manager
+import chess.notation.forsyth_edwards_notation as notation
 
 from config import *
 

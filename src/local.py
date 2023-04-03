@@ -7,8 +7,8 @@ import pygame
 from chess.match import Match
 from chess.player import Player, process_command_local, STATE
 from chess.piece_movement import Side
-from utils.asset import PieceSetAssets, BoardAssets
-from chess.chess_timer import DefaultConfigs, TimerConfig
+from chess.asset.chess_assets import PieceSetAssets, BoardAssets
+from chess.chess_timer import TimerConfig
 from config import *
 
 pygame.init()

@@ -5,11 +5,11 @@ import typing
 import pygame
 
 
-from utils.algebraic_notation import AlgebraicNotation
-from utils.forsyth_edwards_notation import FenChars
+from chess.notation.algebraic_notation import AlgebraicNotation
+from chess.notation.forsyth_edwards_notation import FenChars
 from chess.piece_assets import PieceAssets
 from chess.piece_movement import Side
-import utils.asset as asset_manager
+import chess.asset.chess_assets as asset_manager
 from config import *
 
 

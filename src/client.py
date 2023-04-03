@@ -9,10 +9,10 @@ import click
 import pygame
 
 from chess.player import process_server_command, Player
-from utils.forsyth_edwards_notation import Fen
-from utils.command_manager import CommandManager, Command
-from utils.asset import PieceSetAssets, BoardAssets
-from utils.network import ChessNetwork
+from chess.notation.forsyth_edwards_notation import Fen
+from chess.network.command_manager import CommandManager, Command
+from chess.asset.chess_assets import PieceSetAssets, BoardAssets
+from chess.network.chess_network import ChessNetwork
 from chess.piece_movement import Side
 
 from config import *

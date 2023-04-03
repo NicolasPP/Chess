@@ -1,5 +1,6 @@
 import dataclasses
 import enum
+
 import pygame
 
 from config import *

@@ -1,7 +1,7 @@
 import pytest
 
 import chess.validate_move as validate_move
-from utils.forsyth_edwards_notation import Fen
+from chess.notation.forsyth_edwards_notation import Fen
 
 
 @pytest.mark.parametrize("fen", [

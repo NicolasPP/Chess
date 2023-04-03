@@ -1,8 +1,8 @@
 import enum
 import typing
 
-import utils.forsyth_edwards_notation as notation
-from utils.algebraic_notation import AlgebraicNotation
+import chess.notation.forsyth_edwards_notation as notation
+from chess.notation.algebraic_notation import AlgebraicNotation
 from config import *
 
 

@@ -6,10 +6,10 @@ import pygame
 from chess.piece_assets import PieceAssets
 from chess.piece_movement import Side, PieceMovement, get_available_moves, is_king_safe
 from chess.board import Board, BoardSquare
-from utils.forsyth_edwards_notation import Fen, FenChars
-from utils.asset import PieceSetAssets, BoardAssets
-from utils.command_manager import CommandManager, ClientCommand, ServerCommand, Command
-from utils.network import ChessNetwork
+from chess.notation.forsyth_edwards_notation import Fen, FenChars
+from chess.asset.chess_assets import PieceSetAssets, BoardAssets
+from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
+from chess.network.chess_network import ChessNetwork
 from gui.timer_gui import TimerGui
 from gui.end_game_gui import EndGameGui
 from gui.promotion_gui import PromotionGui

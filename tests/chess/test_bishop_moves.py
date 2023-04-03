@@ -1,7 +1,7 @@
 import pytest
 
 from chess.piece_movement import get_available_moves
-from utils.forsyth_edwards_notation import Fen
+from chess.notation.forsyth_edwards_notation import Fen
 
 
 def test_base_moves():
