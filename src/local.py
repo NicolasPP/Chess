@@ -5,7 +5,7 @@ import time
 import pygame
 
 from chess.match import Match
-from chess.player import Player, process_command_local, STATE
+from chess.player import Player, process_command_local, State
 from chess.piece_movement import Side
 from chess.asset.chess_assets import PieceSetAssets, BoardAssets
 from chess.chess_timer import TimerConfig
@@ -17,12 +17,13 @@ pygame.display.set_mode(window_size)
 done = False
 prev_time = time.time()
 delta_time: float = 0
+board_assets = [BoardAssets.PLAIN1, BoardAssets.PLAIN2, BoardAssets.PLAIN3, BoardAssets.PLAIN4]
 
 match = Match(TimerConfig(5, 0))
 white_player = Player(
     side=Side.WHITE,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
-    board_asset=random.choice(list(BoardAssets)),
+    board_asset=random.choice(list(board_assets)),
     scale=BOARD_SCALE,
     time_left=match.timer_config.time
 )
@@ -30,7 +31,7 @@ white_player = Player(
 black_player = Player(
     side=Side.BLACK,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
-    board_asset=random.choice(list(BoardAssets)),
+    board_asset=random.choice(list(board_assets)),
     scale=BOARD_SCALE,
     time_left=match.timer_config.time
 )
@@ -72,7 +73,7 @@ while not done:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: done = True
-        if event.type == pygame.KEYDOWN and current_player.state is not STATE.PICKING_PROMOTION:
+        if event.type == pygame.KEYDOWN and current_player.state is not State.PICKING_PROMOTION:
             is_white = not is_white
             white_player.set_require_render(True)
             black_player.set_require_render(True)

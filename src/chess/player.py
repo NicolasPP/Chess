@@ -3,11 +3,11 @@ import datetime
 
 import pygame
 
-from chess.piece_assets import PieceAssets
+from chess.asset.asset_manager import AssetManager
 from chess.piece_movement import Side, PieceMovement, get_available_moves, is_king_safe
 from chess.board import Board, BoardSquare
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
-from chess.asset.chess_assets import PieceSetAssets, BoardAssets
+from chess.asset.chess_assets import PieceSetAsset, BoardAsset
 from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
 from chess.network.chess_network import ChessNetwork
 from gui.timer_gui import TimerGui
@@ -19,15 +19,7 @@ from gui.yes_or_gui import YesOrNoGui
 from config import *
 
 
-class MOUSECLICK(enum.Enum):
-    LEFT: int = 1
-    MIDDLE: int = 2
-    RIGHT: int = 3
-    SCROLL_UP: int = 4
-    SCROLL_DOWN: int = 5
-
-
-class STATE(enum.Enum):
+class State(enum.Enum):
     PICK_PIECE = enum.auto()
     DROP_PIECE = enum.auto()
     PICKING_PROMOTION = enum.auto()
@@ -40,16 +32,17 @@ class STATE(enum.Enum):
 class Player:
     def __init__(self,
                  side: Side,
-                 piece_set: PieceSetAssets,
-                 board_asset: BoardAssets,
+                 piece_set: PieceSetAsset,
+                 board_asset: BoardAsset,
                  scale: float,
                  time_left: float):
-        PieceAssets.load(piece_set.value, scale)
+        AssetManager.load_pieces(piece_set, scale)
+        AssetManager.load_board(board_asset, scale)
         PieceMovement.load()
 
-        self.board: Board = Board(board_asset.value, side, scale)
+        self.board: Board = Board(side, scale)
         self.side: Side = side
-        self.state: STATE = STATE.PICK_PIECE
+        self.state: State = State.PICK_PIECE
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
         self.prev_time_iso: str | None = None
 
@@ -78,33 +71,33 @@ class Player:
         if self.game_over: return
         if not self.read_input: return
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == MOUSECLICK.LEFT.value:
+            if event.button == MOUSECLICK_LEFT:
                 self.handle_mouse_down_left(network, local)
                 self.handle_end_game_mouse_down()
         if event.type == pygame.MOUSEBUTTONUP:
-            if event.button == MOUSECLICK.LEFT.value:
+            if event.button == MOUSECLICK_LEFT:
                 self.handle_left_mouse_up(network, local, fen)
 
     def handle_end_game_mouse_down(self) -> None:
-        if self.state == STATE.RESPOND_DRAW: return
-        if self.state == STATE.OFFERED_DRAW: return
-        if self.state == STATE.RESIGN_DOUBLE_CHECK: return
-        if self.state == STATE.DRAW_DOUBLE_CHECK: return
+        if self.state == State.RESPOND_DRAW: return
+        if self.state == State.OFFERED_DRAW: return
+        if self.state == State.RESIGN_DOUBLE_CHECK: return
+        if self.state == State.DRAW_DOUBLE_CHECK: return
         mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
-            self.state = STATE.DRAW_DOUBLE_CHECK
+            self.state = State.DRAW_DOUBLE_CHECK
             self.yes_or_no_gui.set_action_label(DRAW_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
         elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
-            self.state = STATE.RESIGN_DOUBLE_CHECK
+            self.state = State.RESIGN_DOUBLE_CHECK
             self.yes_or_no_gui.set_action_label(RESIGN_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
     def handle_left_mouse_up(self, network: ChessNetwork | None, local: bool, fen: Fen) -> None:
-        if self.state is not STATE.DROP_PIECE: return
+        if self.state is not State.DROP_PIECE: return
 
         dest_board_square = self.board.get_collided_board_square()
         from_board_square = self.board.get_picked_up()
@@ -139,11 +132,11 @@ class Player:
         if not is_promotion:
             send_command(local, network, move)
             self.set_read_input(False)
-            self.state = STATE.PICK_PIECE
+            self.state = State.PICK_PIECE
             self.board.reset_picked_up()
 
         else:
-            self.state = STATE.PICKING_PROMOTION
+            self.state = State.PICKING_PROMOTION
             if not local:
                 picking_promotion = CommandManager.get(ClientCommand.PICKING_PROMOTION)
                 send_command(local, network, picking_promotion)
@@ -152,16 +145,16 @@ class Player:
         self.prev_time_iso = time_iso
 
     def handle_mouse_down_left(self, network: ChessNetwork | None, local: bool) -> None:
-        if self.state is STATE.DROP_PIECE: return
-        if self.state is STATE.PICKING_PROMOTION:
+        if self.state is State.DROP_PIECE: return
+        if self.state is State.PICKING_PROMOTION:
             self.handle_pick_promotion(local, network)
-        elif self.state is STATE.PICK_PIECE:
+        elif self.state is State.PICK_PIECE:
             board_square = self.board.get_collided_board_square()
             if not board_square: return
             if board_square.fen_val == FenChars.BLANK_PIECE.value: return
             self.board.set_picked_up(board_square)
-            self.state = STATE.DROP_PIECE
-        elif self.state is STATE.RESPOND_DRAW:
+            self.state = State.DROP_PIECE
+        elif self.state is State.RESPOND_DRAW:
             self.handle_yes_or_no_response()
             if self.yes_or_no_gui.result is None: return
             draw_response_info: dict[str, str] = {
@@ -170,17 +163,17 @@ class Player:
             draw_response = CommandManager.get(ClientCommand.DRAW_RESPONSE, draw_response_info)
             send_command(local, network, draw_response)
             self.yes_or_no_gui.set_result(None)
-        elif self.state is STATE.DRAW_DOUBLE_CHECK or self.state is STATE.RESIGN_DOUBLE_CHECK:
+        elif self.state is State.DRAW_DOUBLE_CHECK or self.state is State.RESIGN_DOUBLE_CHECK:
             self.handle_yes_or_no_response()
             if self.yes_or_no_gui.result is None: return
             if not self.yes_or_no_gui.result:
-                self.state = STATE.PICK_PIECE
+                self.state = State.PICK_PIECE
                 self.set_require_render(True)
                 self.end_game_gui.resign.set_hover(True)
                 self.end_game_gui.offer_draw.set_hover(True)
                 return
-            if self.state is STATE.DRAW_DOUBLE_CHECK:
-                self.state = STATE.OFFERED_DRAW
+            if self.state is State.DRAW_DOUBLE_CHECK:
+                self.state = State.OFFERED_DRAW
                 draw_info: dict[str, str] = {CommandManager.side: self.side.name}
                 offer_draw = CommandManager.get(ClientCommand.OFFER_DRAW, draw_info)
                 send_command(local, network, offer_draw)
@@ -215,14 +208,14 @@ class Player:
 
             send_command(local, network, move)
             self.board.reset_picked_up()
-            self.state = STATE.PICK_PIECE
+            self.state = State.PICK_PIECE
             self.set_require_render(True)
 
     def update(self, delta_time: float, local: bool = False, network: ChessNetwork | None = None) -> None:
         if self.game_over: return
-        if self.state == STATE.PICKING_PROMOTION: return
-        if self.state == STATE.OFFERED_DRAW: return
-        if self.state == STATE.RESPOND_DRAW: return
+        if self.state == State.PICKING_PROMOTION: return
+        if self.state == State.OFFERED_DRAW: return
+        if self.state == State.RESPOND_DRAW: return
         if self.opponent_promoting: return
         if self.timed_out: return
         self.timer_gui.tick(delta_time)
@@ -238,7 +231,7 @@ class Player:
         self.end_game_gui.offer_draw.set_hover(False)
         self.end_game_gui.resign.set_hover(False)
         if self.side.name != side:
-            self.state = STATE.RESPOND_DRAW
+            self.state = State.RESPOND_DRAW
             self.yes_or_no_gui.set_action_label('')
             self.yes_or_no_gui.set_description_label(RESPOND_DRAW_LABEL)
 
@@ -253,57 +246,35 @@ class Player:
     def continue_game(self) -> None:
         self.end_game_gui.offer_draw.set_hover(True)
         self.end_game_gui.resign.set_hover(True)
-        self.state = STATE.PICK_PIECE
+        self.state = State.PICK_PIECE
 
     def render(self) -> None:
         if self.game_over:
             self.end_game_gui.game_over_gui.render()
             return
 
-        if self.is_render_required or self.state is STATE.DROP_PIECE:
+        if self.is_render_required or self.state is State.DROP_PIECE:
             pygame.display.get_surface().fill(self.board.board_sprite.background)
             self.captured_gui.render(self.side)
             self.board.render()
             self.board.render_pieces(self.side is Side.WHITE)
-            if self.state is STATE.DROP_PIECE:
+            if self.state is State.DROP_PIECE:
                 self.show_available_moves()
                 self.board.get_picked_up().render(self.board.pos_rect.topleft)
 
-        if self.state is STATE.PICKING_PROMOTION:
+        if self.state is State.PICKING_PROMOTION:
             self.promotion_gui.render()
 
-        if self.state is STATE.RESPOND_DRAW or \
-                self.state is STATE.DRAW_DOUBLE_CHECK or \
-                self.state is STATE.RESIGN_DOUBLE_CHECK:
+        if self.state is State.RESPOND_DRAW or \
+                self.state is State.DRAW_DOUBLE_CHECK or \
+                self.state is State.RESIGN_DOUBLE_CHECK:
             self.yes_or_no_gui.render()
 
-        if self.state is STATE.OFFERED_DRAW: pass
+        if self.state is State.OFFERED_DRAW: pass
 
         self.set_require_render(False)
         self.timer_gui.render()
         self.end_game_gui.render()
-
-    def change_assets(
-            self,
-            piece_set: PieceSetAssets,
-            board_asset: BoardAssets,
-            scale: float,
-            fen: Fen,
-            window_size: pygame.math.Vector2
-    ) -> None:
-        PieceAssets.load(piece_set.value, scale)
-        self.board = Board(board_asset.value, self.side, scale)
-        self.set_to_default_pos(window_size)
-        self.update_pieces_location(fen)
-
-        self.captured_gui.bg_color = self.board.board_sprite.background
-        self.timer_gui.bg_color = self.board.board_sprite.background
-        self.timer_gui.fg_color = self.board.board_sprite.foreground
-        self.end_game_gui = EndGameGui(
-            self.board.pos_rect,
-            self.board.board_sprite.background,
-            self.board.board_sprite.foreground)
-        self.end_game_gui.recalculate_pos()
 
     def show_available_moves(self) -> None:
         if not self.turn: return
@@ -323,7 +294,7 @@ class Player:
         self.set_require_render(True)
 
     def end_game(self) -> None:
-        self.state = STATE.PICK_PIECE
+        self.state = State.PICK_PIECE
         self.set_require_render(True)
         self.render()
         self.set_turn(False)

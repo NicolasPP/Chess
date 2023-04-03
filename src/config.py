@@ -87,3 +87,10 @@ K_ASSET_INDEX = 5
 
 # -- Limits --
 HALF_MOVE_LIMIT = 100
+
+# -- Mouse Click values --
+MOUSECLICK_LEFT: int = 1
+MOUSECLICK_MIDDLE: int = 2
+MOUSECLICK_RIGHT: int = 3
+MOUSECLICK_SCROLL_UP: int = 4
+MOUSECLICK_SCROLL_DOWN: int = 5

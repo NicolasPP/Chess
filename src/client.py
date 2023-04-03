@@ -55,10 +55,11 @@ def get_player(init_info: Command) -> Player:
     side = init_info.info[CommandManager.side]
     time_left = init_info.info[CommandManager.time]
     player_side = Side.WHITE if side == Side.WHITE.name else Side.BLACK
+    board_assets = [BoardAssets.PLAIN1, BoardAssets.PLAIN2, BoardAssets.PLAIN3, BoardAssets.PLAIN4]
     player = Player(
         side=player_side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
-        board_asset=random.choice(list(BoardAssets)),
+        board_asset=random.choice(list(board_assets)),
         scale=BOARD_SCALE,
         time_left=float(time_left)
     )

@@ -1,6 +1,4 @@
 import dataclasses
-import enum
-
 import pygame
 
 from config import *
@@ -11,6 +9,12 @@ class BoardAsset:
     file: str
     background: tuple[int, int, int]
     foreground: tuple[int, int, int]
+
+
+@dataclasses.dataclass
+class PieceSetAsset:
+    white_assets_file: str
+    black_assets_file: str
 
 
 @dataclasses.dataclass
@@ -26,23 +30,17 @@ class BoardSprite:
     foreground: tuple[int, int, int]
 
 
-@dataclasses.dataclass
-class PieceSet:
-    white_assets_file: str
-    black_assets_file: str
-
-
-class BoardAssets(enum.Enum):
+class BoardAssets:
     PLAIN1: BoardAsset = BoardAsset(PLAIN1_FILE, PLAIN1_BG, PLAIN1_FG)
     PLAIN2: BoardAsset = BoardAsset(PLAIN2_FILE, PLAIN2_BG, PLAIN2_FG)
     PLAIN3: BoardAsset = BoardAsset(PLAIN3_FILE, PLAIN3_BG, PLAIN3_FG)
     PLAIN4: BoardAsset = BoardAsset(PLAIN4_FILE, PLAIN4_BG, PLAIN4_FG)
 
 
-class PieceSetAssets(enum.Enum):
-    SIMPLE16x16: PieceSet = PieceSet(SIMPLE16x16_PIECE_FILE_WHITE, SIMPLE16x16_PIECE_FILE_BLACK)
-    NORMAL16x16: PieceSet = PieceSet(NORMAL16x16_PIECE_FILE_WHITE, NORMAL16x16_PIECE_FILE_BLACK)
-    NORMAL16x32: PieceSet = PieceSet(NORMAL16x32_PIECE_FILE_WHITE, NORMAL16x32_PIECE_FILE_BLACK)
+class PieceSetAssets:
+    SIMPLE16x16: PieceSetAsset = PieceSetAsset(SIMPLE16x16_PIECE_FILE_WHITE, SIMPLE16x16_PIECE_FILE_BLACK)
+    NORMAL16x16: PieceSetAsset = PieceSetAsset(NORMAL16x16_PIECE_FILE_WHITE, NORMAL16x16_PIECE_FILE_BLACK)
+    NORMAL16x32: PieceSetAsset = PieceSetAsset(NORMAL16x32_PIECE_FILE_WHITE, NORMAL16x32_PIECE_FILE_BLACK)
 
 
 def scale(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
@@ -85,6 +83,6 @@ def load_board(board_asset: BoardAsset, asset_scale: float) -> BoardSprite:
     return BoardSprite(load_sprite(board_asset.file, asset_scale), board_asset.background, board_asset.foreground)
 
 
-def load_piece_set(piece_set: PieceSet, piece_scale: float) -> tuple[list[Sprite], list[Sprite]]:
+def load_piece_set(piece_set: PieceSetAsset, piece_scale: float) -> tuple[list[Sprite], list[Sprite]]:
     return load_sprite_sheet(piece_set.white_assets_file, piece_scale), \
            load_sprite_sheet(piece_set.black_assets_file, piece_scale)
