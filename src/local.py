@@ -8,7 +8,7 @@ from chess.match import Match
 from chess.player import Player, process_command_local, State
 from chess.piece_movement import Side
 from chess.asset.chess_assets import PieceSetAssets, BoardAssets
-from chess.chess_timer import TimerConfig
+from chess.chess_timer import DefaultConfigs
 from config import *
 
 pygame.init()
@@ -19,7 +19,7 @@ prev_time = time.time()
 delta_time: float = 0
 board_assets = [BoardAssets.PLAIN1, BoardAssets.PLAIN2, BoardAssets.PLAIN3, BoardAssets.PLAIN4]
 
-match = Match(TimerConfig(5, 0))
+match = Match(DefaultConfigs.BLITZ_5)
 white_player = Player(
     side=Side.WHITE,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
