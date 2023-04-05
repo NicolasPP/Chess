@@ -1,5 +1,4 @@
 import _thread as thread
-import logging
 import random
 import socket as skt
 import sys
@@ -14,16 +13,11 @@ from chess.network.command_manager import CommandManager, Command
 from chess.asset.chess_assets import PieceSetAssets, BoardAssets
 from chess.network.chess_network import ChessNetwork
 from chess.piece_movement import Side
+from chess_logging import set_up_logging
 
 from config import *
 
-logging.basicConfig(
-    filename='../Chess/log/client.log',
-    encoding='utf-8',
-    level=logging.DEBUG,
-    filemode='w',
-    format='%(asctime)s\t%(levelname)s\t%(message)s'
-)
+logger = set_up_logging(CLIENT_NAME, CLIENT_LOG_FILE)
 
 prev_time = time.time()
 delta_time: float = 0
@@ -35,12 +29,12 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
             data_b: bytes = server_socket.recv(DATA_SIZE)
             if not data_b: break
             commands = CommandManager.deserialize_command_list_bytes(data_b)
-            logging.debug("server sent commands :")
+            logger.debug("server sent commands :")
             for command in commands:
-                logging.debug(" - %s ", command.name)
+                logger.debug(" - %s ", command.name)
                 process_server_command(command, match_fen, player)
 
-        logging.debug("server disconnected")
+        logger.debug("server disconnected")
         pygame.event.post(pygame.event.Event(pygame.QUIT))
 
 
