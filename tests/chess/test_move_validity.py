@@ -75,3 +75,11 @@ def is_from_valid(fen: Fen, from_index: int, expected: bool):
 ])
 def test_is_move_valid(from_index: int, dest_index: int, fen: Fen, expected: bool):
     assert validate_move.is_move_valid(from_index, dest_index, fen) is expected
+
+
+@pytest.mark.parametrize("fen", [
+    Fen("k7/2Q5/8/8/8/8/8/7K w - - 0 1"),
+    Fen("k7/7R/8/7p/5p1P/b4N2/8/RQ5K b - - 0 1")
+])
+def test_is_stale_mate(fen: Fen):
+    assert validate_move.is_stale_mate(fen)

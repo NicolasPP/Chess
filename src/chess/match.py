@@ -1,13 +1,13 @@
 import datetime
 import enum
 
-import chess.validate_move as validate_move
 from chess.chess_timer import TimerConfig
 from chess.piece_movement import Side
-from config import HALF_MOVE_LIMIT
 from chess.notation.algebraic_notation import get_index_from_an
 from chess.network.command_manager import Command, CommandManager, ClientCommand, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
+from chess.validate_move import is_move_valid, is_take, is_check, is_checkmate, is_stale_mate, is_material_insufficient
+from config import HALF_MOVE_LIMIT
 
 
 class MoveTags(enum.Enum):
@@ -114,7 +114,7 @@ class Match:
         before_move_fen = Fen(encode_fen_data(self.fen.data))
 
         if not is_side_valid(side, self.fen.is_white_turn()) \
-                or not validate_move.is_move_valid(from_index, dest_index, self.fen):
+                or not is_move_valid(from_index, dest_index, self.fen):
             return [MoveTags.INVALID]
 
         time = datetime.datetime.fromisoformat(time_iso)
@@ -138,16 +138,16 @@ class Match:
         is_castle = before_move_fen.is_move_castle(from_index, dest_index)
         opponent_pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(not before_move_fen.is_white_turn())
 
-        if validate_move.is_take(before_move_fen, dest_index, is_en_passant, is_castle):
+        if is_take(before_move_fen, dest_index, is_en_passant, is_castle):
             if is_en_passant:
                 self.captured_pieces += opponent_pawn_fen
             else:
                 self.captured_pieces += before_move_fen[dest_index]
             tags.append(MoveTags.TAKE)
 
-        if validate_move.is_checkmate(self.fen, self.fen.is_white_turn()):
+        if is_checkmate(self.fen, self.fen.is_white_turn()):
             tags.append(MoveTags.CHECKMATE)
-        elif validate_move.is_check(self.fen, self.fen.is_white_turn()):
+        elif is_check(self.fen, self.fen.is_white_turn()):
             tags.append(MoveTags.CHECK)
         else:
             tags.append(MoveTags.REGULAR)
@@ -195,21 +195,21 @@ class Match:
 
         # -- DRAW --
         # Stalemate
+        draw_info: dict[str, str] = {CommandManager.game_result: MatchResult.DRAW.name}
+
+        if is_stale_mate(self.fen):
+            draw_info[CommandManager.game_result_type] = MatchResultType.STALEMATE.name
+            return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
+
         # Insufficient Material
-        if self.fen.is_material_insufficient():
-            end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.INSUFFICIENT_MATERIAL.name,
-                CommandManager.game_result: MatchResult.DRAW.name
-            }
-            return [CommandManager.get(ServerCommand.END_GAME, end_game_info)]
+        if is_material_insufficient(self.fen):
+            draw_info[CommandManager.game_result_type] = MatchResultType.INSUFFICIENT_MATERIAL.name
+            return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
 
         # 50 move-rule
         if int(self.fen.data.half_move_clock) >= HALF_MOVE_LIMIT:
-            end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.FIFTY_MOVE_RULE.name,
-                CommandManager.game_result: MatchResult.DRAW.name
-            }
-            return [CommandManager.get(ServerCommand.END_GAME, end_game_info)]
+            draw_info[CommandManager.game_result_type] = MatchResultType.FIFTY_MOVE_RULE.name
+            return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
 
         # Repetition
 
