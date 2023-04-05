@@ -9,17 +9,18 @@ def is_move_valid(from_index: int, dest_index: int, fen: notation.Fen) -> bool:
     return True
 
 
-def is_opponent_in_check(fen: notation.Fen, is_white_turn: None | bool = None) -> bool:
+def is_check(fen: notation.Fen, is_white_turn: None | bool = None) -> bool:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    opponent_king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(not is_white_turn)
-    opponents_king_index = fen.get_indexes_for_piece(opponent_king_fen)
-    threats = get_possible_threats(opponents_king_index[0], fen, not is_white_turn)
+    king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
+    king_index = fen.get_indexes_for_piece(king_fen)
+    threats = get_possible_threats(king_index[0], fen, is_white_turn)
     return len(threats) != 0
 
 
-def is_opponent_in_checkmate(fen: notation.Fen) -> bool:
-    opponents_moves = get_all_available_moves(fen, not fen.is_white_turn(), own_moves=False)
-    return len(opponents_moves) == 0
+def is_checkmate(fen: notation.Fen, is_white_turn: None | bool = None) -> bool:
+    if is_white_turn is None: is_white_turn = fen.is_white_turn()
+    all_moves = get_all_available_moves(fen, is_white_turn, own_moves=True)
+    return len(all_moves) == 0 and is_check(fen, is_white_turn)
 
 
 def is_take(fen: notation.Fen, dest_index: int, is_en_passant: bool, is_castle: bool) -> bool:

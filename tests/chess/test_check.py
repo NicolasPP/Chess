@@ -6,11 +6,11 @@ import chess.validate_move as validate_move
 
 
 def test_check():
-    assert validate_move.is_opponent_in_check(Fen('8/8/8/3PpP2/3pkp2/3PpP2/8/8 w KQkq - 0 1'))
+    assert validate_move.is_check(Fen('8/8/8/3PpP2/3pkp2/3PpP2/8/8 b KQkq - 0 1'))
 
 
 def test_not_in_check():
-    assert not validate_move.is_opponent_in_check(Fen())
+    assert not validate_move.is_check(Fen())
 
 
 def test_moving_into_check():
@@ -20,19 +20,19 @@ def test_moving_into_check():
 
 @pytest.mark.parametrize("fen,piece_fen_val", [
     # get out with take
-    (Fen('8/8/8/8/2B1P3/3P1N2/PPP2qPP/RNBQK2R b KQkq - 0 1'), 'K'),
+    (Fen('8/8/8/8/2B1P3/3P1N2/PPP2qPP/RNBQK2R w KQkq - 0 1'), 'K'),
     # get out with block
-    (Fen('2Q4k/6pp/5r1q/8/8/8/8/8 w KQkq - 0 1'), 'r'),
+    (Fen('2Q4k/6pp/5r1q/8/8/8/8/8 b KQkq - 0 1'), 'r'),
     # get out with move
-    (Fen('2Q3k1/6pp/7q/8/8/8/8/8 w KQkq - 0 1'), 'k')
+    (Fen('2Q3k1/6pp/7q/8/8/8/8/8 b KQkq - 0 1'), 'k')
 ])
 def test_get_out_check(fen: Fen, piece_fen_val: str):
-    assert validate_move.is_opponent_in_check(fen)
+    assert validate_move.is_check(fen)
     for index, fen_val in enumerate(fen.expanded):
         if fen_val is FenChars.BLANK_PIECE.value: continue
-        if fen_val.isupper() if fen.is_white_turn() else fen_val.islower(): continue
+        if fen_val.islower() if fen.is_white_turn() else fen_val.isupper(): continue
 
-        moves = get_available_moves(fen_val, index, fen, not fen.is_white_turn())
+        moves = get_available_moves(fen_val, index, fen)
 
         if fen_val == piece_fen_val:
             assert len(moves) == 1

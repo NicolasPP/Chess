@@ -145,9 +145,9 @@ class Match:
                 self.captured_pieces += before_move_fen[dest_index]
             tags.append(MoveTags.TAKE)
 
-        if validate_move.is_opponent_in_checkmate(self.fen):
+        if validate_move.is_checkmate(self.fen, self.fen.is_white_turn()):
             tags.append(MoveTags.CHECKMATE)
-        elif validate_move.is_opponent_in_check(self.fen, not self.fen.is_white_turn()):
+        elif validate_move.is_check(self.fen, self.fen.is_white_turn()):
             tags.append(MoveTags.CHECK)
         else:
             tags.append(MoveTags.REGULAR)

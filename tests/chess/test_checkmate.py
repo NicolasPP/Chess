@@ -12,4 +12,8 @@ from chess.notation.forsyth_edwards_notation import Fen
     Fen('6Rk/8/5N2/8/8/8/8/8 b KQkq - 0 1')
 ])
 def test_checkmate(fen: Fen):
-    assert validate_move.is_opponent_in_checkmate(fen)
+    assert validate_move.is_checkmate(fen)
+
+
+def test_false_checkmate():
+    assert validate_move.is_checkmate(Fen("k7/2Q5/8/8/8/8/8/7K w - - 0 1")) is False
