@@ -28,11 +28,6 @@ logging.basicConfig(
 class Server(Net):
 
     @staticmethod
-    def send_all(connections: list[skt.socket], data: str) -> None:
-        for client_socket in connections:
-            client_socket.send(str.encode(data))
-
-    @staticmethod
     def send_all_bytes(connections: list[skt.socket], data: bytes) -> None:
         for client_socket in connections:
             client_socket.send(data)
