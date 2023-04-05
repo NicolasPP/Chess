@@ -1,14 +1,13 @@
 import _thread as thread
-import logging
 import socket as skt
 
-from chess.piece_movement import PieceMovement, Side
-from chess.match import MoveTags, Match
-from chess.notation.forsyth_edwards_notation import encode_fen_data
-from chess.network.command_manager import CommandManager, Command, ServerCommand
-from chess.network.chess_network import Net
 from chess.chess_timer import DefaultConfigs
-
+from chess.match import MoveTags, Match
+from chess.network.chess_network import Net
+from chess.network.command_manager import CommandManager, Command, ServerCommand
+from chess.notation.forsyth_edwards_notation import encode_fen_data
+from chess.piece_movement import PieceMovement, Side
+from chess_logging import set_up_logging
 from config import *
 
 '''
@@ -16,13 +15,7 @@ from config import *
 you can get the process ID with port with this command : sudo lsof -i:PORT
 '''
 
-logging.basicConfig(
-    filename='../Chess/log/server.log',
-    encoding='utf-8',
-    level=logging.DEBUG,
-    filemode='w',
-    format='%(asctime)s\t%(levelname)s\t%(message)s'
-)
+logger = set_up_logging(SERVER_NAME, SERVER_LOG_FILE)
 
 
 class Server(Net):
@@ -40,17 +33,17 @@ class Server(Net):
         PieceMovement.load_pieces_info()
 
     def start(self) -> None:
-        logging.info('Server started')
+        logger.info('Server started')
         try:
             self.socket.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
             self.socket.bind(self.address)
         except skt.error as e:
-            logging.debug("error binding : %s", e)
+            logger.debug("error binding : %s", e)
 
         self.socket.listen()
 
         print("Waiting for clients to connect")
-        logging.info("Waiting for clients to connect")
+        logger.info("Waiting for clients to connect")
 
     def run(self) -> None:
         self.start()
@@ -58,7 +51,7 @@ class Server(Net):
         while True:
             client_socket, addr = self.socket.accept()
             print(f"Connected to address : {addr}")
-            logging.info("Connected to address : %s", addr)
+            logger.info("Connected to address : %s", addr)
 
             self.client_sockets.append(client_socket)
             thread.start_new_thread(client_listener, (client_socket, self,))
@@ -100,11 +93,11 @@ def client_listener(client_socket: skt.socket, server: Server):
 
             command: Command = CommandManager.deserialize_command_bytes(data)
 
-            logging.debug("client : %s, sent move %s to server", p_id, command.name)
+            logger.debug("client : %s, sent move %s to server", p_id, command.name)
 
             move_tags, commands = server.match.process_client_command(command, move_tags, commands)
 
-            logging.debug("move tags : %s", str(move_tags))
+            logger.debug("move tags : %s", str(move_tags))
 
             server.match.update_fen = True
             server.match.commands = commands
@@ -112,7 +105,7 @@ def client_listener(client_socket: skt.socket, server: Server):
         server.client_sockets.remove(client_socket)
 
         print(f'client : {p_id}  disconnected')
-        logging.info("client : %s  disconnected", p_id)
+        logger.info("client : %s  disconnected", p_id)
 
 
 if __name__ == '__main__':
