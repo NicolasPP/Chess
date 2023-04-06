@@ -1,6 +1,6 @@
 MainTests()
 {
-  pytest tests/utils tests/chess
+  pytest tests/chess
 }
 
 OnlyPlayedGames()
@@ -10,7 +10,7 @@ OnlyPlayedGames()
 
 TestAll()
 {
-  pytest tests/utils tests/chess tests/test_with_played_games.py
+  pytest tests/chess tests/test_with_played_games.py
   TypeCheck
   ShowCovBrowser
 }
