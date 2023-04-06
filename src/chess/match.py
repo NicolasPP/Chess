@@ -25,14 +25,13 @@ class MatchResult(enum.Enum):
 
 
 class MatchResultType(enum.Enum):
-    CHECKMATE = enum.auto()  # done
-    RESIGNATION = enum.auto()  # done
-    DRAW = enum.auto()
-    TIMEOUT = enum.auto()  # done
-    AGREEMENT = enum.auto()  # done
+    CHECKMATE = enum.auto()
+    RESIGNATION = enum.auto()
+    TIMEOUT = enum.auto()
+    AGREEMENT = enum.auto()
     STALEMATE = enum.auto()
-    INSUFFICIENT_MATERIAL = enum.auto()  # done
-    FIFTY_MOVE_RULE = enum.auto()  # done
+    INSUFFICIENT_MATERIAL = enum.auto()
+    FIFTY_MOVE_RULE = enum.auto()
     REPETITION = enum.auto()
 
 
@@ -212,6 +211,7 @@ class Match:
             return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
 
         # Repetition
+        # TODO: implement repetition check
 
         return []
 
