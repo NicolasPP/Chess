@@ -1,4 +1,4 @@
-from chess.notation.forsyth_edwards_notation import Fen, FenChars, iterate
+from chess.notation.forsyth_edwards_notation import Fen, FenChars, InsufficientMaterialInfo
 from chess.piece_movement import get_available_moves, get_possible_threats
 
 
@@ -49,22 +49,35 @@ def is_stale_mate(fen: Fen) -> bool:
     return True
 
 
-def is_material_insufficient(self) -> bool:
-    piece_count: dict[str, int] = {}
-    for piece_fen in iterate(self.data.piece_placement):
-        if piece_fen == FenChars.BLANK_PIECE.value: continue
-        if piece_fen in piece_count:
-            piece_count[piece_fen] += 1
-        else:
-            piece_count[piece_fen] = 0
+def is_material_insufficient(fen: Fen) -> bool:
+    imi: InsufficientMaterialInfo = fen.get_insufficient_material_info()
+    minor_piece_count: int = len(imi.minor_pieces)
+    # https://www.chess.com/article/view/how-chess-games-can-end-8-ways-explained#insufficient-material
+    # pawns on the board:
+    if any(imi.is_pawn_present):
+        return False
 
-    # TODO: implement these
     # King vs king
-    # King + minor piece (bishop or knight) vs king
-    # King + two knights vs king
-    # King + minor piece vs king + minor piece
-    # Lone king vs all the pieces
-    #   - in this case even if the player with all the pieces runs out of time its still a draw
+    if imi.total_count == 2:
+        return True
+
+    # King + minor piece vs king
+    if imi.total_count == 3 and minor_piece_count == 1:
+        return True
+
+    if imi.total_count == 4 and minor_piece_count == 2:
+        white_knight = FenChars.DEFAULT_KNIGHT.get_piece_fen(True)
+        black_knight = FenChars.DEFAULT_KNIGHT.get_piece_fen(False)
+        first_p, second_p = imi.minor_pieces
+        if first_p != second_p:
+            # King + minor piece vs king + minor piece
+            if not (first_p.isupper() and second_p.isupper()):
+                return True
+
+        else:
+            # King + two knights vs king
+            if first_p == white_knight or first_p == black_knight:
+                return True
 
     return False
 
