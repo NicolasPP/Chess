@@ -48,6 +48,7 @@ class Match:
 
     def process_client_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command]) \
             -> tuple[list[MoveTags], list[Command]]:
+        end_game_info: dict[str, str] = {}
         if command.name == ClientCommand.PICKING_PROMOTION.name:
             commands.append(CommandManager.get(ServerCommand.CLIENT_PROMOTING))
 
@@ -57,10 +58,8 @@ class Match:
         elif command.name == ClientCommand.RESIGN.name:
             side = command.info[CommandManager.side]
             result = MatchResult.BLACK.name if side == Side.WHITE.name else MatchResult.WHITE.name
-            end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.RESIGNATION.name,
-                CommandManager.game_result: result
-            }
+            end_game_info[CommandManager.game_result_type] = MatchResultType.RESIGNATION.name
+            end_game_info[CommandManager.game_result] = result
             commands.append(CommandManager.get(ServerCommand.END_GAME, end_game_info))
 
         elif command.name == ClientCommand.OFFER_DRAW.name:
@@ -68,10 +67,8 @@ class Match:
 
         elif command.name == ClientCommand.DRAW_RESPONSE.name:
             if bool(int(command.info[CommandManager.draw_offer_result])):
-                end_game_info: dict[str, str] = {
-                    CommandManager.game_result_type: MatchResultType.AGREEMENT.name,
-                    CommandManager.game_result: MatchResult.DRAW.name
-                }
+                end_game_info[CommandManager.game_result_type] = MatchResultType.AGREEMENT.name
+                end_game_info[CommandManager.game_result] = MatchResult.DRAW.name
                 commands.append(CommandManager.get(ServerCommand.END_GAME, end_game_info))
             else:
                 commands.append(CommandManager.get(ServerCommand.CONTINUE))
@@ -79,10 +76,8 @@ class Match:
         elif command.name == ClientCommand.TIME_OUT.name:
             side = command.info[CommandManager.side]
             result = MatchResult.BLACK.name if side == Side.WHITE.name else MatchResult.WHITE.name
-            end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.TIMEOUT.name,
-                CommandManager.game_result: result
-            }
+            end_game_info[CommandManager.game_result_type] = MatchResultType.TIMEOUT.name
+            end_game_info[CommandManager.game_result] = result
             commands.append(CommandManager.get(ServerCommand.END_GAME, end_game_info))
 
         else:
