@@ -5,7 +5,8 @@ from chess.chess_timer import TimerConfig
 from chess.piece_movement import Side
 from chess.notation.algebraic_notation import get_index_from_an
 from chess.network.command_manager import Command, CommandManager, ClientCommand, ServerCommand
-from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenChars
+from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenChars, validate_fen_piece_placement
+from chess.notation.forsyth_edwards_notation import validate_fen_castling_rights, validate_fen_en_passant_rights
 from chess.validate_move import is_move_valid, is_take, is_check, is_checkmate, is_stale_mate, is_material_insufficient
 from config import HALF_MOVE_LIMIT
 
@@ -35,6 +36,28 @@ class MatchResultType(enum.Enum):
     REPETITION = enum.auto()
 
 
+class RepetitionCounter:
+    def __init__(self) -> None:
+        self.reached_positions: dict[str, int] = {}
+        self.three_fold_repetition: bool = False
+
+    def add_position(self, piece_placement: str, en_passant: str, castling_rights: str) -> None:
+        validate_fen_piece_placement(piece_placement)
+        validate_fen_en_passant_rights(en_passant)
+        validate_fen_castling_rights(castling_rights)
+        position = piece_placement + en_passant + castling_rights
+        if position not in self.reached_positions:
+            self.reached_positions[position] = 1
+            return
+
+        if self.reached_positions[position] >= 2:
+            self.three_fold_repetition = True
+        else:
+            self.reached_positions[position] += 1
+
+    def is_three_fold_repetition(self) -> bool: return self.three_fold_repetition
+
+
 class Match:
     def __init__(self, timer_config: TimerConfig):
         self.fen: Fen = Fen()
@@ -45,6 +68,7 @@ class Match:
         self.prev_time: datetime.datetime | None = None
         self.white_time_left: float = timer_config.time
         self.black_time_left: float = timer_config.time
+        self.repetition_counter: RepetitionCounter = RepetitionCounter()
 
     def process_client_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command]) \
             -> tuple[list[MoveTags], list[Command]]:
@@ -123,6 +147,11 @@ class Match:
 
         self.prev_time = time
         self.fen.make_move(from_index, dest_index, target_fen)
+        self.repetition_counter.add_position(
+            self.fen.data.piece_placement,
+            self.fen.data.en_passant_rights,
+            self.fen.data.castling_rights
+        )
         return self.get_move_tags(before_move_fen, from_index, dest_index)
 
     def get_move_tags(self, before_move_fen: Fen, from_index: int, dest_index: int) -> list[MoveTags]:
@@ -206,7 +235,9 @@ class Match:
             return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
 
         # Repetition
-        # TODO: implement repetition check
+        if self.repetition_counter.is_three_fold_repetition():
+            draw_info[CommandManager.game_result_type] = MatchResultType.REPETITION.name
+            return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
 
         return []
 
