@@ -83,3 +83,18 @@ def test_is_move_valid(from_index: int, dest_index: int, fen: Fen, expected: boo
 ])
 def test_is_stale_mate(fen: Fen):
     assert validate_move.is_stale_mate(fen)
+
+
+@pytest.mark.parametrize("fen,expected", [
+    (Fen("k7/8/8/8/8/8/8/7K w KQkq - 0 1"), True),
+    (Fen("k7/8/8/8/8/8/8/6KN w KQkq - 0 1"), True),
+    (Fen("k7/8/8/8/8/8/8/5KNN w KQkq - 0 1"), True),
+    (Fen("kb6/8/8/8/8/8/8/6KB w KQkq - 0 1"), True),
+    (Fen("kn6/8/8/8/8/8/8/6KN w KQkq - 0 1"), True),
+    (Fen("kb6/8/8/8/8/8/8/6KN w KQkq - 0 1"), True),
+    (Fen("kn6/8/8/8/8/8/8/5KNN w KQkq - 0 1"), False),
+    (Fen("k7/8/8/8/8/8/8/5KBB w KQkq - 0 1"), False),
+    (Fen("kp6/8/8/8/8/8/8/7K w KQkq - 0 1"), False),
+])
+def test_is_material_insufficient(fen: Fen, expected: bool):
+    assert validate_move.is_material_insufficient(fen) == expected

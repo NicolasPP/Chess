@@ -34,6 +34,12 @@ class FenData:
     full_move_number: str
 
 
+class InsufficientMaterialInfo(typing.NamedTuple):
+    minor_pieces: list[str]
+    is_pawn_present: tuple[bool, bool]
+    total_count: int
+
+
 class Fen:
     def __init__(self, fen_notation: str = GAME_START_FEN):
         self._notation: str = fen_notation
@@ -144,6 +150,42 @@ class Fen:
 
         return list(expanded_fen)
 
+    def get_pieces_count(self) -> dict[str, int]:
+        pieces_count: dict[str, int] = {}
+        for piece_fen in iterate(self.data.piece_placement):
+            if piece_fen == FenChars.BLANK_PIECE.value: continue
+            if piece_fen.isnumeric(): continue
+            if piece_fen in pieces_count:
+                pieces_count[piece_fen] += 1
+            else:
+                pieces_count[piece_fen] = 1
+        return pieces_count
+
+    def get_insufficient_material_info(self) -> InsufficientMaterialInfo:
+        pieces_count: dict[str, int] = self.get_pieces_count()
+        possible_minor_pieces: list[str] = [
+            FenChars.DEFAULT_KNIGHT.get_piece_fen(True),
+            FenChars.DEFAULT_KNIGHT.get_piece_fen(False),
+            FenChars.DEFAULT_BISHOP.get_piece_fen(True),
+            FenChars.DEFAULT_BISHOP.get_piece_fen(False),
+        ]
+
+        total_count: int = sum(value for key, value in pieces_count.items())
+        white_pawn_present: bool = True
+        black_pawn_present: bool = True
+
+        if pieces_count.get(FenChars.DEFAULT_PAWN.get_piece_fen(True)) is None:
+            white_pawn_present = False
+
+        if pieces_count.get(FenChars.DEFAULT_PAWN.get_piece_fen(False)) is None:
+            black_pawn_present = False
+
+        return InsufficientMaterialInfo(
+            list(filter(lambda key: key in possible_minor_pieces, self.expanded)),
+            (white_pawn_present, black_pawn_present),
+            total_count
+        )
+
     def get_indexes_for_piece(self, piece_fen_val: str) -> list[int]:
         validate_fen_val(piece_fen_val)
         result = []
@@ -222,7 +264,7 @@ class Fen:
         from_an = get_an_from_index(from_index)
         dest_an = get_an_from_index(dest_index)
         return from_an.data.file != dest_an.data.file and \
-               self[dest_index] == FenChars.BLANK_PIECE.value
+            self[dest_index] == FenChars.BLANK_PIECE.value
 
     def is_move_castle(self, from_index: int, dest_index: int) -> bool:
         king_fen = FenChars.DEFAULT_KING.get_piece_fen(self.is_white_turn())
