@@ -194,8 +194,8 @@ class Match:
                 CommandManager.game_result: result
             }
             end_game_command: Command = CommandManager.get(ServerCommand.END_GAME, end_game_info)
-            ext_commands.append(end_game_command)
             ext_commands.append(update_fen_command)
+            ext_commands.append(end_game_command)
         elif tag == MoveTags.REGULAR:
             ext_commands.append(update_fen_command)
         elif tag == MoveTags.INVALID:
