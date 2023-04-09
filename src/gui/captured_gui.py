@@ -4,6 +4,7 @@ from chess.asset.asset_manager import AssetManager
 from chess.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import validate_fen_val
 from chess.asset.chess_assets import scale, PieceSetAssets
+from chess.game_surface import GameSurface
 
 from config import *
 
@@ -78,8 +79,8 @@ class CapturedGui:
 
         top_pos.y -= self.get_piece_size().y
 
-        pygame.display.get_surface().blit(self.white_cap_surface, w_surface_pos)
-        pygame.display.get_surface().blit(self.black_cap_surface, b_surface_pos)
+        GameSurface.get().blit(self.white_cap_surface, w_surface_pos)
+        GameSurface.get().blit(self.black_cap_surface, b_surface_pos)
 
     def get_piece_size(self) -> pygame.math.Vector2:
         return pygame.math.Vector2(self.pieces['p'].get_rect().size)

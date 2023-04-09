@@ -2,6 +2,7 @@ import pygame
 
 from chess.piece_movement import Side
 from chess.asset.asset_manager import AssetManager
+from chess.game_surface import GameSurface
 
 
 class PromotionGui:
@@ -26,4 +27,4 @@ class PromotionGui:
 
     def render(self):
         for surface, rect, val in self.promotion_pieces:
-            pygame.display.get_surface().blit(surface, rect)
+            GameSurface.get().blit(surface, rect)

@@ -1,15 +1,31 @@
+import typing
+
 import pygame
 
 from chess.asset.asset_manager import AssetManager
 from chess.chess_timer import ChessTimer
 from chess.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import FenChars
+from chess.game_surface import GameSurface
 from config import *
+
+
+class TimerRects(typing.NamedTuple):
+    timer: pygame.rect.Rect
+    spacing: pygame.rect.Rect
 
 
 class TimerGui:
     pygame.font.init()
     font = pygame.font.Font(FIVE_FONT_FILE, int((TIMER_FONT_SIZE * SCALE) / DEFAULT_FONT_SCALE))
+
+    @staticmethod
+    def calculate_timer_rects(scale: float) -> TimerRects:
+        info = ChessTimer.format_seconds(0, True)
+        default_pos: tuple[int, int] = 0, 0
+        timer = pygame.rect.Rect(default_pos, TimerGui.font.size(info))
+        spacing = pygame.rect.Rect(default_pos, (OPP_TIMER_SPACING * scale, OPP_TIMER_SPACING * scale))
+        return TimerRects(timer, spacing)
 
     def __init__(self, match_time: float, board_rect: pygame.rect.Rect) -> None:
         self.own_timer: ChessTimer = ChessTimer(match_time)
@@ -28,7 +44,7 @@ class TimerGui:
         opp_rect.bottomright = self.board_rect.topright
 
         return pygame.math.Vector2(own_rect.topleft) + self.pos_offset, \
-            pygame.math.Vector2(opp_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * SCALE)
+               pygame.math.Vector2(opp_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * SCALE)
 
     def set_offset(self, off_set: pygame.rect.Rect) -> None:
         self.pos_offset = off_set
@@ -50,8 +66,8 @@ class TimerGui:
 
             info_bg_surface = pygame.surface.Surface(render_rect.size)
             info_bg_surface.fill(AssetManager.get_theme().dark_color)
-            pygame.display.get_surface().blit(info_bg_surface, render_rect)
-            pygame.display.get_surface().blit(info_render, render_rect)
+            GameSurface.get().blit(info_bg_surface, render_rect)
+            GameSurface.get().blit(info_render, render_rect)
 
         render_timer(self.own_timer.time_left, self.own_pos)
         render_timer(self.opponents_timer.time_left, self.opponents_pos, True)

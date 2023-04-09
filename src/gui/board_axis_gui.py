@@ -3,6 +3,7 @@ import typing
 
 from chess.piece_movement import Side
 from chess.asset.asset_manager import AssetManager
+from chess.game_surface import GameSurface
 from config import *
 
 
@@ -21,8 +22,21 @@ class AxisGrids(typing.NamedTuple):
     y_axis_grid: list[pygame.rect.Rect]
 
 
+class AxisRects(typing.NamedTuple):
+    x_axis: pygame.rect.Rect
+    y_axis: pygame.rect.Rect
+
+
 # FIXME: Store axis values surfaces better, so I can highlight which col and row the player in hovering over
 class BoardAxisGui:
+
+    @staticmethod
+    def calculate_axis_rects(scale: float) -> AxisRects:
+        default_pos: tuple[int, int] = 0, 0
+        x_axis_rect = pygame.rect.Rect(default_pos, (SQUARE_SIZE * scale * BOARD_SIZE, X_AXIS_HEIGHT * scale))
+        y_axis_rect = pygame.rect.Rect(default_pos, (Y_AXIS_WIDTH * scale, SQUARE_SIZE * scale * BOARD_SIZE))
+        return AxisRects(x_axis_rect, y_axis_rect)
+
     @staticmethod
     def create_surfaces() -> AxisSurfaces:
         x_axis_surface = pygame.surface.Surface((SQUARE_SIZE * SCALE * BOARD_SIZE, X_AXIS_HEIGHT * SCALE))
@@ -82,5 +96,5 @@ class BoardAxisGui:
                 text_render, text_render.get_rect(centery=rect.centery))
 
     def render(self) -> None:
-        pygame.display.get_surface().blit(self.axis_surfaces.x_axis_surface, self.axis_pos.x_axis_pos)
-        pygame.display.get_surface().blit(self.axis_surfaces.y_axis_surface, self.axis_pos.y_axis_pos)
+        GameSurface.get().blit(self.axis_surfaces.x_axis_surface, self.axis_pos.x_axis_pos)
+        GameSurface.get().blit(self.axis_surfaces.y_axis_surface, self.axis_pos.y_axis_pos)
