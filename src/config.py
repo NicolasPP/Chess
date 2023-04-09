@@ -10,7 +10,7 @@ WINDOW_SIZE: tuple[int, int] = 570, 570
 YES_OR_NO_BG_SIZE: tuple[int, int] = 250, 100
 YES_OR_NO_SPACING: int = 5
 YES_OR_NO_FONT_SIZE: int = 18
-BOARD_SCALE: float = 3.5
+SCALE: float = 3.5
 AVAILABLE_MOVE_SCALE: float = 1 / 3
 BOARD_SIZE: int = 8
 DATA_SIZE: int = 4096
@@ -27,6 +27,8 @@ RESIGN_FONT_SIZE: int = 17
 END_GAME_GUI_SPACING: int = 5
 PIECE_ASSET_ROW: int = 1
 PIECE_ASSET_COL: int = 6
+SQUARE_SIZE: int = 16
+BOARD_OUTLINE_THICKNESS: int = 4
 
 # -- Colors --
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = (76, 155, 87)
@@ -49,7 +51,6 @@ PLAIN4_DARK: tuple[int, int, int] = (69, 77, 94)
 
 # -- Default vals --
 GAME_START_FEN: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-GRID_OFFSET: int = 7
 OFFER_DRAW_LABEL: str = "draw"
 RESIGN_LABEL: str = "resign"
 YES_LABEL: str = "yes"
@@ -62,11 +63,6 @@ RESPOND_DRAW_LABEL: str = "opponent has offered a draw"
 # -- File Name --
 FONT_FILE: str = "assets/fonts/Oleaguid.ttf"
 FIVE_FONT_FILE: str = "assets/fonts/QuinqueFive.ttf"
-
-PLAIN1_FILE: str = 'assets/boards/board_plain_01.png'
-PLAIN2_FILE: str = 'assets/boards/board_plain_02.png'
-PLAIN3_FILE: str = 'assets/boards/board_plain_03.png'
-PLAIN4_FILE: str = 'assets/boards/board_plain_04.png'
 
 SIMPLE16x16_PIECE_FILE_WHITE: str = 'assets/pieces-16-16/WhitePieces_Simplified.png'
 SIMPLE16x16_PIECE_FILE_BLACK: str = 'assets/pieces-16-16/BlackPieces_Simplified.png'
