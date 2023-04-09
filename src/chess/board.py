@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import string
 import typing
 import pygame
@@ -8,6 +6,7 @@ from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
 from chess.piece_movement import Side
+from chess.game_surface import GameSurface
 from config import *
 
 
@@ -48,7 +47,7 @@ class BoardSquare:
 
     def get_piece_render_pos(self, board_offset: pygame.math.Vector2,
                              piece_surface: pygame.surface.Surface) -> RenderPos:
-        if self.picked_up: return self.get_picked_up_piece_render_pos(piece_surface)
+        if self.picked_up: return self.get_picked_up_piece_render_pos(piece_surface, board_offset)
         return self.get_not_picked_up_piece_render_pos(board_offset, piece_surface)
 
     def get_not_picked_up_piece_render_pos(self, board_offset: pygame.math.Vector2,
@@ -58,20 +57,28 @@ class BoardSquare:
         pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) + board_offset
         return RenderPos(pos.x, pos.y)
 
-    def get_picked_up_piece_render_pos(self, piece_surface: pygame.surface.Surface) \
+    def get_picked_up_piece_render_pos(self, piece_surface: pygame.surface.Surface, offset: pygame.math.Vector2)\
             -> RenderPos:
         piece_rect = piece_surface.get_rect(topleft=self.rect.topleft)
         piece_rect.midbottom = pygame.mouse.get_pos()
-        return RenderPos(piece_rect.x, piece_rect.y)
+        result = pygame.math.Vector2(piece_rect.topleft) - offset
+        return RenderPos(result.x, result.y)
 
     def render(self, board_pos: tuple[int, int]) -> None:
         offset = pygame.math.Vector2(board_pos)
         piece_surface = AssetManager.get_piece(self.fen_val).surface
         piece_pos: RenderPos = BoardSquare.get_piece_render_pos(self, offset, piece_surface)
-        pygame.display.get_surface().blit(piece_surface, (piece_pos.x, piece_pos.y))
+        GameSurface.get().blit(piece_surface, (piece_pos.x, piece_pos.y))
 
 
 class Board:
+
+    @staticmethod
+    def calculate_board_rect(scale: float) -> pygame.rect.Rect:
+        return pygame.rect.Rect(
+            (0, 0),
+            ((SQUARE_SIZE * BOARD_SIZE * scale) + (BOARD_OUTLINE_THICKNESS * 2),
+             (SQUARE_SIZE * BOARD_SIZE * scale) + (BOARD_OUTLINE_THICKNESS * 2)))
 
     @staticmethod
     def create_board_grid(side: Side, scale: float) -> list[BoardSquare]:
@@ -130,9 +137,10 @@ class Board:
         self.reset_picked_up()
         board_square.picked_up = True
 
-    def get_collided_board_square(self, mouse_pos: tuple[int, int] | None = None) -> BoardSquare | None:
+    def get_collided_board_square(self, game_offset: pygame.rect.Rect,
+                                  mouse_pos: tuple[int, int] | None = None) -> BoardSquare | None:
         if mouse_pos is None: mouse_pos = pygame.mouse.get_pos()
-        board_offset = pygame.math.Vector2(self.pos_rect.topleft)
+        board_offset = pygame.math.Vector2(self.pos_rect.topleft) + pygame.math.Vector2(game_offset.topleft)
         for board_square in self.grid:
             rect = board_square.rect.copy()
             top_left = board_offset + pygame.math.Vector2(rect.topleft)
@@ -154,7 +162,7 @@ class Board:
             yield available_surface, board_offset + pygame.math.Vector2(pos.topleft)
 
     def render(self) -> None:
-        pygame.display.get_surface().blit(self.surface, self.pos_rect)
+        GameSurface.get().blit(self.surface, self.pos_rect)
 
     def render_pieces(self, is_white: bool) -> None:
         grid = self.grid if is_white else self.grid[::-1]
@@ -162,5 +170,3 @@ class Board:
             if board_square.fen_val == FenChars.BLANK_PIECE.value: continue
             if board_square.picked_up: continue
             board_square.render(self.pos_rect.topleft)
-
-
