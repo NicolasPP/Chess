@@ -6,9 +6,10 @@ import pygame
 
 from chess.match import Match
 from chess.player import Player, process_command_local, State
-from chess.piece_movement import Side
-from chess.asset.chess_assets import PieceSetAssets, BoardAssets
+from chess.piece_movement import Side, PieceMovement
+from chess.asset.chess_assets import PieceSetAssets, Themes
 from chess.chess_timer import DefaultConfigs
+from chess.asset.asset_manager import AssetManager
 from config import *
 
 pygame.init()
@@ -17,22 +18,23 @@ pygame.display.set_mode(window_size)
 done = False
 prev_time = time.time()
 delta_time: float = 0
-board_assets = [BoardAssets.PLAIN1, BoardAssets.PLAIN2, BoardAssets.PLAIN3, BoardAssets.PLAIN4]
+themes = [Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4]
 
 match = Match(DefaultConfigs.BLITZ_5)
+AssetManager.load_theme(random.choice((Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4)))
+PieceMovement.load()
+
 white_player = Player(
     side=Side.WHITE,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
-    board_asset=random.choice(list(board_assets)),
-    scale=BOARD_SCALE,
+    scale=SCALE,
     time_left=match.timer_config.time
 )
 
 black_player = Player(
     side=Side.BLACK,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
-    board_asset=random.choice(list(board_assets)),
-    scale=BOARD_SCALE,
+    scale=SCALE,
     time_left=match.timer_config.time
 )
 
