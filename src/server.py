@@ -30,7 +30,7 @@ class Server(Net):
         self.client_id: int = -1
         self.match: Match = Match(DefaultConfigs.BLITZ_5)
         self.client_sockets: list[skt.socket] = []
-        PieceMovement.load_pieces_info()
+        PieceMovement.load()
 
     def start(self) -> None:
         logger.info('Server started')
