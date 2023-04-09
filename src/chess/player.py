@@ -4,10 +4,10 @@ import datetime
 import pygame
 
 from chess.asset.asset_manager import AssetManager
-from chess.piece_movement import Side, PieceMovement, get_available_moves, is_king_safe
+from chess.piece_movement import Side, get_available_moves, is_king_safe
 from chess.board import Board, BoardSquare
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
-from chess.asset.chess_assets import PieceSetAsset, BoardAsset
+from chess.asset.chess_assets import PieceSetAsset
 from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
 from chess.network.chess_network import ChessNetwork
 from gui.timer_gui import TimerGui
@@ -33,12 +33,9 @@ class Player:
     def __init__(self,
                  side: Side,
                  piece_set: PieceSetAsset,
-                 board_asset: BoardAsset,
                  scale: float,
                  time_left: float):
         AssetManager.load_pieces(piece_set, scale)
-        AssetManager.load_board(board_asset, scale)
-        PieceMovement.load()
 
         self.board: Board = Board(side, scale)
         self.side: Side = side
@@ -53,13 +50,10 @@ class Player:
         self.opponent_promoting: bool = False
         self.timed_out: bool = False
 
-        self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.board_sprite.sprite.surface.get_rect())
-        self.captured_gui: CapturedGui = CapturedGui('', self.board.pos_rect, self.board.board_sprite.background, scale)
-        self.timer_gui: TimerGui = TimerGui(time_left, self.board.pos_rect,
-                                            self.board.board_sprite.background, self.board.board_sprite.foreground)
-        self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect,
-                                                   self.board.board_sprite.background,
-                                                   self.board.board_sprite.foreground)
+        self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.surface.get_rect())
+        self.captured_gui: CapturedGui = CapturedGui('', self.board.pos_rect, scale)
+        self.timer_gui: TimerGui = TimerGui(time_left, self.board.pos_rect)
+        self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect)
         self.yes_or_no_gui: YesOrNoGui = YesOrNoGui(self.board.pos_rect)
 
     def parse_input(
@@ -254,7 +248,7 @@ class Player:
             return
 
         if self.is_render_required or self.state is State.DROP_PIECE:
-            pygame.display.get_surface().fill(self.board.board_sprite.background)
+            pygame.display.get_surface().fill(AssetManager.get_theme().dark_color)
             self.captured_gui.render(self.side)
             self.board.render()
             self.board.render_pieces(self.side is Side.WHITE)
