@@ -118,11 +118,6 @@ class Board:
     def reset_picked_up(self) -> None:
         for sqr in self.grid: sqr.picked_up = False
 
-    def is_picked_up(self) -> bool:
-        for sqr in self.grid:
-            if sqr.picked_up: return True
-        return False
-
     def get_picked_up(self) -> BoardSquare:
         for sqr in self.grid:
             if sqr.picked_up: return sqr
