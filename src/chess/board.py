@@ -4,12 +4,10 @@ import string
 import typing
 import pygame
 
-
 from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
 from chess.piece_movement import Side
-from chess.asset.chess_assets import Sprite, BoardSprite
 from config import *
 
 
@@ -25,26 +23,6 @@ class BoardSquareIndex(typing.NamedTuple):
 
 
 class BoardSquare:
-
-    @staticmethod
-    def create_board_grid(board_sprite: Sprite, pos_rect: pygame.rect.Rect, side: Side) -> \
-            list[BoardSquare]:
-        grid = []
-        size = Board.get_grid_surface_size(board_sprite) / BOARD_SIZE
-        board_offset = pygame.math.Vector2(pos_rect.topleft)
-        grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
-
-        # don't really know why the white perspective is offset by a pixel on each axis
-        # but it is so here we are
-        white_offset = pygame.math.Vector2(1)
-
-        for index in BoardSquare.get_board_squares_index(side):
-            pos = pygame.math.Vector2(index.col * size.x, index.row * size.y)
-            if side is Side.WHITE: pos += white_offset
-            rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
-            grid.append(BoardSquare(rect, index.algebraic_notation, []))
-        if side is Side.BLACK: grid = grid[::-1]
-        return grid
 
     @staticmethod
     def get_board_squares_index(side: Side) -> typing.Generator[BoardSquareIndex, None, None]:
@@ -96,24 +74,48 @@ class BoardSquare:
 class Board:
 
     @staticmethod
-    def get_grid_surface_size(board_sprite: Sprite) -> pygame.math.Vector2:
-        offset = pygame.math.Vector2(GRID_OFFSET * board_sprite.scale)
-        board_size = pygame.math.Vector2(board_sprite.surface.get_size())
-        return board_size - (offset * 2)
+    def create_board_grid(side: Side, scale: float) -> list[BoardSquare]:
+        grid = []
+        size = pygame.math.Vector2(SQUARE_SIZE * scale)
+        outline_thickness = pygame.math.Vector2(BOARD_OUTLINE_THICKNESS)
+        for index in BoardSquare.get_board_squares_index(side):
+            pos = pygame.math.Vector2(index.col * size.x, index.row * size.y)
+            rect = pygame.rect.Rect(pos + outline_thickness, size)
+            grid.append(BoardSquare(rect, index.algebraic_notation, []))
+        if side is Side.BLACK: grid = grid[::-1]
+        return grid
+
+    @staticmethod
+    def create_board_surface(board_squares: list[BoardSquare], scale: float) -> pygame.surface.Surface:
+        outline_thickness = pygame.math.Vector2(BOARD_OUTLINE_THICKNESS) * 2
+        size = pygame.math.Vector2(SQUARE_SIZE * scale)
+        board_surface = pygame.surface.Surface((size * BOARD_SIZE) + outline_thickness)
+        board_surface.fill(AssetManager.get_theme().light_color)
+        counter = 0
+        for board_square in board_squares:
+            surface = pygame.surface.Surface(board_square.rect.size)
+            if counter % 2 == 0:
+                surface.fill(AssetManager.get_theme().light_color)
+            else:
+                surface.fill(AssetManager.get_theme().dark_color)
+
+            if (board_square.algebraic_notation.data.index + 1) % BOARD_SIZE != 0:
+                counter += 1
+
+            board_surface.blit(surface, board_square.rect.topleft)
+        return board_surface
 
     def __init__(self, side: Side, scale: float):
-        self.board_sprite: BoardSprite = AssetManager.get_board()
-        replace_board_axis_vals(self.board_sprite.sprite, scale, side)
+        self.grid: list[BoardSquare] = Board.create_board_grid(side, scale)
+        self.surface: pygame.surface.Surface = Board.create_board_surface(self.grid, scale)
         if side is Side.BLACK:
-            self.board_sprite.sprite.surface = pygame.transform.flip(self.board_sprite.sprite.surface, True, True)
-        self.pos_rect: pygame.rect.Rect = self.board_sprite.sprite.surface.get_rect()
-        self.grid: list[BoardSquare] = BoardSquare.create_board_grid(self.board_sprite.sprite, self.pos_rect, side)
+            self.surface = pygame.transform.flip(self.surface, True, True)
+        self.pos_rect: pygame.rect.Rect = self.surface.get_rect()
 
-    def init_board_asset(self, side: Side, scale: float) -> None:
-        self.board_sprite: BoardSprite = AssetManager.get_board()
-        replace_board_axis_vals(self.board_sprite.sprite, scale, side)
+    def reload_theme(self, side: Side, scale: float) -> None:
+        self.surface = Board.create_board_surface(self.grid, scale)
         if side is Side.BLACK:
-            self.board_sprite.sprite.surface = pygame.transform.flip(self.board_sprite.sprite.surface, True, True)
+            self.surface = pygame.transform.flip(self.surface, True, True)
 
     def reset_picked_up(self) -> None:
         for sqr in self.grid: sqr.picked_up = False
@@ -152,7 +154,7 @@ class Board:
             yield available_surface, board_offset + pygame.math.Vector2(pos.topleft)
 
     def render(self) -> None:
-        pygame.display.get_surface().blit(self.board_sprite.sprite.surface, self.pos_rect)
+        pygame.display.get_surface().blit(self.surface, self.pos_rect)
 
     def render_pieces(self, is_white: bool) -> None:
         grid = self.grid if is_white else self.grid[::-1]
@@ -162,71 +164,3 @@ class Board:
             board_square.render(self.pos_rect.topleft)
 
 
-def replace_board_axis_info(board_sprite: Sprite) -> \
-        typing.Generator[tuple[int, pygame.rect.Rect], None, None]:
-    size = Board.get_grid_surface_size(board_sprite) / BOARD_SIZE
-    board_offset = pygame.math.Vector2(board_sprite.surface.get_rect().topleft)
-    grid_offset = pygame.math.Vector2(GRID_OFFSET) * board_sprite.scale
-
-    for row in range(BOARD_SIZE):
-        for col in range(BOARD_SIZE):
-            index = (row * BOARD_SIZE) + col
-            pos = pygame.math.Vector2(col * size.x, row * size.y)
-            rect = pygame.rect.Rect(pos + board_offset + grid_offset, size)
-            yield index, rect
-
-
-def replace_board_axis_vals(board_sprite: Sprite, scale: float, side: Side) -> None:
-    nums = list(range(8, 0, -1))
-    nums_index = 0
-    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-    letters_index = 0
-    color = board_sprite.surface.get_at((0, 0))
-    font = pygame.font.Font(FONT_FILE, 25)
-    is_black_turn = True if side is Side.BLACK else False
-    anti_alias: bool = False
-    font_color: tuple[int, int, int] = 255, 255, 255
-    for index, rect in replace_board_axis_info(board_sprite):
-        if index % 8 == 0:
-            val = font.render(str(nums[nums_index]), anti_alias, font_color)
-
-            size: tuple[float, float] = 6 * scale, rect.height
-            surface = pygame.surface.Surface(size)
-
-            pos_rect = surface.get_rect()
-            pos_rect.topright = rect.topleft
-            pos_rect.x -= 4
-
-            val_pos = val.get_rect()
-            val_pos.center = surface.get_rect().center
-
-            surface.fill(color)
-
-            if is_black_turn:
-                val = pygame.transform.flip(val, True, True)
-
-            surface.blit(val, val_pos)
-            board_sprite.surface.blit(surface, pos_rect)
-
-            nums_index += 1
-        if index >= 56:
-            val = font.render(letters[letters_index], anti_alias, font_color)
-
-            size = rect.width, 6 * scale
-            surface = pygame.surface.Surface(size)
-
-            pos_rect = surface.get_rect()
-            pos_rect.topleft = rect.bottomleft
-            pos_rect.y += 4
-
-            val_pos = val.get_rect()
-            val_pos.center = surface.get_rect().center
-
-            surface.fill(color)
-
-            if is_black_turn:
-                val = pygame.transform.flip(val, True, True)
-            surface.blit(val, val_pos)
-            board_sprite.surface.blit(surface, pos_rect)
-
-            letters_index += 1
