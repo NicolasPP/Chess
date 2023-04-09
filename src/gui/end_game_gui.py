@@ -8,6 +8,7 @@ from config import *
 
 
 class EndGameGui:
+    # FIXME: the resign and draw button dont react well to scale
     def __init__(self, board_rect: pygame.rect.Rect):
         self.board_rect: pygame.rect.Rect = board_rect
         self.offer_draw: ButtonGui = ButtonGui(
@@ -16,10 +17,17 @@ class EndGameGui:
             RESIGN_BUTTON_WIDTH, RESIGN_BUTTON_HEIGHT, AssetManager.get_theme().dark_color)
         self.game_over_gui: GameOverGui = GameOverGui(AssetManager.get_theme().dark_color)
         self.button_init()
+        self.recalculate_pos()
 
     def button_init(self) -> None:
-        self.offer_draw.set_font(FONT_FILE, OFFER_DRAW_FONT_SIZE, False, AssetManager.get_theme().light_color)
-        self.resign.set_font(FONT_FILE, RESIGN_FONT_SIZE, False, AssetManager.get_theme().light_color)
+        self.offer_draw.set_font(
+            FONT_FILE,
+            int((OFFER_DRAW_FONT_SIZE * SCALE) / DEFAULT_FONT_SCALE), False, AssetManager.get_theme().light_color
+        )
+        self.resign.set_font(
+            FONT_FILE,
+            int((RESIGN_FONT_SIZE * SCALE) / DEFAULT_FONT_SCALE), False, AssetManager.get_theme().light_color
+        )
         self.offer_draw.set_label(OFFER_DRAW_LABEL)
         self.resign.set_label(RESIGN_LABEL)
 
@@ -27,7 +35,7 @@ class EndGameGui:
         self.offer_draw.render()
         self.resign.render()
 
-    def recalculate_pos(self) -> None:
+    def recalculate_pos(self) -> None:  # not used
         self.offer_draw.rect.bottomleft = self.board_rect.bottomright
         self.resign.rect.bottomleft = self.board_rect.bottomright
 
