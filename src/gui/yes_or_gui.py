@@ -31,6 +31,8 @@ class YesOrNoGui:
         self.action.set_hover(False)
         self.result: bool | None = None
 
+        self.recalculate_pos()
+
     def set_action_label(self, label: str) -> None:
         self.action.set_label(label)
 
