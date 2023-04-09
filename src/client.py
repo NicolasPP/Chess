@@ -10,10 +10,11 @@ import pygame
 from chess.player import process_server_command, Player
 from chess.notation.forsyth_edwards_notation import Fen
 from chess.network.command_manager import CommandManager, Command
-from chess.asset.chess_assets import PieceSetAssets, BoardAssets
+from chess.asset.chess_assets import PieceSetAssets, Themes
 from chess.network.chess_network import ChessNetwork
-from chess.piece_movement import Side
+from chess.piece_movement import Side, PieceMovement
 from chess_logging import set_up_logging
+from chess.asset.asset_manager import AssetManager
 
 from config import *
 
@@ -49,12 +50,10 @@ def get_player(init_info: Command) -> Player:
     side = init_info.info[CommandManager.side]
     time_left = init_info.info[CommandManager.time]
     player_side = Side.WHITE if side == Side.WHITE.name else Side.BLACK
-    board_assets = [BoardAssets.PLAIN1, BoardAssets.PLAIN2, BoardAssets.PLAIN3, BoardAssets.PLAIN4]
     player = Player(
         side=player_side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
-        board_asset=random.choice(list(board_assets)),
-        scale=BOARD_SCALE,
+        scale=SCALE,
         time_left=float(time_left)
     )
     return player
@@ -71,6 +70,8 @@ def run_main_loop(server_ip: str) -> None:
     pygame.init()
     window_size = pygame.math.Vector2(WINDOW_SIZE)
     pygame.display.set_mode(window_size)
+    AssetManager.load_theme(random.choice((Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4)))
+    PieceMovement.load()
 
     network = ChessNetwork(server_ip)
     init_info: Command = network.connect()
