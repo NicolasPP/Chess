@@ -10,12 +10,13 @@ from chess.notation.forsyth_edwards_notation import Fen, FenChars
 from chess.asset.chess_assets import PieceSetAsset
 from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
 from chess.network.chess_network import ChessNetwork
-from gui.timer_gui import TimerGui
+from gui.timer_gui import TimerGui, TimerRects
 from gui.end_game_gui import EndGameGui
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
 from gui.yes_or_gui import YesOrNoGui
 from gui.board_axis_gui import BoardAxisGui
+from chess.game_surface import GameSurface
 
 from config import *
 
@@ -35,11 +36,13 @@ class Player:
                  side: Side,
                  piece_set: PieceSetAsset,
                  scale: float,
-                 time_left: float):
+                 time_left: float,
+                 game_offset: pygame.rect.Rect):
         AssetManager.load_pieces(piece_set, scale)
 
+        self.game_offset = game_offset
         self.board: Board = Board(side, scale)
-        self.set_to_default_pos(pygame.math.Vector2(WINDOW_SIZE))
+        self.set_to_default_pos()
         self.side: Side = side
         self.state: State = State.PICK_PIECE
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
@@ -80,14 +83,14 @@ class Player:
         if self.state == State.OFFERED_DRAW: return
         if self.state == State.RESIGN_DOUBLE_CHECK: return
         if self.state == State.DRAW_DOUBLE_CHECK: return
-        mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
-        if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos):
+        mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
+        if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             self.state = State.DRAW_DOUBLE_CHECK
             self.yes_or_no_gui.set_action_label(DRAW_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
-        elif self.end_game_gui.resign.rect.collidepoint(mouse_pos):
+        elif self.end_game_gui.resign.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             self.state = State.RESIGN_DOUBLE_CHECK
             self.yes_or_no_gui.set_action_label(RESIGN_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
@@ -96,7 +99,7 @@ class Player:
     def handle_left_mouse_up(self, network: ChessNetwork | None, local: bool, fen: Fen) -> None:
         if self.state is not State.DROP_PIECE: return
 
-        dest_board_square = self.board.get_collided_board_square()
+        dest_board_square = self.board.get_collided_board_square(self.game_offset)
         from_board_square = self.board.get_picked_up()
 
         from_coordinates = from_board_square.algebraic_notation.data.coordinates
@@ -146,7 +149,7 @@ class Player:
         if self.state is State.PICKING_PROMOTION:
             self.handle_pick_promotion(local, network)
         elif self.state is State.PICK_PIECE:
-            board_square = self.board.get_collided_board_square()
+            board_square = self.board.get_collided_board_square(self.game_offset)
             if not board_square: return
             if board_square.fen_val == FenChars.BLANK_PIECE.value: return
             self.board.set_picked_up(board_square)
@@ -186,9 +189,10 @@ class Player:
 
     def handle_pick_promotion(self, local: bool, network: ChessNetwork | None) -> None:
         for surface, rect, val in self.promotion_gui.promotion_pieces:
-            if not rect.collidepoint(pygame.mouse.get_pos()): continue
+            mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
+            if not rect.collidepoint(mouse_pos.x, mouse_pos.y): continue
             from_board_square = self.board.get_picked_up()
-            dest_board_square = self.board.get_collided_board_square(self.prev_left_mouse_up)
+            dest_board_square = self.board.get_collided_board_square(self.game_offset, self.prev_left_mouse_up)
             if dest_board_square is None or from_board_square is None: continue
             from_coordinates = from_board_square.algebraic_notation.data.coordinates
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
@@ -233,11 +237,11 @@ class Player:
             self.yes_or_no_gui.set_description_label(RESPOND_DRAW_LABEL)
 
     def handle_yes_or_no_response(self) -> None:
-        mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
-        if self.yes_or_no_gui.yes.rect.collidepoint(mouse_pos):
+        mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
+        if self.yes_or_no_gui.yes.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             self.yes_or_no_gui.set_result(True)
 
-        elif self.yes_or_no_gui.no.rect.collidepoint(mouse_pos):
+        elif self.yes_or_no_gui.no.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             self.yes_or_no_gui.set_result(False)
 
     def continue_game(self) -> None:
@@ -251,7 +255,7 @@ class Player:
             return
 
         if self.is_render_required or self.state is State.DROP_PIECE:
-            pygame.display.get_surface().fill(AssetManager.get_theme().dark_color)
+            GameSurface.get().fill(AssetManager.get_theme().dark_color)
             self.captured_gui.render(self.side)
             self.board.render()
             self.axis_gui.render()
@@ -266,13 +270,13 @@ class Player:
         if self.state is State.RESPOND_DRAW or \
                 self.state is State.DRAW_DOUBLE_CHECK or \
                 self.state is State.RESIGN_DOUBLE_CHECK:
-            self.yes_or_no_gui.render()
+            self.yes_or_no_gui.render(pygame.math.Vector2(self.game_offset.topleft))
 
         if self.state is State.OFFERED_DRAW: pass
 
         self.set_require_render(False)
         self.timer_gui.render()
-        self.end_game_gui.render()
+        self.end_game_gui.render(pygame.math.Vector2(self.game_offset.topleft))
 
     def show_available_moves(self) -> None:
         if not self.turn: return
@@ -282,7 +286,7 @@ class Player:
         if self.side is Side.BLACK:
             if picked.fen_val.isupper(): return
         for surface, pos in self.board.get_available_moves_surface(picked):
-            pygame.display.get_surface().blit(surface, pos)
+            GameSurface.get().blit(surface, pos)
 
     def update_pieces_location(self, fen: Fen) -> None:
         for index, fen_val in enumerate(fen.expanded):
@@ -328,9 +332,9 @@ class Player:
         opposite_side = Side.WHITE if self.side is Side.BLACK else Side.BLACK
         return f"{opposite_side.name}s TURN"
 
-    def set_to_default_pos(self, window_size: pygame.math.Vector2) -> None:
-        screen_center = window_size / 2
-        self.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
+    def set_to_default_pos(self) -> None:
+        timer_rects: TimerRects = TimerGui.calculate_timer_rects(SCALE)
+        self.board.pos_rect.topleft = (Y_AXIS_WIDTH * SCALE, timer_rects.spacing.height + timer_rects.timer.height)
 
     def set_read_input(self, read_input: bool) -> None:
         self.read_input = read_input
