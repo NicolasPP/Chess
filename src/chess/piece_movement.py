@@ -18,17 +18,13 @@ class PieceMovement:
     getters: dict[str, AvailableMovesGetter] = {}
 
     @staticmethod
-    def load_pieces_info():
+    def load() -> None:
         PieceMovement.getters[notation.FenChars.DEFAULT_PAWN.value] = pawn_available_moves
         PieceMovement.getters[notation.FenChars.DEFAULT_KNIGHT.value] = knight_available_moves
         PieceMovement.getters[notation.FenChars.DEFAULT_ROOK.value] = rook_available_moves
         PieceMovement.getters[notation.FenChars.DEFAULT_BISHOP.value] = bishop_available_moves
         PieceMovement.getters[notation.FenChars.DEFAULT_QUEEN.value] = queen_available_moves
         PieceMovement.getters[notation.FenChars.DEFAULT_KING.value] = king_available_moves
-
-    @staticmethod
-    def load() -> None:
-        PieceMovement.load_pieces_info()
 
     @staticmethod
     def available_moves_getter(fen_val: str) -> AvailableMovesGetter:
