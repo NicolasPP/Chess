@@ -79,8 +79,6 @@ def run_main_loop(server_ip: str) -> None:
     player = get_player(init_info)
     match_fen = Fen(init_info.info[CommandManager.fen_notation])
 
-    player.set_to_default_pos(window_size)
-
     player.update_turn(match_fen)
     player.update_pieces_location(match_fen)
 

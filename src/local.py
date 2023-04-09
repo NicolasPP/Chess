@@ -62,9 +62,6 @@ def update_window_caption(*players: Player) -> None:
         return
 
 
-white_player.set_to_default_pos(window_size)
-black_player.set_to_default_pos(window_size)
-
 is_white = True
 
 while not done:
