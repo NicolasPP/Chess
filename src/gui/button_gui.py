@@ -1,6 +1,7 @@
 import pygame
 import dataclasses
 
+from chess.game_surface import GameSurface
 from config import HOVER_ALPHA
 
 
@@ -36,8 +37,9 @@ class ButtonGui:
     def set_hover(self, hover: bool) -> None:
         self.hover = hover
 
-    def render(self) -> None:
-        pygame.display.get_surface().blit(self.surface, self.rect)
+    def render(self, game_offset: pygame.math.Vector2) -> None:
+        GameSurface.get().blit(self.surface, self.rect)
         if not self.hover: return
-        if self.rect.collidepoint(pygame.mouse.get_pos()):
-            pygame.display.get_surface().blit(self.hover_surface, self.rect)
+        mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - game_offset
+        if self.rect.collidepoint(mouse_pos.x, mouse_pos.y):
+            GameSurface.get().blit(self.hover_surface, self.rect)

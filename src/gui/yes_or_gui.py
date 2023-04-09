@@ -1,6 +1,7 @@
 import pygame
 
 from gui.button_gui import ButtonGui
+from chess.game_surface import GameSurface
 
 from config import *
 
@@ -39,12 +40,12 @@ class YesOrNoGui:
     def set_description_label(self, label: str) -> None:
         self.description.set_label(label)
 
-    def render(self) -> None:
-        pygame.display.get_surface().blit(self.bg_surface, self.bg_rect)
-        self.description.render()
-        self.action.render()
-        self.yes.render()
-        self.no.render()
+    def render(self, game_offset: pygame.math.Vector2) -> None:
+        GameSurface.get().blit(self.bg_surface, self.bg_rect)
+        self.description.render(game_offset)
+        self.action.render(game_offset)
+        self.yes.render(game_offset)
+        self.no.render(game_offset)
 
     def set_result(self, result: bool | None) -> None:
         self.result = result

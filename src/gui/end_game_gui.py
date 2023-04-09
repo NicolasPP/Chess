@@ -1,3 +1,5 @@
+import typing
+
 import pygame
 
 from chess.asset.asset_manager import AssetManager
@@ -7,8 +9,23 @@ from gui.button_gui import ButtonGui
 from config import *
 
 
+class EndGameRects(typing.NamedTuple):
+    resign_rect: pygame.rect.Rect
+    draw_rect: pygame.rect.Rect
+
+
 class EndGameGui:
-    # FIXME: the resign and draw button dont react well to scale
+    # FIXME: the size of the font should be as big as possible to fit inside the provided square
+    # FIXME: size of the buttons should be reacting to scale not the font size
+    # FIXME: scale needs to stop affecting fontsize
+
+    @staticmethod
+    def calculate_end_game_rects() -> EndGameRects:
+        default_pos: tuple[int, int] = 0, 0
+        resign_rect = pygame.rect.Rect(default_pos, (RESIGN_BUTTON_WIDTH, RESIGN_BUTTON_HEIGHT))
+        draw_rect = pygame.rect.Rect(default_pos, (DRAW_BUTTON_WIDTH, DRAW_BUTTON_HEIGHT))
+        return EndGameRects(resign_rect, draw_rect)
+
     def __init__(self, board_rect: pygame.rect.Rect):
         self.board_rect: pygame.rect.Rect = board_rect
         self.offer_draw: ButtonGui = ButtonGui(
@@ -31,11 +48,11 @@ class EndGameGui:
         self.offer_draw.set_label(OFFER_DRAW_LABEL)
         self.resign.set_label(RESIGN_LABEL)
 
-    def render(self) -> None:
-        self.offer_draw.render()
-        self.resign.render()
+    def render(self, game_offset: pygame.math.Vector2) -> None:
+        self.offer_draw.render(game_offset)
+        self.resign.render(game_offset)
 
-    def recalculate_pos(self) -> None:  # not used
+    def recalculate_pos(self) -> None:
         self.offer_draw.rect.bottomleft = self.board_rect.bottomright
         self.resign.rect.bottomleft = self.board_rect.bottomright
 
