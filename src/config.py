@@ -34,6 +34,7 @@ Y_AXIS_WIDTH: int = 8
 OPP_TIMER_SPACING:  int = 4
 AXIS_FONT_SIZE: int = 25
 DEFAULT_FONT_SCALE: float = 3.5
+GAME_SURFACE_SPACING: int = 50
 
 # -- Colors --
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = (76, 155, 87)
