@@ -15,6 +15,7 @@ from gui.end_game_gui import EndGameGui
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
 from gui.yes_or_gui import YesOrNoGui
+from gui.board_axis_gui import BoardAxisGui
 
 from config import *
 
@@ -38,6 +39,7 @@ class Player:
         AssetManager.load_pieces(piece_set, scale)
 
         self.board: Board = Board(side, scale)
+        self.set_to_default_pos(pygame.math.Vector2(WINDOW_SIZE))
         self.side: Side = side
         self.state: State = State.PICK_PIECE
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
@@ -55,6 +57,7 @@ class Player:
         self.timer_gui: TimerGui = TimerGui(time_left, self.board.pos_rect)
         self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect)
         self.yes_or_no_gui: YesOrNoGui = YesOrNoGui(self.board.pos_rect)
+        self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.pos_rect, self.side)
 
     def parse_input(
             self,
@@ -251,6 +254,7 @@ class Player:
             pygame.display.get_surface().fill(AssetManager.get_theme().dark_color)
             self.captured_gui.render(self.side)
             self.board.render()
+            self.axis_gui.render()
             self.board.render_pieces(self.side is Side.WHITE)
             if self.state is State.DROP_PIECE:
                 self.show_available_moves()
@@ -327,10 +331,6 @@ class Player:
     def set_to_default_pos(self, window_size: pygame.math.Vector2) -> None:
         screen_center = window_size / 2
         self.board.pos_rect.center = round(screen_center.x), round(screen_center.y)
-        self.board.pos_rect.x = 0
-        self.timer_gui.recalculate_pos()
-        self.end_game_gui.recalculate_pos()
-        self.yes_or_no_gui.recalculate_pos()
 
     def set_read_input(self, read_input: bool) -> None:
         self.read_input = read_input
