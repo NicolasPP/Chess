@@ -35,17 +35,17 @@ GAME_OVER_COLOR: tuple[int, int, int] = (255, 255, 255)
 YES_OR_NO_BG_COLOR: tuple[int, int, int] = (43, 45, 48)
 YES_NO_FONT_COLOR: tuple[int, int, int] = (224, 175, 105)
 
-PLAIN1_FG: tuple[int, int, int] = (234, 240, 217)
-PLAIN1_BG: tuple[int, int, int] = (89, 96, 111)
+PLAIN1_LIGHT: tuple[int, int, int] = (234, 240, 217)
+PLAIN1_DARK: tuple[int, int, int] = (89, 96, 111)
 
-PLAIN2_FG: tuple[int, int, int] = (234, 240, 217)
-PLAIN2_BG: tuple[int, int, int] = (192, 196, 180)
+PLAIN2_LIGHT: tuple[int, int, int] = (234, 240, 217)
+PLAIN2_DARK: tuple[int, int, int] = (192, 196, 180)
 
-PLAIN3_FG: tuple[int, int, int] = (150, 162, 178)
-PLAIN3_BG: tuple[int, int, int] = (89, 96, 111)
+PLAIN3_LIGHT: tuple[int, int, int] = (150, 162, 178)
+PLAIN3_DARK: tuple[int, int, int] = (89, 96, 111)
 
-PLAIN4_FG: tuple[int, int, int] = (230, 234, 216)
-PLAIN4_BG: tuple[int, int, int] = (69, 77, 94)
+PLAIN4_LIGHT: tuple[int, int, int] = (230, 234, 216)
+PLAIN4_DARK: tuple[int, int, int] = (69, 77, 94)
 
 # -- Default vals --
 GAME_START_FEN: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
