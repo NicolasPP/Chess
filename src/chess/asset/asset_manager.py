@@ -1,6 +1,6 @@
 import dataclasses
 
-from chess.asset.chess_assets import Sprite, PieceSetAsset, load_piece_set, BoardAsset, BoardSprite, load_board
+from chess.asset.chess_assets import Sprite, PieceSetAsset, load_piece_set, ChessTheme
 import chess.notation.forsyth_edwards_notation as notation
 
 from config import *
@@ -14,7 +14,7 @@ class PieceInfo:
 class AssetManager:
     piece_sprites: dict[str, Sprite] = {}
     piece_asset_index: dict[str, int] = {}
-    board_sprite: BoardSprite | None = None
+    theme: ChessTheme
 
     @staticmethod
     def load_pieces_sprites(piece_set: PieceSetAsset, scale: float) -> dict[str, Sprite]:
@@ -41,8 +41,8 @@ class AssetManager:
         AssetManager.piece_sprites = AssetManager.load_pieces_sprites(piece_set, scale)
 
     @staticmethod
-    def load_board(board_asset: BoardAsset, scale: float) -> None:
-        AssetManager.board_sprite = load_board(board_asset, scale)
+    def load_theme(theme: ChessTheme) -> None:
+        AssetManager.theme = theme
 
     @staticmethod
     def get_piece(fen_val: str) -> Sprite:
@@ -52,7 +52,5 @@ class AssetManager:
         return sprite
 
     @staticmethod
-    def get_board() -> BoardSprite:
-        if AssetManager.board_sprite is None:
-            raise Exception('make sure board asset is loaded')
-        return AssetManager.board_sprite
+    def get_theme() -> ChessTheme:
+        return AssetManager.theme
