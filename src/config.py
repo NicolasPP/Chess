@@ -6,7 +6,7 @@ YES_OR_NO_BG_ALPHA: int = 100
 OPAQUE: int = 255
 
 # -- Size --
-WINDOW_SIZE: tuple[int, int] = 570, 570
+WINDOW_SIZE: tuple[int, int] = 600, 600
 YES_OR_NO_BG_SIZE: tuple[int, int] = 250, 100
 YES_OR_NO_SPACING: int = 5
 YES_OR_NO_FONT_SIZE: int = 18
@@ -29,6 +29,11 @@ PIECE_ASSET_ROW: int = 1
 PIECE_ASSET_COL: int = 6
 SQUARE_SIZE: int = 16
 BOARD_OUTLINE_THICKNESS: int = 4
+X_AXIS_HEIGHT: int = 8
+Y_AXIS_WIDTH: int = 8
+OPP_TIMER_SPACING:  int = 4
+AXIS_FONT_SIZE: int = 25
+DEFAULT_FONT_SCALE: float = 3.5
 
 # -- Colors --
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = (76, 155, 87)
