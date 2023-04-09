@@ -1,5 +1,6 @@
 import pygame
 
+from chess.asset.asset_manager import AssetManager
 from chess.chess_timer import ChessTimer
 from chess.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import FenChars
@@ -22,18 +23,11 @@ class TimerGui:
 
         return pygame.math.Vector2(own_rect.topleft), pygame.math.Vector2(opp_rect.topleft)
 
-    def __init__(
-            self,
-            match_time: float,
-            board_rect: pygame.rect.Rect,
-            bg_color: tuple[int, int, int],
-            fg_color: tuple[int, int, int]) -> None:
+    def __init__(self, match_time: float, board_rect: pygame.rect.Rect) -> None:
         self.own_timer: ChessTimer = ChessTimer(match_time)
         self.opponents_timer: ChessTimer = ChessTimer(match_time)
         self.board_rect: pygame.rect.Rect = board_rect
         self.own_pos, self.opponents_pos = TimerGui.calculate_timers_pos(board_rect)
-        self.bg_color: tuple[int, int, int] = bg_color
-        self.fg_color: tuple[int, int, int] = fg_color
 
     def recalculate_pos(self) -> None:
         self.own_pos, self.opponents_pos = TimerGui.calculate_timers_pos(self.board_rect)
@@ -41,7 +35,7 @@ class TimerGui:
     def render(self) -> None:
         def render_timer(time_left: float, pos: pygame.math.Vector2, offset_height: bool = False) -> None:
             info = ChessTimer.format_seconds(time_left, True)
-            info_render = TimerGui.font.render(info, True, self.fg_color)
+            info_render = TimerGui.font.render(info, True, AssetManager.get_theme().light_color)
             render_pos = pos
             render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
 
@@ -51,7 +45,7 @@ class TimerGui:
                 render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
 
             info_bg_surface = pygame.surface.Surface(render_rect.size)
-            info_bg_surface.fill(self.bg_color)
+            info_bg_surface.fill(AssetManager.get_theme().dark_color)
             pygame.display.get_surface().blit(info_bg_surface, render_rect)
             pygame.display.get_surface().blit(info_render, render_rect)
 

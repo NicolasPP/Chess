@@ -11,7 +11,6 @@ class CapturedGui:
             self,
             captured_pieces: str,
             board_rect: pygame.rect.Rect,
-            bg_color: tuple[int, int, int],
             base_scale_factor: float,
             scale_factor: float = 1 / 3
     ):
@@ -19,7 +18,6 @@ class CapturedGui:
         self.scale_factor = scale_factor
         self.board_rect = board_rect
         self.captured_pieces = captured_pieces
-        self.bg_color = bg_color
         self.pieces = self.copy_and_resize_pieces()
         for val in captured_pieces: validate_fen_val(val)
         self.white_cap_surface, self.black_cap_surface = self.create_captured_surfaces()
@@ -41,8 +39,8 @@ class CapturedGui:
         w_captured_surface = pygame.surface.Surface(w_surface_size)
         b_captured_surface = pygame.surface.Surface(b_surface_size)
 
-        w_captured_surface.fill(self.bg_color)
-        b_captured_surface.fill(self.bg_color)
+        w_captured_surface.fill(AssetManager.get_theme().dark_color)
+        b_captured_surface.fill(AssetManager.get_theme().dark_color)
 
         w_pos = pygame.math.Vector2(0)
         b_pos = pygame.math.Vector2(0)
