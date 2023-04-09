@@ -31,10 +31,10 @@ class BoardSprite:
 
 
 class BoardAssets:
-    PLAIN1: BoardAsset = BoardAsset(PLAIN1_FILE, PLAIN1_BG, PLAIN1_FG)
-    PLAIN2: BoardAsset = BoardAsset(PLAIN2_FILE, PLAIN2_BG, PLAIN2_FG)
-    PLAIN3: BoardAsset = BoardAsset(PLAIN3_FILE, PLAIN3_BG, PLAIN3_FG)
-    PLAIN4: BoardAsset = BoardAsset(PLAIN4_FILE, PLAIN4_BG, PLAIN4_FG)
+    PLAIN1: BoardAsset = BoardAsset(PLAIN1_FILE, PLAIN1_DARK, PLAIN1_LIGHT)
+    PLAIN2: BoardAsset = BoardAsset(PLAIN2_FILE, PLAIN2_DARK, PLAIN2_LIGHT)
+    PLAIN3: BoardAsset = BoardAsset(PLAIN3_FILE, PLAIN3_DARK, PLAIN3_LIGHT)
+    PLAIN4: BoardAsset = BoardAsset(PLAIN4_FILE, PLAIN4_DARK, PLAIN4_LIGHT)
 
 
 class PieceSetAssets:
