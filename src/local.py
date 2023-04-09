@@ -6,36 +6,37 @@ import pygame
 
 from chess.match import Match
 from chess.player import Player, process_command_local, State
-from chess.piece_movement import Side, PieceMovement
+from chess.piece_movement import Side
 from chess.asset.chess_assets import PieceSetAssets, Themes
 from chess.chess_timer import DefaultConfigs
-from chess.asset.asset_manager import AssetManager
+from chess.game_surface import GameSurface
+from chess.chess_init import init_chess
+
 from config import *
 
-pygame.init()
-window_size = pygame.math.Vector2(WINDOW_SIZE)
-pygame.display.set_mode(window_size)
 done = False
 prev_time = time.time()
 delta_time: float = 0
-themes = [Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4]
+theme = random.choice((Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4))
+init_chess(theme, SCALE)
 
 match = Match(DefaultConfigs.BLITZ_5)
-AssetManager.load_theme(random.choice((Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4)))
-PieceMovement.load()
+center = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
 
 white_player = Player(
     side=Side.WHITE,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
     scale=SCALE,
-    time_left=match.timer_config.time
+    time_left=match.timer_config.time,
+    game_offset=center
 )
 
 black_player = Player(
     side=Side.BLACK,
     piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
     scale=SCALE,
-    time_left=match.timer_config.time
+    time_left=match.timer_config.time,
+    game_offset=center
 )
 
 white_player.update_turn(match.fen)
@@ -87,6 +88,8 @@ while not done:
     white_player.update(delta_time, local=True)
     black_player.update(delta_time, local=True)
     current_player.render()
+
+    pygame.display.get_surface().blit(GameSurface.get(), center)
 
     pygame.display.flip()
 

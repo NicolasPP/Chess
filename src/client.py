@@ -12,9 +12,10 @@ from chess.notation.forsyth_edwards_notation import Fen
 from chess.network.command_manager import CommandManager, Command
 from chess.asset.chess_assets import PieceSetAssets, Themes
 from chess.network.chess_network import ChessNetwork
-from chess.piece_movement import Side, PieceMovement
+from chess.piece_movement import Side
 from chess_logging import set_up_logging
-from chess.asset.asset_manager import AssetManager
+from chess.chess_init import init_chess
+from chess.game_surface import GameSurface
 
 from config import *
 
@@ -46,7 +47,7 @@ def update_window_caption(player: Player) -> None:
         pygame.display.set_caption(player.get_window_title())
 
 
-def get_player(init_info: Command) -> Player:
+def get_player(init_info: Command, game_offset: pygame.rect.Rect) -> Player:
     side = init_info.info[CommandManager.side]
     time_left = init_info.info[CommandManager.time]
     player_side = Side.WHITE if side == Side.WHITE.name else Side.BLACK
@@ -54,7 +55,8 @@ def get_player(init_info: Command) -> Player:
         side=player_side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
         scale=SCALE,
-        time_left=float(time_left)
+        time_left=float(time_left),
+        game_offset=game_offset
     )
     return player
 
@@ -67,16 +69,14 @@ def set_delta_time() -> None:
 
 
 def run_main_loop(server_ip: str) -> None:
-    pygame.init()
-    window_size = pygame.math.Vector2(WINDOW_SIZE)
-    pygame.display.set_mode(window_size)
-    AssetManager.load_theme(random.choice((Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4)))
-    PieceMovement.load()
+    theme = random.choice((Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4))
+    init_chess(theme, SCALE)
+    center = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
 
     network = ChessNetwork(server_ip)
     init_info: Command = network.connect()
 
-    player = get_player(init_info)
+    player = get_player(init_info, center)
     match_fen = Fen(init_info.info[CommandManager.fen_notation])
 
     player.update_turn(match_fen)
@@ -95,6 +95,7 @@ def run_main_loop(server_ip: str) -> None:
         player.render()
         player.update(delta_time, network=network)
 
+        pygame.display.get_surface().blit(GameSurface.get(), center)
         pygame.display.flip()
 
     pygame.quit()
