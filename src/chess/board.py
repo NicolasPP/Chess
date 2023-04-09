@@ -61,8 +61,8 @@ class BoardSquare:
             -> RenderPos:
         piece_rect = piece_surface.get_rect(topleft=self.rect.topleft)
         piece_rect.midbottom = pygame.mouse.get_pos()
-        result = pygame.math.Vector2(piece_rect.topleft) - offset
-        return RenderPos(result.x, result.y)
+        pos = pygame.math.Vector2(piece_rect.x, piece_rect.y) - offset
+        return RenderPos(pos.x, pos.y)
 
     def render(self, board_pos: tuple[int, int]) -> None:
         offset = pygame.math.Vector2(board_pos)

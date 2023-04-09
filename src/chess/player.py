@@ -262,7 +262,7 @@ class Player:
             self.board.render_pieces(self.side is Side.WHITE)
             if self.state is State.DROP_PIECE:
                 self.show_available_moves()
-                self.board.get_picked_up().render(self.board.pos_rect.topleft)
+                self.board.get_picked_up().render(self.game_offset.topleft)
 
         if self.state is State.PICKING_PROMOTION:
             self.promotion_gui.render()
