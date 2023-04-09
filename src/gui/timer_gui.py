@@ -4,33 +4,37 @@ from chess.asset.asset_manager import AssetManager
 from chess.chess_timer import ChessTimer
 from chess.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import FenChars
-from config import FIVE_FONT_FILE, TIMER_FONT_SIZE
+from config import *
 
 
 class TimerGui:
     pygame.font.init()
-    font = pygame.font.Font(FIVE_FONT_FILE, TIMER_FONT_SIZE)
-
-    @staticmethod
-    def calculate_timers_pos(board_rect: pygame.rect.Rect) -> tuple[pygame.math.Vector2, pygame.math.Vector2]:
-        text_width, text_height = TimerGui.font.size(ChessTimer.format_seconds(650, True))
-
-        own_rect = pygame.rect.Rect(0, 0, text_width, text_height)
-        opp_rect = pygame.rect.Rect(0, 0, text_width, text_height)
-
-        own_rect.topright = board_rect.bottomright
-        opp_rect.bottomright = board_rect.topright
-
-        return pygame.math.Vector2(own_rect.topleft), pygame.math.Vector2(opp_rect.topleft)
+    font = pygame.font.Font(FIVE_FONT_FILE, int((TIMER_FONT_SIZE * SCALE) / DEFAULT_FONT_SCALE))
 
     def __init__(self, match_time: float, board_rect: pygame.rect.Rect) -> None:
         self.own_timer: ChessTimer = ChessTimer(match_time)
         self.opponents_timer: ChessTimer = ChessTimer(match_time)
         self.board_rect: pygame.rect.Rect = board_rect
-        self.own_pos, self.opponents_pos = TimerGui.calculate_timers_pos(board_rect)
+        self.pos_offset: pygame.math.Vector2 = pygame.math.Vector2(0, (X_AXIS_HEIGHT * SCALE))
+        self.own_pos, self.opponents_pos = self.calculate_timers_pos()
 
-    def recalculate_pos(self) -> None:
-        self.own_pos, self.opponents_pos = TimerGui.calculate_timers_pos(self.board_rect)
+    def calculate_timers_pos(self) -> tuple[pygame.math.Vector2, pygame.math.Vector2]:
+        text_width, text_height = TimerGui.font.size(ChessTimer.format_seconds(650, True))
+
+        own_rect = pygame.rect.Rect(0, 0, text_width, text_height)
+        opp_rect = pygame.rect.Rect(0, 0, text_width, text_height)
+
+        own_rect.topright = self.board_rect.bottomright
+        opp_rect.bottomright = self.board_rect.topright
+
+        return pygame.math.Vector2(own_rect.topleft) + self.pos_offset, \
+            pygame.math.Vector2(opp_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * SCALE)
+
+    def set_offset(self, off_set: pygame.rect.Rect) -> None:
+        self.pos_offset = off_set
+
+    def recalculate_pos(self) -> None:  # not used
+        self.own_pos, self.opponents_pos = self.calculate_timers_pos()
 
     def render(self) -> None:
         def render_timer(time_left: float, pos: pygame.math.Vector2, offset_height: bool = False) -> None:
