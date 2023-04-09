@@ -334,7 +334,10 @@ class Player:
 
     def set_to_default_pos(self) -> None:
         timer_rects: TimerRects = TimerGui.calculate_timer_rects(SCALE)
-        self.board.pos_rect.topleft = (Y_AXIS_WIDTH * SCALE, timer_rects.spacing.height + timer_rects.timer.height)
+        self.board.pos_rect.topleft = (
+            int(Y_AXIS_WIDTH * SCALE),
+            int(timer_rects.spacing.height + timer_rects.timer.height)
+        )
 
     def set_read_input(self, read_input: bool) -> None:
         self.read_input = read_input

@@ -46,10 +46,7 @@ class TimerGui:
         return pygame.math.Vector2(own_rect.topleft) + self.pos_offset, \
                pygame.math.Vector2(opp_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * SCALE)
 
-    def set_offset(self, off_set: pygame.rect.Rect) -> None:
-        self.pos_offset = off_set
-
-    def recalculate_pos(self) -> None:  # not used
+    def recalculate_pos(self) -> None:
         self.own_pos, self.opponents_pos = self.calculate_timers_pos()
 
     def render(self) -> None:

@@ -55,7 +55,7 @@ class BoardAxisGui:
             x_axis_grid.append(pygame.rect.Rect((current_pos.x, current_pos.y), size))
 
         y_axis_grid: list[pygame.rect.Rect] = []
-        current_pos: pygame.math.Vector2 = pygame.math.Vector2(0)
+        current_pos = pygame.math.Vector2(0)
         for row in range(BOARD_SIZE):
             current_pos.y = row * size[1]
             y_axis_grid.append(pygame.rect.Rect((current_pos.x, current_pos.y), size))
