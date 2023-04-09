@@ -5,10 +5,9 @@ from config import *
 
 
 @dataclasses.dataclass
-class BoardAsset:
-    file: str
-    background: tuple[int, int, int]
-    foreground: tuple[int, int, int]
+class ChessTheme:
+    light_color: tuple[int, int, int]
+    dark_color: tuple[int, int, int]
 
 
 @dataclasses.dataclass
@@ -23,24 +22,17 @@ class Sprite:
     scale: float
 
 
-@dataclasses.dataclass
-class BoardSprite:
-    sprite: Sprite
-    background: tuple[int, int, int]
-    foreground: tuple[int, int, int]
-
-
-class BoardAssets:
-    PLAIN1: BoardAsset = BoardAsset(PLAIN1_FILE, PLAIN1_DARK, PLAIN1_LIGHT)
-    PLAIN2: BoardAsset = BoardAsset(PLAIN2_FILE, PLAIN2_DARK, PLAIN2_LIGHT)
-    PLAIN3: BoardAsset = BoardAsset(PLAIN3_FILE, PLAIN3_DARK, PLAIN3_LIGHT)
-    PLAIN4: BoardAsset = BoardAsset(PLAIN4_FILE, PLAIN4_DARK, PLAIN4_LIGHT)
-
-
 class PieceSetAssets:
     SIMPLE16x16: PieceSetAsset = PieceSetAsset(SIMPLE16x16_PIECE_FILE_WHITE, SIMPLE16x16_PIECE_FILE_BLACK)
     NORMAL16x16: PieceSetAsset = PieceSetAsset(NORMAL16x16_PIECE_FILE_WHITE, NORMAL16x16_PIECE_FILE_BLACK)
     NORMAL16x32: PieceSetAsset = PieceSetAsset(NORMAL16x32_PIECE_FILE_WHITE, NORMAL16x32_PIECE_FILE_BLACK)
+
+
+class Themes:
+    PLAIN1: ChessTheme = ChessTheme(PLAIN1_LIGHT, PLAIN1_DARK)
+    PLAIN2: ChessTheme = ChessTheme(PLAIN2_LIGHT, PLAIN2_DARK)
+    PLAIN3: ChessTheme = ChessTheme(PLAIN3_LIGHT, PLAIN3_DARK)
+    PLAIN4: ChessTheme = ChessTheme(PLAIN4_LIGHT, PLAIN4_DARK)
 
 
 def scale(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
@@ -77,10 +69,6 @@ def load_sprite(file: str, sprite_scale: float) -> Sprite:
     surface = pygame.image.load(file).convert()
     surface = scale(surface, sprite_scale)
     return Sprite(surface, sprite_scale)
-
-
-def load_board(board_asset: BoardAsset, asset_scale: float) -> BoardSprite:
-    return BoardSprite(load_sprite(board_asset.file, asset_scale), board_asset.background, board_asset.foreground)
 
 
 def load_piece_set(piece_set: PieceSetAsset, piece_scale: float) -> tuple[list[Sprite], list[Sprite]]:
