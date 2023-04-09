@@ -5,6 +5,8 @@ from chess.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import validate_fen_val
 from chess.asset.chess_assets import scale, PieceSetAssets
 
+from config import *
+
 
 class CapturedGui:
     def __init__(
@@ -21,6 +23,7 @@ class CapturedGui:
         self.pieces = self.copy_and_resize_pieces()
         for val in captured_pieces: validate_fen_val(val)
         self.white_cap_surface, self.black_cap_surface = self.create_captured_surfaces()
+        self.pos_offset: pygame.math.Vector2 = pygame.math.Vector2(0, (X_AXIS_HEIGHT * SCALE))
 
     def set_captured_pieces(self, new_cap_pieces) -> None:
         self.captured_pieces = new_cap_pieces
@@ -63,8 +66,8 @@ class CapturedGui:
         return copy_pieces
 
     def render(self, player_side: Side) -> None:
-        top_pos = pygame.math.Vector2(self.board_rect.topleft)
-        bottom_pos = pygame.math.Vector2(self.board_rect.bottomleft)
+        top_pos = pygame.math.Vector2(self.board_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * SCALE)
+        bottom_pos = pygame.math.Vector2(self.board_rect.bottomleft) + self.pos_offset
 
         if player_side is Side.WHITE:
             w_surface_pos = top_pos
