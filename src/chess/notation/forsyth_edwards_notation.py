@@ -122,7 +122,8 @@ class Fen:
         if from_index not in double_moves_start: return FenChars.EMPTY_INFO.value
         if dest_index not in double_moves_end: return FenChars.EMPTY_INFO.value
 
-        en_passant_rights = get_an_from_index(dest_index).data.coordinates
+        index_offset = BOARD_SIZE if self.is_white_turn() else BOARD_SIZE * -1
+        en_passant_rights = get_an_from_index(dest_index + index_offset).data.coordinates
         validate_fen_en_passant_rights(en_passant_rights)
 
         return en_passant_rights
@@ -221,8 +222,7 @@ class Fen:
         dest_piece_val = self[dest_index]
 
         if self.is_move_en_passant(from_index, dest_index):
-            en_passant_an = AlgebraicNotation(*self.data.en_passant_rights)
-            self.make_en_passant_move(from_index, dest_index, en_passant_an.data.index)
+            self.make_en_passant_move(from_index, dest_index)
         elif self.is_move_castle(from_index, dest_index):
             self.make_castle_move(from_index, dest_index)
         else:
@@ -233,9 +233,10 @@ class Fen:
 
         if not self.first_move: self.first_move = True
 
-    def make_en_passant_move(self, from_index: int, dest_index: int, en_passant_index: int) -> None:
+    def make_en_passant_move(self, from_index: int, dest_index: int) -> None:
         self.make_regular_move(from_index, dest_index, self[from_index])
-        self[en_passant_index] = FenChars.BLANK_PIECE.value
+        opp_index = AlgebraicNotation(get_an_from_index(dest_index).data.file, get_an_from_index(from_index).data.rank)
+        self[opp_index.data.index] = FenChars.BLANK_PIECE.value
 
     def make_castle_move(self, from_index: int, dest_index: int) -> None:
         king_side_rook_index = 63 if self.is_white_turn() else 7

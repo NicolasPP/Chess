@@ -2,7 +2,7 @@ import enum
 import typing
 
 import chess.notation.forsyth_edwards_notation as notation
-from chess.notation.algebraic_notation import AlgebraicNotation
+from chess.notation.algebraic_notation import AlgebraicNotation, get_an_from_index
 from config import *
 
 
@@ -142,10 +142,17 @@ def pawn_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None
 
     # en passant move
     if fen.data.en_passant_rights != notation.FenChars.EMPTY_INFO.value:
+        index_offset = BOARD_SIZE if fen.is_white_turn() else BOARD_SIZE * -1
         en_passant_an = AlgebraicNotation(*fen.data.en_passant_rights)
-        if from_index + 1 == en_passant_an.data.index or from_index - 1 == en_passant_an.data.index:
-            move = get_fen_offset_index(is_white_turn, en_passant_an.data.index, 1, 0)
-            if move is not None: moves.append(move)
+        possible_en_passant = get_an_from_index(en_passant_an.data.index + index_offset)
+        from_an = get_an_from_index(from_index)
+        if possible_en_passant.data.rank == from_an.data.rank:
+            if from_index == get_an_from_index(possible_en_passant.data.index + 1).data.index or \
+                    from_index == get_an_from_index(possible_en_passant.data.index - 1).data.index:
+                move = get_fen_offset_index(is_white_turn, en_passant_an.data.index, 0, 0)
+                if move is not None:
+                    print(move)
+                    moves.append(move)
 
     if (up is not None) and (fen[up] == notation.FenChars.BLANK_PIECE.value): moves.append(up)
 
