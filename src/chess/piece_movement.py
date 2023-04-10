@@ -151,7 +151,6 @@ def pawn_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None
                     from_index == get_an_from_index(possible_en_passant.data.index - 1).data.index:
                 move = get_fen_offset_index(is_white_turn, en_passant_an.data.index, 0, 0)
                 if move is not None:
-                    print(move)
                     moves.append(move)
 
     if (up is not None) and (fen[up] == notation.FenChars.BLANK_PIECE.value): moves.append(up)
