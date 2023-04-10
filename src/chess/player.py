@@ -55,12 +55,12 @@ class Player:
         self.opponent_promoting: bool = False
         self.timed_out: bool = False
 
-        self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.surface.get_rect())
-        self.captured_gui: CapturedGui = CapturedGui('', self.board.pos_rect, scale)
-        self.timer_gui: TimerGui = TimerGui(time_left, self.board.pos_rect)
-        self.end_game_gui: EndGameGui = EndGameGui(self.board.pos_rect)
-        self.yes_or_no_gui: YesOrNoGui = YesOrNoGui(self.board.pos_rect)
-        self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.pos_rect, self.side)
+        self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.get_rect())
+        self.captured_gui: CapturedGui = CapturedGui('', self.board.get_rect(), scale)
+        self.timer_gui: TimerGui = TimerGui(time_left, self.board.get_rect())
+        self.end_game_gui: EndGameGui = EndGameGui(self.board.get_rect())
+        self.yes_or_no_gui: YesOrNoGui = YesOrNoGui(self.board.get_rect())
+        self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.get_rect(), self.side, scale)
 
     def parse_input(
             self,
@@ -76,7 +76,7 @@ class Player:
                 self.handle_end_game_mouse_down()
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == MOUSECLICK_LEFT:
-                self.handle_left_mouse_up(network, local, fen)
+                self.handle_mouse_up_left(network, local, fen)
 
     def handle_end_game_mouse_down(self) -> None:
         if self.state == State.RESPOND_DRAW: return
@@ -96,9 +96,10 @@ class Player:
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
-    def handle_left_mouse_up(self, network: ChessNetwork | None, local: bool, fen: Fen) -> None:
+    def handle_mouse_up_left(self, network: ChessNetwork | None, local: bool, fen: Fen) -> None:
         if self.state is not State.DROP_PIECE: return
-
+        self.end_game_gui.offer_draw.set_hover(True)
+        self.end_game_gui.resign.set_hover(True)
         dest_board_square = self.board.get_collided_board_square(self.game_offset)
         from_board_square = self.board.get_picked_up()
 
@@ -154,6 +155,8 @@ class Player:
             if board_square.fen_val == FenChars.BLANK_PIECE.value: return
             self.board.set_picked_up(board_square)
             self.state = State.DROP_PIECE
+            self.end_game_gui.offer_draw.set_hover(False)
+            self.end_game_gui.resign.set_hover(False)
         elif self.state is State.RESPOND_DRAW:
             self.handle_yes_or_no_response()
             if self.yes_or_no_gui.result is None: return
@@ -244,6 +247,9 @@ class Player:
         elif self.yes_or_no_gui.no.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             self.yes_or_no_gui.set_result(False)
 
+        else:
+            self.yes_or_no_gui.set_result(False)
+
     def continue_game(self) -> None:
         self.end_game_gui.offer_draw.set_hover(True)
         self.end_game_gui.resign.set_hover(True)
@@ -254,8 +260,13 @@ class Player:
             self.end_game_gui.game_over_gui.render()
             return
 
+        self.timer_gui.render()
+        self.end_game_gui.render(pygame.math.Vector2(self.game_offset.topleft))
+
         if self.is_render_required or self.state is State.DROP_PIECE:
             GameSurface.get().fill(AssetManager.get_theme().dark_color)
+            self.timer_gui.render()
+            self.end_game_gui.render(pygame.math.Vector2(self.game_offset.topleft))
             self.captured_gui.render(self.side)
             self.board.render()
             self.axis_gui.render()
@@ -275,8 +286,6 @@ class Player:
         if self.state is State.OFFERED_DRAW: pass
 
         self.set_require_render(False)
-        self.timer_gui.render()
-        self.end_game_gui.render(pygame.math.Vector2(self.game_offset.topleft))
 
     def show_available_moves(self) -> None:
         if not self.turn: return
@@ -334,7 +343,7 @@ class Player:
 
     def set_to_default_pos(self) -> None:
         timer_rects: TimerRects = TimerGui.calculate_timer_rects(SCALE)
-        self.board.pos_rect.topleft = (
+        self.board.get_rect().topleft = (
             int(Y_AXIS_WIDTH * SCALE),
             int(timer_rects.spacing.height + timer_rects.timer.height)
         )
