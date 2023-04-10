@@ -83,15 +83,16 @@ class BoardAxisGui:
         anti_alias: bool = False
         font_color: tuple[int, int, int] = 255, 255, 255
         font = pygame.font.Font(FONT_FILE, int((AXIS_FONT_SIZE * SCALE) / DEFAULT_FONT_SCALE))
-
-        for index, rect in enumerate(self.axis_grids.x_axis_grid):
-            text_render = font.render(str(index + 1), anti_alias, font_color)
+        letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        if self.side is Side.BLACK: letters = letters[::-1]
+        for rect, letter in zip(self.axis_grids.x_axis_grid, letters):
+            text_render = font.render(letter, anti_alias, font_color)
             self.axis_surfaces.x_axis_surface.blit(
                 text_render, text_render.get_rect(centerx=rect.centerx))
 
-        letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        for rect, letter in zip(self.axis_grids.y_axis_grid, letters):
-            text_render = font.render(letter, anti_alias, font_color)
+        for index, rect in enumerate(self.axis_grids.y_axis_grid):
+            value = str(index + 1) if self.side is Side.BLACK else str(BOARD_SIZE - index)
+            text_render = font.render(value, anti_alias, font_color)
             self.axis_surfaces.y_axis_surface.blit(
                 text_render, text_render.get_rect(centery=rect.centery))
 
