@@ -86,8 +86,12 @@ def client_listener(client_socket: skt.socket, server: Server):
     with client_socket:
         p_id = server.client_init(client_socket)
         while True:
-            data: bytes = client_socket.recv(DATA_SIZE)
-            if not data: break
+            try:
+                data: bytes = client_socket.recv(DATA_SIZE)
+            except ConnectionResetError as error:
+                logger.debug("connection error: %s", error)
+                break
+
             commands: list[Command] = []
             move_tags: list[MoveTags] = []
 
@@ -103,6 +107,7 @@ def client_listener(client_socket: skt.socket, server: Server):
             server.match.commands = commands
 
         server.client_sockets.remove(client_socket)
+        client_socket.close()
 
         print(f'client : {p_id}  disconnected')
         logger.info("client : %s  disconnected", p_id)
