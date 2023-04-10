@@ -94,9 +94,7 @@ class Board:
 
     @staticmethod
     def create_board_surface(board_squares: list[BoardSquare], scale: float) -> pygame.surface.Surface:
-        outline_thickness = pygame.math.Vector2(BOARD_OUTLINE_THICKNESS) * 2
-        size = pygame.math.Vector2(SQUARE_SIZE * scale)
-        board_surface = pygame.surface.Surface((size * BOARD_SIZE) + outline_thickness)
+        board_surface = pygame.surface.Surface(Board.calculate_board_rect(scale).size)
         board_surface.fill(AssetManager.get_theme().light_color)
         counter = 0
         for board_square in board_squares:
@@ -117,7 +115,10 @@ class Board:
         self.surface: pygame.surface.Surface = Board.create_board_surface(self.grid, scale)
         if side is Side.BLACK:
             self.surface = pygame.transform.flip(self.surface, True, True)
-        self.pos_rect: pygame.rect.Rect = self.surface.get_rect()
+        self.rect: pygame.rect.Rect = self.surface.get_rect()
+
+    def get_rect(self) -> pygame.rect.Rect:
+        return self.rect
 
     def reload_theme(self, side: Side, scale: float) -> None:
         self.surface = Board.create_board_surface(self.grid, scale)
@@ -140,7 +141,7 @@ class Board:
     def get_collided_board_square(self, game_offset: pygame.rect.Rect,
                                   mouse_pos: tuple[int, int] | None = None) -> BoardSquare | None:
         if mouse_pos is None: mouse_pos = pygame.mouse.get_pos()
-        board_offset = pygame.math.Vector2(self.pos_rect.topleft) + pygame.math.Vector2(game_offset.topleft)
+        board_offset = pygame.math.Vector2(self.rect.topleft) + pygame.math.Vector2(game_offset.topleft)
         for board_square in self.grid:
             rect = board_square.rect.copy()
             top_left = board_offset + pygame.math.Vector2(rect.topleft)
@@ -151,7 +152,7 @@ class Board:
 
     def get_available_moves_surface(self, picked: BoardSquare) -> \
             typing.Generator[tuple[pygame.surface.Surface, pygame.math.Vector2], None, None]:
-        board_offset = pygame.math.Vector2(self.pos_rect.topleft)
+        board_offset = pygame.math.Vector2(self.rect.topleft)
         for index in picked.available_moves:
             board_square = self.grid[index]
             board_square_size = pygame.math.Vector2(board_square.rect.size) * AVAILABLE_MOVE_SCALE
@@ -162,11 +163,11 @@ class Board:
             yield available_surface, board_offset + pygame.math.Vector2(pos.topleft)
 
     def render(self) -> None:
-        GameSurface.get().blit(self.surface, self.pos_rect)
+        GameSurface.get().blit(self.surface, self.rect)
 
     def render_pieces(self, is_white: bool) -> None:
         grid = self.grid if is_white else self.grid[::-1]
         for board_square in grid:
             if board_square.fen_val == FenChars.BLANK_PIECE.value: continue
             if board_square.picked_up: continue
-            board_square.render(self.pos_rect.topleft)
+            board_square.render(self.rect.topleft)
