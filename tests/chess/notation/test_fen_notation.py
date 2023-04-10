@@ -182,9 +182,9 @@ def test_get_half_move_number():
 
 def test_get_en_passant_rights():
     f = notation.Fen("8/1ppppppp/8/p7/8/8/PPPPPPPP/8 b KQkq - 0 1")
-    assert f.get_en_passant_rights('p', 8, 24) == 'a5'
+    assert f.get_en_passant_rights('p', 8, 24) == 'a6'
     f = notation.Fen("8/1ppppppp/8/p7/P7/8/1PPPPPPP/8 w KQkq - 0 1")
-    assert f.get_en_passant_rights('P', 48, 32) == 'a4'
+    assert f.get_en_passant_rights('P', 48, 32) == 'a3'
 
 
 def test_get_castling_rights():
