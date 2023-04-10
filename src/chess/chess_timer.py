@@ -1,5 +1,10 @@
 import dataclasses
 
+import pygame
+
+from chess.asset.asset_manager import AssetManager
+from chess.game_surface import GameSurface
+
 
 @dataclasses.dataclass
 class TimerConfig:
@@ -72,3 +77,19 @@ class ChessTimer:
 
     def stop(self) -> None:
         self.decrement_time = False
+
+    def render(self, pos: pygame.math.Vector2, font: pygame.font.Font, offset_height: bool = False) -> None:
+        info = ChessTimer.format_seconds(self.time_left, True)
+        info_render = font.render(info, True, AssetManager.get_theme().light_color)
+        render_pos = pos
+        render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
+
+        # this will only work for FIVE_FONT_FILE - "assets/fonts/QuinqueFive.ttf"
+        if offset_height:
+            render_pos = pos + pygame.math.Vector2(0, (render_rect.height // 6) * -1)
+            render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
+
+        info_bg_surface = pygame.surface.Surface(render_rect.size)
+        info_bg_surface.fill(AssetManager.get_theme().dark_color)
+        GameSurface.get().blit(info_bg_surface, render_rect)
+        GameSurface.get().blit(info_render, render_rect)
