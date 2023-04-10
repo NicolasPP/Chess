@@ -38,18 +38,19 @@ class BoardAxisGui:
         return AxisRects(x_axis_rect, y_axis_rect)
 
     @staticmethod
-    def create_surfaces() -> AxisSurfaces:
-        x_axis_surface = pygame.surface.Surface((SQUARE_SIZE * SCALE * BOARD_SIZE, X_AXIS_HEIGHT * SCALE))
-        y_axis_surface = pygame.surface.Surface((Y_AXIS_WIDTH * SCALE, SQUARE_SIZE * SCALE * BOARD_SIZE))
+    def create_surfaces(scale: float) -> AxisSurfaces:
+        axis_rects: AxisRects = BoardAxisGui.calculate_axis_rects(scale)
+        x_axis_surface = pygame.surface.Surface(axis_rects.x_axis.size)
+        y_axis_surface = pygame.surface.Surface(axis_rects.y_axis.size)
         x_axis_surface.fill(AssetManager.get_theme().dark_color)
         y_axis_surface.fill(AssetManager.get_theme().dark_color)
         return AxisSurfaces(x_axis_surface, y_axis_surface)
 
     @staticmethod
-    def create_grids() -> AxisGrids:
+    def create_grids(scale: float) -> AxisGrids:
         x_axis_grid: list[pygame.rect.Rect] = []
         current_pos: pygame.math.Vector2 = pygame.math.Vector2(0)
-        size = SQUARE_SIZE * SCALE, SQUARE_SIZE * SCALE
+        size = SQUARE_SIZE * scale, SQUARE_SIZE * scale
         for col in range(BOARD_SIZE):
             current_pos.x = col * size[0]
             x_axis_grid.append(pygame.rect.Rect((current_pos.x, current_pos.y), size))
@@ -62,11 +63,11 @@ class BoardAxisGui:
 
         return AxisGrids(x_axis_grid, y_axis_grid)
 
-    def __init__(self, board_pos: pygame.rect.Rect, side: Side) -> None:
+    def __init__(self, board_pos: pygame.rect.Rect, side: Side, scale: float) -> None:
         self.board_pos: pygame.rect.Rect = board_pos
         self.side: Side = side
-        self.axis_surfaces: AxisSurfaces = BoardAxisGui.create_surfaces()
-        self.axis_grids: AxisGrids = BoardAxisGui.create_grids()
+        self.axis_surfaces: AxisSurfaces = BoardAxisGui.create_surfaces(scale)
+        self.axis_grids: AxisGrids = BoardAxisGui.create_grids(scale)
         self.axis_pos: AxisPos = self.calculate_pos()
         self.render_values()
 

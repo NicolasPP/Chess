@@ -28,10 +28,11 @@ class EndGameGui:
 
     def __init__(self, board_rect: pygame.rect.Rect):
         self.board_rect: pygame.rect.Rect = board_rect
+        rects: EndGameRects = EndGameGui.calculate_end_game_rects()
         self.offer_draw: ButtonGui = ButtonGui(
-            DRAW_BUTTON_WIDTH, DRAW_BUTTON_HEIGHT, AssetManager.get_theme().dark_color)
+            rects.draw_rect.width, rects.draw_rect.height, AssetManager.get_theme().dark_color)
         self.resign: ButtonGui = ButtonGui(
-            RESIGN_BUTTON_WIDTH, RESIGN_BUTTON_HEIGHT, AssetManager.get_theme().dark_color)
+            rects.resign_rect.width, rects.resign_rect.height, AssetManager.get_theme().dark_color)
         self.game_over_gui: GameOverGui = GameOverGui(AssetManager.get_theme().dark_color)
         self.button_init()
         self.recalculate_pos()
