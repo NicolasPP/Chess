@@ -2,11 +2,9 @@ import typing
 
 import pygame
 
-from chess.asset.asset_manager import AssetManager
 from chess.chess_timer import ChessTimer
 from chess.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import FenChars
-from chess.game_surface import GameSurface
 from config import *
 
 
@@ -44,30 +42,14 @@ class TimerGui:
         opp_rect.bottomright = self.board_rect.topright
 
         return pygame.math.Vector2(own_rect.topleft) + self.pos_offset, \
-               pygame.math.Vector2(opp_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * SCALE)
+            pygame.math.Vector2(opp_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * SCALE)
 
     def recalculate_pos(self) -> None:
         self.own_pos, self.opponents_pos = self.calculate_timers_pos()
 
     def render(self) -> None:
-        def render_timer(time_left: float, pos: pygame.math.Vector2, offset_height: bool = False) -> None:
-            info = ChessTimer.format_seconds(time_left, True)
-            info_render = TimerGui.font.render(info, True, AssetManager.get_theme().light_color)
-            render_pos = pos
-            render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
-
-            # this will only work for FIVE_FONT_FILE - "assets/fonts/QuinqueFive.ttf"
-            if offset_height:
-                render_pos = pos + pygame.math.Vector2(0, (render_rect.height // 6) * -1)
-                render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
-
-            info_bg_surface = pygame.surface.Surface(render_rect.size)
-            info_bg_surface.fill(AssetManager.get_theme().dark_color)
-            GameSurface.get().blit(info_bg_surface, render_rect)
-            GameSurface.get().blit(info_render, render_rect)
-
-        render_timer(self.own_timer.time_left, self.own_pos)
-        render_timer(self.opponents_timer.time_left, self.opponents_pos, True)
+        self.own_timer.render(self.own_pos, TimerGui.font)
+        self.opponents_timer.render(self.opponents_pos, TimerGui.font, True)
 
     def tick(self, delta_time: float) -> None:
         self.own_timer.tick(delta_time)
