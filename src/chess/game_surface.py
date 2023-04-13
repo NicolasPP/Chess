@@ -1,6 +1,8 @@
 import pygame
 
 from chess.asset.asset_manager import AssetManager
+from config import *
+
 
 class GameSurface:
     surface: pygame.surface.Surface | None = None
@@ -60,3 +62,12 @@ class GameSurface:
                 GameSurface.set_width(rect.width)
             else:
                 GameSurface.set_width(GameSurface.get_width() + rect.width)
+
+    @staticmethod
+    def get_relative_size(size: int | float) -> float:
+        """
+        when designing the gui I picked fixed sizes which looked good on 3.5 scale.
+        Instead of implementing a smart way to calculate the size according to the given scale,
+        I instead divide it by the default_scale which is 3.5 and then multiply by scale
+        """
+        return (size * SCALE) / DEFAULT_SCALE
