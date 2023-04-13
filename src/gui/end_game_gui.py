@@ -5,6 +5,7 @@ import pygame
 from chess.asset.asset_manager import AssetManager
 from gui.game_over_gui import GameOverGui
 from gui.button_gui import ButtonGui
+from chess.game_surface import GameSurface
 
 from config import *
 
@@ -15,15 +16,15 @@ class EndGameRects(typing.NamedTuple):
 
 
 class EndGameGui:
-    # FIXME: the size of the font should be as big as possible to fit inside the provided square
-    # FIXME: size of the buttons should be reacting to scale not the font size
-    # FIXME: scale needs to stop affecting fontsize
-
     @staticmethod
     def calculate_end_game_rects() -> EndGameRects:
         default_pos: tuple[int, int] = 0, 0
-        resign_rect = pygame.rect.Rect(default_pos, (RESIGN_BUTTON_WIDTH, RESIGN_BUTTON_HEIGHT))
-        draw_rect = pygame.rect.Rect(default_pos, (DRAW_BUTTON_WIDTH, DRAW_BUTTON_HEIGHT))
+        resign_rect = pygame.rect.Rect(
+            default_pos,
+            (GameSurface.get_relative_size(RESIGN_BUTTON_WIDTH), GameSurface.get_relative_size(RESIGN_BUTTON_HEIGHT)))
+        draw_rect = pygame.rect.Rect(
+            default_pos,
+            (GameSurface.get_relative_size(DRAW_BUTTON_WIDTH), GameSurface.get_relative_size(DRAW_BUTTON_HEIGHT)))
         return EndGameRects(resign_rect, draw_rect)
 
     def __init__(self, board_rect: pygame.rect.Rect):
@@ -40,11 +41,11 @@ class EndGameGui:
     def button_init(self) -> None:
         self.offer_draw.set_font(
             FONT_FILE,
-            int((OFFER_DRAW_FONT_SIZE * SCALE) / DEFAULT_FONT_SCALE), False, AssetManager.get_theme().light_color
+            int(GameSurface.get_relative_size(OFFER_DRAW_FONT_SIZE)), False, AssetManager.get_theme().light_color
         )
         self.resign.set_font(
             FONT_FILE,
-            int((RESIGN_FONT_SIZE * SCALE) / DEFAULT_FONT_SCALE), False, AssetManager.get_theme().light_color
+            int(GameSurface.get_relative_size(RESIGN_FONT_SIZE)), False, AssetManager.get_theme().light_color
         )
         self.offer_draw.set_label(OFFER_DRAW_LABEL)
         self.resign.set_label(RESIGN_LABEL)

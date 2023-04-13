@@ -5,6 +5,7 @@ import pygame
 from chess.chess_timer import ChessTimer
 from chess.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import FenChars
+from chess.game_surface import GameSurface
 from config import *
 
 
@@ -15,7 +16,7 @@ class TimerRects(typing.NamedTuple):
 
 class TimerGui:
     pygame.font.init()
-    font = pygame.font.Font(FIVE_FONT_FILE, int((TIMER_FONT_SIZE * SCALE) / DEFAULT_SCALE))
+    font = pygame.font.Font(FIVE_FONT_FILE, int(GameSurface.get_relative_size(TIMER_FONT_SIZE)))
 
     @staticmethod
     def calculate_timer_rects(scale: float) -> TimerRects:
