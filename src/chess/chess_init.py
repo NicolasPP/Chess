@@ -18,10 +18,11 @@ def init_chess(theme: ChessTheme, scale: float) -> None:
 
     AssetManager.load_theme(theme)
     PieceMovement.load()
+    GameSurface.load_scale(scale)
 
-    board_rect: pygame.rect.Rect = Board.calculate_board_rect(scale)
-    timer_rects: TimerRects = TimerGui.calculate_timer_rects(scale)
-    axis_rects: AxisRects = BoardAxisGui.calculate_axis_rects(scale)
+    board_rect: pygame.rect.Rect = Board.calculate_board_rect()
+    timer_rects: TimerRects = TimerGui.calculate_timer_rects()
+    axis_rects: AxisRects = BoardAxisGui.calculate_axis_rects()
     end_game_rects: EndGameRects = EndGameGui.calculate_end_game_rects()
     '''
     -- width --
