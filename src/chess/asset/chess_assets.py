@@ -35,7 +35,7 @@ class Themes:
     PLAIN4: ChessTheme = ChessTheme(PLAIN4_LIGHT, PLAIN4_DARK)
 
 
-def scale(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
+def scale_surface(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
     size = pygame.math.Vector2(surface.get_size()) * surface_scale
     return pygame.transform.scale(surface, (round(size.x), round(size.y)))
 
@@ -59,7 +59,7 @@ def load_sprite_sheet(asset_file: str, asset_scale: float) -> list[Sprite]:
 
     for surface, index in sheet_surface_gen(surface_size):
         surface.blit(sheet_sprite.surface, surface_size * index * -1)
-        surface = scale(surface, asset_scale)
+        surface = scale_surface(surface, asset_scale)
         sprites.append(Sprite(surface, asset_scale))
 
     return sprites
@@ -67,7 +67,7 @@ def load_sprite_sheet(asset_file: str, asset_scale: float) -> list[Sprite]:
 
 def load_sprite(file: str, sprite_scale: float) -> Sprite:
     surface = pygame.image.load(file).convert()
-    surface = scale(surface, sprite_scale)
+    surface = scale_surface(surface, sprite_scale)
     return Sprite(surface, sprite_scale)
 
 
