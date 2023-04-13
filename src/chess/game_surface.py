@@ -8,6 +8,7 @@ class GameSurface:
     surface: pygame.surface.Surface | None = None
     width: int | None = None
     height: int | None = None
+    scale: float | None = None
 
     @staticmethod
     def get() -> pygame.surface.Surface:
@@ -64,10 +65,19 @@ class GameSurface:
                 GameSurface.set_width(GameSurface.get_width() + rect.width)
 
     @staticmethod
+    def get_scale() -> float:
+        if GameSurface.scale is None: raise Exception('scale not loaded')
+        return GameSurface.scale
+
+    @staticmethod
+    def load_scale(scale: float) -> None:
+        GameSurface.scale = scale
+
+    @staticmethod
     def get_relative_size(size: int | float) -> float:
         """
         when designing the gui I picked fixed sizes which looked good on 3.5 scale.
         Instead of implementing a smart way to calculate the size according to the given scale,
         I instead divide it by the default_scale which is 3.5 and then multiply by scale
         """
-        return (size * SCALE) / DEFAULT_SCALE
+        return (size * GameSurface.get_scale()) / DEFAULT_SCALE
