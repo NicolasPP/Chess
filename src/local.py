@@ -64,7 +64,6 @@ def update_window_caption(*players: Player) -> None:
 
 
 is_white = True
-
 while not done:
 
     set_delta_time()
@@ -72,11 +71,13 @@ while not done:
     current_player = white_player if is_white else black_player
 
     for event in pygame.event.get():
+        keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT: done = True
-        if event.type == pygame.KEYDOWN and current_player.state is not State.PICKING_PROMOTION:
-            is_white = not is_white
-            white_player.set_require_render(True)
-            black_player.set_require_render(True)
+        if event.type == pygame.KEYDOWN:
+            if keys[pygame.K_SPACE] and current_player.state is not State.PICKING_PROMOTION:
+                is_white = not is_white
+                white_player.set_require_render(True)
+                black_player.set_require_render(True)
         current_player.parse_input(event, match.fen, local=True)
 
     update_window_caption(white_player, black_player)
