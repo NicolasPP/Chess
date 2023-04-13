@@ -74,16 +74,16 @@ class BoardSquare:
 class Board:
 
     @staticmethod
-    def calculate_board_rect(scale: float) -> pygame.rect.Rect:
+    def calculate_board_rect() -> pygame.rect.Rect:
         return pygame.rect.Rect(
             (0, 0),
-            ((SQUARE_SIZE * BOARD_SIZE * scale) + (BOARD_OUTLINE_THICKNESS * 2),
-             (SQUARE_SIZE * BOARD_SIZE * scale) + (BOARD_OUTLINE_THICKNESS * 2)))
+            ((SQUARE_SIZE * BOARD_SIZE * GameSurface.get_scale()) + (BOARD_OUTLINE_THICKNESS * 2),
+             (SQUARE_SIZE * BOARD_SIZE * GameSurface.get_scale()) + (BOARD_OUTLINE_THICKNESS * 2)))
 
     @staticmethod
-    def create_board_grid(side: Side, scale: float) -> list[BoardSquare]:
+    def create_board_grid(side: Side) -> list[BoardSquare]:
         grid = []
-        size = pygame.math.Vector2(SQUARE_SIZE * scale)
+        size = pygame.math.Vector2(SQUARE_SIZE * GameSurface.get_scale())
         outline_thickness = pygame.math.Vector2(BOARD_OUTLINE_THICKNESS)
         for index in BoardSquare.get_board_squares_index(side):
             pos = pygame.math.Vector2(index.col * size.x, index.row * size.y)
@@ -93,8 +93,8 @@ class Board:
         return grid
 
     @staticmethod
-    def create_board_surface(board_squares: list[BoardSquare], scale: float) -> pygame.surface.Surface:
-        board_surface = pygame.surface.Surface(Board.calculate_board_rect(scale).size)
+    def create_board_surface(board_squares: list[BoardSquare]) -> pygame.surface.Surface:
+        board_surface = pygame.surface.Surface(Board.calculate_board_rect().size)
         board_surface.fill(AssetManager.get_theme().light_color)
         counter = 0
         for board_square in board_squares:
@@ -108,22 +108,20 @@ class Board:
                 counter += 1
 
             board_surface.blit(surface, board_square.rect.topleft)
+
         return board_surface
 
-    def __init__(self, side: Side, scale: float):
-        self.grid: list[BoardSquare] = Board.create_board_grid(side, scale)
-        self.surface: pygame.surface.Surface = Board.create_board_surface(self.grid, scale)
-        if side is Side.BLACK:
-            self.surface = pygame.transform.flip(self.surface, True, True)
+    def __init__(self, side: Side):
+        self.grid: list[BoardSquare] = Board.create_board_grid(side)
+        self.surface: pygame.surface.Surface = Board.create_board_surface(self.grid)
+
         self.rect: pygame.rect.Rect = self.surface.get_rect()
 
     def get_rect(self) -> pygame.rect.Rect:
         return self.rect
 
-    def reload_theme(self, side: Side, scale: float) -> None:
-        self.surface = Board.create_board_surface(self.grid, scale)
-        if side is Side.BLACK:
-            self.surface = pygame.transform.flip(self.surface, True, True)
+    def reload_theme(self) -> None:
+        self.surface = Board.create_board_surface(self.grid)
 
     def reset_picked_up(self) -> None:
         for sqr in self.grid: sqr.picked_up = False
