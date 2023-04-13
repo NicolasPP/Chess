@@ -15,26 +15,31 @@ class TimerRects(typing.NamedTuple):
 
 
 class TimerGui:
-    pygame.font.init()
-    font = pygame.font.Font(FIVE_FONT_FILE, int(GameSurface.get_relative_size(TIMER_FONT_SIZE)))
 
     @staticmethod
-    def calculate_timer_rects(scale: float) -> TimerRects:
+    def calculate_timer_rects() -> TimerRects:
         info = ChessTimer.format_seconds(0, True)
         default_pos: tuple[int, int] = 0, 0
-        timer = pygame.rect.Rect(default_pos, TimerGui.font.size(info))
-        spacing = pygame.rect.Rect(default_pos, (OPP_TIMER_SPACING * scale, OPP_TIMER_SPACING * scale))
+        timer = pygame.rect.Rect(default_pos, TimerGui.get_font().size(info))
+        spacing = pygame.rect.Rect(
+            default_pos,
+            (OPP_TIMER_SPACING * GameSurface.get_scale(), OPP_TIMER_SPACING * GameSurface.get_scale())
+        )
         return TimerRects(timer, spacing)
 
-    def __init__(self, match_time: float, board_rect: pygame.rect.Rect, scale: float) -> None:
+    @staticmethod
+    def get_font() -> pygame.font.Font:
+        return pygame.font.Font(FIVE_FONT_FILE, int(GameSurface.get_relative_size(TIMER_FONT_SIZE)))
+
+    def __init__(self, match_time: float, board_rect: pygame.rect.Rect) -> None:
         self.own_timer: ChessTimer = ChessTimer(match_time)
         self.opponents_timer: ChessTimer = ChessTimer(match_time)
         self.board_rect: pygame.rect.Rect = board_rect
-        self.pos_offset: pygame.math.Vector2 = pygame.math.Vector2(0, (X_AXIS_HEIGHT * scale))
-        self.own_pos, self.opponents_pos = self.calculate_timers_pos(scale)
+        self.pos_offset: pygame.math.Vector2 = pygame.math.Vector2(0, (X_AXIS_HEIGHT * GameSurface.get_scale()))
+        self.own_pos, self.opponents_pos = self.calculate_timers_pos(GameSurface.get_scale())
 
     def calculate_timers_pos(self, scale: float) -> tuple[pygame.math.Vector2, pygame.math.Vector2]:
-        text_width, text_height = TimerGui.font.size(ChessTimer.format_seconds(650, True))
+        text_width, text_height = TimerGui.get_font().size(ChessTimer.format_seconds(650, True))
 
         own_rect = pygame.rect.Rect(0, 0, text_width, text_height)
         opp_rect = pygame.rect.Rect(0, 0, text_width, text_height)
@@ -46,8 +51,8 @@ class TimerGui:
             pygame.math.Vector2(opp_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * scale)
 
     def render(self) -> None:
-        self.own_timer.render(self.own_pos, TimerGui.font)
-        self.opponents_timer.render(self.opponents_pos, TimerGui.font, True)
+        self.own_timer.render(self.own_pos, TimerGui.get_font())
+        self.opponents_timer.render(self.opponents_pos, TimerGui.get_font(), True)
 
     def tick(self, delta_time: float) -> None:
         self.own_timer.tick(delta_time)
