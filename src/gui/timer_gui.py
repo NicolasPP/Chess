@@ -15,7 +15,7 @@ class TimerRects(typing.NamedTuple):
 
 class TimerGui:
     pygame.font.init()
-    font = pygame.font.Font(FIVE_FONT_FILE, int((TIMER_FONT_SIZE * SCALE) / DEFAULT_FONT_SCALE))
+    font = pygame.font.Font(FIVE_FONT_FILE, int((TIMER_FONT_SIZE * SCALE) / DEFAULT_SCALE))
 
     @staticmethod
     def calculate_timer_rects(scale: float) -> TimerRects:
