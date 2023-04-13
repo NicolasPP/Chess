@@ -2,14 +2,14 @@
 AVAILABLE_ALPHA: int = 100
 GAME_OVER_ALPHA: int = 100
 HOVER_ALPHA: int = 70
-YES_OR_NO_BG_ALPHA: int = 100
+VERIFY_BG_ALPHA: int = 100
 OPAQUE: int = 255
 
 # -- Size --
 WINDOW_SIZE: tuple[int, int] = 600, 600
-YES_OR_NO_BG_SIZE: tuple[int, int] = 250, 100
-YES_OR_NO_SPACING: int = 5
-YES_OR_NO_FONT_SIZE: int = 18
+VERIFY_BG_SIZE: tuple[int, int] = 250, 100
+VERIFY_SPACING: int = 5
+VERIFY_FONT_SIZE: int = 18
 SCALE: float = 3.5
 AVAILABLE_MOVE_SCALE: float = 1 / 3
 BOARD_SIZE: int = 8
@@ -33,15 +33,15 @@ X_AXIS_HEIGHT: int = 8
 Y_AXIS_WIDTH: int = 8
 OPP_TIMER_SPACING:  int = 4
 AXIS_FONT_SIZE: int = 25
-DEFAULT_FONT_SCALE: float = 3.5
+DEFAULT_SCALE: float = 3.5
 GAME_SURFACE_SPACING: int = 50
 
 # -- Colors --
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = (76, 155, 87)
 PIECE_BG: tuple[int, int, int] = (0, 0, 0)
 GAME_OVER_COLOR: tuple[int, int, int] = (255, 255, 255)
-YES_OR_NO_BG_COLOR: tuple[int, int, int] = (43, 45, 48)
-YES_NO_FONT_COLOR: tuple[int, int, int] = (224, 175, 105)
+VERIFY_BG_COLOR: tuple[int, int, int] = (43, 45, 48)
+VERIFY_FONT_COLOR: tuple[int, int, int] = (224, 175, 105)
 
 PLAIN1_LIGHT: tuple[int, int, int] = (234, 240, 217)
 PLAIN1_DARK: tuple[int, int, int] = (89, 96, 111)
