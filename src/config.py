@@ -7,7 +7,8 @@ OPAQUE: int = 255
 
 # -- Size --
 WINDOW_SIZE: tuple[int, int] = 600, 600
-VERIFY_BG_SIZE: tuple[int, int] = 250, 100
+VERIFY_BG_WIDTH: int = 250
+VERIFY_BG_HEIGHT: int = 100
 VERIFY_SPACING: int = 5
 VERIFY_FONT_SIZE: int = 18
 SCALE: float = 3.5
