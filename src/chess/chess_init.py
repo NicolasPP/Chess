@@ -6,10 +6,8 @@ from chess.asset.asset_manager import AssetManager
 from gui.board_axis_gui import BoardAxisGui, AxisRects
 from gui.end_game_gui import EndGameGui, EndGameRects
 from chess.game_surface import GameSurface
-
-from chess.board import Board
 from gui.timer_gui import TimerGui, TimerRects
-
+from chess.board.chess_board import Board
 from config import GAME_SURFACE_SPACING
 
 

@@ -6,7 +6,7 @@ import pygame
 import click
 
 from chess.match import Match
-from chess.player import Player, process_command_local, State
+from chess.chess_player import Player, process_command_local, State
 from chess.piece_movement import Side
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme
 from chess.chess_timer import DefaultConfigs, TimerConfig

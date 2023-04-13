@@ -5,7 +5,8 @@ import pygame
 
 from chess.asset.asset_manager import AssetManager
 from chess.piece_movement import Side, get_available_moves, is_king_safe
-from chess.board import Board, BoardSquare
+from chess.board.chess_tile import BoardTile
+from chess.board.chess_board import Board
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
 from chess.asset.chess_assets import PieceSetAsset
 from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
@@ -99,7 +100,7 @@ class Player:
         if self.state is not State.DROP_PIECE: return
         self.end_game_gui.offer_draw.set_hover(True)
         self.end_game_gui.resign.set_hover(True)
-        dest_board_square = self.board.get_collided_board_square(self.game_offset)
+        dest_board_square = self.board.get_collided_tile(self.game_offset)
         from_board_square = self.board.get_picked_up()
 
         from_coordinates = from_board_square.algebraic_notation.data.coordinates
@@ -149,7 +150,7 @@ class Player:
         if self.state is State.PICKING_PROMOTION:
             self.handle_pick_promotion(local, network)
         elif self.state is State.PICK_PIECE:
-            board_square = self.board.get_collided_board_square(self.game_offset)
+            board_square = self.board.get_collided_tile(self.game_offset)
             if not board_square: return
             if board_square.fen_val == FenChars.BLANK_PIECE.value: return
             self.board.set_picked_up(board_square)
@@ -194,7 +195,7 @@ class Player:
             mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
             if not rect.collidepoint(mouse_pos.x, mouse_pos.y): continue
             from_board_square = self.board.get_picked_up()
-            dest_board_square = self.board.get_collided_board_square(self.game_offset, self.prev_left_mouse_up)
+            dest_board_square = self.board.get_collided_tile(self.game_offset, self.prev_left_mouse_up)
             if dest_board_square is None or from_board_square is None: continue
             from_coordinates = from_board_square.algebraic_notation.data.coordinates
             dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
@@ -391,7 +392,7 @@ def process_command_local(match_fen: Fen, *players: Player) -> None:
     process_server_command(command, match_fen, *players, local=True)
 
 
-def update_available_moves(board_square: BoardSquare, match_fen: Fen,
+def update_available_moves(board_square: BoardTile, match_fen: Fen,
                            player_side: Side) -> None:
     is_black_and_lower = player_side is Side.BLACK and board_square.fen_val.islower()
     is_white_and_upper = player_side is Side.WHITE and board_square.fen_val.isupper()
@@ -406,8 +407,8 @@ def update_available_moves(board_square: BoardSquare, match_fen: Fen,
     )
 
 
-def is_pawn_promotion(from_board_square: BoardSquare,
-                      dest_board_square: BoardSquare, fen: Fen) -> bool:
+def is_pawn_promotion(from_board_square: BoardTile,
+                      dest_board_square: BoardTile, fen: Fen) -> bool:
     pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(fen.is_white_turn())
     rank = '8' if fen.is_white_turn() else '1'
     from_index = from_board_square.algebraic_notation.data.index

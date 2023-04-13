@@ -7,7 +7,7 @@ import time
 import click
 import pygame
 
-from chess.player import process_server_command, Player
+from chess.chess_player import process_server_command, Player
 from chess.notation.forsyth_edwards_notation import Fen
 from chess.network.command_manager import CommandManager, Command
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme
