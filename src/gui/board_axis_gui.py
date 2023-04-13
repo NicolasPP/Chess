@@ -28,7 +28,6 @@ class AxisRects(typing.NamedTuple):
     y_axis: pygame.rect.Rect
 
 
-# FIXME: Store axis values surfaces better, so I can highlight which col and row the player in hovering over
 class BoardAxisGui:
 
     @staticmethod
