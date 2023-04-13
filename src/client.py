@@ -10,7 +10,7 @@ import pygame
 from chess.player import process_server_command, Player
 from chess.notation.forsyth_edwards_notation import Fen
 from chess.network.command_manager import CommandManager, Command
-from chess.asset.chess_assets import PieceSetAssets, Themes
+from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme
 from chess.network.chess_network import ChessNetwork
 from chess.piece_movement import Side
 from chess_logging import set_up_logging
@@ -54,7 +54,6 @@ def get_player(init_info: Command, game_offset: pygame.rect.Rect) -> Player:
     player = Player(
         side=player_side,
         piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
-        scale=SCALE,
         time_left=float(time_left),
         game_offset=game_offset
     )
@@ -68,9 +67,8 @@ def set_delta_time() -> None:
     prev_time = now
 
 
-def run_main_loop(server_ip: str) -> None:
-    theme = random.choice((Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4))
-    init_chess(theme, SCALE)
+def run_main_loop(server_ip: str, theme: ChessTheme, scale: float) -> None:
+    init_chess(theme, scale)
     center = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
 
     network = ChessNetwork(server_ip)
@@ -104,8 +102,10 @@ def run_main_loop(server_ip: str) -> None:
 
 @click.command()
 @click.option('--server_ip', default='127.0.0.1', help='set the server ip address default = 127.0.0.1')
-def start_client(server_ip: str) -> None:
-    run_main_loop(server_ip)
+@click.option('--scale', default=3.5, help='size of chess game, lower than 3.5 will cause the fonts to be unclear')
+@click.option('--theme_id', default=1, help='game theme, possible ids (1 - 4) and (-1 for random theme)')
+def start_client(server_ip: str, scale: float, theme_id: int) -> None:
+    run_main_loop(server_ip, Themes.get_theme(theme_id), scale)
 
 
 if __name__ == '__main__':
