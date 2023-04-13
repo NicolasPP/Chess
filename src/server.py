@@ -92,6 +92,10 @@ def client_listener(client_socket: skt.socket, server: Server):
                 logger.debug("connection error: %s", error)
                 break
 
+            if not data:
+                logger.debug("invalid data")
+                break
+
             commands: list[Command] = []
             move_tags: list[MoveTags] = []
 
