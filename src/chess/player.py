@@ -14,7 +14,7 @@ from gui.timer_gui import TimerGui, TimerRects
 from gui.end_game_gui import EndGameGui
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
-from gui.yes_or_gui import YesOrNoGui
+from gui.verify_gui import VerifyGui
 from gui.board_axis_gui import BoardAxisGui
 from chess.game_surface import GameSurface
 
@@ -59,7 +59,7 @@ class Player:
         self.captured_gui: CapturedGui = CapturedGui('', self.board.get_rect(), scale)
         self.timer_gui: TimerGui = TimerGui(time_left, self.board.get_rect())
         self.end_game_gui: EndGameGui = EndGameGui(self.board.get_rect())
-        self.yes_or_no_gui: YesOrNoGui = YesOrNoGui(self.board.get_rect())
+        self.verify_gui: VerifyGui = VerifyGui(self.board.get_rect())
         self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.get_rect(), self.side, scale)
 
     def parse_input(
@@ -86,13 +86,13 @@ class Player:
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             self.state = State.DRAW_DOUBLE_CHECK
-            self.yes_or_no_gui.set_action_label(DRAW_DOUBLE_CHECK_LABEL)
+            self.verify_gui.set_action_label(DRAW_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
         elif self.end_game_gui.resign.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             self.state = State.RESIGN_DOUBLE_CHECK
-            self.yes_or_no_gui.set_action_label(RESIGN_DOUBLE_CHECK_LABEL)
+            self.verify_gui.set_action_label(RESIGN_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
@@ -158,18 +158,18 @@ class Player:
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
         elif self.state is State.RESPOND_DRAW:
-            self.handle_yes_or_no_response()
-            if self.yes_or_no_gui.result is None: return
+            self.verify_gui.handle_response(self.game_offset)
+            if self.verify_gui.result is None: return
             draw_response_info: dict[str, str] = {
-                CommandManager.draw_offer_result: str(int(self.yes_or_no_gui.result))
+                CommandManager.draw_offer_result: str(int(self.verify_gui.result))
             }
             draw_response = CommandManager.get(ClientCommand.DRAW_RESPONSE, draw_response_info)
             send_command(local, network, draw_response)
-            self.yes_or_no_gui.set_result(None)
+            self.verify_gui.set_result(None)
         elif self.state is State.DRAW_DOUBLE_CHECK or self.state is State.RESIGN_DOUBLE_CHECK:
-            self.handle_yes_or_no_response()
-            if self.yes_or_no_gui.result is None: return
-            if not self.yes_or_no_gui.result:
+            self.verify_gui.handle_response(self.game_offset)
+            if self.verify_gui.result is None: return
+            if not self.verify_gui.result:
                 self.state = State.PICK_PIECE
                 self.set_require_render(True)
                 self.end_game_gui.resign.set_hover(True)
@@ -187,7 +187,7 @@ class Player:
                 resign = CommandManager.get(ClientCommand.RESIGN, resign_info)
                 send_command(local, network, resign)
 
-            self.yes_or_no_gui.set_result(None)
+            self.verify_gui.set_result(None)
             self.set_require_render(True)
 
     def handle_pick_promotion(self, local: bool, network: ChessNetwork | None) -> None:
@@ -236,19 +236,8 @@ class Player:
         self.end_game_gui.resign.set_hover(False)
         if self.side.name != side:
             self.state = State.RESPOND_DRAW
-            self.yes_or_no_gui.set_action_label('')
-            self.yes_or_no_gui.set_description_label(RESPOND_DRAW_LABEL)
-
-    def handle_yes_or_no_response(self) -> None:
-        mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
-        if self.yes_or_no_gui.yes.rect.collidepoint(mouse_pos.x, mouse_pos.y):
-            self.yes_or_no_gui.set_result(True)
-
-        elif self.yes_or_no_gui.no.rect.collidepoint(mouse_pos.x, mouse_pos.y):
-            self.yes_or_no_gui.set_result(False)
-
-        else:
-            self.yes_or_no_gui.set_result(False)
+            self.verify_gui.set_action_label('')
+            self.verify_gui.set_description_label(RESPOND_DRAW_LABEL)
 
     def continue_game(self) -> None:
         self.end_game_gui.offer_draw.set_hover(True)
@@ -281,7 +270,7 @@ class Player:
         if self.state is State.RESPOND_DRAW or \
                 self.state is State.DRAW_DOUBLE_CHECK or \
                 self.state is State.RESIGN_DOUBLE_CHECK:
-            self.yes_or_no_gui.render(pygame.math.Vector2(self.game_offset.topleft))
+            self.verify_gui.render(pygame.math.Vector2(self.game_offset.topleft))
 
         if self.state is State.OFFERED_DRAW: pass
 
