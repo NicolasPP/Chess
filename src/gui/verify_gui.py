@@ -9,20 +9,50 @@ from config import *
 class VerifyGui:
     def __init__(self, board_rect: pygame.rect.Rect):
         self.board_rect: pygame.rect.Rect = board_rect
-        self.bg_surface: pygame.surface.Surface = pygame.surface.Surface(VERIFY_BG_SIZE)
+        self.bg_surface: pygame.surface.Surface = pygame.surface.Surface(
+            (GameSurface.get_relative_size(VERIFY_BG_WIDTH), GameSurface.get_relative_size(VERIFY_BG_HEIGHT))
+        )
         self.bg_surface.fill(VERIFY_BG_COLOR)
         self.bg_surface.set_alpha(VERIFY_BG_ALPHA)
         self.bg_rect: pygame.rect.Rect = self.bg_surface.get_rect(center=board_rect.center)
 
-        self.yes: ButtonGui = ButtonGui(DRAW_BUTTON_WIDTH, DRAW_BUTTON_HEIGHT, VERIFY_BG_COLOR)
-        self.no: ButtonGui = ButtonGui(RESIGN_BUTTON_WIDTH, RESIGN_BUTTON_HEIGHT, VERIFY_BG_COLOR)
-        self.description: ButtonGui = ButtonGui(DESCRIPTION_BUTTON_WIDTH, DESCRIPTION_BUTTON_HEIGHT, VERIFY_BG_COLOR)
-        self.action: ButtonGui = ButtonGui(DESCRIPTION_BUTTON_WIDTH, DESCRIPTION_BUTTON_HEIGHT, VERIFY_BG_COLOR)
+        self.yes: ButtonGui = ButtonGui(
+            int(GameSurface.get_relative_size(DRAW_BUTTON_WIDTH)),
+            int(GameSurface.get_relative_size(DRAW_BUTTON_HEIGHT)),
+            VERIFY_BG_COLOR)
+        self.no: ButtonGui = ButtonGui(
+            int(GameSurface.get_relative_size(RESIGN_BUTTON_WIDTH)),
+            int(GameSurface.get_relative_size(RESIGN_BUTTON_HEIGHT)),
+            VERIFY_BG_COLOR)
+        self.description: ButtonGui = ButtonGui(
+            int(GameSurface.get_relative_size(DESCRIPTION_BUTTON_WIDTH)),
+            int(GameSurface.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
+            VERIFY_BG_COLOR)
+        self.action: ButtonGui = ButtonGui(
+            int(GameSurface.get_relative_size(DESCRIPTION_BUTTON_WIDTH)),
+            int(GameSurface.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
+            VERIFY_BG_COLOR)
 
-        self.yes.set_font(FONT_FILE, VERIFY_FONT_SIZE, False, VERIFY_FONT_COLOR)
-        self.no.set_font(FONT_FILE, VERIFY_FONT_SIZE, False, VERIFY_FONT_COLOR)
-        self.description.set_font(FONT_FILE, DESCRIPTION_FONT_SIZE, False, VERIFY_FONT_COLOR)
-        self.action.set_font(FONT_FILE, DESCRIPTION_FONT_SIZE, False, VERIFY_FONT_COLOR)
+        self.yes.set_font(
+            FONT_FILE,
+            int(GameSurface.get_relative_size(VERIFY_FONT_SIZE)),
+            False,
+            VERIFY_FONT_COLOR)
+        self.no.set_font(
+            FONT_FILE,
+            int(GameSurface.get_relative_size(VERIFY_FONT_SIZE)),
+            False,
+            VERIFY_FONT_COLOR)
+        self.description.set_font(
+            FONT_FILE,
+            int(GameSurface.get_relative_size(DESCRIPTION_FONT_SIZE)),
+            False,
+            VERIFY_FONT_COLOR)
+        self.action.set_font(
+            FONT_FILE,
+            int(GameSurface.get_relative_size(DESCRIPTION_FONT_SIZE)),
+            False,
+            VERIFY_FONT_COLOR)
 
         self.yes.set_label(YES_LABEL)
         self.no.set_label(NO_LABEL)
