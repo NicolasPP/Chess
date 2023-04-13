@@ -7,7 +7,7 @@ from chess.network.chess_network import Net
 from chess.network.command_manager import CommandManager, Command, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data
 from chess.movement.piece_movement import PieceMovement, Side
-from chess_logging import set_up_logging
+from chess.chess_logging import set_up_logging
 from config import *
 
 '''

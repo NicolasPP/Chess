@@ -13,7 +13,7 @@ from chess.network.command_manager import CommandManager, Command
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme
 from chess.network.chess_network import ChessNetwork
 from chess.movement.piece_movement import Side
-from chess_logging import set_up_logging
+from chess.chess_logging import set_up_logging
 from chess.chess_init import init_chess
 from chess.game.game_surface import GameSurface
 
