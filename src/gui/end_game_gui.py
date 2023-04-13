@@ -5,7 +5,7 @@ import pygame
 from chess.asset.asset_manager import AssetManager
 from gui.game_over_gui import GameOverGui
 from gui.button_gui import ButtonGui
-from chess.game_surface import GameSurface
+from chess.game.game_size import GameSize
 
 from config import *
 
@@ -21,10 +21,10 @@ class EndGameGui:
         default_pos: tuple[int, int] = 0, 0
         resign_rect = pygame.rect.Rect(
             default_pos,
-            (GameSurface.get_relative_size(RESIGN_BUTTON_WIDTH), GameSurface.get_relative_size(RESIGN_BUTTON_HEIGHT)))
+            (GameSize.get_relative_size(RESIGN_BUTTON_WIDTH), GameSize.get_relative_size(RESIGN_BUTTON_HEIGHT)))
         draw_rect = pygame.rect.Rect(
             default_pos,
-            (GameSurface.get_relative_size(DRAW_BUTTON_WIDTH), GameSurface.get_relative_size(DRAW_BUTTON_HEIGHT)))
+            (GameSize.get_relative_size(DRAW_BUTTON_WIDTH), GameSize.get_relative_size(DRAW_BUTTON_HEIGHT)))
         return EndGameRects(resign_rect, draw_rect)
 
     def __init__(self, board_rect: pygame.rect.Rect):
@@ -41,11 +41,11 @@ class EndGameGui:
     def button_init(self) -> None:
         self.offer_draw.set_font(
             FONT_FILE,
-            int(GameSurface.get_relative_size(OFFER_DRAW_FONT_SIZE)), False, AssetManager.get_theme().light_color
+            int(GameSize.get_relative_size(OFFER_DRAW_FONT_SIZE)), False, AssetManager.get_theme().light_color
         )
         self.resign.set_font(
             FONT_FILE,
-            int(GameSurface.get_relative_size(RESIGN_FONT_SIZE)), False, AssetManager.get_theme().light_color
+            int(GameSize.get_relative_size(RESIGN_FONT_SIZE)), False, AssetManager.get_theme().light_color
         )
         self.offer_draw.set_label(OFFER_DRAW_LABEL)
         self.resign.set_label(RESIGN_LABEL)

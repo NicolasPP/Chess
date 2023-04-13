@@ -3,7 +3,7 @@ import dataclasses
 import pygame
 
 from chess.asset.asset_manager import AssetManager
-from chess.game_surface import GameSurface
+from chess.game.game_surface import GameSurface
 
 
 @dataclasses.dataclass

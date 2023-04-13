@@ -1,77 +1,61 @@
 import pygame
 
-from chess.asset.asset_manager import AssetManager
-from config import *
+from config import DEFAULT_SCALE
 
 
-class GameSurface:
-    surface: pygame.surface.Surface | None = None
+class GameSize:
     width: int | None = None
     height: int | None = None
     scale: float | None = None
 
     @staticmethod
-    def get() -> pygame.surface.Surface:
-        if GameSurface.surface is None:
-            raise Exception('surface not created')
-
-        return GameSurface.surface
-
-    @staticmethod
-    def create_surface() -> None:
-        GameSurface.surface = pygame.surface.Surface(
-            (GameSurface.get_width(), GameSurface.get_height())
-        )
-        GameSurface.surface.fill(AssetManager.get_theme().dark_color)
-
-    @staticmethod
     def get_width() -> int:
-        if GameSurface.width is None:
+        if GameSize.width is None:
             raise Exception('width has not been set')
-        return GameSurface.width
+        return GameSize.width
 
     @staticmethod
     def get_height() -> int:
-        if GameSurface.height is None:
+        if GameSize.height is None:
             raise Exception('height has not been set')
-        return GameSurface.height
+        return GameSize.height
 
     @staticmethod
     def set_height(height: int) -> None:
         if height == 0: raise Exception('height cannot be 0')
         if height < 0: raise Exception('height cannot be smaller than 0')
-        GameSurface.height = height
+        GameSize.height = height
 
     @staticmethod
     def set_width(width: int) -> None:
         if width == 0: raise Exception('width cannot be 0')
         if width < 0: raise Exception('width cannot be smaller than 0')
-        GameSurface.width = width
+        GameSize.width = width
 
     @staticmethod
     def add_rects_height(*rects: pygame.rect.Rect) -> None:
         for rect in rects:
-            if GameSurface.height is None:
-                GameSurface.set_height(rect.height)
+            if GameSize.height is None:
+                GameSize.set_height(rect.height)
             else:
-                GameSurface.set_height(GameSurface.get_height() + rect.height)
+                GameSize.set_height(GameSize.get_height() + rect.height)
 
     @staticmethod
     def add_rects_width(*rects: pygame.rect.Rect) -> None:
         for rect in rects:
-            if GameSurface.width is None:
-                GameSurface.set_width(rect.width)
+            if GameSize.width is None:
+                GameSize.set_width(rect.width)
             else:
-                GameSurface.set_width(GameSurface.get_width() + rect.width)
+                GameSize.set_width(GameSize.get_width() + rect.width)
 
     @staticmethod
     def get_scale() -> float:
-        if GameSurface.scale is None: raise Exception('scale not loaded')
-        return GameSurface.scale
+        if GameSize.scale is None: raise Exception('scale not loaded')
+        return GameSize.scale
 
     @staticmethod
     def load_scale(scale: float) -> None:
-        GameSurface.scale = scale
+        GameSize.scale = scale
 
     @staticmethod
     def get_relative_size(size: int | float) -> float:
@@ -80,4 +64,4 @@ class GameSurface:
         Instead of implementing a smart way to calculate the size according to the given scale,
         I instead divide it by the default_scale which is 3.5 and then multiply by scale
         """
-        return (size * GameSurface.get_scale()) / DEFAULT_SCALE
+        return (size * GameSize.get_scale()) / DEFAULT_SCALE

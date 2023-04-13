@@ -1,5 +1,5 @@
 import socket as skt
-from chess.piece_movement import Side
+from chess.movement.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import FenData, validate_fen_data
 from chess.network.command_manager import CommandManager, Command
 

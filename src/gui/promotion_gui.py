@@ -1,8 +1,8 @@
 import pygame
 
-from chess.piece_movement import Side
+from chess.movement.piece_movement import Side
 from chess.asset.asset_manager import AssetManager
-from chess.game_surface import GameSurface
+from chess.game.game_surface import GameSurface
 
 
 class PromotionGui:

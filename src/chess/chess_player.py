@@ -4,7 +4,7 @@ import datetime
 import pygame
 
 from chess.asset.asset_manager import AssetManager
-from chess.piece_movement import Side, get_available_moves, is_king_safe
+from chess.movement.piece_movement import Side, get_available_moves, is_king_safe
 from chess.board.chess_tile import BoardTile
 from chess.board.chess_board import Board
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
@@ -17,7 +17,8 @@ from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
 from gui.verify_gui import VerifyGui
 from gui.board_axis_gui import BoardAxisGui
-from chess.game_surface import GameSurface
+from chess.game.game_surface import GameSurface
+from chess.game.game_size import GameSize
 
 from config import *
 
@@ -38,7 +39,7 @@ class Player:
                  piece_set: PieceSetAsset,
                  time_left: float,
                  game_offset: pygame.rect.Rect):
-        AssetManager.load_pieces(piece_set, GameSurface.get_scale())
+        AssetManager.load_pieces(piece_set, GameSize.get_scale())
 
         self.game_offset = game_offset
         self.board: Board = Board(side)
@@ -333,7 +334,7 @@ class Player:
     def set_to_default_pos(self) -> None:
         timer_rects: TimerRects = TimerGui.calculate_timer_rects()
         self.board.get_rect().topleft = (
-            int(Y_AXIS_WIDTH * GameSurface.get_scale()),
+            int(Y_AXIS_WIDTH * GameSize.get_scale()),
             int(timer_rects.spacing.height + timer_rects.timer.height)
         )
 

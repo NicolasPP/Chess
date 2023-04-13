@@ -4,10 +4,10 @@ import typing
 import pygame
 
 from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.piece_movement import Side
+from chess.movement.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
-from chess.game_surface import GameSurface
+from chess.game.game_surface import GameSurface
 from config import *
 
 

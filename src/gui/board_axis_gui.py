@@ -1,9 +1,10 @@
 import pygame
 import typing
 
-from chess.piece_movement import Side
+from chess.movement.piece_movement import Side
 from chess.asset.asset_manager import AssetManager
-from chess.game_surface import GameSurface
+from chess.game.game_surface import GameSurface
+from chess.game.game_surface import GameSize
 from config import *
 
 
@@ -33,7 +34,7 @@ class BoardAxisGui:
     @staticmethod
     def calculate_axis_rects() -> AxisRects:
         default_pos: tuple[int, int] = 0, 0
-        scale = GameSurface.get_scale()
+        scale = GameSize.get_scale()
         x_axis_rect = pygame.rect.Rect(default_pos, (SQUARE_SIZE * scale * BOARD_SIZE, X_AXIS_HEIGHT * scale))
         y_axis_rect = pygame.rect.Rect(default_pos, (Y_AXIS_WIDTH * scale, SQUARE_SIZE * scale * BOARD_SIZE))
         return AxisRects(x_axis_rect, y_axis_rect)
@@ -51,7 +52,7 @@ class BoardAxisGui:
     def create_grids() -> AxisGrids:
         x_axis_grid: list[pygame.rect.Rect] = []
         current_pos: pygame.math.Vector2 = pygame.math.Vector2(0)
-        size = SQUARE_SIZE * GameSurface.get_scale(), SQUARE_SIZE * GameSurface.get_scale()
+        size = SQUARE_SIZE * GameSize.get_scale(), SQUARE_SIZE * GameSize.get_scale()
         for col in range(BOARD_SIZE):
             current_pos.x = col * size[0]
             x_axis_grid.append(pygame.rect.Rect((current_pos.x, current_pos.y), size))
@@ -84,7 +85,7 @@ class BoardAxisGui:
     def render_values(self) -> None:
         anti_alias: bool = False
         font_color: tuple[int, int, int] = 255, 255, 255
-        font = pygame.font.Font(FONT_FILE, int(GameSurface.get_relative_size(AXIS_FONT_SIZE)))
+        font = pygame.font.Font(FONT_FILE, int(GameSize.get_relative_size(AXIS_FONT_SIZE)))
         letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         if self.side is Side.BLACK: letters = letters[::-1]
         for rect, letter in zip(self.axis_grids.x_axis_grid, letters):

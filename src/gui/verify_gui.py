@@ -1,8 +1,8 @@
 import pygame
 
 from gui.button_gui import ButtonGui
-from chess.game_surface import GameSurface
-
+from chess.game.game_surface import GameSurface
+from chess.game.game_size import GameSize
 from config import *
 
 
@@ -10,47 +10,47 @@ class VerifyGui:
     def __init__(self, board_rect: pygame.rect.Rect):
         self.board_rect: pygame.rect.Rect = board_rect
         self.bg_surface: pygame.surface.Surface = pygame.surface.Surface(
-            (GameSurface.get_relative_size(VERIFY_BG_WIDTH), GameSurface.get_relative_size(VERIFY_BG_HEIGHT))
+            (GameSize.get_relative_size(VERIFY_BG_WIDTH), GameSize.get_relative_size(VERIFY_BG_HEIGHT))
         )
         self.bg_surface.fill(VERIFY_BG_COLOR)
         self.bg_surface.set_alpha(VERIFY_BG_ALPHA)
         self.bg_rect: pygame.rect.Rect = self.bg_surface.get_rect(center=board_rect.center)
 
         self.yes: ButtonGui = ButtonGui(
-            int(GameSurface.get_relative_size(DRAW_BUTTON_WIDTH)),
-            int(GameSurface.get_relative_size(DRAW_BUTTON_HEIGHT)),
+            int(GameSize.get_relative_size(DRAW_BUTTON_WIDTH)),
+            int(GameSize.get_relative_size(DRAW_BUTTON_HEIGHT)),
             VERIFY_BG_COLOR)
         self.no: ButtonGui = ButtonGui(
-            int(GameSurface.get_relative_size(RESIGN_BUTTON_WIDTH)),
-            int(GameSurface.get_relative_size(RESIGN_BUTTON_HEIGHT)),
+            int(GameSize.get_relative_size(RESIGN_BUTTON_WIDTH)),
+            int(GameSize.get_relative_size(RESIGN_BUTTON_HEIGHT)),
             VERIFY_BG_COLOR)
         self.description: ButtonGui = ButtonGui(
-            int(GameSurface.get_relative_size(DESCRIPTION_BUTTON_WIDTH)),
-            int(GameSurface.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
+            int(GameSize.get_relative_size(DESCRIPTION_BUTTON_WIDTH)),
+            int(GameSize.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
             VERIFY_BG_COLOR)
         self.action: ButtonGui = ButtonGui(
-            int(GameSurface.get_relative_size(DESCRIPTION_BUTTON_WIDTH)),
-            int(GameSurface.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
+            int(GameSize.get_relative_size(DESCRIPTION_BUTTON_WIDTH)),
+            int(GameSize.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
             VERIFY_BG_COLOR)
 
         self.yes.set_font(
             FONT_FILE,
-            int(GameSurface.get_relative_size(VERIFY_FONT_SIZE)),
+            int(GameSize.get_relative_size(VERIFY_FONT_SIZE)),
             False,
             VERIFY_FONT_COLOR)
         self.no.set_font(
             FONT_FILE,
-            int(GameSurface.get_relative_size(VERIFY_FONT_SIZE)),
+            int(GameSize.get_relative_size(VERIFY_FONT_SIZE)),
             False,
             VERIFY_FONT_COLOR)
         self.description.set_font(
             FONT_FILE,
-            int(GameSurface.get_relative_size(DESCRIPTION_FONT_SIZE)),
+            int(GameSize.get_relative_size(DESCRIPTION_FONT_SIZE)),
             False,
             VERIFY_FONT_COLOR)
         self.action.set_font(
             FONT_FILE,
-            int(GameSurface.get_relative_size(DESCRIPTION_FONT_SIZE)),
+            int(GameSize.get_relative_size(DESCRIPTION_FONT_SIZE)),
             False,
             VERIFY_FONT_COLOR)
 

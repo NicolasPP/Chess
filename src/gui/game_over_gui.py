@@ -1,6 +1,6 @@
 import pygame
 
-from chess.game_surface import GameSurface
+from chess.game.game_surface import GameSurface
 from config import GAME_OVER_ALPHA, GAME_OVER_COLOR, OPAQUE
 
 

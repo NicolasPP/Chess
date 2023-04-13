@@ -1,7 +1,7 @@
 import pygame
 import dataclasses
 
-from chess.game_surface import GameSurface
+from chess.game.game_surface import GameSurface
 from config import HOVER_ALPHA
 
 

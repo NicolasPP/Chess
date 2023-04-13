@@ -1,11 +1,12 @@
 import pygame
 
-from chess.piece_movement import PieceMovement
+from chess.movement.piece_movement import PieceMovement
 from chess.asset.chess_assets import ChessTheme
 from chess.asset.asset_manager import AssetManager
 from gui.board_axis_gui import BoardAxisGui, AxisRects
 from gui.end_game_gui import EndGameGui, EndGameRects
-from chess.game_surface import GameSurface
+from chess.game.game_surface import GameSurface
+from chess.game.game_size import GameSize
 from gui.timer_gui import TimerGui, TimerRects
 from chess.board.chess_board import Board
 from config import GAME_SURFACE_SPACING
@@ -16,7 +17,7 @@ def init_chess(theme: ChessTheme, scale: float) -> None:
 
     AssetManager.load_theme(theme)
     PieceMovement.load()
-    GameSurface.load_scale(scale)
+    GameSize.load_scale(scale)
 
     board_rect: pygame.rect.Rect = Board.calculate_board_rect()
     timer_rects: TimerRects = TimerGui.calculate_timer_rects()
@@ -30,7 +31,7 @@ def init_chess(theme: ChessTheme, scale: float) -> None:
     '''
     max_rect = end_game_rects.resign_rect \
         if end_game_rects.resign_rect.width >= end_game_rects.draw_rect.width else end_game_rects.draw_rect
-    GameSurface.add_rects_width(axis_rects.y_axis, board_rect, max_rect)
+    GameSize.add_rects_width(axis_rects.y_axis, board_rect, max_rect)
 
     '''
        -- height --
@@ -40,7 +41,7 @@ def init_chess(theme: ChessTheme, scale: float) -> None:
        x_axis
        timer
     '''
-    GameSurface.add_rects_height(
+    GameSize.add_rects_height(
         timer_rects.timer,
         timer_rects.spacing,
         board_rect,

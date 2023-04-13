@@ -2,11 +2,11 @@ import _thread as thread
 import socket as skt
 
 from chess.chess_timer import DefaultConfigs
-from chess.match import MoveTags, Match
+from chess.game.chess_match import MoveTags, Match
 from chess.network.chess_network import Net
 from chess.network.command_manager import CommandManager, Command, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data
-from chess.piece_movement import PieceMovement, Side
+from chess.movement.piece_movement import PieceMovement, Side
 from chess_logging import set_up_logging
 from config import *
 

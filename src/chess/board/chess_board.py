@@ -4,8 +4,9 @@ import pygame
 from chess.board.chess_tile import BoardTile
 from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
-from chess.piece_movement import Side
-from chess.game_surface import GameSurface
+from chess.movement.piece_movement import Side
+from chess.game.game_surface import GameSurface
+from chess.game.game_size import GameSize
 from config import *
 
 
@@ -15,13 +16,13 @@ class Board:
     def calculate_board_rect() -> pygame.rect.Rect:
         return pygame.rect.Rect(
             (0, 0),
-            ((SQUARE_SIZE * BOARD_SIZE * GameSurface.get_scale()) + (BOARD_OUTLINE_THICKNESS * 2),
-             (SQUARE_SIZE * BOARD_SIZE * GameSurface.get_scale()) + (BOARD_OUTLINE_THICKNESS * 2)))
+            ((SQUARE_SIZE * BOARD_SIZE * GameSize.get_scale()) + (BOARD_OUTLINE_THICKNESS * 2),
+             (SQUARE_SIZE * BOARD_SIZE * GameSize.get_scale()) + (BOARD_OUTLINE_THICKNESS * 2)))
 
     @staticmethod
     def create_board_grid(side: Side) -> list[BoardTile]:
         grid = []
-        size = pygame.math.Vector2(SQUARE_SIZE * GameSurface.get_scale())
+        size = pygame.math.Vector2(SQUARE_SIZE * GameSize.get_scale())
         outline_thickness = pygame.math.Vector2(BOARD_OUTLINE_THICKNESS)
         for index in BoardTile.get_board_tiles_index(side):
             pos = pygame.math.Vector2(index.col * size.x, index.row * size.y)
