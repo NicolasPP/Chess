@@ -1,4 +1,6 @@
 import dataclasses
+import random
+
 import pygame
 
 from config import *
@@ -33,6 +35,15 @@ class Themes:
     PLAIN2: ChessTheme = ChessTheme(PLAIN2_LIGHT, PLAIN2_DARK)
     PLAIN3: ChessTheme = ChessTheme(PLAIN3_LIGHT, PLAIN3_DARK)
     PLAIN4: ChessTheme = ChessTheme(PLAIN4_LIGHT, PLAIN4_DARK)
+
+    @staticmethod
+    def get_theme(theme_id: int) -> ChessTheme:
+        if theme_id == -1: return random.choice([Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4])
+        if theme_id == 1: return Themes.PLAIN1
+        if theme_id == 2: return Themes.PLAIN2
+        if theme_id == 3: return Themes.PLAIN3
+        if theme_id == 4: return Themes.PLAIN4
+        else: raise Exception(f'theme_id : {theme_id} is not a valid theme_id')
 
 
 def scale_surface(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
