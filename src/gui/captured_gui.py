@@ -3,7 +3,7 @@ import pygame
 from chess.asset.asset_manager import AssetManager
 from chess.piece_movement import Side
 from chess.notation.forsyth_edwards_notation import validate_fen_val
-from chess.asset.chess_assets import scale, PieceSetAssets
+from chess.asset.chess_assets import scale_surface, PieceSetAssets
 from chess.game_surface import GameSurface
 
 from config import *
@@ -14,17 +14,17 @@ class CapturedGui:
             self,
             captured_pieces: str,
             board_rect: pygame.rect.Rect,
-            base_scale_factor: float,
-            scale_factor: float = 1 / 3
+            scale: float,
+            captured_scale: float = 1 / 3
     ):
-        self.base_scale_factor = base_scale_factor
-        self.scale_factor = scale_factor
+        self.scale = scale
+        self.captured_scale = captured_scale
         self.board_rect = board_rect
         self.captured_pieces = captured_pieces
         self.pieces = self.copy_and_resize_pieces()
         for val in captured_pieces: validate_fen_val(val)
         self.white_cap_surface, self.black_cap_surface = self.create_captured_surfaces()
-        self.pos_offset: pygame.math.Vector2 = pygame.math.Vector2(0, (X_AXIS_HEIGHT * SCALE))
+        self.pos_offset: pygame.math.Vector2 = pygame.math.Vector2(0, (X_AXIS_HEIGHT * scale))
 
     def set_captured_pieces(self, new_cap_pieces) -> None:
         self.captured_pieces = new_cap_pieces
@@ -62,12 +62,12 @@ class CapturedGui:
     def copy_and_resize_pieces(self) -> dict[str, pygame.surface.Surface]:
         copy_pieces: dict[str, pygame.surface.Surface] = {}
         for fen_val, sprite in AssetManager.load_pieces_sprites(
-                PieceSetAssets.SIMPLE16x16, self.base_scale_factor).items():
-            copy_pieces[fen_val] = scale(sprite.surface, self.scale_factor)
+                PieceSetAssets.SIMPLE16x16, self.scale).items():
+            copy_pieces[fen_val] = scale_surface(sprite.surface, self.captured_scale)
         return copy_pieces
 
     def render(self, player_side: Side) -> None:
-        top_pos = pygame.math.Vector2(self.board_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * SCALE)
+        top_pos = pygame.math.Vector2(self.board_rect.topleft) - pygame.math.Vector2(0, OPP_TIMER_SPACING * self.scale)
         bottom_pos = pygame.math.Vector2(self.board_rect.bottomleft) + self.pos_offset
 
         if player_side is Side.WHITE:

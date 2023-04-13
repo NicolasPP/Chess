@@ -42,7 +42,7 @@ class Player:
 
         self.game_offset = game_offset
         self.board: Board = Board(side, scale)
-        self.set_to_default_pos()
+        self.set_to_default_pos(scale)
         self.side: Side = side
         self.state: State = State.PICK_PIECE
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
@@ -57,7 +57,7 @@ class Player:
 
         self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.get_rect())
         self.captured_gui: CapturedGui = CapturedGui('', self.board.get_rect(), scale)
-        self.timer_gui: TimerGui = TimerGui(time_left, self.board.get_rect())
+        self.timer_gui: TimerGui = TimerGui(time_left, self.board.get_rect(), scale)
         self.end_game_gui: EndGameGui = EndGameGui(self.board.get_rect())
         self.verify_gui: VerifyGui = VerifyGui(self.board.get_rect())
         self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.get_rect(), self.side, scale)
@@ -330,10 +330,10 @@ class Player:
         opposite_side = Side.WHITE if self.side is Side.BLACK else Side.BLACK
         return f"{opposite_side.name}s TURN"
 
-    def set_to_default_pos(self) -> None:
-        timer_rects: TimerRects = TimerGui.calculate_timer_rects(SCALE)
+    def set_to_default_pos(self, scale: float) -> None:
+        timer_rects: TimerRects = TimerGui.calculate_timer_rects(scale)
         self.board.get_rect().topleft = (
-            int(Y_AXIS_WIDTH * SCALE),
+            int(Y_AXIS_WIDTH * scale),
             int(timer_rects.spacing.height + timer_rects.timer.height)
         )
 
