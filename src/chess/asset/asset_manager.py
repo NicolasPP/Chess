@@ -14,7 +14,7 @@ class PieceInfo:
 class AssetManager:
     piece_sprites: dict[str, Sprite] = {}
     piece_asset_index: dict[str, int] = {}
-    theme: ChessTheme
+    theme: ChessTheme | None = None
 
     @staticmethod
     def load_pieces_sprites(piece_set: PieceSetAsset, scale: float) -> dict[str, Sprite]:
@@ -45,6 +45,11 @@ class AssetManager:
         AssetManager.theme = theme
 
     @staticmethod
+    def load(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> None:
+        AssetManager.load_theme(theme)
+        AssetManager.load_pieces(piece_set, scale)
+
+    @staticmethod
     def get_piece(fen_val: str) -> Sprite:
         sprite = AssetManager.piece_sprites.get(fen_val)
         if sprite is None:
@@ -53,4 +58,6 @@ class AssetManager:
 
     @staticmethod
     def get_theme() -> ChessTheme:
+        if AssetManager.theme is None:
+            raise Exception('theme is not loaded')
         return AssetManager.theme
