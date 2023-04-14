@@ -1,8 +1,11 @@
+from __future__ import annotations
 import _thread as thread
 import socket as skt
+import enum
+import typing
 
 from chess.chess_timer import DefaultConfigs
-from chess.game.chess_match import MoveTags, Match
+from chess.game.chess_match import MoveTags, Match, MatchResult
 from chess.network.chess_network import Net
 from chess.network.command_manager import CommandManager, Command, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data
@@ -19,6 +22,47 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 logger = set_up_logging(SERVER_NAME, SERVER_LOG_FILE)
 
 
+class ServerControlCommands(enum.Enum):
+    SHUT_DOWN = enum.auto()
+    END_GAME = enum.auto()
+
+    def get_one_word(self) -> str:
+        one_word: str = self.name
+        return one_word.replace("_", "")
+
+    @staticmethod
+    def get(name: str) -> ServerControlCommands | None:
+        command: ServerControlCommands | None = None
+        try:
+            command = ServerControlCommands[name]
+        finally:
+            return command
+
+    @staticmethod
+    def get_command_from_input(input_command: str) -> ServerControlCommands | None:
+        input_command = input_command.strip()
+        command: ServerControlCommands | None
+        if input_command.__contains__('_'):
+
+            return ServerControlCommands.get(input_command.upper())
+        elif input_command.__contains__(' '):
+            if input_command.count(' ') > 1:
+                index = input_command.find(" ")
+                input_command = input_command.replace(" ", "")
+                input_command = input_command[:index] + '_' + input_command[index:]
+            return ServerControlCommands.get("_".join(input_command.split(' ')).upper())
+
+        else:
+            if input_command.upper() == ServerControlCommands.SHUT_DOWN.get_one_word():
+                return ServerControlCommands.SHUT_DOWN
+
+            elif input_command.upper() == ServerControlCommands.END_GAME.get_one_word():
+                return ServerControlCommands.END_GAME
+
+            else:
+                return None
+
+
 class Server(Net):
 
     @staticmethod
@@ -31,6 +75,7 @@ class Server(Net):
         self.client_id: int = -1
         self.match: Match = Match(DefaultConfigs.BLITZ_5)
         self.client_sockets: list[skt.socket] = []
+        self.is_running: bool = False
         PieceMovement.load()
 
     def start(self) -> None:
@@ -40,19 +85,37 @@ class Server(Net):
             self.socket.bind(self.address)
         except skt.error as e:
             logger.debug("error binding : %s", e)
+            return
 
+        self.set_is_running(True)
         self.socket.listen()
 
         print("Waiting for clients to connect")
         logger.info("Waiting for clients to connect")
 
+    def set_is_running(self, is_running: bool) -> None:
+        self.is_running = is_running
+
+    def get_is_running(self) -> bool:
+        return self.is_running
+
     def run(self) -> None:
         self.start()
         thread.start_new_thread(game_logic, (self,))
-        while True:
-            client_socket, addr = self.socket.accept()
-            print(f"Connected to address : {addr}")
-            logger.info("Connected to address : %s", addr)
+        thread.start_new_thread(server_control_command_parser, (self,))
+        while self.get_is_running():
+            client_socket: skt.socket | None = None
+            address: typing.Any = None
+            try:
+                client_socket, address = self.socket.accept()
+            except OSError as e:
+                logger.debug("%s", e)
+
+            if client_socket is None or address is None:
+                return
+
+            print(f"Connected to address : {address}")
+            logger.info("Connected to address : %s", address)
 
             self.client_sockets.append(client_socket)
             thread.start_new_thread(client_listener, (client_socket, self,))
@@ -75,7 +138,7 @@ class Server(Net):
 
 
 def game_logic(server: Server):
-    while True:
+    while server.get_is_running():
         if server.match.update_fen and len(server.match.commands) > 0:
             data: bytes = CommandManager.serialize_command_list(server.match.commands)
             Server.send_all_bytes(server.client_sockets, data)
@@ -86,15 +149,17 @@ def game_logic(server: Server):
 def client_listener(client_socket: skt.socket, server: Server):
     with client_socket:
         p_id = server.client_init(client_socket)
-        while True:
+        while server.get_is_running():
             try:
                 data: bytes = client_socket.recv(DATA_SIZE)
             except ConnectionResetError as error:
                 logger.debug("connection error: %s", error)
+                server.set_is_running(False)
                 break
 
             if not data:
                 logger.debug("invalid data")
+                server.set_is_running(False)
                 break
 
             commands: list[Command] = []
@@ -111,11 +176,38 @@ def client_listener(client_socket: skt.socket, server: Server):
             server.match.update_fen = True
             server.match.commands = commands
 
-        server.client_sockets.remove(client_socket)
-        client_socket.close()
+    server.client_sockets.remove(client_socket)
+    client_socket.close()
 
-        print(f'client : {p_id}  disconnected')
-        logger.info("client : %s  disconnected", p_id)
+    print(f'client : {p_id}  disconnected')
+    logger.info("client : %s  disconnected", p_id)
+
+
+def server_control_command_parser(server: Server) -> None:
+    while server.get_is_running():
+        input_command = input()
+        command: ServerControlCommands | None = ServerControlCommands.get_command_from_input(input_command)
+        if command is None:
+            print("command not recognised")
+        else:
+            process_server_control_command(command, server)
+
+
+def process_server_control_command(command: ServerControlCommands, server: Server) -> None:
+    end_game_info: dict[str, str] = {CommandManager.game_result_type: MatchResult.DRAW.name}
+    if command is ServerControlCommands.SHUT_DOWN:
+        server.set_is_running(False)
+        server.socket.close()
+        end_game_info[CommandManager.game_result] = "SERVER IS SHUTTING DOWN"
+        end_game = CommandManager.get(ServerCommand.END_GAME, end_game_info)
+        data: bytes = CommandManager.serialize_command_list([end_game])
+        Server.send_all_bytes(server.client_sockets, data)
+
+    if command is ServerControlCommands.END_GAME:
+        end_game_info[CommandManager.game_result] = "SERVER SAID NO MORE"
+        end_game = CommandManager.get(ServerCommand.END_GAME, end_game_info)
+        data: bytes = CommandManager.serialize_command_list([end_game])
+        Server.send_all_bytes(server.client_sockets, data)
 
 
 if __name__ == '__main__':
