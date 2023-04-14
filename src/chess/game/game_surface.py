@@ -1,6 +1,5 @@
 import pygame
 
-from chess.asset.asset_manager import AssetManager
 from chess.game.game_size import GameSize
 
 
@@ -16,9 +15,4 @@ class GameSurface:
 
     @staticmethod
     def create_surface() -> None:
-        GameSurface.surface = pygame.surface.Surface(
-            (GameSize.get_width(), GameSize.get_height())
-        )
-        GameSurface.surface.fill(AssetManager.get_theme().dark_color)
-
-
+        GameSurface.surface = pygame.surface.Surface((GameSize.get_width(), GameSize.get_height()))
