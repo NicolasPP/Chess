@@ -203,13 +203,13 @@ def process_server_control_command(command: ServerControlCommands, server: Serve
         server.socket.close()
         end_game_info[CommandManager.game_result] = "SERVER IS SHUTTING DOWN"
         end_game = CommandManager.get(ServerCommand.END_GAME, end_game_info)
-        data: bytes = CommandManager.serialize_command_list([end_game])
+        data = CommandManager.serialize_command_list([end_game])
         Server.send_all_bytes(server.client_sockets, data)
 
     if command is ServerControlCommands.END_GAME:
         end_game_info[CommandManager.game_result] = "SERVER SAID NO MORE"
         end_game = CommandManager.get(ServerCommand.END_GAME, end_game_info)
-        data: bytes = CommandManager.serialize_command_list([end_game])
+        data = CommandManager.serialize_command_list([end_game])
         Server.send_all_bytes(server.client_sockets, data)
 
 

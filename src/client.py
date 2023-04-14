@@ -29,7 +29,7 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
         while True:
             data_b: bytes | None = None
             try:
-                data_b: bytes = server_socket.recv(DATA_SIZE)
+                data_b = server_socket.recv(DATA_SIZE)
             except ConnectionResetError as e:
                 logger.debug("%s", e)
             if not data_b: break
