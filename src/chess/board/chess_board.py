@@ -1,7 +1,6 @@
-import typing
 import pygame
 
-from chess.board.chess_tile import BoardTile
+from chess.board.board_tile import BoardTile
 from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
 from chess.movement.piece_movement import Side
@@ -27,7 +26,7 @@ class Board:
         for index in BoardTile.get_board_tiles_index(side):
             pos = pygame.math.Vector2(index.col * size.x, index.row * size.y)
             rect = pygame.rect.Rect(pos + outline_thickness, size)
-            grid.append(BoardTile(rect, index.algebraic_notation, []))
+            grid.append(BoardTile(rect, index.algebraic_notation))
         if side is Side.BLACK: grid = grid[::-1]
         return grid
 
@@ -86,18 +85,6 @@ class Board:
             if rect.collidepoint(mouse_pos):
                 return tile
         return None
-
-    def get_available_moves_surface(self, picked: BoardTile) -> \
-            typing.Generator[tuple[pygame.surface.Surface, pygame.math.Vector2], None, None]:
-        board_offset = pygame.math.Vector2(self.rect.topleft)
-        for index in picked.available_moves:
-            tile = self.grid[index]
-            tile_size = pygame.math.Vector2(tile.rect.size) * AVAILABLE_MOVE_SCALE
-            available_surface = pygame.surface.Surface(tile_size)
-            pos = available_surface.get_rect(center=tile.rect.center)
-            available_surface.fill(AVAILABLE_MOVE_COLOR)
-            available_surface.set_alpha(AVAILABLE_ALPHA)
-            yield available_surface, board_offset + pygame.math.Vector2(pos.topleft)
 
     def render(self) -> None:
         GameSurface.get().blit(self.surface, self.rect)
