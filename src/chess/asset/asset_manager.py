@@ -45,11 +45,6 @@ class AssetManager:
         AssetManager.theme = theme
 
     @staticmethod
-    def load(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> None:
-        AssetManager.load_theme(theme)
-        AssetManager.load_pieces(piece_set, scale)
-
-    @staticmethod
     def get_piece(fen_val: str) -> Sprite:
         sprite = AssetManager.piece_sprites.get(fen_val)
         if sprite is None:
