@@ -103,11 +103,11 @@ class Player:
         if self.state is not State.DROP_PIECE: return
         self.end_game_gui.offer_draw.set_hover(True)
         self.end_game_gui.resign.set_hover(True)
-        dest_board_square = self.board.get_collided_tile(self.game_offset)
-        from_board_square = self.board.get_picked_up()
+        dest_tile = self.board.get_collided_tile(self.game_offset)
+        from_tile = self.board.get_picked_up()
 
-        from_coordinates = from_board_square.algebraic_notation.data.coordinates
-        target_fen = from_board_square.fen_val
+        from_coordinates = from_tile.algebraic_notation.data.coordinates
+        target_fen = from_tile.fen_val
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         # invalid move
@@ -121,9 +121,9 @@ class Player:
         move = CommandManager.get(ClientCommand.MOVE, invalid_move_info)
         is_promotion = False
 
-        if dest_board_square:
-            is_promotion = is_pawn_promotion(from_board_square, dest_board_square, fen)
-            dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
+        if dest_tile:
+            is_promotion = is_pawn_promotion(from_tile, dest_tile, fen)
+            dest_coordinates = dest_tile.algebraic_notation.data.coordinates
             move_info: dict[str, str] = {
                 CommandManager.from_coordinates: from_coordinates,
                 CommandManager.dest_coordinates: dest_coordinates,
@@ -153,10 +153,10 @@ class Player:
         if self.state is State.PICKING_PROMOTION:
             self.handle_pick_promotion(local, network)
         elif self.state is State.PICK_PIECE:
-            board_square = self.board.get_collided_tile(self.game_offset)
-            if not board_square: return
-            if board_square.fen_val == FenChars.BLANK_PIECE.value: return
-            self.board.set_picked_up(board_square)
+            tile = self.board.get_collided_tile(self.game_offset)
+            if not tile: return
+            if tile.fen_val == FenChars.BLANK_PIECE.value: return
+            self.board.set_picked_up(tile)
             self.state = State.DROP_PIECE
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
@@ -197,11 +197,11 @@ class Player:
         for surface, rect, val in self.promotion_gui.promotion_pieces:
             mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
             if not rect.collidepoint(mouse_pos.x, mouse_pos.y): continue
-            from_board_square = self.board.get_picked_up()
-            dest_board_square = self.board.get_collided_tile(self.game_offset, self.prev_left_mouse_up)
-            if dest_board_square is None or from_board_square is None: continue
-            from_coordinates = from_board_square.algebraic_notation.data.coordinates
-            dest_coordinates = dest_board_square.algebraic_notation.data.coordinates
+            from_tile = self.board.get_picked_up()
+            dest_tile = self.board.get_collided_tile(self.game_offset, self.prev_left_mouse_up)
+            if dest_tile is None or from_tile is None: continue
+            from_coordinates = from_tile.algebraic_notation.data.coordinates
+            dest_coordinates = dest_tile.algebraic_notation.data.coordinates
 
             if self.prev_time_iso is None: return
             move_info: dict[str, str] = {
@@ -282,8 +282,8 @@ class Player:
 
     def update_pieces_location(self, fen: Fen) -> None:
         for index, fen_val in enumerate(fen.expanded):
-            board_square = self.board.grid[index]
-            board_square.fen_val = fen_val
+            tile = self.board.grid[index]
+            tile.fen_val = fen_val
             self.available_moves_gui.update_available_moves(fen, self.side, index)
         self.set_require_render(True)
 

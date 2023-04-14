@@ -332,16 +332,15 @@ def move_fixed_amount(
     return moves
 
 
-def is_pawn_promotion(from_board_square: BoardTile,
-                      dest_board_square: BoardTile, fen: Fen) -> bool:
+def is_pawn_promotion(from_tile: BoardTile, dest_tile: BoardTile, fen: Fen) -> bool:
     pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(fen.is_white_turn())
     rank = '8' if fen.is_white_turn() else '1'
-    from_index = from_board_square.algebraic_notation.data.index
-    dest_index = dest_board_square.algebraic_notation.data.index
-    dest_rank = dest_board_square.algebraic_notation.data.rank
-    if from_board_square.fen_val != pawn_fen: return False
+    from_index = from_tile.algebraic_notation.data.index
+    dest_index = dest_tile.algebraic_notation.data.index
+    dest_rank = dest_tile.algebraic_notation.data.rank
+    if from_tile.fen_val != pawn_fen: return False
     if dest_rank != rank: return False
     if dest_index not in get_available_moves(from_index, fen): return False
-    if not is_king_safe(from_board_square.algebraic_notation.data.index,
-                        dest_board_square.algebraic_notation.data.index, fen): return False
+    if not is_king_safe(from_tile.algebraic_notation.data.index,
+                        dest_tile.algebraic_notation.data.index, fen): return False
     return True
