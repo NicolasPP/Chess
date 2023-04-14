@@ -1,4 +1,5 @@
 import dataclasses
+import math
 import random
 
 import pygame
@@ -29,6 +30,20 @@ class PieceSetAssets:
     NORMAL16x16: PieceSetAsset = PieceSetAsset(NORMAL16x16_PIECE_FILE_WHITE, NORMAL16x16_PIECE_FILE_BLACK)
     NORMAL16x32: PieceSetAsset = PieceSetAsset(NORMAL16x32_PIECE_FILE_WHITE, NORMAL16x32_PIECE_FILE_BLACK)
 
+    @staticmethod
+    def get_asset(name: str) -> PieceSetAsset:
+        if name == 'RANDOM':
+            return random.choice([PieceSetAssets.NORMAL16x16, PieceSetAssets.NORMAL16x32])
+
+        elif name == 'SMALL':
+            return PieceSetAssets.NORMAL16x16
+
+        elif name == 'LARGE':
+            return PieceSetAssets.NORMAL16x32
+
+        else:
+            raise Exception(f'piece_set name : {name} not recognised')
+
 
 class Themes:
     PLAIN1: ChessTheme = ChessTheme(PLAIN1_LIGHT, PLAIN1_DARK)
@@ -48,7 +63,7 @@ class Themes:
 
 def scale_surface(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
     size = pygame.math.Vector2(surface.get_size()) * surface_scale
-    return pygame.transform.scale(surface, (round(size.x), round(size.y)))
+    return pygame.transform.scale(surface, (math.floor(size.x), math.floor(size.y)))
 
 
 def sheet_surface_gen(surface_size: pygame.math.Vector2):
