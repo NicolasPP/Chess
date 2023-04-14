@@ -37,12 +37,10 @@ class BoardTile:
             self,
             rect: pygame.rect.Rect,
             algebraic_notation: AlgebraicNotation,
-            available_moves: list[int],
             fen_val: str = FenChars.BLANK_PIECE.value
     ):
         self.rect: pygame.rect.Rect = rect
         self.algebraic_notation: AlgebraicNotation = algebraic_notation
-        self.available_moves: list[int] = available_moves
         self.fen_val: str = fen_val
         self.picked_up: bool = False
 
