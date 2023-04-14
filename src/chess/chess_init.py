@@ -1,7 +1,7 @@
 import pygame
 
 from chess.movement.piece_movement import PieceMovement
-from chess.asset.chess_assets import ChessTheme
+from chess.asset.chess_assets import ChessTheme, PieceSetAsset, PieceSetAssets
 from chess.asset.asset_manager import AssetManager
 from gui.board_axis_gui import BoardAxisGui, AxisRects
 from gui.end_game_gui import EndGameGui, EndGameRects
@@ -9,13 +9,13 @@ from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
 from gui.timer_gui import TimerGui, TimerRects
 from chess.board.chess_board import Board
+from chess.notation.forsyth_edwards_notation import FenChars
 from config import GAME_SURFACE_SPACING
 
 
-def init_chess(theme: ChessTheme, scale: float) -> None:
+def init_chess(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> None:
     pygame.init()
 
-    AssetManager.load_theme(theme)
     PieceMovement.load()
     GameSize.load_scale(scale)
 
@@ -49,12 +49,17 @@ def init_chess(theme: ChessTheme, scale: float) -> None:
         timer_rects.timer)
 
     GameSurface.create_surface()
+    pygame.display.set_mode(calculate_window_size(*GameSurface.get().get_size()))
 
-    pygame.display.set_mode(calculate_window_size(GameSurface.get()))
+    AssetManager.load_theme(theme)
+    GameSurface.get().fill(AssetManager.get_theme().dark_color)
     pygame.display.get_surface().fill(AssetManager.get_theme().dark_color)
 
+    AssetManager.load_pieces(PieceSetAssets.NORMAL16x16, scale)
+    pygame.display.set_icon(AssetManager.get_piece(FenChars.DEFAULT_KING.get_piece_fen(False)).surface)
+    AssetManager.load_pieces(piece_set, scale)
 
-def calculate_window_size(surface: pygame.surface.Surface) -> tuple[int, int]:
-    width, height = surface.get_size()
+
+def calculate_window_size(width: int, height: int) -> tuple[int, int]:
     bigger_side = max(width, height)
     return bigger_side + GAME_SURFACE_SPACING, bigger_side + GAME_SURFACE_SPACING
