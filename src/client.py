@@ -1,5 +1,4 @@
 import _thread as thread
-import random
 import socket as skt
 import sys
 import time
@@ -10,7 +9,7 @@ import pygame
 from chess.chess_player import process_server_command, Player
 from chess.notation.forsyth_edwards_notation import Fen
 from chess.network.command_manager import CommandManager, Command
-from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme
+from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
 from chess.network.chess_network import ChessNetwork
 from chess.board.side import Side
 from chess.chess_logging import set_up_logging
@@ -57,7 +56,6 @@ def get_player(init_info: Command, game_offset: pygame.rect.Rect) -> Player:
     player_side = Side.WHITE if side == Side.WHITE.name else Side.BLACK
     player = Player(
         side=player_side,
-        piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
         time_left=float(time_left),
         game_offset=game_offset
     )
@@ -71,8 +69,8 @@ def set_delta_time() -> None:
     prev_time = now
 
 
-def run_main_loop(server_ip: str, theme: ChessTheme, scale: float) -> None:
-    init_chess(theme, scale)
+def run_main_loop(server_ip: str, theme: ChessTheme, scale: float, piece_set: PieceSetAsset) -> None:
+    init_chess(theme, piece_set, scale)
     center = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
 
     network = ChessNetwork(server_ip)
@@ -107,9 +105,10 @@ def run_main_loop(server_ip: str, theme: ChessTheme, scale: float) -> None:
 @click.command()
 @click.option('--server_ip', default='127.0.0.1', help='set the server ip address default = 127.0.0.1')
 @click.option('--scale', default=3.5, help='size of chess game, lower than 3.5 will cause the fonts to be unclear')
-@click.option('--theme_id', default=1, help='game theme, possible ids (1 - 4) and (-1 for random theme)')
-def start_client(server_ip: str, scale: float, theme_id: int) -> None:
-    run_main_loop(server_ip, Themes.get_theme(theme_id), scale)
+@click.option('--theme_id', default=1, help='game theme, possible ids (1 - 4), (-1 for random theme)')
+@click.option('--pieces_asset', default='RANDOM', help='piece assets, possible names SMALL, LARGE, RANDOM')
+def start_client(server_ip: str, scale: float, theme_id: int, pieces_asset: str) -> None:
+    run_main_loop(server_ip, Themes.get_theme(theme_id), scale, PieceSetAssets.get_asset(pieces_asset))
 
 
 if __name__ == '__main__':

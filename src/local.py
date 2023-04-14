@@ -1,4 +1,3 @@
-import random
 import sys
 import time
 
@@ -8,7 +7,7 @@ import click
 from chess.game.chess_match import Match
 from chess.chess_player import Player, process_command_local, State
 from chess.board.side import Side
-from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme
+from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
 from chess.chess_timer import DefaultConfigs, TimerConfig
 from chess.game.game_surface import GameSurface
 from chess.chess_init import init_chess
@@ -20,7 +19,6 @@ delta_time: float = 0
 def get_player(side: Side, match: Match, game_offset: pygame.rect.Rect) -> Player:
     player = Player(
         side=side,
-        piece_set=random.choice([PieceSetAssets.NORMAL16x32, PieceSetAssets.NORMAL16x16]),
         time_left=match.timer_config.time,
         game_offset=game_offset
     )
@@ -50,10 +48,10 @@ def update_window_caption(*players: Player) -> None:
         return
 
 
-def main_loop(theme: ChessTheme, scale: float) -> None:
+def main_loop(theme: ChessTheme, scale: float, piece_set: PieceSetAsset) -> None:
     done = False
     is_white = True
-    init_chess(theme, scale)
+    init_chess(theme, piece_set, scale)
     match = get_match(DefaultConfigs.BLITZ_5)
     center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
     white_player: Player = get_player(Side.WHITE, match, center)
@@ -95,9 +93,10 @@ def main_loop(theme: ChessTheme, scale: float) -> None:
 
 @click.command()
 @click.option('--scale', default=3.5, help='size of chess game, lower than 3.5 will cause the fonts to be unclear')
-@click.option('--theme_id', default=1, help='game theme, possible ids (1 - 4) and (-1 for random theme)')
-def start_local_game(scale: float, theme_id: int) -> None:
-    main_loop(Themes.get_theme(theme_id), scale)
+@click.option('--theme_id', default=-1, help='game theme, possible ids (1 - 4) and (-1 for random)')
+@click.option('--pieces_asset', default='RANDOM', help='piece assets, possible names SMALL, LARGE, RANDOM')
+def start_local_game(scale: float, theme_id: int, pieces_asset: str) -> None:
+    main_loop(Themes.get_theme(theme_id), scale, PieceSetAssets.get_asset(pieces_asset))
 
 
 if __name__ == "__main__":
