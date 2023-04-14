@@ -186,7 +186,7 @@ def disambiguate_pgn_from_move(dest_an: AlgebraicNotation, pgn_from_info: str, f
         index_an = get_an_from_index(s_index)
         if file_filter and index_an.data.file != file_filter.lower(): continue
         if rank_filter and index_an.data.rank != rank_filter.lower(): continue
-        similar_piece_available_moves = get_available_moves(piece_fen, s_index, fen, is_white_turn)
+        similar_piece_available_moves = get_available_moves(s_index, fen, is_white_turn)
         for move in similar_piece_available_moves:
             if move == dest_an.data.index: from_index = s_index
             if from_index != -1: break

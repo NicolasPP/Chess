@@ -27,16 +27,15 @@ class PieceMovement:
         return getter
 
 
-def get_available_moves(fen_val: str, from_index: int,
-                        fen: notation.Fen, is_white_turn: None | bool = None
-                        ) -> list[int]:
+def get_available_moves(piece_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
+    fen_val: str = fen[piece_index]
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    available_moves = PieceMovement.available_moves_getter(fen_val)(from_index, fen, is_white_turn)
+    available_moves = PieceMovement.available_moves_getter(fen_val)(piece_index, fen, is_white_turn)
 
     if fen_val.upper() == notation.FenChars.DEFAULT_KING.value:
-        return process_king_available_moves(from_index, is_white_turn, fen, available_moves)
+        return process_king_available_moves(piece_index, is_white_turn, fen, available_moves)
     else:
-        return process_regular_available_moves(from_index, is_white_turn, fen, available_moves)
+        return process_regular_available_moves(piece_index, is_white_turn, fen, available_moves)
 
 
 def is_king_safe(from_index: int, dest_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> bool:

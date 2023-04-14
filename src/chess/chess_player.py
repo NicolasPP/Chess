@@ -395,7 +395,7 @@ def is_pawn_promotion(from_board_square: BoardTile,
     dest_rank = dest_board_square.algebraic_notation.data.rank
     if from_board_square.fen_val != pawn_fen: return False
     if dest_rank != rank: return False
-    if dest_index not in get_available_moves(FenChars.DEFAULT_PAWN.value, from_index, fen): return False
+    if dest_index not in get_available_moves(from_index, fen): return False
     if not is_king_safe(from_board_square.algebraic_notation.data.index,
                         dest_board_square.algebraic_notation.data.index, fen): return False
     return True

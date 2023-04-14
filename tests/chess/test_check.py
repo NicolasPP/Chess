@@ -14,8 +14,8 @@ def test_not_in_check():
 
 
 def test_moving_into_check():
-    assert len(get_available_moves('K', 36, Fen('7k/8/8/3PpP2/3pKp2/3PpP2/8/8 w - - 0 1'))) is 1
-    assert len(get_available_moves('P', 44, Fen('7k/8/8/6b1/8/4P3/3K4/8 w - - 0 1'))) is 0
+    assert len(get_available_moves(36, Fen('7k/8/8/3PpP2/3pKp2/3PpP2/8/8 w - - 0 1'))) is 1
+    assert len(get_available_moves(44, Fen('7k/8/8/6b1/8/4P3/3K4/8 w - - 0 1'))) is 0
 
 
 @pytest.mark.parametrize("fen,piece_fen_val", [
@@ -32,7 +32,7 @@ def test_get_out_check(fen: Fen, piece_fen_val: str):
         if fen_val is FenChars.BLANK_PIECE.value: continue
         if fen_val.islower() if fen.is_white_turn() else fen_val.isupper(): continue
 
-        moves = get_available_moves(fen_val, index, fen)
+        moves = get_available_moves(index, fen)
 
         if fen_val == piece_fen_val:
             assert len(moves) == 1

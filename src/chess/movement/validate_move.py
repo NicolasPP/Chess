@@ -36,7 +36,7 @@ def get_all_available_moves(fen: Fen, is_white_turn: None | bool = None, *, own_
         if fen_char == FenChars.BLANK_PIECE.value: continue
         if not same_side if own_moves else same_side: continue
 
-        moves += get_available_moves(fen_char, index, fen, own_moves == is_white_turn)
+        moves += get_available_moves(index, fen, own_moves == is_white_turn)
 
     return moves
 
@@ -101,7 +101,7 @@ def is_side_valid(from_index: int, dest_index: int, fen: Fen) -> bool:
 
 
 def is_destination_valid(from_index: int, dest_index: int, fen: Fen) -> bool:
-    available_moves = get_available_moves(fen[from_index], from_index, fen)
+    available_moves = get_available_moves(from_index, fen)
     if dest_index not in available_moves: return False
     return True
 

@@ -22,7 +22,7 @@ class AvailableMovesGui:
         if fen[piece_index] == FenChars.BLANK_PIECE.value or not correct_side:
             self.available_moves[piece_index] = []
             return None
-        available_moves = get_available_moves(fen[piece_index], piece_index, fen)
+        available_moves = get_available_moves(piece_index, fen)
         self.available_moves[piece_index] = available_moves
 
     def render(self, picked: BoardTile, board: Board, side: Side, turn: bool) -> None:
