@@ -144,6 +144,7 @@ def game_logic(server: Server):
             Server.send_all_bytes(server.client_sockets, data)
             server.match.update_fen = False
             server.match.commands = []
+    return
 
 
 def client_listener(client_socket: skt.socket, server: Server):
@@ -181,6 +182,7 @@ def client_listener(client_socket: skt.socket, server: Server):
 
     print(f'client : {p_id}  disconnected')
     logger.info("client : %s  disconnected", p_id)
+    return
 
 
 def server_control_command_parser(server: Server) -> None:
@@ -191,6 +193,7 @@ def server_control_command_parser(server: Server) -> None:
             print("command not recognised")
         else:
             process_server_control_command(command, server)
+    return
 
 
 def process_server_control_command(command: ServerControlCommands, server: Server) -> None:
