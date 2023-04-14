@@ -5,7 +5,7 @@ import pygame
 
 from chess.asset.asset_manager import AssetManager
 from chess.movement.piece_movement import Side, get_available_moves, is_king_safe
-from chess.board.chess_tile import BoardTile
+from chess.board.board_tile import BoardTile
 from chess.board.chess_board import Board
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
 from chess.asset.chess_assets import PieceSetAsset
@@ -16,6 +16,7 @@ from gui.end_game_gui import EndGameGui
 from gui.promotion_gui import PromotionGui
 from gui.captured_gui import CapturedGui
 from gui.verify_gui import VerifyGui
+from gui.available_moves_gui import AvailableMovesGui
 from gui.board_axis_gui import BoardAxisGui
 from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
@@ -62,6 +63,7 @@ class Player:
         self.end_game_gui: EndGameGui = EndGameGui(self.board.get_rect())
         self.verify_gui: VerifyGui = VerifyGui(self.board.get_rect())
         self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.get_rect(), self.side)
+        self.available_moves_gui: AvailableMovesGui = AvailableMovesGui()
 
     def parse_input(
             self,
@@ -262,8 +264,9 @@ class Player:
             self.axis_gui.render()
             self.board.render_pieces(self.side is Side.WHITE)
             if self.state is State.DROP_PIECE:
-                self.show_available_moves()
-                self.board.get_picked_up().render(self.game_offset.topleft)
+                picked: BoardTile = self.board.get_picked_up()
+                self.available_moves_gui.render(picked, self.board, self.side, self.turn)
+                picked.render(self.game_offset.topleft)
 
         if self.state is State.PICKING_PROMOTION:
             self.promotion_gui.render()
@@ -277,21 +280,11 @@ class Player:
 
         self.set_require_render(False)
 
-    def show_available_moves(self) -> None:
-        if not self.turn: return
-        picked = self.board.get_picked_up()
-        if self.side is Side.WHITE:
-            if picked.fen_val.islower(): return
-        if self.side is Side.BLACK:
-            if picked.fen_val.isupper(): return
-        for surface, pos in self.board.get_available_moves_surface(picked):
-            GameSurface.get().blit(surface, pos)
-
     def update_pieces_location(self, fen: Fen) -> None:
         for index, fen_val in enumerate(fen.expanded):
             board_square = self.board.grid[index]
             board_square.fen_val = fen_val
-            update_available_moves(board_square, fen, self.side)
+            self.available_moves_gui.update_available_moves(fen, self.side, index)
         self.set_require_render(True)
 
     def end_game(self) -> None:
@@ -391,21 +384,6 @@ def process_command_local(match_fen: Fen, *players: Player) -> None:
     command = CommandManager.read_from(CommandManager.PLAYER)
     if command is None: return
     process_server_command(command, match_fen, *players, local=True)
-
-
-def update_available_moves(board_square: BoardTile, match_fen: Fen,
-                           player_side: Side) -> None:
-    is_black_and_lower = player_side is Side.BLACK and board_square.fen_val.islower()
-    is_white_and_upper = player_side is Side.WHITE and board_square.fen_val.isupper()
-    correct_side = True if is_black_and_lower or is_white_and_upper else False
-    if board_square.fen_val == FenChars.BLANK_PIECE.value or not correct_side:
-        board_square.available_moves = []
-        return None
-    board_square.available_moves = get_available_moves(
-        board_square.fen_val,
-        board_square.algebraic_notation.data.index,
-        match_fen
-    )
 
 
 def is_pawn_promotion(from_board_square: BoardTile,
