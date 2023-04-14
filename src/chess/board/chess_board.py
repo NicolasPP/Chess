@@ -3,7 +3,7 @@ import pygame
 from chess.board.board_tile import BoardTile
 from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
-from chess.movement.piece_movement import Side
+from chess.board.side import Side
 from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
 from config import *

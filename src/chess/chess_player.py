@@ -1,26 +1,26 @@
-import enum
 import datetime
+import enum
 
 import pygame
 
 from chess.asset.asset_manager import AssetManager
-from chess.movement.piece_movement import Side, get_available_moves, is_king_safe
+from chess.asset.chess_assets import PieceSetAsset
 from chess.board.board_tile import BoardTile
 from chess.board.chess_board import Board
-from chess.notation.forsyth_edwards_notation import Fen, FenChars
-from chess.asset.chess_assets import PieceSetAsset
-from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
+from chess.board.side import Side
+from chess.game.game_size import GameSize
+from chess.game.game_surface import GameSurface
+from chess.movement.piece_movement import get_available_moves, is_king_safe
 from chess.network.chess_network import ChessNetwork
-from gui.timer_gui import TimerGui, TimerRects
-from gui.end_game_gui import EndGameGui
-from gui.promotion_gui import PromotionGui
-from gui.captured_gui import CapturedGui
-from gui.verify_gui import VerifyGui
+from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
+from chess.notation.forsyth_edwards_notation import Fen, FenChars
 from gui.available_moves_gui import AvailableMovesGui
 from gui.board_axis_gui import BoardAxisGui
-from chess.game.game_surface import GameSurface
-from chess.game.game_size import GameSize
-
+from gui.captured_gui import CapturedGui
+from gui.end_game_gui import EndGameGui
+from gui.promotion_gui import PromotionGui
+from gui.timer_gui import TimerGui, TimerRects
+from gui.verify_gui import VerifyGui
 from config import *
 
 

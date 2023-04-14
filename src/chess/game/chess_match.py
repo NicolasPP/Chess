@@ -2,7 +2,7 @@ import datetime
 import enum
 
 from chess.chess_timer import TimerConfig
-from chess.movement.piece_movement import Side
+from chess.board.side import Side
 from chess.notation.algebraic_notation import get_index_from_an
 from chess.network.command_manager import Command, CommandManager, ClientCommand, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenChars, validate_fen_piece_placement

@@ -7,7 +7,7 @@ import click
 
 from chess.game.chess_match import Match
 from chess.chess_player import Player, process_command_local, State
-from chess.movement.piece_movement import Side
+from chess.board.side import Side
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme
 from chess.chess_timer import DefaultConfigs, TimerConfig
 from chess.game.game_surface import GameSurface

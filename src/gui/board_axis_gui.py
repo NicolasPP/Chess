@@ -1,7 +1,7 @@
 import pygame
 import typing
 
-from chess.movement.piece_movement import Side
+from chess.board.side import Side
 from chess.asset.asset_manager import AssetManager
 from chess.game.game_surface import GameSurface
 from chess.game.game_surface import GameSize

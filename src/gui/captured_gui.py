@@ -1,7 +1,7 @@
 import pygame
 
 from chess.asset.asset_manager import AssetManager
-from chess.movement.piece_movement import Side
+from chess.board.side import Side
 from chess.notation.forsyth_edwards_notation import validate_fen_val
 from chess.asset.chess_assets import scale_surface, PieceSetAssets
 from chess.game.game_surface import GameSurface

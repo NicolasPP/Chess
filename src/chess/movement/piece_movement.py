@@ -1,17 +1,10 @@
-import enum
 import typing
 
 import chess.notation.forsyth_edwards_notation as notation
 from chess.notation.algebraic_notation import AlgebraicNotation, get_an_from_index
 from config import *
 
-
 AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, notation.Fen, None | bool], list[int]]
-
-
-class Side(enum.Enum):
-    WHITE = enum.auto()
-    BLACK = enum.auto()
 
 
 class PieceMovement:
