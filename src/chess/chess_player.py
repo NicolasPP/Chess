@@ -4,7 +4,6 @@ import enum
 import pygame
 
 from chess.asset.asset_manager import AssetManager
-from chess.asset.chess_assets import PieceSetAsset
 from chess.board.board_tile import BoardTile
 from chess.board.chess_board import Board
 from chess.board.side import Side
@@ -37,10 +36,8 @@ class State(enum.Enum):
 class Player:
     def __init__(self,
                  side: Side,
-                 piece_set: PieceSetAsset,
                  time_left: float,
                  game_offset: pygame.rect.Rect):
-        AssetManager.load_pieces(piece_set, GameSize.get_scale())
 
         self.game_offset = game_offset
         self.board: Board = Board(side)
