@@ -25,11 +25,11 @@ class VerifyGui:
             int(GameSize.get_relative_size(RESIGN_BUTTON_HEIGHT)),
             VERIFY_BG_COLOR)
         self.description: ButtonGui = ButtonGui(
-            int(GameSize.get_relative_size(DESCRIPTION_BUTTON_WIDTH)),
+            int(GameSize.get_relative_size(VERIFY_BG_WIDTH)),
             int(GameSize.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
             VERIFY_BG_COLOR)
         self.action: ButtonGui = ButtonGui(
-            int(GameSize.get_relative_size(DESCRIPTION_BUTTON_WIDTH)),
+            int(GameSize.get_relative_size(VERIFY_BG_WIDTH)),
             int(GameSize.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
             VERIFY_BG_COLOR)
 
