@@ -1,10 +1,11 @@
 import typing
 
-import chess.notation.forsyth_edwards_notation as notation
+from chess.notation.forsyth_edwards_notation import Fen, FenChars
 from chess.notation.algebraic_notation import AlgebraicNotation, get_an_from_index
+from chess.board.board_tile import BoardTile
 from config import *
 
-AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, notation.Fen, None | bool], list[int]]
+AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, Fen, None | bool], list[int]]
 
 
 class PieceMovement:
@@ -12,12 +13,12 @@ class PieceMovement:
 
     @staticmethod
     def load() -> None:
-        PieceMovement.getters[notation.FenChars.DEFAULT_PAWN.value] = pawn_available_moves
-        PieceMovement.getters[notation.FenChars.DEFAULT_KNIGHT.value] = knight_available_moves
-        PieceMovement.getters[notation.FenChars.DEFAULT_ROOK.value] = rook_available_moves
-        PieceMovement.getters[notation.FenChars.DEFAULT_BISHOP.value] = bishop_available_moves
-        PieceMovement.getters[notation.FenChars.DEFAULT_QUEEN.value] = queen_available_moves
-        PieceMovement.getters[notation.FenChars.DEFAULT_KING.value] = king_available_moves
+        PieceMovement.getters[FenChars.DEFAULT_PAWN.value] = pawn_available_moves
+        PieceMovement.getters[FenChars.DEFAULT_KNIGHT.value] = knight_available_moves
+        PieceMovement.getters[FenChars.DEFAULT_ROOK.value] = rook_available_moves
+        PieceMovement.getters[FenChars.DEFAULT_BISHOP.value] = bishop_available_moves
+        PieceMovement.getters[FenChars.DEFAULT_QUEEN.value] = queen_available_moves
+        PieceMovement.getters[FenChars.DEFAULT_KING.value] = king_available_moves
 
     @staticmethod
     def available_moves_getter(fen_val: str) -> AvailableMovesGetter:
@@ -27,22 +28,22 @@ class PieceMovement:
         return getter
 
 
-def get_available_moves(piece_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
+def get_available_moves(piece_index: int, fen: Fen, is_white_turn: None | bool = None) -> list[int]:
     fen_val: str = fen[piece_index]
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     available_moves = PieceMovement.available_moves_getter(fen_val)(piece_index, fen, is_white_turn)
 
-    if fen_val.upper() == notation.FenChars.DEFAULT_KING.value:
+    if fen_val.upper() == FenChars.DEFAULT_KING.value:
         return process_king_available_moves(piece_index, is_white_turn, fen, available_moves)
     else:
         return process_regular_available_moves(piece_index, is_white_turn, fen, available_moves)
 
 
-def is_king_safe(from_index: int, dest_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> bool:
+def is_king_safe(from_index: int, dest_index: int, fen: Fen, is_white_turn: None | bool = None) -> bool:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
+    king_fen = FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
 
-    new_fen = notation.Fen(fen.notation)
+    new_fen = Fen(fen.notation)
     new_fen.make_move(from_index, dest_index, new_fen[from_index], False)
 
     own_king_indexes = new_fen.get_indexes_for_piece(king_fen)
@@ -53,12 +54,12 @@ def is_king_safe(from_index: int, dest_index: int, fen: notation.Fen, is_white_t
     return len(possible_threats) == 0
 
 
-def get_possible_threats(piece_index: int, fen: notation.Fen, is_white_turn: bool) -> list[int]:
+def get_possible_threats(piece_index: int, fen: Fen, is_white_turn: bool) -> list[int]:
     if piece_index < 0: return []
 
-    threat_knight_fen = notation.FenChars.DEFAULT_KNIGHT.get_piece_fen(not is_white_turn)
-    own_king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
-    opponent_king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(not is_white_turn)
+    threat_knight_fen = FenChars.DEFAULT_KNIGHT.get_piece_fen(not is_white_turn)
+    own_king_fen = FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
+    opponent_king_fen = FenChars.DEFAULT_KING.get_piece_fen(not is_white_turn)
 
     knight_possible_threats = knight_available_moves(piece_index, fen, is_white_turn)
     rest_possible_threats = queen_available_moves(piece_index, fen, is_white_turn)
@@ -68,7 +69,7 @@ def get_possible_threats(piece_index: int, fen: notation.Fen, is_white_turn: boo
         if fen[threat_index] == threat_knight_fen: possible_threats.append(threat_index)
 
     for threat_index in rest_possible_threats:
-        if fen[threat_index] == notation.FenChars.BLANK_PIECE.value: continue
+        if fen[threat_index] == FenChars.BLANK_PIECE.value: continue
 
         threat_available_moves_getter: AvailableMovesGetter = PieceMovement.available_moves_getter(fen[threat_index])
         threat_possible_moves = threat_available_moves_getter(threat_index, fen, not is_white_turn)
@@ -81,7 +82,7 @@ def get_possible_threats(piece_index: int, fen: notation.Fen, is_white_turn: boo
 
 
 def process_regular_available_moves(from_index: int, is_white_turn: bool,
-                                    fen: notation.Fen, available_moves: list[int]) -> list[int]:
+                                    fen: Fen, available_moves: list[int]) -> list[int]:
     safe_moves = []
     for move in available_moves:
         if is_king_safe(from_index, move, fen, is_white_turn):
@@ -90,13 +91,13 @@ def process_regular_available_moves(from_index: int, is_white_turn: bool,
 
 
 def process_king_available_moves(from_index: int, is_white_turn: bool,
-                                 fen: notation.Fen, available_moves: list[int]) -> list[int]:
+                                 fen: Fen, available_moves: list[int]) -> list[int]:
     safe_moves = []
     king_side_rook_index = 63 if is_white_turn else 7
     queen_side_rook_index = 56 if is_white_turn else 0
     king_in_between = [61, 62] if is_white_turn else [5, 6]
     queen_in_between = [58, 59] if is_white_turn else [2, 3]
-    rook_fen = notation.FenChars.DEFAULT_ROOK.get_piece_fen(is_white_turn)
+    rook_fen = FenChars.DEFAULT_ROOK.get_piece_fen(is_white_turn)
     king_not_in_check = is_king_safe(0, 0, fen, is_white_turn)
 
     for move in available_moves:
@@ -116,7 +117,7 @@ def process_king_available_moves(from_index: int, is_white_turn: bool,
     return safe_moves
 
 
-def pawn_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
+def pawn_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     up = get_fen_offset_index(is_white_turn, from_index, 1, 0)  # up
@@ -129,11 +130,11 @@ def pawn_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None
     # pawn moves up twice in the first move
     if from_index in double_moves:
         if (double_up and up) and \
-                (fen[double_up] == notation.FenChars.BLANK_PIECE.value) and \
-                (fen[up] == notation.FenChars.BLANK_PIECE.value): moves.append(double_up)
+                (fen[double_up] == FenChars.BLANK_PIECE.value) and \
+                (fen[up] == FenChars.BLANK_PIECE.value): moves.append(double_up)
 
     # en passant move
-    if fen.data.en_passant_rights != notation.FenChars.EMPTY_INFO.value:
+    if fen.data.en_passant_rights != FenChars.EMPTY_INFO.value:
         index_offset = BOARD_SIZE if fen.is_white_turn() else BOARD_SIZE * -1
         en_passant_an = AlgebraicNotation(*fen.data.en_passant_rights)
         possible_en_passant = get_an_from_index(en_passant_an.data.index + index_offset)
@@ -145,7 +146,7 @@ def pawn_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None
                 if move is not None:
                     moves.append(move)
 
-    if (up is not None) and (fen[up] == notation.FenChars.BLANK_PIECE.value): moves.append(up)
+    if (up is not None) and (fen[up] == FenChars.BLANK_PIECE.value): moves.append(up)
 
     for move in [up_right, up_left]:
         if move is None:
@@ -158,7 +159,7 @@ def pawn_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None
     return moves
 
 
-def knight_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
+def knight_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     moves_offset = [
@@ -177,7 +178,7 @@ def knight_available_moves(from_index: int, fen: notation.Fen, is_white_turn: No
     return moves
 
 
-def rook_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
+def rook_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     up, down, right, left = get_flat_offsets()
@@ -190,7 +191,7 @@ def rook_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None
     return moves
 
 
-def bishop_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
+def bishop_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
 
@@ -204,7 +205,7 @@ def bishop_available_moves(from_index: int, fen: notation.Fen, is_white_turn: No
     return moves
 
 
-def queen_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
+def queen_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     moves = []
     moves += bishop_available_moves(from_index, fen, is_white_turn)
@@ -212,7 +213,7 @@ def queen_available_moves(from_index: int, fen: notation.Fen, is_white_turn: Non
     return moves
 
 
-def king_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None | bool = None) -> list[int]:
+def king_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool = None) -> list[int]:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
 
     moves = []
@@ -233,20 +234,20 @@ def king_available_moves(from_index: int, fen: notation.Fen, is_white_turn: None
     king_in_between = [61, 62] if is_white_turn else [5, 6]
     queen_in_between = [57, 58, 59] if is_white_turn else [1, 2, 3]
 
-    king_fen = notation.FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
-    queen_fen = notation.FenChars.DEFAULT_QUEEN.get_piece_fen(is_white_turn)
-    rook_fen = notation.FenChars.DEFAULT_ROOK.get_piece_fen(is_white_turn)
+    king_fen = FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
+    queen_fen = FenChars.DEFAULT_QUEEN.get_piece_fen(is_white_turn)
+    rook_fen = FenChars.DEFAULT_ROOK.get_piece_fen(is_white_turn)
 
     if king_fen in fen.data.castling_rights and fen[king_side_rook_index] == rook_fen:
         king_castle = True
         for move in king_in_between:
-            if fen[move] != notation.FenChars.BLANK_PIECE.value: king_castle = False
+            if fen[move] != FenChars.BLANK_PIECE.value: king_castle = False
         if king_castle: moves.append(king_side_rook_index)
 
     if queen_fen in fen.data.castling_rights and fen[queen_side_rook_index] == rook_fen:
         queen_castle = True
         for move in queen_in_between:
-            if fen[move] != notation.FenChars.BLANK_PIECE.value: queen_castle = False
+            if fen[move] != FenChars.BLANK_PIECE.value: queen_castle = False
         if queen_castle: moves.append(queen_side_rook_index)
 
     moves += move_fixed_amount(moves_offset, from_index, fen, is_white_turn)
@@ -293,7 +294,7 @@ def get_flat_offsets(
 def move_until_friendly(
         moves_offset: list[tuple[int, int]],
         from_index: int,
-        fen: notation.Fen,
+        fen: Fen,
         is_white_turn: bool
 ) -> list[int]:
     moves = []
@@ -301,7 +302,7 @@ def move_until_friendly(
         move = get_fen_offset_index(is_white_turn, from_index, *offset)
         if move is None: continue
         if move == from_index: continue
-        if fen[move] == notation.FenChars.BLANK_PIECE.value:
+        if fen[move] == FenChars.BLANK_PIECE.value:
             moves.append(move)
         elif is_white_turn:
             if fen[move].islower(): moves.append(move)
@@ -315,17 +316,32 @@ def move_until_friendly(
 def move_fixed_amount(
         moves_offset: list[tuple[int, int]],
         from_index: int,
-        fen: notation.Fen,
+        fen: Fen,
         is_white_turn: bool
 ) -> list[int]:
     moves = []
     for offset in moves_offset:
         move = get_fen_offset_index(is_white_turn, from_index, *offset)
         if move is None: continue
-        if fen[move] == notation.FenChars.BLANK_PIECE.value:
+        if fen[move] == FenChars.BLANK_PIECE.value:
             moves.append(move)
         elif is_white_turn:
             if fen[move].islower(): moves.append(move)
         else:
             if fen[move].isupper(): moves.append(move)
     return moves
+
+
+def is_pawn_promotion(from_board_square: BoardTile,
+                      dest_board_square: BoardTile, fen: Fen) -> bool:
+    pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(fen.is_white_turn())
+    rank = '8' if fen.is_white_turn() else '1'
+    from_index = from_board_square.algebraic_notation.data.index
+    dest_index = dest_board_square.algebraic_notation.data.index
+    dest_rank = dest_board_square.algebraic_notation.data.rank
+    if from_board_square.fen_val != pawn_fen: return False
+    if dest_rank != rank: return False
+    if dest_index not in get_available_moves(from_index, fen): return False
+    if not is_king_safe(from_board_square.algebraic_notation.data.index,
+                        dest_board_square.algebraic_notation.data.index, fen): return False
+    return True

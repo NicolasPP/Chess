@@ -10,7 +10,7 @@ from chess.board.chess_board import Board
 from chess.board.side import Side
 from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
-from chess.movement.piece_movement import get_available_moves, is_king_safe
+from chess.movement.piece_movement import is_pawn_promotion
 from chess.network.chess_network import ChessNetwork
 from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
@@ -384,21 +384,6 @@ def process_command_local(match_fen: Fen, *players: Player) -> None:
     command = CommandManager.read_from(CommandManager.PLAYER)
     if command is None: return
     process_server_command(command, match_fen, *players, local=True)
-
-
-def is_pawn_promotion(from_board_square: BoardTile,
-                      dest_board_square: BoardTile, fen: Fen) -> bool:
-    pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(fen.is_white_turn())
-    rank = '8' if fen.is_white_turn() else '1'
-    from_index = from_board_square.algebraic_notation.data.index
-    dest_index = dest_board_square.algebraic_notation.data.index
-    dest_rank = dest_board_square.algebraic_notation.data.rank
-    if from_board_square.fen_val != pawn_fen: return False
-    if dest_rank != rank: return False
-    if dest_index not in get_available_moves(from_index, fen): return False
-    if not is_king_safe(from_board_square.algebraic_notation.data.index,
-                        dest_board_square.algebraic_notation.data.index, fen): return False
-    return True
 
 
 def send_command(local: bool, network: ChessNetwork | None, command: Command) -> None:
