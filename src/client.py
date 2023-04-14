@@ -28,7 +28,11 @@ delta_time: float = 0
 def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -> None:
     with server_socket:
         while True:
-            data_b: bytes = server_socket.recv(DATA_SIZE)
+            data_b: bytes | None = None
+            try:
+                data_b: bytes = server_socket.recv(DATA_SIZE)
+            except ConnectionResetError as e:
+                logger.debug("%s", e)
             if not data_b: break
             commands = CommandManager.deserialize_command_list_bytes(data_b)
             logger.debug("server sent commands :")
@@ -37,7 +41,7 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
                 process_server_command(command, match_fen, player)
 
         logger.debug("server disconnected")
-        pygame.event.post(pygame.event.Event(pygame.QUIT))
+        return
 
 
 def update_window_caption(player: Player) -> None:
