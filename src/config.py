@@ -6,7 +6,6 @@ VERIFY_BG_ALPHA: int = 100
 OPAQUE: int = 255
 
 # -- Size --
-WINDOW_SIZE: tuple[int, int] = 600, 600
 VERIFY_BG_WIDTH: int = 300
 VERIFY_BG_HEIGHT: int = 150
 VERIFY_SPACING: int = 5
