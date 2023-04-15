@@ -1,6 +1,7 @@
 import dataclasses
 import math
 import random
+import typing
 
 import pygame
 
@@ -19,10 +20,9 @@ class PieceSetAsset:
     black_assets_file: str
 
 
-@dataclasses.dataclass
-class Sprite:
-    surface: pygame.surface.Surface
-    scale: float
+class PieceSurfaces(typing.NamedTuple):
+    white: list[pygame.surface.Surface]
+    black: list[pygame.surface.Surface]
 
 
 class PieceSetAssets:
@@ -57,8 +57,10 @@ class Themes:
         if theme_id == 1: return Themes.PLAIN1
         if theme_id == 2: return Themes.PLAIN2
         if theme_id == 3: return Themes.PLAIN3
-        if theme_id == 4: return Themes.PLAIN4
-        else: raise Exception(f'theme_id : {theme_id} is not a valid theme_id')
+        if theme_id == 4:
+            return Themes.PLAIN4
+        else:
+            raise Exception(f'theme_id : {theme_id} is not a valid theme_id')
 
 
 def scale_surface(surface: pygame.surface.Surface, surface_scale: float) -> pygame.surface.Surface:
@@ -75,28 +77,30 @@ def sheet_surface_gen(surface_size: pygame.math.Vector2):
             yield surface, index
 
 
-def load_sprite_sheet(asset_file: str, asset_scale: float) -> list[Sprite]:
-    sheet_sprite = load_sprite(asset_file, sprite_scale=1)
+def load_surface_sheet(asset_file: str, asset_scale: float) -> list[pygame.surface.Surface]:
+    sheet_surface: pygame.surface.Surface = load_surface(asset_file, surface_scale=1)
     sheet_dimensions = pygame.math.Vector2(PIECE_ASSET_COL, PIECE_ASSET_ROW)
-    sheet_size = pygame.math.Vector2(sheet_sprite.surface.get_size()).elementwise()
+    sheet_size = pygame.math.Vector2(sheet_surface.get_size()).elementwise()
     surface_size = sheet_size / sheet_dimensions
 
-    sprites = []
+    surfaces: list[pygame.surface.Surface] = []
 
     for surface, index in sheet_surface_gen(surface_size):
-        surface.blit(sheet_sprite.surface, surface_size * index * -1)
+        surface.blit(sheet_surface, surface_size * index * -1)
         surface = scale_surface(surface, asset_scale)
-        sprites.append(Sprite(surface, asset_scale))
+        surfaces.append(surface)
 
-    return sprites
+    return surfaces
 
 
-def load_sprite(file: str, sprite_scale: float) -> Sprite:
+def load_surface(file: str, surface_scale: float) -> pygame.surface.Surface:
     surface = pygame.image.load(file).convert()
-    surface = scale_surface(surface, sprite_scale)
-    return Sprite(surface, sprite_scale)
+    surface = scale_surface(surface, surface_scale)
+    return surface
 
 
-def load_piece_set(piece_set: PieceSetAsset, piece_scale: float) -> tuple[list[Sprite], list[Sprite]]:
-    return load_sprite_sheet(piece_set.white_assets_file, piece_scale), \
-           load_sprite_sheet(piece_set.black_assets_file, piece_scale)
+def load_piece_set(piece_set: PieceSetAsset, piece_scale: float) -> PieceSurfaces:
+    return PieceSurfaces(
+        load_surface_sheet(piece_set.white_assets_file, piece_scale),
+        load_surface_sheet(piece_set.black_assets_file, piece_scale)
+    )

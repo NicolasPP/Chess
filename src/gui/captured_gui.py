@@ -60,9 +60,9 @@ class CapturedGui:
 
     def copy_and_resize_pieces(self) -> dict[str, pygame.surface.Surface]:
         copy_pieces: dict[str, pygame.surface.Surface] = {}
-        for fen_val, sprite in AssetManager.load_pieces_sprites(
+        for fen_val, surface in AssetManager.load_pieces_surfaces(
                 PieceSetAssets.SIMPLE16x16, GameSize.get_scale()).items():
-            copy_pieces[fen_val] = scale_surface(sprite.surface, self.captured_scale)
+            copy_pieces[fen_val] = scale_surface(surface, self.captured_scale)
         return copy_pieces
 
     def render(self, player_side: Side) -> None:

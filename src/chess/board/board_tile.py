@@ -65,6 +65,6 @@ class BoardTile:
 
     def render(self, board_pos: tuple[int, int]) -> None:
         offset = pygame.math.Vector2(board_pos)
-        piece_surface = AssetManager.get_piece(self.fen_val).surface
+        piece_surface = AssetManager.get_piece_surface(self.fen_val)
         piece_pos: RenderPos = BoardTile.get_piece_render_pos(self, offset, piece_surface)
         GameSurface.get().blit(piece_surface, (piece_pos.x, piece_pos.y))

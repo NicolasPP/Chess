@@ -15,13 +15,13 @@ class PromotionGui:
     def get_promotion_pieces(self, board_rect: pygame.rect.Rect) \
             -> list[tuple[pygame.surface.Surface, pygame.rect.Rect, str]]:
         center = pygame.math.Vector2(board_rect.center)
-        piece_width = AssetManager.get_piece(self.possible_pieces[0]).surface.get_width()
-        piece_height = AssetManager.get_piece(self.possible_pieces[0]).surface.get_height()
+        piece_width = AssetManager.get_piece_surface(self.possible_pieces[0]).get_width()
+        piece_height = AssetManager.get_piece_surface(self.possible_pieces[0]).get_height()
         center.x -= (piece_width * 2)
         result = []
         for val in self.possible_pieces:
             rect = pygame.rect.Rect(center.x, center.y, piece_width, piece_height)
-            result.append((AssetManager.get_piece(val).surface, rect, val))
+            result.append((AssetManager.get_piece_surface(val), rect, val))
             center.x += piece_width
         return result
 

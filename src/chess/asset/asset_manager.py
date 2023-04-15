@@ -1,55 +1,50 @@
-import dataclasses
+import pygame
 
-from chess.asset.chess_assets import Sprite, PieceSetAsset, load_piece_set, ChessTheme
-import chess.notation.forsyth_edwards_notation as notation
+from chess.asset.chess_assets import PieceSurfaces, PieceSetAsset, load_piece_set, ChessTheme
+from chess.notation.forsyth_edwards_notation import FenChars
 
 from config import *
 
 
-@dataclasses.dataclass
-class PieceInfo:
-    asset_index: int
-
-
 class AssetManager:
-    piece_sprites: dict[str, Sprite] = {}
+    piece_surfaces: dict[str, pygame.surface.Surface] = {}
     piece_asset_index: dict[str, int] = {}
     theme: ChessTheme | None = None
 
     @staticmethod
-    def load_pieces_sprites(piece_set: PieceSetAsset, scale: float) -> dict[str, Sprite]:
-        sprites = {}
-        white_sprites, black_sprites = load_piece_set(piece_set, scale)
-        assert len(white_sprites) == len(black_sprites)
+    def load_pieces_surfaces(piece_set: PieceSetAsset, scale: float) -> dict[str, pygame.surface.Surface]:
+        surfaces: dict[str, pygame.surface.Surface] = {}
+        piece_surfaces: PieceSurfaces = load_piece_set(piece_set, scale)
+        assert len(piece_surfaces.white) == len(piece_surfaces.black)
         for fen_value, index in AssetManager.piece_asset_index.items():
-            sprites[fen_value.upper()] = white_sprites[index]
-            sprites[fen_value.lower()] = black_sprites[index]
-        return sprites
+            surfaces[fen_value.upper()] = piece_surfaces.white[index]
+            surfaces[fen_value.lower()] = piece_surfaces.black[index]
+        return surfaces
 
     @staticmethod
     def load_assets_index():
-        AssetManager.piece_asset_index[notation.FenChars.DEFAULT_PAWN.value] = P_ASSET_INDEX
-        AssetManager.piece_asset_index[notation.FenChars.DEFAULT_KNIGHT.value] = N_ASSET_INDEX
-        AssetManager.piece_asset_index[notation.FenChars.DEFAULT_ROOK.value] = R_ASSET_INDEX
-        AssetManager.piece_asset_index[notation.FenChars.DEFAULT_BISHOP.value] = B_ASSET_INDEX
-        AssetManager.piece_asset_index[notation.FenChars.DEFAULT_QUEEN.value] = Q_ASSET_INDEX
-        AssetManager.piece_asset_index[notation.FenChars.DEFAULT_KING.value] = K_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_PAWN.value] = P_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_KNIGHT.value] = N_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_ROOK.value] = R_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_BISHOP.value] = B_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_QUEEN.value] = Q_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_KING.value] = K_ASSET_INDEX
 
     @staticmethod
     def load_pieces(piece_set: PieceSetAsset, scale: float) -> None:
         AssetManager.load_assets_index()
-        AssetManager.piece_sprites = AssetManager.load_pieces_sprites(piece_set, scale)
+        AssetManager.piece_surfaces = AssetManager.load_pieces_surfaces(piece_set, scale)
 
     @staticmethod
     def load_theme(theme: ChessTheme) -> None:
         AssetManager.theme = theme
 
     @staticmethod
-    def get_piece(fen_val: str) -> Sprite:
-        sprite = AssetManager.piece_sprites.get(fen_val)
-        if sprite is None:
+    def get_piece_surface(fen_val: str) -> pygame.surface.Surface:
+        surface = AssetManager.piece_surfaces.get(fen_val)
+        if surface is None:
             raise Exception(f'fen_val : {fen_val} not found, make sure piece assets are loaded')
-        return sprite
+        return surface
 
     @staticmethod
     def get_theme() -> ChessTheme:
