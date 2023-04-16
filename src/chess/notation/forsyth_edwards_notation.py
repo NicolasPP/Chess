@@ -19,8 +19,8 @@ class FenChars:
     DEFAULT_KNIGHT = "N"
 
     @staticmethod
-    def get_piece_fen(char: str, is_white_turn: bool) -> str:
-        possible_values: list[str] = [
+    def get_possible_pieces() -> list[str]:
+        return [
             FenChars.DEFAULT_PAWN,
             FenChars.DEFAULT_KING,
             FenChars.DEFAULT_QUEEN,
@@ -28,7 +28,10 @@ class FenChars:
             FenChars.DEFAULT_ROOK,
             FenChars.DEFAULT_KNIGHT
         ]
-        if char not in possible_values: raise Exception("char not a piece value")
+
+    @staticmethod
+    def get_piece_fen(char: str, is_white_turn: bool) -> str:
+        if char not in FenChars.get_possible_pieces(): raise Exception("char not a piece value")
         if is_white_turn: return char.upper()
         return char.lower()
 
