@@ -70,7 +70,7 @@ class Board:
         raise Exception(' no piece picked up ')
 
     def set_picked_up(self, tile: BoardTile) -> None:
-        if tile.fen_val == FenChars.BLANK_PIECE.value: return
+        if tile.fen_val == FenChars.BLANK_PIECE: return
         self.reset_picked_up()
         tile.picked_up = True
 
@@ -92,6 +92,6 @@ class Board:
     def render_pieces(self, is_white: bool) -> None:
         grid = self.grid if is_white else self.grid[::-1]
         for tile in grid:
-            if tile.fen_val == FenChars.BLANK_PIECE.value: continue
+            if tile.fen_val == FenChars.BLANK_PIECE: continue
             if tile.picked_up: continue
             tile.render(self.rect.topleft)

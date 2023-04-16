@@ -37,7 +37,7 @@ class BoardTile:
             self,
             rect: pygame.rect.Rect,
             algebraic_notation: AlgebraicNotation,
-            fen_val: str = FenChars.BLANK_PIECE.value
+            fen_val: str = FenChars.BLANK_PIECE
     ):
         self.rect: pygame.rect.Rect = rect
         self.algebraic_notation: AlgebraicNotation = algebraic_notation

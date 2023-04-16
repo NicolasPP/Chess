@@ -1,5 +1,4 @@
 import dataclasses
-import enum
 import re
 import typing
 
@@ -10,7 +9,7 @@ from chess.notation.algebraic_notation import AlgebraicNotation
 TagPairs: typing.TypeAlias = dict[str, str]
 
 
-class PGNChars(enum.Enum):
+class PGNChars:
     CHECK: str = '+'
     CHECKMATE: str = '#'
     TAKE: str = 'x'
@@ -133,19 +132,19 @@ def get_algebraic_notation_from_pgn_move(pgn_move: str, fen: Fen, is_white_turn:
         from_an, dest_an = get_castle_from_dest(pgn_move, is_white_turn)
         return from_an, dest_an, target_fen
 
-    is_check = pgn_move[-1] is PGNChars.CHECK.value
-    is_checkmate = pgn_move[-1] is PGNChars.CHECKMATE.value
-    is_take = pgn_move.find(PGNChars.TAKE.value) >= 0
-    is_en_passant = pgn_move.find(PGNChars.EN_PASSANT.value) >= 0 and not pgn_move[-1].isnumeric()
+    is_check = pgn_move[-1] is PGNChars.CHECK
+    is_checkmate = pgn_move[-1] is PGNChars.CHECKMATE
+    is_take = pgn_move.find(PGNChars.TAKE) >= 0
+    is_en_passant = pgn_move.find(PGNChars.EN_PASSANT) >= 0 and not pgn_move[-1].isnumeric()
 
     if is_check:
-        pgn_move = pgn_move.replace(PGNChars.CHECK.value, '')
+        pgn_move = pgn_move.replace(PGNChars.CHECK, '')
     if is_take:
-        pgn_move = pgn_move.replace(PGNChars.TAKE.value, '')
+        pgn_move = pgn_move.replace(PGNChars.TAKE, '')
     if is_checkmate:
-        pgn_move = pgn_move.replace(PGNChars.CHECKMATE.value, '')
+        pgn_move = pgn_move.replace(PGNChars.CHECKMATE, '')
     if is_en_passant:
-        pgn_move = pgn_move.replace(PGNChars.EN_PASSANT.value, '')
+        pgn_move = pgn_move.replace(PGNChars.EN_PASSANT, '')
         target_fen = pgn_move[-1].upper() if is_white_turn else pgn_move[-1].lower()
         pgn_move = pgn_move[:-1]
 
@@ -195,7 +194,7 @@ def disambiguate_pgn_from_move(dest_an: AlgebraicNotation, pgn_from_info: str, f
 
 
 def parse_pgn_from_info(pgn_from_info: str, is_white_turn: bool) -> tuple[str, str | None, str | None]:
-    pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(is_white_turn)
+    pawn_fen = FenChars.get_piece_fen(FenChars.DEFAULT_PAWN, is_white_turn)
     if not pgn_from_info: return pawn_fen, None, None
 
     possible_fen = ['B', 'Q', 'R', 'N', 'K']

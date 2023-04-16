@@ -106,8 +106,8 @@ def test_fen_setitem():
     fen[10] = 'k'
     assert fen[10] is 'k'
     fen[10] = fen[0]
-    assert fen[10] is notation.FenChars.BLANK_PIECE.value
-    assert fen[0] is notation.FenChars.BLANK_PIECE.value
+    assert fen[10] is notation.FenChars.BLANK_PIECE
+    assert fen[0] is notation.FenChars.BLANK_PIECE
 
 
 def test_fen_notation():

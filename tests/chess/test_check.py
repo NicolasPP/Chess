@@ -29,7 +29,7 @@ def test_moving_into_check():
 def test_get_out_check(fen: Fen, piece_fen_val: str):
     assert validate_move.is_check(fen)
     for index, fen_val in enumerate(fen.expanded):
-        if fen_val is FenChars.BLANK_PIECE.value: continue
+        if fen_val is FenChars.BLANK_PIECE: continue
         if fen_val.islower() if fen.is_white_turn() else fen_val.isupper(): continue
 
         moves = get_available_moves(index, fen)

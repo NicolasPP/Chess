@@ -23,12 +23,12 @@ class AssetManager:
 
     @staticmethod
     def load_assets_index():
-        AssetManager.piece_asset_index[FenChars.DEFAULT_PAWN.value] = P_ASSET_INDEX
-        AssetManager.piece_asset_index[FenChars.DEFAULT_KNIGHT.value] = N_ASSET_INDEX
-        AssetManager.piece_asset_index[FenChars.DEFAULT_ROOK.value] = R_ASSET_INDEX
-        AssetManager.piece_asset_index[FenChars.DEFAULT_BISHOP.value] = B_ASSET_INDEX
-        AssetManager.piece_asset_index[FenChars.DEFAULT_QUEEN.value] = Q_ASSET_INDEX
-        AssetManager.piece_asset_index[FenChars.DEFAULT_KING.value] = K_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_PAWN] = P_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_KNIGHT] = N_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_ROOK] = R_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_BISHOP] = B_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_QUEEN] = Q_ASSET_INDEX
+        AssetManager.piece_asset_index[FenChars.DEFAULT_KING] = K_ASSET_INDEX
 
     @staticmethod
     def load_pieces(piece_set: PieceSetAsset, scale: float) -> None:

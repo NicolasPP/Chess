@@ -11,7 +11,7 @@ def is_move_valid(from_index: int, dest_index: int, fen: Fen) -> bool:
 
 def is_check(fen: Fen, is_white_turn: None | bool = None) -> bool:
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
-    king_fen = FenChars.DEFAULT_KING.get_piece_fen(is_white_turn)
+    king_fen = FenChars.get_piece_fen(FenChars.DEFAULT_KING, is_white_turn)
     king_index = fen.get_indexes_for_piece(king_fen)
     threats = get_possible_threats(king_index[0], fen, is_white_turn)
     return len(threats) != 0
@@ -25,7 +25,7 @@ def is_checkmate(fen: Fen, is_white_turn: None | bool = None) -> bool:
 
 def is_take(fen: Fen, dest_index: int, is_en_passant: bool, is_castle: bool) -> bool:
     if is_castle: return False
-    return (fen[dest_index] != FenChars.BLANK_PIECE.value) or is_en_passant
+    return (fen[dest_index] != FenChars.BLANK_PIECE) or is_en_passant
 
 
 def get_all_available_moves(fen: Fen, is_white_turn: None | bool = None, *, own_moves: bool) -> list[int]:
@@ -33,7 +33,7 @@ def get_all_available_moves(fen: Fen, is_white_turn: None | bool = None, *, own_
     if is_white_turn is None: is_white_turn = fen.is_white_turn()
     for index, fen_char in enumerate(fen.expanded):
         same_side = is_same_side(is_white_turn, fen_char)
-        if fen_char == FenChars.BLANK_PIECE.value: continue
+        if fen_char == FenChars.BLANK_PIECE: continue
         if not same_side if own_moves else same_side: continue
 
         moves += get_available_moves(index, fen, own_moves == is_white_turn)
@@ -66,8 +66,8 @@ def is_material_insufficient(fen: Fen) -> bool:
         return True
 
     if imi.total_count == 4 and minor_piece_count == 2:
-        white_knight = FenChars.DEFAULT_KNIGHT.get_piece_fen(True)
-        black_knight = FenChars.DEFAULT_KNIGHT.get_piece_fen(False)
+        white_knight = FenChars.get_piece_fen(FenChars.DEFAULT_KNIGHT, True)
+        black_knight = FenChars.get_piece_fen(FenChars.DEFAULT_KNIGHT, False)
         first_p, second_p = imi.minor_pieces
         if first_p != second_p:
             # King + minor piece vs king + minor piece
@@ -88,7 +88,7 @@ def is_same_side(is_white_turn: bool, fen_char: str) -> bool:
 
 def is_from_valid(fen: Fen, from_index: int) -> bool:
     from_fen_val = fen[from_index]
-    if from_fen_val == FenChars.BLANK_PIECE.value: return False
+    if from_fen_val == FenChars.BLANK_PIECE: return False
     if not is_from_correct_side(from_fen_val, fen.is_white_turn()): return False
     return True
 
@@ -112,5 +112,5 @@ def is_from_correct_side(from_fen_val: str, is_white: bool) -> bool:
 
 
 def is_same_team(piece1: str, piece2: str) -> bool:
-    if piece2 == FenChars.BLANK_PIECE.value: return False
+    if piece2 == FenChars.BLANK_PIECE: return False
     return piece1.islower() == piece2.islower()

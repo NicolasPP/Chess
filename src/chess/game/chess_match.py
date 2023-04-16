@@ -139,7 +139,7 @@ class Match:
         time = datetime.datetime.fromisoformat(time_iso)
         if self.prev_time is not None:
             diff = time - self.prev_time
-            if self.fen.data.active_color == FenChars.WHITE_ACTIVE_COLOR.value:
+            if self.fen.data.active_color == FenChars.WHITE_ACTIVE_COLOR:
                 self.white_time_left -= diff.total_seconds()
                 self.white_time_left += self.timer_config.increment
             else:
@@ -160,7 +160,7 @@ class Match:
 
         is_en_passant = before_move_fen.is_move_en_passant(from_index, dest_index)
         is_castle = before_move_fen.is_move_castle(from_index, dest_index)
-        opponent_pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(not before_move_fen.is_white_turn())
+        opponent_pawn_fen = FenChars.get_piece_fen(FenChars.DEFAULT_PAWN, not before_move_fen.is_white_turn())
 
         if is_take(before_move_fen, dest_index, is_en_passant, is_castle):
             if is_en_passant:

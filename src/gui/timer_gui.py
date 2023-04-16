@@ -59,8 +59,8 @@ class TimerGui:
         self.opponents_timer.tick(delta_time)
 
     def update(self, side: Side, active_color: str, white_time_left: float, black_time_left: float) -> None:
-        current_active_color = FenChars.WHITE_ACTIVE_COLOR.value \
-            if side == Side.WHITE else FenChars.BLACK_ACTIVE_COLOR.value
+        current_active_color = FenChars.WHITE_ACTIVE_COLOR \
+            if side == Side.WHITE else FenChars.BLACK_ACTIVE_COLOR
 
         if active_color == current_active_color:
             self.own_timer.start()

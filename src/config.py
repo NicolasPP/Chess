@@ -54,7 +54,7 @@ PLAIN3_DARK: tuple[int, int, int] = (89, 96, 111)
 PLAIN4_LIGHT: tuple[int, int, int] = (230, 234, 216)
 PLAIN4_DARK: tuple[int, int, int] = (69, 77, 94)
 
-# -- Default vals --
+# -- Default values --
 GAME_START_FEN: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 OFFER_DRAW_LABEL: str = "draw"
 RESIGN_LABEL: str = "resign"

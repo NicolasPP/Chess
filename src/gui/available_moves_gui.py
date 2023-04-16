@@ -19,7 +19,7 @@ class AvailableMovesGui:
         is_black_and_lower = side is Side.BLACK and fen[piece_index].islower()
         is_white_and_upper = side is Side.WHITE and fen[piece_index].isupper()
         correct_side = True if is_black_and_lower or is_white_and_upper else False
-        if fen[piece_index] == FenChars.BLANK_PIECE.value or not correct_side:
+        if fen[piece_index] == FenChars.BLANK_PIECE or not correct_side:
             self.available_moves[piece_index] = []
             return None
         available_moves = get_available_moves(piece_index, fen)

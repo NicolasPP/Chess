@@ -152,7 +152,7 @@ class Player:
         elif self.state is State.PICK_PIECE:
             tile = self.board.get_collided_tile(self.game_offset)
             if not tile: return
-            if tile.fen_val == FenChars.BLANK_PIECE.value: return
+            if tile.fen_val == FenChars.BLANK_PIECE: return
             self.board.set_picked_up(tile)
             self.state = State.DROP_PIECE
             self.end_game_gui.offer_draw.set_hover(False)

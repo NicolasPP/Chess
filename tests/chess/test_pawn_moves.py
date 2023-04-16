@@ -81,7 +81,7 @@ def test_en_passant():
     f.make_move(12, 28, f[12])
     assert len(get_available_moves(29, f)) == 1
     f.make_move(29, 20, f[29])
-    assert f[28] == FenChars.BLANK_PIECE.value
+    assert f[28] == FenChars.BLANK_PIECE
     assert f[20] == 'P'
     f = Fen("rnbqkbnr/1ppppp2/7P/p7/8/8/PPPPPPP1/RNBQKBNR w KQkq a6 0 6")
     assert len(get_available_moves(23, f)) == 1
