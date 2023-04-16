@@ -173,7 +173,7 @@ def knight_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool
         (1, 2)  # left_up
     ]
 
-    moves += move_fixed_amount(moves_offset, from_index, fen, is_white_turn)
+    moves += move_piece(moves_offset, from_index, fen, is_white_turn, until_friendly=False)
 
     return moves
 
@@ -183,10 +183,10 @@ def rook_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool =
     moves = []
     up, down, right, left = get_flat_offsets()
 
-    moves += move_until_friendly(left, from_index, fen, is_white_turn)
-    moves += move_until_friendly(right, from_index, fen, is_white_turn)
-    moves += move_until_friendly(up, from_index, fen, is_white_turn)
-    moves += move_until_friendly(down, from_index, fen, is_white_turn)
+    moves += move_piece(left, from_index, fen, is_white_turn)
+    moves += move_piece(right, from_index, fen, is_white_turn)
+    moves += move_piece(up, from_index, fen, is_white_turn)
+    moves += move_piece(down, from_index, fen, is_white_turn)
 
     return moves
 
@@ -197,10 +197,10 @@ def bishop_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool
 
     up_right, down_right, up_left, down_left = get_diagonal_offsets()
 
-    moves += move_until_friendly(up_right, from_index, fen, is_white_turn)
-    moves += move_until_friendly(down_right, from_index, fen, is_white_turn)
-    moves += move_until_friendly(up_left, from_index, fen, is_white_turn)
-    moves += move_until_friendly(down_left, from_index, fen, is_white_turn)
+    moves += move_piece(up_right, from_index, fen, is_white_turn)
+    moves += move_piece(down_right, from_index, fen, is_white_turn)
+    moves += move_piece(up_left, from_index, fen, is_white_turn)
+    moves += move_piece(down_left, from_index, fen, is_white_turn)
 
     return moves
 
@@ -250,7 +250,7 @@ def king_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool =
             if fen[move] != FenChars.BLANK_PIECE.value: queen_castle = False
         if queen_castle: moves.append(queen_side_rook_index)
 
-    moves += move_fixed_amount(moves_offset, from_index, fen, is_white_turn)
+    moves += move_piece(moves_offset, from_index, fen, is_white_turn, until_friendly=False)
 
     return moves
 
@@ -291,11 +291,12 @@ def get_flat_offsets(
     return up, down, right, left
 
 
-def move_until_friendly(
+def move_piece(
         moves_offset: list[tuple[int, int]],
         from_index: int,
         fen: Fen,
-        is_white_turn: bool
+        is_white_turn: bool,
+        until_friendly: bool = True
 ) -> list[int]:
     moves = []
     for offset in moves_offset:
@@ -306,29 +307,10 @@ def move_until_friendly(
             moves.append(move)
         elif is_white_turn:
             if fen[move].islower(): moves.append(move)
-            break
+            if until_friendly: break
         else:
             if fen[move].isupper(): moves.append(move)
-            break
-    return moves
-
-
-def move_fixed_amount(
-        moves_offset: list[tuple[int, int]],
-        from_index: int,
-        fen: Fen,
-        is_white_turn: bool
-) -> list[int]:
-    moves = []
-    for offset in moves_offset:
-        move = get_fen_offset_index(is_white_turn, from_index, *offset)
-        if move is None: continue
-        if fen[move] == FenChars.BLANK_PIECE.value:
-            moves.append(move)
-        elif is_white_turn:
-            if fen[move].islower(): moves.append(move)
-        else:
-            if fen[move].isupper(): moves.append(move)
+            if until_friendly: break
     return moves
 
 
