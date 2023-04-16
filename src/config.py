@@ -79,12 +79,18 @@ NORMAL16x32_PIECE_FILE_WHITE: str = 'assets/pieces-16-32/WhitePieces-Sheet.png'
 NORMAL16x32_PIECE_FILE_BLACK: str = 'assets/pieces-16-32/BlackPieces-Sheet.png'
 
 # -- Indexes --
-P_ASSET_INDEX = 0
-N_ASSET_INDEX = 1
-R_ASSET_INDEX = 2
-B_ASSET_INDEX = 3
-Q_ASSET_INDEX = 4
-K_ASSET_INDEX = 5
+P_ASSET_INDEX: int = 0
+N_ASSET_INDEX: int = 1
+R_ASSET_INDEX: int = 2
+B_ASSET_INDEX: int = 3
+Q_ASSET_INDEX: int = 4
+K_ASSET_INDEX: int = 5
+
+P_SCORE: int = 1
+N_SCORE: int = 3
+R_SCORE: int = 5
+B_SCORE: int = 3
+Q_SCORE: int = 9
 
 # -- Limits --
 HALF_MOVE_LIMIT = 100
