@@ -2,7 +2,7 @@ import dataclasses
 import enum
 import typing
 
-from chess.notation.algebraic_notation import AlgebraicNotation, validate_file_and_rank, get_an_from_index
+from chess.notation.algebraic_notation import AlgebraicNotation, validate_file_and_rank
 from config import *
 
 
@@ -123,7 +123,7 @@ class Fen:
         if dest_index not in double_moves_end: return FenChars.EMPTY_INFO.value
 
         index_offset = BOARD_SIZE if self.is_white_turn() else BOARD_SIZE * -1
-        en_passant_rights = get_an_from_index(dest_index + index_offset).data.coordinates
+        en_passant_rights = AlgebraicNotation.get_an_from_index(dest_index + index_offset).coordinates
         validate_fen_en_passant_rights(en_passant_rights)
 
         return en_passant_rights
@@ -235,8 +235,11 @@ class Fen:
 
     def make_en_passant_move(self, from_index: int, dest_index: int) -> None:
         self.make_regular_move(from_index, dest_index, self[from_index])
-        opp_index = AlgebraicNotation(get_an_from_index(dest_index).data.file, get_an_from_index(from_index).data.rank)
-        self[opp_index.data.index] = FenChars.BLANK_PIECE.value
+        opp_index = AlgebraicNotation(
+            AlgebraicNotation.get_an_from_index(dest_index).file,
+            AlgebraicNotation.get_an_from_index(from_index).rank
+        )
+        self[opp_index.index] = FenChars.BLANK_PIECE.value
 
     def make_castle_move(self, from_index: int, dest_index: int) -> None:
         king_side_rook_index = 63 if self.is_white_turn() else 7
@@ -262,9 +265,9 @@ class Fen:
         pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(self.is_white_turn())
         if self.data.en_passant_rights == '-': return False
         if self[from_index] != pawn_fen: return False
-        from_an = get_an_from_index(from_index)
-        dest_an = get_an_from_index(dest_index)
-        return from_an.data.file != dest_an.data.file and \
+        from_an = AlgebraicNotation.get_an_from_index(from_index)
+        dest_an = AlgebraicNotation.get_an_from_index(dest_index)
+        return from_an.file != dest_an.file and \
             self[dest_index] == FenChars.BLANK_PIECE.value
 
     def is_move_castle(self, from_index: int, dest_index: int) -> bool:

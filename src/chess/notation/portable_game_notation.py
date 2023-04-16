@@ -5,7 +5,7 @@ import typing
 
 from chess.movement.piece_movement import get_available_moves
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
-from chess.notation.algebraic_notation import AlgebraicNotation, get_an_from_index
+from chess.notation.algebraic_notation import AlgebraicNotation
 
 TagPairs: typing.TypeAlias = dict[str, str]
 
@@ -120,8 +120,8 @@ def get_an_from_pgn_game(game: Game) \
 def process_pgn_move(pgn_move: str, fen: Fen, is_white_turn: bool) \
         -> tuple[AlgebraicNotation, AlgebraicNotation, str]:
     from_an, dest_an, target_fen = get_algebraic_notation_from_pgn_move(pgn_move, fen, is_white_turn)
-    if not target_fen: target_fen = fen[from_an.data.index]
-    fen.make_move(from_an.data.index, dest_an.data.index, target_fen)
+    if not target_fen: target_fen = fen[from_an.index]
+    fen.make_move(from_an.index, dest_an.index, target_fen)
     return from_an, dest_an, target_fen
 
 
@@ -172,9 +172,9 @@ def get_castle_from_dest(pgn_move, is_white_turn) -> tuple[AlgebraicNotation, Al
     king_side_rook_index = 63 if is_white_turn else 7
     queen_side_rook_index = 56 if is_white_turn else 0
     king_index = 60 if is_white_turn else 4
-    king_an = get_an_from_index(king_index)
-    if pgn_move == 'O-O-O': return king_an, get_an_from_index(queen_side_rook_index)
-    return king_an, get_an_from_index(king_side_rook_index)
+    king_an = AlgebraicNotation.get_an_from_index(king_index)
+    if pgn_move == 'O-O-O': return king_an, AlgebraicNotation.get_an_from_index(queen_side_rook_index)
+    return king_an, AlgebraicNotation.get_an_from_index(king_side_rook_index)
 
 
 def disambiguate_pgn_from_move(dest_an: AlgebraicNotation, pgn_from_info: str, fen: Fen,
@@ -183,15 +183,15 @@ def disambiguate_pgn_from_move(dest_an: AlgebraicNotation, pgn_from_info: str, f
     similar_pieces_indexes = fen.get_indexes_for_piece(piece_fen)
     from_index = -1
     for s_index in similar_pieces_indexes:
-        index_an = get_an_from_index(s_index)
-        if file_filter and index_an.data.file != file_filter.lower(): continue
-        if rank_filter and index_an.data.rank != rank_filter.lower(): continue
+        index_an = AlgebraicNotation.get_an_from_index(s_index)
+        if file_filter and index_an.file != file_filter.lower(): continue
+        if rank_filter and index_an.rank != rank_filter.lower(): continue
         similar_piece_available_moves = get_available_moves(s_index, fen, is_white_turn)
         for move in similar_piece_available_moves:
-            if move == dest_an.data.index: from_index = s_index
+            if move == dest_an.index: from_index = s_index
             if from_index != -1: break
         if from_index != -1: break
-    return get_an_from_index(from_index)
+    return AlgebraicNotation.get_an_from_index(from_index)
 
 
 def parse_pgn_from_info(pgn_from_info: str, is_white_turn: bool) -> tuple[str, str | None, str | None]:

@@ -1,7 +1,7 @@
 import typing
 
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
-from chess.notation.algebraic_notation import AlgebraicNotation, get_an_from_index
+from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.board.board_tile import BoardTile
 from config import *
 
@@ -137,12 +137,12 @@ def pawn_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool =
     if fen.data.en_passant_rights != FenChars.EMPTY_INFO.value:
         index_offset = BOARD_SIZE if fen.is_white_turn() else BOARD_SIZE * -1
         en_passant_an = AlgebraicNotation(*fen.data.en_passant_rights)
-        possible_en_passant = get_an_from_index(en_passant_an.data.index + index_offset)
-        from_an = get_an_from_index(from_index)
-        if possible_en_passant.data.rank == from_an.data.rank:
-            if from_index == get_an_from_index(possible_en_passant.data.index + 1).data.index or \
-                    from_index == get_an_from_index(possible_en_passant.data.index - 1).data.index:
-                move = get_fen_offset_index(is_white_turn, en_passant_an.data.index, 0, 0)
+        possible_en_passant = AlgebraicNotation.get_an_from_index(en_passant_an.index + index_offset)
+        from_an = AlgebraicNotation.get_an_from_index(from_index)
+        if possible_en_passant.rank == from_an.rank:
+            if from_index == AlgebraicNotation.get_an_from_index(possible_en_passant.index + 1).index or \
+                    from_index == AlgebraicNotation.get_an_from_index(possible_en_passant.index - 1).index:
+                move = get_fen_offset_index(is_white_turn, en_passant_an.index, 0, 0)
                 if move is not None:
                     moves.append(move)
 
@@ -312,12 +312,12 @@ def move_piece(
 def is_pawn_promotion(from_tile: BoardTile, dest_tile: BoardTile, fen: Fen) -> bool:
     pawn_fen = FenChars.DEFAULT_PAWN.get_piece_fen(fen.is_white_turn())
     rank = '8' if fen.is_white_turn() else '1'
-    from_index = from_tile.algebraic_notation.data.index
-    dest_index = dest_tile.algebraic_notation.data.index
-    dest_rank = dest_tile.algebraic_notation.data.rank
+    from_index = from_tile.algebraic_notation.index
+    dest_index = dest_tile.algebraic_notation.index
+    dest_rank = dest_tile.algebraic_notation.rank
     if from_tile.fen_val != pawn_fen: return False
     if dest_rank != rank: return False
     if dest_index not in get_available_moves(from_index, fen): return False
-    if not is_king_safe(from_tile.algebraic_notation.data.index,
-                        dest_tile.algebraic_notation.data.index, fen): return False
+    if not is_king_safe(from_tile.algebraic_notation.index,
+                        dest_tile.algebraic_notation.index, fen): return False
     return True

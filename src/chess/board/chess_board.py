@@ -42,7 +42,7 @@ class Board:
             else:
                 surface.fill(AssetManager.get_theme().dark_color)
 
-            if (tile.algebraic_notation.data.index + 1) % BOARD_SIZE != 0:
+            if (tile.algebraic_notation.index + 1) % BOARD_SIZE != 0:
                 counter += 1
 
             board_surface.blit(surface, tile.rect.topleft)

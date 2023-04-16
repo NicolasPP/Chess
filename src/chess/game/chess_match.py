@@ -3,7 +3,7 @@ import enum
 
 from chess.chess_timer import TimerConfig
 from chess.board.side import Side
-from chess.notation.algebraic_notation import get_index_from_an
+from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.network.command_manager import Command, CommandManager, ClientCommand, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenChars, validate_fen_piece_placement
 from chess.notation.forsyth_edwards_notation import validate_fen_castling_rights, validate_fen_en_passant_rights
@@ -124,8 +124,8 @@ class Match:
         list(map(lambda cmd: CommandManager.send_to(CommandManager.PLAYER, cmd), commands))
 
     def process_move(self, command: Command) -> list[MoveTags]:
-        from_index = get_index_from_an(*command.info[CommandManager.from_coordinates])
-        dest_index = get_index_from_an(*command.info[CommandManager.dest_coordinates])
+        from_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.from_coordinates])
+        dest_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.dest_coordinates])
         side = command.info[CommandManager.side]
         target_fen = command.info[CommandManager.target_fen]
         time_iso = command.info[CommandManager.time_iso]

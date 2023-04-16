@@ -1,6 +1,6 @@
 import pytest
 
-from chess.notation.algebraic_notation import get_an_from_index, get_index_from_an
+from chess.notation.algebraic_notation import AlgebraicNotation
 
 
 @pytest.mark.parametrize("index,expected", [
@@ -14,13 +14,13 @@ from chess.notation.algebraic_notation import get_an_from_index, get_index_from_
     (63, 'h1')
 ])
 def test_get_an_from_index(index: int, expected: str):
-    assert get_an_from_index(index).data.coordinates == expected
+    assert AlgebraicNotation.get_an_from_index(index).coordinates == expected
 
 
 @pytest.mark.parametrize("index", [-1, 65])
 def test_invalid_get_an_from_index(index: int):
     with pytest.raises(IndexError):
-        get_an_from_index(index)
+        AlgebraicNotation.get_an_from_index(index)
 
 
 @pytest.mark.parametrize("an,expected", [
@@ -34,10 +34,10 @@ def test_invalid_get_an_from_index(index: int):
     ('h1', 63)
 ])
 def test_get_index_from_anc(an, expected):
-    assert get_index_from_an(*an) is expected
+    assert AlgebraicNotation.get_index_from_an(*an) is expected
 
 
 @pytest.mark.parametrize("file,rank", [('a', '-8'), ('8', 'b'), ('8', '8'), ('9', 'd'), ('8', 'x')])
 def test_validate_file_and_rank(file: str, rank: str):
     with pytest.raises(Exception):
-        get_index_from_an(file, rank)
+        AlgebraicNotation.get_index_from_an(file, rank)

@@ -103,7 +103,7 @@ class Player:
         dest_tile = self.board.get_collided_tile(self.game_offset)
         from_tile = self.board.get_picked_up()
 
-        from_coordinates = from_tile.algebraic_notation.data.coordinates
+        from_coordinates = from_tile.algebraic_notation.coordinates
         target_fen = from_tile.fen_val
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
@@ -120,7 +120,7 @@ class Player:
 
         if dest_tile:
             is_promotion = is_pawn_promotion(from_tile, dest_tile, fen)
-            dest_coordinates = dest_tile.algebraic_notation.data.coordinates
+            dest_coordinates = dest_tile.algebraic_notation.coordinates
             move_info: dict[str, str] = {
                 CommandManager.from_coordinates: from_coordinates,
                 CommandManager.dest_coordinates: dest_coordinates,
@@ -197,8 +197,8 @@ class Player:
             from_tile = self.board.get_picked_up()
             dest_tile = self.board.get_collided_tile(self.game_offset, self.prev_left_mouse_up)
             if dest_tile is None or from_tile is None: continue
-            from_coordinates = from_tile.algebraic_notation.data.coordinates
-            dest_coordinates = dest_tile.algebraic_notation.data.coordinates
+            from_coordinates = from_tile.algebraic_notation.coordinates
+            dest_coordinates = dest_tile.algebraic_notation.coordinates
 
             if self.prev_time_iso is None: return
             move_info: dict[str, str] = {

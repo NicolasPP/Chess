@@ -37,7 +37,7 @@ class AvailableMovesGui:
     def get_available_moves_surface(self, picked: BoardTile, board: Board) -> \
             typing.Generator[tuple[pygame.surface.Surface, pygame.math.Vector2], None, None]:
         board_offset = pygame.math.Vector2(board.rect.topleft)
-        for index in self.available_moves[picked.algebraic_notation.data.index]:
+        for index in self.available_moves[picked.algebraic_notation.index]:
             tile = board.grid[index]
             tile_size = pygame.math.Vector2(tile.rect.size) * AVAILABLE_MOVE_SCALE
             available_surface = pygame.surface.Surface(tile_size)

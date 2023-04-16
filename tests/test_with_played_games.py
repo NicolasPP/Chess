@@ -16,5 +16,5 @@ def get_games() -> list[game_notation.Game]:
 def test_against_played_games(game: game_notation.Game):
     fen = Fen()
     for from_an, dest_an, target_fen in game_notation.get_an_from_pgn_game(game):
-        assert is_move_valid(from_an.data.index, dest_an.data.index, fen)
-        fen.make_move(from_an.data.index, dest_an.data.index, target_fen)
+        assert is_move_valid(from_an.index, dest_an.index, fen)
+        fen.make_move(from_an.index, dest_an.index, target_fen)
