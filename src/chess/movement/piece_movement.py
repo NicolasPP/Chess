@@ -256,7 +256,8 @@ def king_available_moves(from_index: int, fen: Fen, is_white_turn: None | bool =
 
 
 def get_fen_offset_index(is_white_turn: bool, from_index: int, row_offset: int, col_offset: int) -> int | None:
-    row, col = get_fen_row_col(from_index)
+    row = from_index // BOARD_SIZE
+    col = from_index - (row * BOARD_SIZE)
     if is_white_turn:
         row_offset = row_offset * -1
         col_offset = col_offset * -1
@@ -265,12 +266,6 @@ def get_fen_offset_index(is_white_turn: bool, from_index: int, row_offset: int, 
     if new_row < 0 or new_row > BOARD_SIZE - 1: return None
     if new_col < 0 or new_col > BOARD_SIZE - 1: return None
     return (new_row * BOARD_SIZE) + new_col
-
-
-def get_fen_row_col(index: int) -> tuple[int, int]:
-    row = index // BOARD_SIZE
-    col = index - (row * BOARD_SIZE)
-    return row, col
 
 
 def get_diagonal_offsets(
