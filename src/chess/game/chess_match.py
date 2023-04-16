@@ -7,7 +7,8 @@ from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.network.command_manager import Command, CommandManager, ClientCommand, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenChars, validate_fen_piece_placement
 from chess.notation.forsyth_edwards_notation import validate_fen_castling_rights, validate_fen_en_passant_rights
-from chess.movement.validate_move import is_move_valid, is_take, is_check, is_checkmate, is_stale_mate, is_material_insufficient
+from chess.movement.validate_move import is_move_valid, is_take, is_check
+from chess.movement.validate_move import is_checkmate, is_stale_mate, is_material_insufficient
 from config import HALF_MOVE_LIMIT
 
 
