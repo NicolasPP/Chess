@@ -71,7 +71,7 @@ class CapturedGui:
         for val in captured_pieces: validate_fen_val(val)
         self.captured_scale: float = captured_scale
         self.board_rect: pygame.rect.Rect = board_rect
-        self.captured_pieces: dict[str, int] = CapturedGui.create_captured_dict('PPPPPPPPNNRRBB')
+        self.captured_pieces: dict[str, int] = CapturedGui.create_captured_dict(captured_pieces)
         self.pieces: dict[str, pygame.surface.Surface] = self.copy_and_resize_pieces()
         self.score: CapturedPiecesScore = self.calculate_captured_pieces_score()
         self.captured_surfaces: CapturedPiecesSurface = self.create_captured_surfaces()
