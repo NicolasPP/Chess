@@ -222,6 +222,9 @@ class Player:
         if self.state == State.RESPOND_DRAW: return
         if self.opponent_promoting: return
         if self.timed_out: return
+        if self.state != State.DRAW_DOUBLE_CHECK and \
+                self.state != State.RESIGN_DOUBLE_CHECK:
+            self.axis_gui.update_hover_highlight(self.board.get_collided_tile(self.game_offset))
         self.timer_gui.tick(delta_time)
         if self.timer_gui.own_timer.time_left <= 0:
             time_out_info: dict[str, str] = {
@@ -250,6 +253,7 @@ class Player:
             return
 
         self.timer_gui.render()
+        self.axis_gui.render()
         self.end_game_gui.render(pygame.math.Vector2(self.game_offset.topleft))
 
         if self.is_render_required or self.state is State.DROP_PIECE:
