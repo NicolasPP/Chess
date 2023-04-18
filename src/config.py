@@ -34,7 +34,8 @@ OPP_TIMER_SPACING:  int = 6
 AXIS_FONT_SIZE: int = 25
 DEFAULT_SCALE: float = 3.5
 GAME_SURFACE_SPACING: int = 50
-
+SCORE_FONT_SIZE: int = 25
+MAX_SCORE: str = "+30"
 # -- Colors --
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = (76, 155, 87)
 PIECE_BG: tuple[int, int, int] = (0, 0, 0)
