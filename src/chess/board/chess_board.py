@@ -52,7 +52,6 @@ class Board:
     def __init__(self, side: Side):
         self.grid: list[BoardTile] = Board.create_board_grid(side)
         self.surface: pygame.surface.Surface = Board.create_board_surface(self.grid)
-
         self.rect: pygame.rect.Rect = self.surface.get_rect()
 
     def get_rect(self) -> pygame.rect.Rect:
