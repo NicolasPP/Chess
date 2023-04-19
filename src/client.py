@@ -43,13 +43,6 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
         return
 
 
-def update_window_caption(player: Player) -> None:
-    if player.game_over:
-        pygame.display.set_caption('GAME OVER')
-    else:
-        pygame.display.set_caption(player.get_window_title())
-
-
 def get_player(init_info: Command, game_offset: pygame.rect.Rect) -> Player:
     side = init_info.info[CommandManager.side]
     time_left = init_info.info[CommandManager.time]

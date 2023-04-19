@@ -50,6 +50,7 @@ def init_chess(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> Non
 
     GameSurface.create_surface()
     pygame.display.set_mode(calculate_window_size(*GameSurface.get().get_size()))
+    pygame.display.set_caption("")
 
     AssetManager.load_theme(theme)
     GameSurface.get().fill(AssetManager.get_theme().dark_color)

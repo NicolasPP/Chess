@@ -328,11 +328,6 @@ class Player:
     def set_timed_out(self, timed_out: bool) -> None:
         self.timed_out = timed_out
 
-    def get_window_title(self):
-        if self.turn: return f"{self.side.name}s TURN"
-        opposite_side = Side.WHITE if self.side is Side.BLACK else Side.BLACK
-        return f"{opposite_side.name}s TURN"
-
     def set_to_default_pos(self) -> None:
         timer_rects: TimerRects = TimerGui.calculate_timer_rects()
         self.board.get_rect().topleft = (

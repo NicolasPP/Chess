@@ -38,16 +38,6 @@ def set_delta_time() -> None:
     prev_time = now
 
 
-def update_window_caption(*players: Player) -> None:
-    for player in players:
-        if player.game_over:
-            pygame.display.set_caption('GAME OVER')
-            return
-        if not player.turn: continue
-        pygame.display.set_caption(f"{player.side.name}s TURN")
-        return
-
-
 def main_loop(theme: ChessTheme, scale: float, piece_set: PieceSetAsset) -> None:
     done = False
     is_white = True
@@ -72,8 +62,6 @@ def main_loop(theme: ChessTheme, scale: float, piece_set: PieceSetAsset) -> None
                     white_player.set_require_render(True)
                     black_player.set_require_render(True)
             current_player.parse_input(event, match.fen, local=True)
-
-        update_window_caption(white_player, black_player)
 
         match.process_local_move()
 
