@@ -4,7 +4,9 @@ import socket as skt
 import enum
 import typing
 
-from chess.timer.timer_config import DefaultConfigs
+import click
+
+from chess.timer.timer_config import DefaultConfigs, TimerConfig
 from chess.game.chess_match import Match, MatchResult
 from chess.network.chess_network import Net
 from chess.network.command_manager import CommandManager, Command, ServerCommand
@@ -70,10 +72,10 @@ class Server(Net):
         for client_socket in connections:
             client_socket.send(data)
 
-    def __init__(self, server_ip: str):
+    def __init__(self, timer_config: TimerConfig, server_ip: str = ''):
         super().__init__(server_ip)
         self.client_id: int = -1
-        self.match: Match = Match(DefaultConfigs.BLITZ_5)
+        self.match: Match = Match(timer_config)
         self.client_sockets: list[skt.socket] = []
         self.is_running: bool = False
         PieceMovement.load()
@@ -130,7 +132,7 @@ class Server(Net):
         init_info: dict[str, str] = {
             CommandManager.side: side_name,
             CommandManager.fen_notation: encode_fen_data(self.match.fen.data),
-            CommandManager.time: str(self.match.timer_config.time)
+            CommandManager.time: str(int(self.match.timer_config.time))
         }
         init: Command = CommandManager.get(ServerCommand.INIT_INFO, init_info)
         Server.send_all_bytes([client_socket], CommandManager.serialize_command(init))
@@ -210,5 +212,22 @@ def process_server_control_command(command: ServerControlCommands, server: Serve
         Server.send_all_bytes(server.client_sockets, data)
 
 
-if __name__ == '__main__':
-    Server('').run()
+@click.command()
+@click.option(
+    '--timer',
+    default='BLITZ_5_0',
+    help='''
+    choose timer settings, custom setting format "time increment" (time-minutes, increment-seconds)
+    e.g "15 0"\n 
+    possible timers:\n
+    BULLET_1_0 BULLET_1_1 BULLET_2_1\n
+    BLITZ_3_0 BLITZ_3_2 BLITZ_5_0\n
+    RAPID_15_10 RAPID_30_0 RAPID_60_0\n
+    '''
+)
+def start_server(timer: str) -> None:
+    Server(DefaultConfigs.get_timer_config(timer)).run()
+
+
+if __name__ == "__main__":
+    start_server()
