@@ -8,7 +8,7 @@ from chess.game.chess_match import Match
 from chess.chess_player import Player, process_command_local, State
 from chess.board.side import Side
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
-from chess.timer.timer_config import DefaultConfigs, TimerConfig
+from chess.timer.timer_config import DefaultConfigs
 from chess.game.game_surface import GameSurface
 from chess.chess_init import init_chess
 

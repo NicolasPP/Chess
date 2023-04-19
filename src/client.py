@@ -11,7 +11,6 @@ from chess.notation.forsyth_edwards_notation import Fen
 from chess.network.command_manager import CommandManager, Command
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
 from chess.network.chess_network import ChessNetwork
-from chess.board.side import Side
 from chess.chess_logging import set_up_logging
 from chess.chess_init import init_chess
 from chess.game.game_surface import GameSurface
