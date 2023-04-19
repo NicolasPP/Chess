@@ -4,8 +4,8 @@ import socket as skt
 import enum
 import typing
 
-from chess.chess_timer import DefaultConfigs
-from chess.game.chess_match import MoveTags, Match, MatchResult
+from chess.timer.timer_config import DefaultConfigs
+from chess.game.chess_match import Match, MatchResult
 from chess.network.chess_network import Net
 from chess.network.command_manager import CommandManager, Command, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data
@@ -164,15 +164,12 @@ def client_listener(client_socket: skt.socket, server: Server):
                 break
 
             commands: list[Command] = []
-            move_tags: list[MoveTags] = []
 
             command: Command = CommandManager.deserialize_command_bytes(data)
 
             logger.debug("client : %s, sent move %s to server", p_id, command.name)
 
-            move_tags, commands = server.match.process_client_command(command, move_tags, commands)
-
-            logger.debug("move tags : %s", str(move_tags))
+            commands = server.match.process_client_command(command, commands)
 
             server.match.update_fen = True
             server.match.commands = commands
