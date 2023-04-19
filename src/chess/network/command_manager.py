@@ -42,19 +42,21 @@ class CommandManager:
     PLAYER: queue.Queue[Command] = queue.Queue()
 
     # command info keys
-    fen_notation = 'fen_notation'
-    white_time_left = 'white_time_left'
-    black_time_left = 'black_time_left'
-    from_coordinates = 'from_coordinates'
-    dest_coordinates = 'dest_coordinates'
-    side = 'side'
-    target_fen = 'target_fen'
-    time_iso = 'time_iso'
-    time = 'time'
-    captured_pieces = 'captured_pieces'
-    draw_offer_result = 'draw_offer_result'
-    game_result_type = 'game_result_type'
-    game_result = 'game_result'
+    fen_notation: str = 'fen_notation'
+    white_time_left: str = 'white_time_left'
+    black_time_left: str = 'black_time_left'
+    from_coordinates: str = 'from_coordinates'
+    dest_coordinates: str = 'dest_coordinates'
+    side: str = 'side'
+    target_fen: str = 'target_fen'
+    time_iso: str = 'time_iso'
+    time: str = 'time'
+    captured_pieces: str = 'captured_pieces'
+    draw_offer_result: str = 'draw_offer_result'
+    game_result_type: str = 'game_result_type'
+    game_result: str = 'game_result'
+    from_index: str = 'from_index'
+    dest_index: str = 'dest_index'
 
     @staticmethod
     def serialize_command(command: Command) -> bytes:
