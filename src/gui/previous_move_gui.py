@@ -27,9 +27,9 @@ class PreviousMoveGui:
             (SQUARE_SIZE * GameSize.get_scale(), SQUARE_SIZE * GameSize.get_scale()))
         dest_surface: pygame.surface.Surface = pygame.surface.Surface(
             (SQUARE_SIZE * GameSize.get_scale(), SQUARE_SIZE * GameSize.get_scale()))
-        from_surface.fill(VERIFY_FONT_COLOR)
+        from_surface.fill(POP_UP_FONT_COLOR)
         from_surface.set_alpha(PREV_MOVE_ALPHA)
-        dest_surface.fill(VERIFY_FONT_COLOR)
+        dest_surface.fill(POP_UP_FONT_COLOR)
         dest_surface.set_alpha(PREV_MOVE_ALPHA)
         return PrevMoveSurfaces(from_surface, dest_surface)
 

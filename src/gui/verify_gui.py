@@ -10,49 +10,49 @@ class VerifyGui:
     def __init__(self, board_rect: pygame.rect.Rect):
         self.board_rect: pygame.rect.Rect = board_rect
         self.bg_surface: pygame.surface.Surface = pygame.surface.Surface(
-            (GameSize.get_relative_size(VERIFY_BG_WIDTH), GameSize.get_relative_size(VERIFY_BG_HEIGHT))
+            (GameSize.get_relative_size(POP_UP_BG_WIDTH), GameSize.get_relative_size(POP_UP_BG_HEIGHT))
         )
-        self.bg_surface.fill(VERIFY_BG_COLOR)
+        self.bg_surface.fill(POP_UP_BG_COLOR)
         self.bg_surface.set_alpha(VERIFY_BG_ALPHA)
         self.bg_rect: pygame.rect.Rect = self.bg_surface.get_rect(center=board_rect.center)
 
         self.yes: ButtonGui = ButtonGui(
             int(GameSize.get_relative_size(DRAW_BUTTON_WIDTH)),
             int(GameSize.get_relative_size(DRAW_BUTTON_HEIGHT)),
-            VERIFY_BG_COLOR)
+            POP_UP_BG_COLOR)
         self.no: ButtonGui = ButtonGui(
             int(GameSize.get_relative_size(RESIGN_BUTTON_WIDTH)),
             int(GameSize.get_relative_size(RESIGN_BUTTON_HEIGHT)),
-            VERIFY_BG_COLOR)
+            POP_UP_BG_COLOR)
         self.description: ButtonGui = ButtonGui(
-            int(GameSize.get_relative_size(VERIFY_BG_WIDTH)),
+            int(GameSize.get_relative_size(POP_UP_BG_WIDTH)),
             int(GameSize.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
-            VERIFY_BG_COLOR)
+            POP_UP_BG_COLOR)
         self.action: ButtonGui = ButtonGui(
-            int(GameSize.get_relative_size(VERIFY_BG_WIDTH)),
+            int(GameSize.get_relative_size(POP_UP_BG_WIDTH)),
             int(GameSize.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
-            VERIFY_BG_COLOR)
+            POP_UP_BG_COLOR)
 
         self.yes.set_font(
             FONT_FILE,
-            int(GameSize.get_relative_size(VERIFY_FONT_SIZE)),
+            int(GameSize.get_relative_size(POP_UP_FONT_SIZE)),
             False,
-            VERIFY_FONT_COLOR)
+            POP_UP_FONT_COLOR)
         self.no.set_font(
             FONT_FILE,
-            int(GameSize.get_relative_size(VERIFY_FONT_SIZE)),
+            int(GameSize.get_relative_size(POP_UP_FONT_SIZE)),
             False,
-            VERIFY_FONT_COLOR)
+            POP_UP_FONT_COLOR)
         self.description.set_font(
             FONT_FILE,
             int(GameSize.get_relative_size(DESCRIPTION_FONT_SIZE)),
             False,
-            VERIFY_FONT_COLOR)
+            POP_UP_FONT_COLOR)
         self.action.set_font(
             FONT_FILE,
             int(GameSize.get_relative_size(DESCRIPTION_FONT_SIZE)),
             False,
-            VERIFY_FONT_COLOR)
+            POP_UP_FONT_COLOR)
 
         self.yes.set_label(YES_LABEL)
         self.no.set_label(NO_LABEL)
@@ -84,18 +84,18 @@ class VerifyGui:
         self.bg_rect = self.bg_surface.get_rect(center=self.board_rect.center)
 
         self.description.rect.center = self.board_rect.center
-        self.description.rect.y -= (self.description.rect.height + VERIFY_SPACING)
+        self.description.rect.y -= (self.description.rect.height + POP_UP_SPACING)
 
         self.action.rect.topleft = self.description.rect.bottomleft
 
         self.yes.rect.center = self.board_rect.center
         self.no.rect.center = self.board_rect.center
 
-        self.yes.rect.x += (self.yes.rect.width // 2) + VERIFY_SPACING
-        self.no.rect.x -= (self.no.rect.width // 2) + VERIFY_SPACING
+        self.yes.rect.x += (self.yes.rect.width // 2) + POP_UP_SPACING
+        self.no.rect.x -= (self.no.rect.width // 2) + POP_UP_SPACING
 
-        self.yes.rect.y = self.action.rect.bottom + VERIFY_SPACING
-        self.no.rect.y = self.action.rect.bottom + VERIFY_SPACING
+        self.yes.rect.y = self.action.rect.bottom + POP_UP_SPACING
+        self.no.rect.y = self.action.rect.bottom + POP_UP_SPACING
 
     def handle_response(self, game_offset: pygame.rect.Rect) -> None:
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(game_offset.topleft)

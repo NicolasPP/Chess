@@ -149,7 +149,7 @@ class BoardAxisGui:
             if self.prev_hover == current_hover:
                 return
         self.update_axis_val_render(self.prev_hover, AssetManager.get_theme().light_color)
-        self.update_axis_val_render(current_hover, VERIFY_FONT_COLOR)
+        self.update_axis_val_render(current_hover, POP_UP_FONT_COLOR)
         self.prev_hover = current_hover
 
     def render(self) -> None:
