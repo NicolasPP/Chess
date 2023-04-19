@@ -84,7 +84,6 @@ def run_main_loop(server_ip: str, theme: ChessTheme, scale: float, piece_set: Pi
             if event.type == pygame.QUIT: done = True
             player.parse_input(event, match_fen, network=network)
 
-        update_window_caption(player)
         player.render()
         player.update(delta_time, network=network)
 
