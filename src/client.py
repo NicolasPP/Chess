@@ -43,18 +43,6 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen) -
         return
 
 
-def get_player(init_info: Command, game_offset: pygame.rect.Rect) -> Player:
-    side = init_info.info[CommandManager.side]
-    time_left = init_info.info[CommandManager.time]
-    player_side = Side.WHITE if side == Side.WHITE.name else Side.BLACK
-    player = Player(
-        side=player_side,
-        time_left=float(time_left),
-        game_offset=game_offset
-    )
-    return player
-
-
 def set_delta_time() -> None:
     global prev_time, delta_time
     now = time.time()
@@ -69,7 +57,7 @@ def run_main_loop(server_ip: str, theme: ChessTheme, scale: float, piece_set: Pi
     network = ChessNetwork(server_ip)
     init_info: Command = network.connect()
 
-    player = get_player(init_info, center)
+    player: Player = Player.get_player_client(init_info, center)
     match_fen = Fen(init_info.info[CommandManager.fen_notation])
 
     player.update_turn(match_fen)

@@ -16,21 +16,6 @@ prev_time = time.time()
 delta_time: float = 0
 
 
-def get_player(side: Side, match: Match, game_offset: pygame.rect.Rect) -> Player:
-    player = Player(
-        side=side,
-        time_left=match.timer_config.time,
-        game_offset=game_offset
-    )
-    player.update_turn(match.fen)
-    player.update_pieces_location(match.fen)
-    return player
-
-
-def get_match(timer_config: TimerConfig) -> Match:
-    return Match(timer_config)
-
-
 def set_delta_time() -> None:
     global prev_time, delta_time
     now = time.time()
@@ -42,10 +27,10 @@ def main_loop(theme: ChessTheme, scale: float, piece_set: PieceSetAsset) -> None
     done = False
     is_white = True
     init_chess(theme, piece_set, scale)
-    match = get_match(DefaultConfigs.BLITZ_5)
     center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
-    white_player: Player = get_player(Side.WHITE, match, center)
-    black_player: Player = get_player(Side.BLACK, match, center)
+    match = Match(DefaultConfigs.BLITZ_5)
+    white_player: Player = Player.get_player_local(Side.WHITE, match, center)
+    black_player: Player = Player.get_player_local(Side.BLACK, match, center)
 
     while not done:
 

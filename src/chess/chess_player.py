@@ -1,3 +1,4 @@
+from __future__ import annotations
 import datetime
 import enum
 
@@ -21,6 +22,7 @@ from gui.promotion_gui import PromotionGui
 from gui.timer_gui import TimerGui, TimerRects
 from gui.verify_gui import VerifyGui
 from gui.previous_move_gui import PreviousMoveGui
+from chess.game.chess_match import Match
 from config import *
 
 
@@ -35,6 +37,21 @@ class State(enum.Enum):
 
 
 class Player:
+    @staticmethod
+    def get_player_local(side: Side, match: Match, game_offset: pygame.rect.Rect) -> Player:
+        player = Player(side, match.timer_config.time, game_offset)
+        player.update_turn(match.fen)
+        player.update_pieces_location(match.fen)
+        return player
+
+    @staticmethod
+    def get_player_client(init_command: Command, game_offset: pygame.rect.Rect) -> Player:
+        return Player(
+            Side[init_command.info[CommandManager.side]],
+            float(init_command.info[CommandManager.time]),
+            game_offset
+        )
+
     def __init__(self,
                  side: Side,
                  time_left: float,
