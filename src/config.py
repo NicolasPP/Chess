@@ -4,6 +4,7 @@ GAME_OVER_ALPHA: int = 100
 HOVER_ALPHA: int = 70
 VERIFY_BG_ALPHA: int = 100
 OPAQUE: int = 255
+PREV_MOVE_ALPHA: int = 100
 
 # -- Size --
 VERIFY_BG_WIDTH: int = 300
