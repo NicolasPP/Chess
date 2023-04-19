@@ -7,10 +7,11 @@ OPAQUE: int = 255
 PREV_MOVE_ALPHA: int = 100
 
 # -- Size --
-VERIFY_BG_WIDTH: int = 300
-VERIFY_BG_HEIGHT: int = 150
-VERIFY_SPACING: int = 5
-VERIFY_FONT_SIZE: int = 25
+POP_UP_BG_WIDTH: int = 300
+POP_UP_BG_HEIGHT: int = 150
+POP_UP_SPACING: int = 5
+POP_UP_FONT_SIZE: int = 25
+RESULT_TYPE_FONT_SIZE: int = 17
 AVAILABLE_MOVE_SCALE: float = 1 / 3
 BOARD_SIZE: int = 8
 DATA_SIZE: int = 4096
@@ -41,8 +42,8 @@ MAX_SCORE: str = "+30"
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = (76, 155, 87)
 PIECE_BG: tuple[int, int, int] = (0, 0, 0)
 GAME_OVER_COLOR: tuple[int, int, int] = (255, 255, 255)
-VERIFY_BG_COLOR: tuple[int, int, int] = (43, 45, 48)
-VERIFY_FONT_COLOR: tuple[int, int, int] = (224, 175, 105)
+POP_UP_BG_COLOR: tuple[int, int, int] = (43, 45, 48)
+POP_UP_FONT_COLOR: tuple[int, int, int] = (224, 175, 105)
 
 PLAIN1_LIGHT: tuple[int, int, int] = (234, 240, 217)
 PLAIN1_DARK: tuple[int, int, int] = (89, 96, 111)
@@ -66,6 +67,8 @@ DESCRIPTION_LABEL: str = "are you sure you want to"
 DRAW_DOUBLE_CHECK_LABEL: str = "offer a draw"
 RESIGN_DOUBLE_CHECK_LABEL: str = "resign the game"
 RESPOND_DRAW_LABEL: str = "opponent has offered a draw"
+WINNING_MESSAGE: str = " is the winner!"
+DRAW_MESSAGE: str = "Game Tied"
 
 # -- File Name --
 FONT_FILE: str = "assets/fonts/Oleaguid.ttf"
