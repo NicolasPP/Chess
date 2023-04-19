@@ -2,7 +2,6 @@ import typing
 
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
 from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.board.board_tile import BoardTile
 from config import *
 
 AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, Fen, None | bool], list[int]]
@@ -309,15 +308,12 @@ def move_piece(
     return moves
 
 
-def is_pawn_promotion(from_tile: BoardTile, dest_tile: BoardTile, fen: Fen) -> bool:
+def is_pawn_promotion(from_an: AlgebraicNotation, dest_an: AlgebraicNotation, from_fen_val: str, fen: Fen) -> bool:
     pawn_fen = FenChars.get_piece_fen(FenChars.DEFAULT_PAWN, fen.is_white_turn())
     rank = '8' if fen.is_white_turn() else '1'
-    from_index = from_tile.algebraic_notation.index
-    dest_index = dest_tile.algebraic_notation.index
-    dest_rank = dest_tile.algebraic_notation.rank
-    if from_tile.fen_val != pawn_fen: return False
-    if dest_rank != rank: return False
-    if dest_index not in get_available_moves(from_index, fen): return False
-    if not is_king_safe(from_tile.algebraic_notation.index,
-                        dest_tile.algebraic_notation.index, fen): return False
+    if from_fen_val != pawn_fen: return False
+    if dest_an.rank != rank: return False
+    if dest_an.index not in get_available_moves(from_an.index, fen): return False
+    if not is_king_safe(from_an.index,
+                        dest_an.index, fen): return False
     return True
