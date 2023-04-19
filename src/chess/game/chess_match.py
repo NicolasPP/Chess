@@ -1,7 +1,7 @@
 import datetime
 import enum
 
-from chess.chess_timer import TimerConfig
+from chess.timer.timer_config import TimerConfig
 from chess.board.side import Side
 from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.network.command_manager import Command, CommandManager, ClientCommand, ServerCommand
@@ -71,14 +71,15 @@ class Match:
         self.black_time_left: float = timer_config.time
         self.repetition_counter: RepetitionCounter = RepetitionCounter()
 
-    def process_client_command(self, command: Command, move_tags: list[MoveTags], commands: list[Command]) \
-            -> tuple[list[MoveTags], list[Command]]:
+    def process_client_command(self, command: Command, commands: list[Command]) -> list[Command]:
         end_game_info: dict[str, str] = {}
+        move_tags: list[MoveTags] = []
+        before_move_fen: Fen = Fen(encode_fen_data(self.fen.data))
         if command.name == ClientCommand.PICKING_PROMOTION.name:
             commands.append(CommandManager.get(ServerCommand.CLIENT_PROMOTING))
 
         elif command.name == ClientCommand.MOVE.name:
-            move_tags = self.process_move(command)
+            move_tags = self.process_move(command, before_move_fen)
 
         elif command.name == ClientCommand.RESIGN.name:
             side = command.info[CommandManager.side]
@@ -108,29 +109,42 @@ class Match:
         else:
             assert False, f" {command.name} : Command not recognised"
 
-        for tag in move_tags:
-            commands.extend(self.process_tag(tag))
+        if command.name == ClientCommand.MOVE.name:
+            from_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.from_coordinates])
+            dest_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.dest_coordinates])
+            if before_move_fen.is_move_castle(from_index, dest_index):
+                king_side_rook_index = 63 if before_move_fen.is_white_turn() else 7
+                queen_side_rook_index = 56 if before_move_fen.is_white_turn() else 0
+
+                ks_king_index = 62 if before_move_fen.is_white_turn() else 6
+                qs_king_index = 58 if before_move_fen.is_white_turn() else 2
+
+                if dest_index == king_side_rook_index:
+                    dest_index = ks_king_index
+                if dest_index == queen_side_rook_index:
+                    dest_index = qs_king_index
+
+            for tag in move_tags:
+                commands.extend(self.process_tag(tag, from_index, dest_index))
 
         commands.extend(self.process_match_state(commands))
 
-        return move_tags, commands
+        return commands
 
     def process_local_move(self) -> None:
         command: Command | None = CommandManager.read_from(CommandManager.MATCH)
         if command is None: return
-        move_tags: list[MoveTags] = []
         commands: list[Command] = []
-        move_tags, commands = self.process_client_command(command, move_tags, commands)
+        commands = self.process_client_command(command, commands)
 
         list(map(lambda cmd: CommandManager.send_to(CommandManager.PLAYER, cmd), commands))
 
-    def process_move(self, command: Command) -> list[MoveTags]:
+    def process_move(self, command: Command, before_move_fen: Fen) -> list[MoveTags]:
         from_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.from_coordinates])
         dest_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.dest_coordinates])
         side = command.info[CommandManager.side]
         target_fen = command.info[CommandManager.target_fen]
         time_iso = command.info[CommandManager.time_iso]
-        before_move_fen = Fen(encode_fen_data(self.fen.data))
 
         if not is_side_valid(side, self.fen.is_white_turn()) \
                 or not is_move_valid(from_index, dest_index, self.fen):
@@ -178,12 +192,14 @@ class Match:
 
         return tags
 
-    def process_tag(self, tag: MoveTags) -> list[Command]:
+    def process_tag(self, tag: MoveTags, from_index: int, dest_index: int) -> list[Command]:
         ext_commands = []
         update_fen_info: dict[str, str] = {
             CommandManager.fen_notation: self.fen.notation,
             CommandManager.white_time_left: str(self.white_time_left),
-            CommandManager.black_time_left: str(self.black_time_left)
+            CommandManager.black_time_left: str(self.black_time_left),
+            CommandManager.from_index: str(from_index),
+            CommandManager.dest_index: str(dest_index)
         }
         update_fen_command: Command = CommandManager.get(ServerCommand.UPDATE_FEN, update_fen_info)
         if tag == MoveTags.CHECK:
