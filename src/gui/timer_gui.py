@@ -2,7 +2,7 @@ import typing
 
 import pygame
 
-from chess.chess_timer import ChessTimer
+from chess.timer.chess_timer import ChessTimer
 from chess.board.side import Side
 from chess.notation.forsyth_edwards_notation import FenChars
 from chess.game.game_size import GameSize
