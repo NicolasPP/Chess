@@ -296,13 +296,13 @@ class Player:
             self.available_moves_gui.update_available_moves(fen, self.side, index)
         self.set_require_render(True)
 
-    def end_game(self) -> None:
+    def end_game(self, game_result: str, result_type: str) -> None:
         self.state = State.PICK_PIECE
         self.set_require_render(True)
         self.render()
         self.set_turn(False)
         self.set_game_over(True)
-        self.end_game_gui.game_over_gui.set_final_frame()
+        self.end_game_gui.game_over_gui.set_final_frame(game_result, result_type)
 
     def update_turn(self, fen: Fen) -> None:
         if self.side is Side.WHITE:
@@ -367,9 +367,9 @@ def process_server_command(command: Command, match_fen: Fen,
             player.board.grid[int(from_index)], player.board.grid[int(dest_index)]), players))
 
     elif command.name == ServerCommand.END_GAME.name:
-        print(command.info[CommandManager.game_result_type])
-        print(command.info[CommandManager.game_result])
-        list(map(lambda player: player.end_game(), players))
+        list(map(lambda player: player.end_game(
+            command.info[CommandManager.game_result], command.info[CommandManager.game_result_type]
+        ), players))
 
     elif command.name == ServerCommand.INVALID_MOVE.name:
         list(map(lambda player: player.set_require_render(True), players))
