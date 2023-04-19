@@ -20,6 +20,7 @@ from gui.end_game_gui import EndGameGui
 from gui.promotion_gui import PromotionGui
 from gui.timer_gui import TimerGui, TimerRects
 from gui.verify_gui import VerifyGui
+from gui.previous_move_gui import PreviousMoveGui
 from config import *
 
 
@@ -61,6 +62,7 @@ class Player:
         self.verify_gui: VerifyGui = VerifyGui(self.board.get_rect())
         self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.get_rect(), self.side)
         self.available_moves_gui: AvailableMovesGui = AvailableMovesGui()
+        self.previous_move_gui: PreviousMoveGui = PreviousMoveGui(self.board.rect)
 
     def parse_input(
             self,
@@ -119,7 +121,12 @@ class Player:
         is_promotion = False
 
         if dest_tile:
-            is_promotion = is_pawn_promotion(from_tile, dest_tile, fen)
+            is_promotion = is_pawn_promotion(
+                from_tile.algebraic_notation,
+                dest_tile.algebraic_notation,
+                from_tile.fen_val,
+                fen
+            )
             dest_coordinates = dest_tile.algebraic_notation.coordinates
             move_info: dict[str, str] = {
                 CommandManager.from_coordinates: from_coordinates,
@@ -263,6 +270,7 @@ class Player:
             self.captured_gui.render(self.side)
             self.board.render()
             self.axis_gui.render()
+            self.previous_move_gui.render()
             self.board.render_pieces(self.side is Side.WHITE)
             if self.state is State.DROP_PIECE:
                 picked: BoardTile = self.board.get_picked_up()
@@ -345,6 +353,8 @@ def process_server_command(command: Command, match_fen: Fen,
         fen_notation: str = command.info[CommandManager.fen_notation]
         white_time: str = command.info[CommandManager.white_time_left]
         black_time: str = command.info[CommandManager.black_time_left]
+        from_index: str = command.info[CommandManager.from_index]
+        dest_index: str = command.info[CommandManager.dest_index]
         if not local: match_fen.notation = fen_notation
         list(map(lambda player: player.update_pieces_location(match_fen), players))
         list(map(lambda player: player.update_turn(match_fen), players))
@@ -353,6 +363,8 @@ def process_server_command(command: Command, match_fen: Fen,
         ), players))
         list(map(lambda player: player.set_read_input(True), players))
         list(map(lambda player: player.set_opponent_promoting(False), players))
+        list(map(lambda player: player.previous_move_gui.set_prev_move(
+            player.board.grid[int(from_index)], player.board.grid[int(dest_index)]), players))
 
     elif command.name == ServerCommand.END_GAME.name:
         print(command.info[CommandManager.game_result_type])
