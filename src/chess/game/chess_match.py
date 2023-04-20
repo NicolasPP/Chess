@@ -112,17 +112,6 @@ class Match:
         if command.name == ClientCommand.MOVE.name:
             from_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.from_coordinates])
             dest_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.dest_coordinates])
-            if before_move_fen.is_move_castle(from_index, dest_index):
-                king_side_rook_index = 63 if before_move_fen.is_white_turn() else 7
-                queen_side_rook_index = 56 if before_move_fen.is_white_turn() else 0
-
-                ks_king_index = 62 if before_move_fen.is_white_turn() else 6
-                qs_king_index = 58 if before_move_fen.is_white_turn() else 2
-
-                if dest_index == king_side_rook_index:
-                    dest_index = ks_king_index
-                if dest_index == queen_side_rook_index:
-                    dest_index = qs_king_index
 
             for tag in move_tags:
                 commands.extend(self.process_tag(tag, from_index, dest_index))

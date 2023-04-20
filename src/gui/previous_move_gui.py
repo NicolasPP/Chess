@@ -5,6 +5,7 @@ import pygame
 from chess.board.board_tile import BoardTile
 from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
+from chess.notation.forsyth_edwards_notation import Fen
 
 from config import *
 
@@ -33,17 +34,26 @@ class PreviousMoveGui:
         dest_surface.set_alpha(PREV_MOVE_ALPHA)
         return PrevMoveSurfaces(from_surface, dest_surface)
 
-    def __init__(self, board_rect: pygame.rect.Rect):
+    def __init__(self, board_rect: pygame.rect.Rect, grid: list[BoardTile]):
+        self.grid: list[BoardTile] = grid
         self.board_rect: pygame.rect.Rect = board_rect
         self.prev_move: PrevMove | None = None
         self.prev_move_surfaces: PrevMoveSurfaces = PreviousMoveGui.get_prev_move_surfaces()
 
-    def set_prev_move(self, from_tile: BoardTile, dest_tile: BoardTile) -> None:
-        if self.prev_move is None:
-            self.prev_move = PrevMove(from_tile, dest_tile)
+    def set_prev_move(self, from_index: int, dest_index: int, pre_move_fen: Fen) -> None:
+        if pre_move_fen.is_move_castle(from_index, dest_index):
+            king_side_rook_index = 63 if pre_move_fen.is_white_turn() else 7
+            queen_side_rook_index = 56 if pre_move_fen.is_white_turn() else 0
 
-        else:
-            self.prev_move = PrevMove(from_tile, dest_tile)
+            ks_king_index = 62 if pre_move_fen.is_white_turn() else 6
+            qs_king_index = 58 if pre_move_fen.is_white_turn() else 2
+
+            if dest_index == king_side_rook_index:
+                dest_index = ks_king_index
+            if dest_index == queen_side_rook_index:
+                dest_index = qs_king_index
+
+        self.prev_move = PrevMove(self.grid[from_index], self.grid[dest_index])
 
     def render(self) -> None:
         if self.prev_move is None: return
