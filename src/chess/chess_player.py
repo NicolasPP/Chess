@@ -23,6 +23,7 @@ from gui.timer_gui import TimerGui, TimerRects
 from gui.verify_gui import VerifyGui
 from gui.previous_move_gui import PreviousMoveGui
 from chess.game.chess_match import Match
+from gui.played_moves_gui import PlayedMovesGui
 from config import *
 
 
@@ -80,6 +81,7 @@ class Player:
         self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.get_rect(), self.side)
         self.available_moves_gui: AvailableMovesGui = AvailableMovesGui()
         self.previous_move_gui: PreviousMoveGui = PreviousMoveGui(self.board.rect)
+        self.played_moves_gui: PlayedMovesGui = PlayedMovesGui()
 
     def parse_input(
             self,
@@ -138,12 +140,7 @@ class Player:
         is_promotion = False
 
         if dest_tile:
-            is_promotion = is_pawn_promotion(
-                from_tile.algebraic_notation,
-                dest_tile.algebraic_notation,
-                from_tile.fen_val,
-                fen
-            )
+            is_promotion = is_pawn_promotion(from_tile.algebraic_notation, dest_tile.algebraic_notation, fen)
             dest_coordinates = dest_tile.algebraic_notation.coordinates
             move_info: dict[str, str] = {
                 CommandManager.from_coordinates: from_coordinates,
@@ -359,15 +356,15 @@ class Player:
         self.opponent_promoting = promoting
 
 
-def process_server_command(command: Command, match_fen: Fen,
-                           *players: Player, local: bool = False) -> None:
+def process_server_command(command: Command, match_fen: Fen, *players: Player) -> None:
     if command.name == ServerCommand.UPDATE_FEN.name:
         fen_notation: str = command.info[CommandManager.fen_notation]
         white_time: str = command.info[CommandManager.white_time_left]
         black_time: str = command.info[CommandManager.black_time_left]
         from_index: str = command.info[CommandManager.from_index]
         dest_index: str = command.info[CommandManager.dest_index]
-        if not local: match_fen.notation = fen_notation
+        pre_move_fen: Fen = Fen(match_fen.notation)
+        match_fen.notation = fen_notation
         list(map(lambda player: player.update_pieces_location(match_fen), players))
         list(map(lambda player: player.update_turn(match_fen), players))
         list(map(lambda player: player.timer_gui.update(
@@ -377,6 +374,8 @@ def process_server_command(command: Command, match_fen: Fen,
         list(map(lambda player: player.set_opponent_promoting(False), players))
         list(map(lambda player: player.previous_move_gui.set_prev_move(
             player.board.grid[int(from_index)], player.board.grid[int(dest_index)]), players))
+        list(map(lambda player: player.played_moves_gui.add_played_move(
+            int(from_index), int(dest_index), pre_move_fen, match_fen[int(dest_index)]), players))
 
     elif command.name == ServerCommand.END_GAME.name:
         list(map(lambda player: player.end_game(
@@ -408,7 +407,7 @@ def process_server_command(command: Command, match_fen: Fen,
 def process_command_local(match_fen: Fen, *players: Player) -> None:
     command = CommandManager.read_from(CommandManager.PLAYER)
     if command is None: return
-    process_server_command(command, match_fen, *players, local=True)
+    process_server_command(command, match_fen, *players)
 
 
 def send_command(local: bool, network: ChessNetwork | None, command: Command) -> None:
