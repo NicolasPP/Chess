@@ -11,6 +11,7 @@ from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSe
 from chess.timer.timer_config import DefaultConfigs, TimerConfig
 from chess.game.game_surface import GameSurface
 from chess.chess_init import init_chess
+from chess.notation.forsyth_edwards_notation import Fen
 
 prev_time = time.time()
 delta_time: float = 0
@@ -31,7 +32,7 @@ def main_loop(theme: ChessTheme, scale: float, piece_set: PieceSetAsset, timer_c
     match = Match(timer_config)
     white_player: Player = Player.get_player_local(Side.WHITE, match, center)
     black_player: Player = Player.get_player_local(Side.BLACK, match, center)
-
+    game_fen: Fen = Fen()
     while not done:
 
         set_delta_time()
@@ -46,11 +47,11 @@ def main_loop(theme: ChessTheme, scale: float, piece_set: PieceSetAsset, timer_c
                     is_white = not is_white
                     white_player.set_require_render(True)
                     black_player.set_require_render(True)
-            current_player.parse_input(event, match.fen, local=True)
+            current_player.parse_input(event, game_fen, local=True)
 
         match.process_local_move()
 
-        process_command_local(match.fen, white_player, black_player)
+        process_command_local(game_fen, white_player, black_player)
 
         white_player.update(delta_time, local=True)
         black_player.update(delta_time, local=True)
