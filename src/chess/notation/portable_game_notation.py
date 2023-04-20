@@ -152,16 +152,16 @@ def get_algebraic_notation_from_pgn_move(pgn_move: str, fen: Fen, is_white_turn:
         from_an, dest_an = get_castle_from_dest(pgn_move, is_white_turn)
         return from_an, dest_an, target_fen
 
-    is_check = pgn_move[-1] is PGNChars.CHECK
-    is_checkmate = pgn_move[-1] is PGNChars.CHECKMATE
+    is_move_check = pgn_move[-1] is PGNChars.CHECK
+    is_move_checkmate = pgn_move[-1] is PGNChars.CHECKMATE
     is_move_take = pgn_move.find(PGNChars.TAKE) >= 0
     is_promotion = pgn_move.find(PGNChars.PROMOTION) >= 0 and not pgn_move[-1].isnumeric()
 
-    if is_check:
+    if is_move_check:
         pgn_move = pgn_move.replace(PGNChars.CHECK, '')
     if is_move_take:
         pgn_move = pgn_move.replace(PGNChars.TAKE, '')
-    if is_checkmate:
+    if is_move_checkmate:
         pgn_move = pgn_move.replace(PGNChars.CHECKMATE, '')
     if is_promotion:
         pgn_move = pgn_move.replace(PGNChars.PROMOTION, '')
