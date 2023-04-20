@@ -308,10 +308,10 @@ def move_piece(
     return moves
 
 
-def is_pawn_promotion(from_an: AlgebraicNotation, dest_an: AlgebraicNotation, from_fen_val: str, fen: Fen) -> bool:
+def is_pawn_promotion(from_an: AlgebraicNotation, dest_an: AlgebraicNotation, fen: Fen) -> bool:
     pawn_fen = FenChars.get_piece_fen(FenChars.DEFAULT_PAWN, fen.is_white_turn())
     rank = '8' if fen.is_white_turn() else '1'
-    if from_fen_val != pawn_fen: return False
+    if fen[from_an.index] != pawn_fen: return False
     if dest_an.rank != rank: return False
     if dest_an.index not in get_available_moves(from_an.index, fen): return False
     if not is_king_safe(from_an.index,
