@@ -2,7 +2,8 @@ import dataclasses
 import re
 import typing
 
-from chess.movement.piece_movement import get_available_moves
+from chess.movement.piece_movement import get_available_moves, is_pawn_promotion
+from chess.movement.validate_move import is_take, is_check, is_checkmate
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
 from chess.notation.algebraic_notation import AlgebraicNotation
 
@@ -13,7 +14,9 @@ class PGNChars:
     CHECK: str = '+'
     CHECKMATE: str = '#'
     TAKE: str = 'x'
-    EN_PASSANT: str = '='
+    PROMOTION: str = '='
+    KING_SIDE_CASTLE: str = 'O-O'
+    QUEEN_SIDE_CASTLE: str = 'O-O-O'
 
 
 @dataclasses.dataclass
@@ -30,6 +33,19 @@ class Game:
     tag_pairs: TagPairs
     pgn_moves: list[PGNMove]
     result: str
+
+
+@dataclasses.dataclass
+class RegMove:
+    from_an: AlgebraicNotation
+    dest_an: AlgebraicNotation
+    target_fen: str
+
+
+@dataclasses.dataclass
+class RegMovePair:
+    white_move: RegMove | None
+    black_move: RegMove | None
 
 
 class PortableGameNotation:
@@ -107,21 +123,25 @@ def is_result(move: str) -> bool:
 
 
 def get_an_from_pgn_game(game: Game) \
-        -> typing.Generator[tuple[AlgebraicNotation, AlgebraicNotation, str], None, None]:
+        -> typing.Generator[RegMovePair, None, None]:
     fen = Fen()
     for pgn_move in game.pgn_moves:
+        white_move = None
+        black_move = None
         if pgn_move.white_move:
-            yield process_pgn_move(pgn_move.white_move, fen, True)
+            white_move = process_pgn_move(pgn_move.white_move, fen, True)
         if pgn_move.black_move:
-            yield process_pgn_move(pgn_move.black_move, fen, False)
+            black_move = process_pgn_move(pgn_move.black_move, fen, False)
+
+        yield RegMovePair(white_move, black_move)
 
 
 def process_pgn_move(pgn_move: str, fen: Fen, is_white_turn: bool) \
-        -> tuple[AlgebraicNotation, AlgebraicNotation, str]:
+        -> RegMove:
     from_an, dest_an, target_fen = get_algebraic_notation_from_pgn_move(pgn_move, fen, is_white_turn)
     if not target_fen: target_fen = fen[from_an.index]
     fen.make_move(from_an.index, dest_an.index, target_fen)
-    return from_an, dest_an, target_fen
+    return RegMove(from_an, dest_an, target_fen)
 
 
 def get_algebraic_notation_from_pgn_move(pgn_move: str, fen: Fen, is_white_turn: bool) \
@@ -134,17 +154,17 @@ def get_algebraic_notation_from_pgn_move(pgn_move: str, fen: Fen, is_white_turn:
 
     is_check = pgn_move[-1] is PGNChars.CHECK
     is_checkmate = pgn_move[-1] is PGNChars.CHECKMATE
-    is_take = pgn_move.find(PGNChars.TAKE) >= 0
-    is_en_passant = pgn_move.find(PGNChars.EN_PASSANT) >= 0 and not pgn_move[-1].isnumeric()
+    is_move_take = pgn_move.find(PGNChars.TAKE) >= 0
+    is_promotion = pgn_move.find(PGNChars.PROMOTION) >= 0 and not pgn_move[-1].isnumeric()
 
     if is_check:
         pgn_move = pgn_move.replace(PGNChars.CHECK, '')
-    if is_take:
+    if is_move_take:
         pgn_move = pgn_move.replace(PGNChars.TAKE, '')
     if is_checkmate:
         pgn_move = pgn_move.replace(PGNChars.CHECKMATE, '')
-    if is_en_passant:
-        pgn_move = pgn_move.replace(PGNChars.EN_PASSANT, '')
+    if is_promotion:
+        pgn_move = pgn_move.replace(PGNChars.PROMOTION, '')
         target_fen = pgn_move[-1].upper() if is_white_turn else pgn_move[-1].lower()
         pgn_move = pgn_move[:-1]
 
@@ -225,3 +245,93 @@ def get_file_rank_filter(pgn_from_info: str) -> tuple[str | None, str | None]:
         file_filter, rank_filter = list(pgn_from_info)
 
     return file_filter, rank_filter
+
+
+def generate_move_text(fen: Fen, from_an: AlgebraicNotation, dest_an: AlgebraicNotation, target_fen: str) -> str:
+    from_piece_val = fen[from_an.index]
+    post_move_fen: Fen = Fen(fen.notation)
+    post_move_fen.make_move(from_an.index, dest_an.index, target_fen)
+    is_move_check: bool = is_check(post_move_fen)
+    is_move_checkmate: bool = is_checkmate(post_move_fen)
+    suffix: str = ''
+
+    if is_move_check:
+        suffix = PGNChars.CHECK
+
+    if is_move_checkmate:
+        suffix = PGNChars.CHECKMATE
+
+    if from_piece_val == FenChars.get_piece_fen(FenChars.DEFAULT_PAWN, fen.is_white_turn()):
+        return disambiguate_pawn_move(fen, from_an, dest_an, target_fen) + suffix
+
+    elif from_piece_val == FenChars.get_piece_fen(FenChars.DEFAULT_KING, fen.is_white_turn()):
+        return disambiguate_king_move(fen, from_an, dest_an) + suffix
+
+    else:
+        return disambiguate_move(fen, from_an, dest_an) + suffix
+
+
+def disambiguate_pawn_move(fen: Fen, from_an: AlgebraicNotation,
+                           dest_an: AlgebraicNotation, target_fen: str) -> str:
+    if is_pawn_promotion(from_an, dest_an, fen):
+        return dest_an.coordinates + PGNChars.PROMOTION + target_fen.upper()
+
+    is_en_passant = fen.is_move_en_passant(from_an.index, dest_an.index)
+    is_move_take = is_take(fen, dest_an.index, is_en_passant, False)
+    if is_move_take:
+        return from_an.file + PGNChars.TAKE + dest_an.coordinates
+    else:
+        return dest_an.coordinates
+
+
+def disambiguate_move(fen: Fen, from_an: AlgebraicNotation,
+                      dest_an: AlgebraicNotation) -> str:
+    indexes_for_piece: list[int] = fen.get_indexes_for_piece(fen[from_an.index])
+    from_val: str = fen[from_an.index]
+    is_castle = fen.is_move_castle(from_an.index, dest_an.index)
+    is_move_take: bool = is_take(fen, dest_an.index, False, is_castle)
+    take_val: str = PGNChars.TAKE if is_move_take else ''
+    if len(indexes_for_piece) == 1: return from_val.upper() + take_val + dest_an.coordinates
+    file_id: bool = True
+    rank_id: bool = True
+    disambiguate: bool = False
+    for index in indexes_for_piece:
+        if index == from_an.index: continue
+        for move_index in get_available_moves(index, fen):
+            if move_index == dest_an.index:
+                disambiguate = True
+                an = AlgebraicNotation.get_an_from_index(index)
+                if an.file == from_an.file:
+                    file_id = False
+                elif an.rank == from_an.rank:
+                    rank_id = False
+    # square
+    if not file_id and not rank_id:
+        return from_val.upper() + from_an.coordinates + take_val + dest_an.coordinates
+
+    # no need to disambiguate
+    elif file_id and rank_id:
+        if disambiguate:
+            return from_val.upper() + from_an.file + take_val + dest_an.coordinates
+        return from_val.upper() + take_val + dest_an.coordinates
+
+    elif file_id:
+        return from_val.upper() + from_an.file + take_val + dest_an.coordinates
+
+    else:
+        return from_val.upper() + from_an.rank + take_val + dest_an.coordinates
+
+
+def disambiguate_king_move(fen: Fen, from_an: AlgebraicNotation,
+                           dest_an: AlgebraicNotation) -> str:
+    if fen.is_move_castle(from_an.index, dest_an.index):
+        queen_side_rook_index = 56 if fen.is_white_turn() else 0
+
+        if dest_an.index == queen_side_rook_index:
+            return PGNChars.QUEEN_SIDE_CASTLE
+        else:
+            return PGNChars.KING_SIDE_CASTLE
+    else:
+        is_move_take = fen[dest_an.index] != FenChars.BLANK_PIECE
+        take_val: str = PGNChars.TAKE if is_move_take else ''
+        return fen[from_an.index].upper() + take_val + dest_an.coordinates
