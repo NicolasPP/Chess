@@ -373,7 +373,7 @@ def process_server_command(command: Command, match_fen: Fen, *players: Player) -
         list(map(lambda player: player.set_read_input(True), players))
         list(map(lambda player: player.set_opponent_promoting(False), players))
         list(map(lambda player: player.previous_move_gui.set_prev_move(
-            player.board.grid[int(from_index)], player.board.grid[int(dest_index)]), players))
+            int(from_index), int(dest_index), pre_move_fen, player.board.grid), players))
         list(map(lambda player: player.played_moves_gui.add_played_move(
             int(from_index), int(dest_index), pre_move_fen, match_fen[int(dest_index)]), players))
 
