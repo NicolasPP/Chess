@@ -32,6 +32,7 @@ X_AXIS_HEIGHT: int = 8
 Y_AXIS_WIDTH: int = 8
 OPP_TIMER_SPACING:  int = 6
 AXIS_FONT_SIZE: int = 25
+PLAYED_MOVE_FONT_SIZE: int = 20
 DEFAULT_SCALE: float = 3.5
 GAME_SURFACE_SPACING: int = 50
 SCORE_FONT_SIZE: int = 25
@@ -56,6 +57,7 @@ PLAIN4_LIGHT: tuple[int, int, int] = (230, 234, 216)
 PLAIN4_DARK: tuple[int, int, int] = (69, 77, 94)
 
 # -- Default values --
+SCROLL_SPEED: int = 10
 GAME_START_FEN: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 OFFER_DRAW_LABEL: str = "draw"
 RESIGN_LABEL: str = "resign"
