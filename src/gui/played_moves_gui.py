@@ -23,25 +23,24 @@ class PlayedMovesSurfaces(typing.NamedTuple):
 class PlayedMovesGui:
 
     @staticmethod
-    def calculate_played_moves_rects() -> PlayedMovesRects:
-        background_rect = pygame.rect.Rect(
+    def calculate_background_rect() -> pygame.rect.Rect:
+        return pygame.rect.Rect(
             0, 0,
             SQUARE_SIZE * GameSize.get_scale() * 2,
             SQUARE_SIZE * GameSize.get_scale() * (BOARD_SIZE - 1)
         )
-        return PlayedMovesRects(background_rect)
 
     @staticmethod
-    def create_played_moves_surfaces(played_rects: PlayedMovesRects) -> PlayedMovesSurfaces:
-        background_surface = pygame.surface.Surface(played_rects.background.size)
+    def create_played_moves_surfaces(background_rect: pygame.rect.Rect) -> PlayedMovesSurfaces:
+        background_surface = pygame.surface.Surface(background_rect.size)
         background_surface.fill(AssetManager.get_theme().light_color)
         return PlayedMovesSurfaces(background_surface)
 
     def __init__(self, board_rect: pygame.rect.Rect) -> None:
         self.played_moves: list[str] = []
         self.board_rect: pygame.rect.Rect = board_rect
-        self.played_rects: PlayedMovesRects = PlayedMovesGui.calculate_played_moves_rects()
-        self.played_surfaces: PlayedMovesSurfaces = PlayedMovesGui.create_played_moves_surfaces(self.played_rects)
+        self.background_rect: pygame.rect.Rect = PlayedMovesGui.calculate_background_rect()
+        self.played_surfaces: PlayedMovesSurfaces = PlayedMovesGui.create_played_moves_surfaces(self.background_rect)
         self.calculate_pos()
 
     def add_played_move(self, from_index: int, dest_index: int, fen: Fen, target_fen: str) -> None:
@@ -52,8 +51,8 @@ class PlayedMovesGui:
         self.played_moves.append(move)
 
     def calculate_pos(self) -> None:
-        self.played_rects.background.topleft = self.board_rect.topright
-        self.played_rects.background.x += GUI_SPACING
+        self.background_rect.topleft = self.board_rect.topright
+        self.background_rect.x += GUI_SPACING
 
     def render(self) -> None:
-        GameSurface.get().blit(self.played_surfaces.background, self.played_rects.background)
+        GameSurface.get().blit(self.played_surfaces.background, self.background_rect)

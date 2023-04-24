@@ -8,7 +8,7 @@ from gui.end_game_gui import EndGameGui
 from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
 from gui.timer_gui import TimerGui, TimerRects
-from gui.played_moves_gui import PlayedMovesGui, PlayedMovesRects
+from gui.played_moves_gui import PlayedMovesGui
 from chess.board.chess_board import Board
 from chess.notation.forsyth_edwards_notation import FenChars
 from config import GAME_SURFACE_SPACING
@@ -24,12 +24,12 @@ def init_chess(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> Non
     end_game_rect: pygame.rect.Rect = EndGameGui.calculate_end_game_rect()
     timer_rects: TimerRects = TimerGui.calculate_timer_rects()
     axis_rects: AxisRects = BoardAxisGui.calculate_axis_rects()
-    played_moves_rects: PlayedMovesRects = PlayedMovesGui.calculate_played_moves_rects()
+    played_moves_bg_rect: pygame.rect.Rect = PlayedMovesGui.calculate_background_rect()
     '''
     -- width --
     y_axis board max_width(end_game, played_moves_background)
     '''
-    max_rect = max(end_game_rect, played_moves_rects.background, key=lambda rect: rect.width)
+    max_rect = max(end_game_rect, played_moves_bg_rect, key=lambda rect: rect.width)
     GameSize.add_rects_width(axis_rects.y_axis, board_rect, max_rect)
 
     '''
