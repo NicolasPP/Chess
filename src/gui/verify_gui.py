@@ -17,12 +17,12 @@ class VerifyGui:
         self.bg_rect: pygame.rect.Rect = self.bg_surface.get_rect(center=board_rect.center)
 
         self.yes: ButtonGui = ButtonGui(
-            int(GameSize.get_relative_size(DRAW_BUTTON_WIDTH)),
-            int(GameSize.get_relative_size(DRAW_BUTTON_HEIGHT)),
+            int(GameSize.get_relative_size(VERIFY_BUTTON_WIDTH)),
+            int(GameSize.get_relative_size(VERIFY_BUTTON_HEIGHT)),
             POP_UP_BG_COLOR)
         self.no: ButtonGui = ButtonGui(
-            int(GameSize.get_relative_size(RESIGN_BUTTON_WIDTH)),
-            int(GameSize.get_relative_size(RESIGN_BUTTON_HEIGHT)),
+            int(GameSize.get_relative_size(VERIFY_BUTTON_WIDTH)),
+            int(GameSize.get_relative_size(VERIFY_BUTTON_HEIGHT)),
             POP_UP_BG_COLOR)
         self.description: ButtonGui = ButtonGui(
             int(GameSize.get_relative_size(POP_UP_BG_WIDTH)),
