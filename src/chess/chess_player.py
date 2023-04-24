@@ -92,6 +92,10 @@ class Player:
         if self.game_over: return
         if not self.read_input: return
         if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == MOUSECLICK_SCROLL_UP:
+                self.played_moves_gui.scroll_up(self.game_offset)
+            if event.button == MOUSECLICK_SCROLL_DOWN:
+                self.played_moves_gui.scroll_down(self.game_offset)
             if event.button == MOUSECLICK_LEFT:
                 self.handle_mouse_down_left(network, local)
                 self.handle_end_game_mouse_down()
