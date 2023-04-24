@@ -70,7 +70,7 @@ class VerifyGui:
     def set_description_label(self, label: str) -> None:
         self.description.set_label(label)
 
-    def render(self, game_offset: pygame.math.Vector2) -> None:
+    def render(self, game_offset: pygame.rect.Rect) -> None:
         GameSurface.get().blit(self.bg_surface, self.bg_rect)
         self.description.render(game_offset)
         self.action.render(game_offset)

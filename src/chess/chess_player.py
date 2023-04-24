@@ -276,12 +276,12 @@ class Player:
         self.timer_gui.render()
         self.axis_gui.render()
         self.played_moves_gui.render()
-        self.end_game_gui.render(pygame.math.Vector2(self.game_offset.topleft))
+        self.end_game_gui.render(self.game_offset)
 
         if self.is_render_required or self.state is State.DROP_PIECE:
             GameSurface.get().fill(AssetManager.get_theme().dark_color)
             self.timer_gui.render()
-            self.end_game_gui.render(pygame.math.Vector2(self.game_offset.topleft))
+            self.end_game_gui.render(self.game_offset)
             self.captured_gui.render(self.side)
             self.board.render()
             self.axis_gui.render()
@@ -299,7 +299,7 @@ class Player:
         if self.state is State.RESPOND_DRAW or \
                 self.state is State.DRAW_DOUBLE_CHECK or \
                 self.state is State.RESIGN_DOUBLE_CHECK:
-            self.verify_gui.render(pygame.math.Vector2(self.game_offset.topleft))
+            self.verify_gui.render(self.game_offset)
 
         if self.state is State.OFFERED_DRAW: pass
 
