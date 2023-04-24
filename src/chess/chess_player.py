@@ -81,7 +81,7 @@ class Player:
         self.axis_gui: BoardAxisGui = BoardAxisGui(self.board.get_rect(), self.side)
         self.available_moves_gui: AvailableMovesGui = AvailableMovesGui()
         self.previous_move_gui: PreviousMoveGui = PreviousMoveGui(self.board.rect)
-        self.played_moves_gui: PlayedMovesGui = PlayedMovesGui()
+        self.played_moves_gui: PlayedMovesGui = PlayedMovesGui(self.board.rect)
 
     def parse_input(
             self,
@@ -275,6 +275,7 @@ class Player:
 
         self.timer_gui.render()
         self.axis_gui.render()
+        self.played_moves_gui.render()
         self.end_game_gui.render(pygame.math.Vector2(self.game_offset.topleft))
 
         if self.is_render_required or self.state is State.DROP_PIECE:
@@ -284,6 +285,7 @@ class Player:
             self.captured_gui.render(self.side)
             self.board.render()
             self.axis_gui.render()
+            self.played_moves_gui.render()
             self.previous_move_gui.render()
             self.board.render_pieces(self.side is Side.WHITE)
             if self.state is State.DROP_PIECE:
