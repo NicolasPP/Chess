@@ -24,6 +24,9 @@ class ButtonGui:
         self.hover_surface.fill(bg_color)
         self.hover_surface.set_alpha(HOVER_ALPHA)
 
+    def set_hover_color(self, hover_color: tuple[int, int, int]) -> None:
+        self.hover_surface.fill(hover_color)
+
     def set_font(self, font_file: str, font_size: int, anti_alias: bool, font_color: tuple[int, int, int]) -> None:
         self.font_info = FontRenderInfo(pygame.font.Font(font_file, font_size), anti_alias, font_color)
 
@@ -37,9 +40,10 @@ class ButtonGui:
     def set_hover(self, hover: bool) -> None:
         self.hover = hover
 
-    def render(self, game_offset: pygame.math.Vector2) -> None:
+    def render(self, game_offset: pygame.rect.Rect) -> None:
         GameSurface.get().blit(self.surface, self.rect)
+        vec_offset: pygame.math.Vector2 = pygame.math.Vector2(game_offset.topleft)
         if not self.hover: return
-        mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - game_offset
+        mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - vec_offset
         if self.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             GameSurface.get().blit(self.hover_surface, self.rect)
