@@ -99,7 +99,6 @@ class CapturedGui:
 
         w_surface_size: pygame.math.Vector2 = pygame.math.Vector2(0, piece_size.y)
         b_surface_size: pygame.math.Vector2 = pygame.math.Vector2(0, piece_size.y)
-        score_size: pygame
 
         for piece, count in self.captured_pieces.items():
             if piece.isupper():
@@ -151,10 +150,10 @@ class CapturedGui:
     def render(self, player_side: Side) -> None:
         scale = GameSize.get_scale()
         top_pos = pygame.rect.Rect(*self.board_rect.topleft, 0, 0)
-        top_pos.y -= ((OPP_TIMER_SPACING * scale) + self.get_piece_size().y)
+        top_pos.y -= int((OPP_TIMER_SPACING * scale) + self.get_piece_size().y)
         bottom_pos = pygame.rect.Rect(*self.board_rect.bottomleft, 0, 0)
-        bottom_pos.x += self.pos_offset.x
-        bottom_pos.y += self.pos_offset.y
+        bottom_pos.x += int(self.pos_offset.x)
+        bottom_pos.y += int(self.pos_offset.y)
 
         score_imbalance: bool = True
 

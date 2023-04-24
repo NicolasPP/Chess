@@ -120,6 +120,7 @@ class BoardAxisGui:
     def update_axis_val_render(self, tile_hover: TileHover | None, render_color: tuple[int, int, int]) -> None:
         if tile_hover is None:
             self.reset_hover()
+            return
         self.values_render_dict[tile_hover.rank] = BoardAxisGui.get_font().render(
             tile_hover.rank,
             False,
