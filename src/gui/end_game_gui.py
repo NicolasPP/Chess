@@ -1,5 +1,3 @@
-import typing
-
 import pygame
 
 from chess.asset.asset_manager import AssetManager
@@ -41,7 +39,7 @@ class EndGameGui:
         self.offer_draw.set_label(OFFER_DRAW_LABEL)
         self.resign.set_label(RESIGN_LABEL)
 
-    def render(self, game_offset: pygame.math.Vector2) -> None:
+    def render(self, game_offset: pygame.rect.Rect) -> None:
         self.offer_draw.render(game_offset)
         self.resign.render(game_offset)
 
