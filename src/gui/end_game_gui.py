@@ -14,7 +14,8 @@ class EndGameGui:
         default_pos: tuple[int, int] = 0, 0
         return pygame.rect.Rect(
             default_pos,
-            (SQUARE_SIZE * GameSize.get_scale() * 2, SQUARE_SIZE * GameSize.get_scale() * 1/2))
+            ((SQUARE_SIZE * GameSize.get_scale() * 2) + (BOARD_OUTLINE_THICKNESS * 2),
+             SQUARE_SIZE * GameSize.get_scale() * 1/2))
 
     def __init__(self, board_rect: pygame.rect.Rect):
         self.board_rect: pygame.rect.Rect = board_rect
