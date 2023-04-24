@@ -47,8 +47,4 @@ class EndGameGui:
     def recalculate_pos(self) -> None:
         self.offer_draw.rect.bottomleft = self.board_rect.bottomright
         self.resign.rect.bottomleft = self.board_rect.bottomright
-
-        self.offer_draw.rect.x += GUI_SPACING
-        self.resign.rect.x += GUI_SPACING
-
-        self.resign.rect.y -= (self.offer_draw.rect.height + GUI_SPACING)
+        self.resign.rect.y -= self.offer_draw.rect.height
