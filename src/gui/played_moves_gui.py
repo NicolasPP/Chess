@@ -12,10 +12,6 @@ from chess.game.game_size import GameSize
 from config import *
 
 
-class PlayedMovesRects(typing.NamedTuple):
-    background: pygame.rect.Rect
-
-
 class PlayedMovesSurfaces(typing.NamedTuple):
     background: pygame.surface.Surface
 
