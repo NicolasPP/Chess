@@ -3,6 +3,8 @@ import pygame
 from chess.board.side import Side
 from chess.asset.asset_manager import AssetManager
 from chess.game.game_surface import GameSurface
+from chess.asset.chess_assets import scale_surface
+from config import PROMOTION_PIECE_SCALE
 
 
 class PromotionGui:
@@ -15,13 +17,13 @@ class PromotionGui:
     def get_promotion_pieces(self, board_rect: pygame.rect.Rect) \
             -> list[tuple[pygame.surface.Surface, pygame.rect.Rect, str]]:
         center = pygame.math.Vector2(board_rect.center)
-        piece_width = AssetManager.get_piece_surface(self.possible_pieces[0]).get_width()
-        piece_height = AssetManager.get_piece_surface(self.possible_pieces[0]).get_height()
+        p_surface = scale_surface(AssetManager.get_piece_surface(self.possible_pieces[0]), PROMOTION_PIECE_SCALE)
+        piece_width, piece_height = p_surface.get_size()
         center.x -= (piece_width * 2)
         result = []
         for val in self.possible_pieces:
             rect = pygame.rect.Rect(center.x, center.y, piece_width, piece_height)
-            result.append((AssetManager.get_piece_surface(val), rect, val))
+            result.append((scale_surface(AssetManager.get_piece_surface(val), PROMOTION_PIECE_SCALE), rect, val))
             center.x += piece_width
         return result
 
