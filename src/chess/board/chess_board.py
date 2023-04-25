@@ -33,14 +33,14 @@ class Board:
     @staticmethod
     def create_board_surface(tiles: list[BoardTile]) -> pygame.surface.Surface:
         board_surface = pygame.surface.Surface(Board.calculate_board_rect().size)
-        board_surface.fill(AssetManager.get_theme().light_color)
+        board_surface.fill(AssetManager.get_theme().primary_light)
         counter = 0
         for tile in tiles:
             surface = pygame.surface.Surface(tile.rect.size)
             if counter % 2 == 0:
-                surface.fill(AssetManager.get_theme().light_color)
+                surface.fill(AssetManager.get_theme().primary_light)
             else:
-                surface.fill(AssetManager.get_theme().dark_color)
+                surface.fill(AssetManager.get_theme().primary_dark)
 
             if (tile.algebraic_notation.index + 1) % BOARD_SIZE != 0:
                 counter += 1

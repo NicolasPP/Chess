@@ -112,13 +112,13 @@ class CapturedGui:
         w_captured_surface = pygame.surface.Surface(w_surface_size)
         b_captured_surface = pygame.surface.Surface(b_surface_size)
 
-        score_surface.fill(AssetManager.get_theme().dark_color)
-        w_captured_surface.fill(AssetManager.get_theme().dark_color)
-        b_captured_surface.fill(AssetManager.get_theme().dark_color)
+        score_surface.fill(AssetManager.get_theme().primary_dark)
+        w_captured_surface.fill(AssetManager.get_theme().primary_dark)
+        b_captured_surface.fill(AssetManager.get_theme().primary_dark)
 
         score: str = '+' + str(abs(self.score.white - self.score.black))
         font_render: pygame.surface.Surface = CapturedGui.get_font().render(score, True,
-                                                                            AssetManager.get_theme().light_color)
+                                                                            AssetManager.get_theme().primary_light)
         score_rect = font_render.get_rect(center=score_surface.get_rect().center)
         score_surface.blit(font_render, score_rect)
 

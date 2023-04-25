@@ -43,8 +43,8 @@ def init_chess(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> Non
     pygame.display.set_caption("")
 
     AssetManager.load_theme(theme)
-    GameSurface.get().fill(AssetManager.get_theme().dark_color)
-    pygame.display.get_surface().fill(AssetManager.get_theme().dark_color)
+    GameSurface.get().fill(AssetManager.get_theme().primary_dark)
+    pygame.display.get_surface().fill(AssetManager.get_theme().primary_dark)
 
     AssetManager.load_pieces(PieceSetAssets.NORMAL16x16, scale)
     pygame.display.set_icon(AssetManager.get_piece_surface(FenChars.get_piece_fen(FenChars.DEFAULT_KING, False)))

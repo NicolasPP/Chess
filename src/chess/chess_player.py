@@ -283,7 +283,7 @@ class Player:
         self.end_game_gui.render(self.game_offset)
 
         if self.is_render_required or self.state is State.DROP_PIECE:
-            GameSurface.get().fill(AssetManager.get_theme().dark_color)
+            GameSurface.get().fill(AssetManager.get_theme().primary_dark)
             self.timer_gui.render()
             self.end_game_gui.render(self.game_offset)
             self.captured_gui.render(self.side)

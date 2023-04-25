@@ -54,7 +54,7 @@ class ChessTimer:
 
     def render(self, pos: pygame.math.Vector2, font: pygame.font.Font, offset_height: bool = False) -> None:
         info = ChessTimer.format_seconds(self.time_left, True)
-        info_render = font.render(info, True, AssetManager.get_theme().light_color)
+        info_render = font.render(info, True, AssetManager.get_theme().primary_light)
         render_pos = pos
         render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
 
@@ -64,6 +64,6 @@ class ChessTimer:
             render_rect = info_render.get_rect(topleft=(render_pos.x, render_pos.y))
 
         info_bg_surface = pygame.surface.Surface(render_rect.size)
-        info_bg_surface.fill(AssetManager.get_theme().dark_color)
+        info_bg_surface.fill(AssetManager.get_theme().primary_dark)
         GameSurface.get().blit(info_bg_surface, render_rect)
         GameSurface.get().blit(info_render, render_rect)

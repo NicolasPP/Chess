@@ -24,8 +24,8 @@ class PlayedMovesGui:
     @staticmethod
     def create_move_cell_surface(move: str) -> pygame.surface.Surface:
         cell_surface: pygame.surface.Surface = pygame.surface.Surface(PlayedMovesGui.get_move_cell_size())
-        move_render = PlayedMovesGui.get_font().render(move, False, AssetManager.get_theme().light_color)
-        cell_surface.fill(AssetManager.get_theme().dark_color)
+        move_render = PlayedMovesGui.get_font().render(move, False, AssetManager.get_theme().primary_light)
+        cell_surface.fill(AssetManager.get_theme().primary_dark)
         cell_surface.blit(move_render, move_render.get_rect(center=cell_surface.get_rect().center))
         return cell_surface
 
@@ -50,7 +50,7 @@ class PlayedMovesGui:
     @staticmethod
     def create_played_moves_surfaces(background_rect: pygame.rect.Rect) -> PlayedMovesSurfaces:
         background_surface = pygame.surface.Surface(background_rect.size)
-        background_surface.fill(AssetManager.get_theme().light_color)
+        background_surface.fill(AssetManager.get_theme().primary_light)
         scroll_window_surface: pygame.surface.Surface = pygame.surface.Surface(
             (background_rect.width - BOARD_OUTLINE_THICKNESS,
              background_rect.height - (BOARD_OUTLINE_THICKNESS * 2))
@@ -58,7 +58,7 @@ class PlayedMovesGui:
         scroll_surface: pygame.surface.Surface = pygame.surface.Surface(
             scroll_window_surface.get_size()
         )
-        scroll_surface.fill(AssetManager.get_theme().dark_color)
+        scroll_surface.fill(AssetManager.get_theme().primary_dark)
         background_surface.blit(scroll_surface, (0, BOARD_OUTLINE_THICKNESS))
         return PlayedMovesSurfaces(background_surface, scroll_surface, scroll_window_surface)
 
@@ -83,7 +83,7 @@ class PlayedMovesGui:
         new_surface = pygame.surface.Surface(
             (self.played_surfaces.scroll.get_width(),
              self.played_surfaces.scroll.get_height() + move_surface.get_rect().height))
-        new_surface.fill(AssetManager.get_theme().dark_color)
+        new_surface.fill(AssetManager.get_theme().primary_dark)
         new_surface.blit(self.played_surfaces.scroll, (0, 0))
         self.played_surfaces.scroll = new_surface
 

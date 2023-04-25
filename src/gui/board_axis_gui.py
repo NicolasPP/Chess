@@ -53,8 +53,8 @@ class BoardAxisGui:
         axis_rects: AxisRects = BoardAxisGui.calculate_axis_rects()
         x_axis_surface = pygame.surface.Surface(axis_rects.x_axis.size)
         y_axis_surface = pygame.surface.Surface(axis_rects.y_axis.size)
-        x_axis_surface.fill(AssetManager.get_theme().dark_color)
-        y_axis_surface.fill(AssetManager.get_theme().dark_color)
+        x_axis_surface.fill(AssetManager.get_theme().primary_dark)
+        y_axis_surface.fill(AssetManager.get_theme().primary_dark)
         return AxisSurfaces(x_axis_surface, y_axis_surface)
 
     @staticmethod
@@ -80,8 +80,8 @@ class BoardAxisGui:
         anti_alias: bool = False
         font = BoardAxisGui.get_font()
         for rank, file in enumerate(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
-            values_dict[str(rank + 1)] = font.render(str(rank + 1), anti_alias, AssetManager.get_theme().light_color)
-            values_dict[file] = font.render(file, anti_alias, AssetManager.get_theme().light_color)
+            values_dict[str(rank + 1)] = font.render(str(rank + 1), anti_alias, AssetManager.get_theme().primary_light)
+            values_dict[file] = font.render(file, anti_alias, AssetManager.get_theme().primary_light)
         return values_dict
 
     def __init__(self, board_pos: pygame.rect.Rect, side: Side) -> None:
@@ -149,7 +149,7 @@ class BoardAxisGui:
         else:
             if self.prev_hover == current_hover:
                 return
-        self.update_axis_val_render(self.prev_hover, AssetManager.get_theme().light_color)
+        self.update_axis_val_render(self.prev_hover, AssetManager.get_theme().primary_light)
         self.update_axis_val_render(current_hover, POP_UP_FONT_COLOR)
         self.prev_hover = current_hover
 

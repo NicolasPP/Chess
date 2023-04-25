@@ -20,23 +20,23 @@ class EndGameGui:
     def __init__(self, board_rect: pygame.rect.Rect):
         self.board_rect: pygame.rect.Rect = board_rect
         rect: pygame.rect.Rect = EndGameGui.calculate_end_game_rect()
-        self.offer_draw: ButtonGui = ButtonGui(rect.width, rect.height, AssetManager.get_theme().dark_color)
-        self.resign: ButtonGui = ButtonGui(rect.width, rect.height, AssetManager.get_theme().dark_color)
-        self.game_over_gui: GameOverGui = GameOverGui(AssetManager.get_theme().dark_color)
+        self.offer_draw: ButtonGui = ButtonGui(rect.width, rect.height, AssetManager.get_theme().primary_dark)
+        self.resign: ButtonGui = ButtonGui(rect.width, rect.height, AssetManager.get_theme().primary_dark)
+        self.game_over_gui: GameOverGui = GameOverGui(AssetManager.get_theme().primary_dark)
         self.button_init()
         self.recalculate_pos()
 
     def button_init(self) -> None:
         self.offer_draw.set_font(
             FONT_FILE,
-            int(GameSize.get_relative_size(OFFER_DRAW_FONT_SIZE)), False, AssetManager.get_theme().light_color
+            int(GameSize.get_relative_size(OFFER_DRAW_FONT_SIZE)), False, AssetManager.get_theme().primary_light
         )
         self.resign.set_font(
             FONT_FILE,
-            int(GameSize.get_relative_size(RESIGN_FONT_SIZE)), False, AssetManager.get_theme().light_color
+            int(GameSize.get_relative_size(RESIGN_FONT_SIZE)), False, AssetManager.get_theme().primary_light
         )
-        self.offer_draw.set_hover_color(AssetManager.get_theme().light_color)
-        self.resign.set_hover_color(AssetManager.get_theme().light_color)
+        self.offer_draw.set_hover_color(AssetManager.get_theme().primary_light)
+        self.resign.set_hover_color(AssetManager.get_theme().primary_light)
         self.offer_draw.set_label(OFFER_DRAW_LABEL)
         self.resign.set_label(RESIGN_LABEL)
 

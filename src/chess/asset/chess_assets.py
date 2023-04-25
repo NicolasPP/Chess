@@ -10,8 +10,8 @@ from config import *
 
 @dataclasses.dataclass
 class ChessTheme:
-    light_color: tuple[int, int, int]
-    dark_color: tuple[int, int, int]
+    primary_light: tuple[int, int, int]
+    primary_dark: tuple[int, int, int]
 
 
 @dataclasses.dataclass
