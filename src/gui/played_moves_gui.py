@@ -24,7 +24,7 @@ class PlayedMovesGui:
     @staticmethod
     def create_move_cell_surface(move: str) -> pygame.surface.Surface:
         cell_surface: pygame.surface.Surface = pygame.surface.Surface(PlayedMovesGui.get_move_cell_size())
-        move_render = PlayedMovesGui.get_font().render(move, False, AssetManager.get_theme().primary_light)
+        move_render = PlayedMovesGui.get_font().render(move, False, AssetManager.get_theme().secondary_dark)
         cell_surface.fill(AssetManager.get_theme().primary_dark)
         cell_surface.blit(move_render, move_render.get_rect(center=cell_surface.get_rect().center))
         return cell_surface

@@ -3,6 +3,7 @@ import pygame
 from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
 from chess.game.chess_match import MatchResult
+from chess.asset.asset_manager import AssetManager
 from config import *
 
 
@@ -19,7 +20,7 @@ class GameOverGui:
             (GameSize.get_relative_size(POP_UP_BG_WIDTH), GameSize.get_relative_size(POP_UP_BG_HEIGHT))
         )
         self.game_over_surface.set_alpha(GAME_OVER_ALPHA)
-        self.game_result_bg.fill(POP_UP_BG_COLOR)
+        self.game_result_bg.fill(AssetManager.get_theme().secondary_light)
         self.bg_color: tuple[int, int, int] = bg_color
 
     def set_final_frame(self, game_result: str, result_type: str) -> None:
@@ -28,14 +29,14 @@ class GameOverGui:
         self.final_frame.blit(self.game_over_surface, (0, 0))
         anti_alias = False
         result_type_surface = GameOverGui.get_font(RESULT_TYPE_FONT_SIZE).render(
-            result_type.lower(), anti_alias, POP_UP_FONT_COLOR)
+            result_type.lower(), anti_alias, AssetManager.get_theme().secondary_dark)
 
         if game_result == MatchResult.DRAW.name:
             game_result_surface = GameOverGui.get_font(POP_UP_FONT_SIZE).render(
-                DRAW_MESSAGE, anti_alias, POP_UP_FONT_COLOR)
+                DRAW_MESSAGE, anti_alias, AssetManager.get_theme().secondary_dark)
         else:
             game_result_surface = GameOverGui.get_font(POP_UP_FONT_SIZE).render(
-                game_result.lower() + WINNING_MESSAGE, anti_alias, POP_UP_FONT_COLOR)
+                game_result.lower() + WINNING_MESSAGE, anti_alias, AssetManager.get_theme().secondary_dark)
 
         game_result_pos = game_result_surface.get_rect(midtop=self.game_result_bg.get_rect().midtop)
         result_type_pos = result_type_surface.get_rect(midbottom=self.game_result_bg.get_rect().midbottom)

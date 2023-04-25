@@ -12,6 +12,8 @@ from config import *
 class ChessTheme:
     primary_light: tuple[int, int, int]
     primary_dark: tuple[int, int, int]
+    secondary_light: tuple[int, int, int]
+    secondary_dark: tuple[int, int, int]
 
 
 @dataclasses.dataclass
@@ -46,10 +48,10 @@ class PieceSetAssets:
 
 
 class Themes:
-    PLAIN1: ChessTheme = ChessTheme(PLAIN1_LIGHT, PLAIN1_DARK)
-    PLAIN2: ChessTheme = ChessTheme(PLAIN2_LIGHT, PLAIN2_DARK)
-    PLAIN3: ChessTheme = ChessTheme(PLAIN3_LIGHT, PLAIN3_DARK)
-    PLAIN4: ChessTheme = ChessTheme(PLAIN4_LIGHT, PLAIN4_DARK)
+    PLAIN1: ChessTheme = ChessTheme(THEME1_P_LIGHT, THEME1_P_DARK, THEME1_S_LIGHT, THEME1_S_DARK)
+    PLAIN2: ChessTheme = ChessTheme(THEME2_P_LIGHT, THEME2_P_DARK, THEME2_S_LIGHT, THEME2_S_DARK)
+    PLAIN3: ChessTheme = ChessTheme(THEME3_P_LIGHT, THEME3_P_DARK, THEME3_S_LIGHT, THEME3_S_DARK)
+    PLAIN4: ChessTheme = ChessTheme(THEME4_P_LIGHT, THEME4_P_DARK, THEME4_S_LIGHT, THEME4_S_DARK)
 
     @staticmethod
     def get_theme(theme_id: int) -> ChessTheme:

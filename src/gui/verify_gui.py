@@ -3,6 +3,7 @@ import pygame
 from gui.button_gui import ButtonGui
 from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
+from chess.asset.asset_manager import AssetManager
 from config import *
 
 
@@ -12,47 +13,47 @@ class VerifyGui:
         self.bg_surface: pygame.surface.Surface = pygame.surface.Surface(
             (GameSize.get_relative_size(POP_UP_BG_WIDTH), GameSize.get_relative_size(POP_UP_BG_HEIGHT))
         )
-        self.bg_surface.fill(POP_UP_BG_COLOR)
+        self.bg_surface.fill(AssetManager.get_theme().secondary_light)
         self.bg_surface.set_alpha(VERIFY_BG_ALPHA)
         self.bg_rect: pygame.rect.Rect = self.bg_surface.get_rect(center=board_rect.center)
 
         self.yes: ButtonGui = ButtonGui(
             int(GameSize.get_relative_size(VERIFY_BUTTON_WIDTH)),
             int(GameSize.get_relative_size(VERIFY_BUTTON_HEIGHT)),
-            POP_UP_BG_COLOR)
+            AssetManager.get_theme().secondary_light)
         self.no: ButtonGui = ButtonGui(
             int(GameSize.get_relative_size(VERIFY_BUTTON_WIDTH)),
             int(GameSize.get_relative_size(VERIFY_BUTTON_HEIGHT)),
-            POP_UP_BG_COLOR)
+            AssetManager.get_theme().secondary_light)
         self.description: ButtonGui = ButtonGui(
             int(GameSize.get_relative_size(POP_UP_BG_WIDTH)),
             int(GameSize.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
-            POP_UP_BG_COLOR)
+            AssetManager.get_theme().secondary_light)
         self.action: ButtonGui = ButtonGui(
             int(GameSize.get_relative_size(POP_UP_BG_WIDTH)),
             int(GameSize.get_relative_size(DESCRIPTION_BUTTON_HEIGHT)),
-            POP_UP_BG_COLOR)
+            AssetManager.get_theme().secondary_light)
 
         self.yes.set_font(
             FONT_FILE,
             int(GameSize.get_relative_size(POP_UP_FONT_SIZE)),
             False,
-            POP_UP_FONT_COLOR)
+            AssetManager.get_theme().secondary_dark)
         self.no.set_font(
             FONT_FILE,
             int(GameSize.get_relative_size(POP_UP_FONT_SIZE)),
             False,
-            POP_UP_FONT_COLOR)
+            AssetManager.get_theme().secondary_dark)
         self.description.set_font(
             FONT_FILE,
             int(GameSize.get_relative_size(DESCRIPTION_FONT_SIZE)),
             False,
-            POP_UP_FONT_COLOR)
+            AssetManager.get_theme().secondary_dark)
         self.action.set_font(
             FONT_FILE,
             int(GameSize.get_relative_size(DESCRIPTION_FONT_SIZE)),
             False,
-            POP_UP_FONT_COLOR)
+            AssetManager.get_theme().secondary_dark)
 
         self.yes.set_label(YES_LABEL)
         self.no.set_label(NO_LABEL)

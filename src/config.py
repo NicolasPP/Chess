@@ -41,20 +41,26 @@ MAX_SCORE: str = "+30"
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = (76, 155, 87)
 PIECE_BG: tuple[int, int, int] = (0, 0, 0)
 GAME_OVER_COLOR: tuple[int, int, int] = (255, 255, 255)
-POP_UP_BG_COLOR: tuple[int, int, int] = (43, 45, 48)
-POP_UP_FONT_COLOR: tuple[int, int, int] = (224, 175, 105)
 
-PLAIN1_LIGHT: tuple[int, int, int] = (234, 240, 217)
-PLAIN1_DARK: tuple[int, int, int] = (89, 96, 111)
+THEME1_P_LIGHT: tuple[int, int, int] = (234, 240, 217)
+THEME1_P_DARK: tuple[int, int, int] = (89, 96, 111)
+THEME1_S_LIGHT: tuple[int, int, int] = (43, 45, 48)
+THEME1_S_DARK: tuple[int, int, int] = (224, 175, 105)
 
-PLAIN2_LIGHT: tuple[int, int, int] = (234, 240, 217)
-PLAIN2_DARK: tuple[int, int, int] = (192, 196, 180)
+THEME2_P_LIGHT: tuple[int, int, int] = (234, 240, 217)
+THEME2_P_DARK: tuple[int, int, int] = (192, 196, 180)
+THEME2_S_LIGHT: tuple[int, int, int] = (43, 45, 48)
+THEME2_S_DARK: tuple[int, int, int] = (224, 175, 105)
 
-PLAIN3_LIGHT: tuple[int, int, int] = (150, 162, 178)
-PLAIN3_DARK: tuple[int, int, int] = (89, 96, 111)
+THEME3_P_LIGHT: tuple[int, int, int] = (150, 162, 178)
+THEME3_P_DARK: tuple[int, int, int] = (89, 96, 111)
+THEME3_S_LIGHT: tuple[int, int, int] = (43, 45, 48)
+THEME3_S_DARK: tuple[int, int, int] = (224, 175, 105)
 
-PLAIN4_LIGHT: tuple[int, int, int] = (230, 234, 216)
-PLAIN4_DARK: tuple[int, int, int] = (69, 77, 94)
+THEME4_P_LIGHT: tuple[int, int, int] = (230, 234, 216)
+THEME4_P_DARK: tuple[int, int, int] = (69, 77, 94)
+THEME4_S_LIGHT: tuple[int, int, int] = (43, 45, 48)
+THEME4_S_DARK: tuple[int, int, int] = (224, 175, 105)
 
 # -- Default values --
 SCROLL_SPEED: int = 10
