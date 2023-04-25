@@ -14,21 +14,70 @@ Local :
 - start local game
 ```
 python src/local.py
-python src/client --scale   // specify the size of the chess window
-python src/client --theme_id    // specify theme for game
+
+Options:
+    --scale
+    --theme_id
+    --pieces_asset
+    --timer
+
 ```
 Network :
 - start the server
 ```
 python src/server.py
+
+Options:
+    --timer
 ```
 - start the client
 ```
-python src/client.py    // default ip address = 127.0.0.1
-python src/client.py --server_ip    // specify server ip address
-python src/client --scale   // specify the size of the chess window
-python src/client --theme_id    // specify theme for game
+python src/client.py
+
+Options:
+    --server_ip
+    --scale
+    --theme_id
+    --pieces_asset
+
+
 ```
+- Options description
+```
+-- timer  :  Choose timer settings.
+    Custom setting format: 
+        "time increment" 
+        (time-minutes, increment-seconds)
+        e.g "15 0"
+    possible timers:
+        BULLET_1_0 
+        BULLET_1_1 
+        BULLET_2_1
+        BLITZ_3_0 
+        BLITZ_3_2 
+        BLITZ_5_0
+        RAPID_15_10 
+        RAPID_30_0 
+        RAPID_60_0
+  
+--server_ip  :  specify server ip for client
+    Default server ip = 127.0.0.1
+
+--scale  :  specify size of application
+    default size = 3.5
+    not recommended to go below 2, font will become unreadable
+
+--theme_id  :  Choose theme of the Game
+    possible theme_id: 1, 2, 3, 4, -1
+    -1 = Random theme
+        
+
+--pieces_asset  :  Choose Pieces Asset
+    possible pieces Asset: SMALL, LARGE, RANDOM
+
+
+```
+
 
 # Resources
 - sprites : https://dani-maccari.itch.io/pixel-chess
