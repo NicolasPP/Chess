@@ -305,8 +305,6 @@ class Player:
                 self.state is State.RESIGN_DOUBLE_CHECK:
             self.verify_gui.render(self.game_offset)
 
-        if self.state is State.OFFERED_DRAW: pass
-
         self.set_require_render(False)
 
     def update_pieces_location(self, fen: Fen) -> None:
