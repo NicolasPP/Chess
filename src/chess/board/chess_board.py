@@ -78,10 +78,8 @@ class Board:
         if mouse_pos is None: mouse_pos = pygame.mouse.get_pos()
         board_offset = pygame.math.Vector2(self.rect.topleft) + pygame.math.Vector2(game_offset.topleft)
         for tile in self.grid:
-            rect = tile.rect.copy()
-            top_left = board_offset + pygame.math.Vector2(rect.topleft)
-            rect.topleft = int(top_left.x), int(top_left.y)
-            if rect.collidepoint(mouse_pos):
+            pos = pygame.math.Vector2(mouse_pos) - board_offset
+            if tile.rect.collidepoint((pos.x, pos.y)):
                 return tile
         return None
 
