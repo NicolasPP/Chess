@@ -1,5 +1,5 @@
 from launcher.single_player import SinglePlayerLauncher
-from launcher.multi_player import MultiPlayerLauncher
+from launcher.multi_player_client import MultiPlayerLauncher
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
 from chess.timer.timer_config import TimerConfig
 from server import Server
@@ -20,7 +20,7 @@ class ChessLauncher:
     def launch_single_player(self) -> None:
         self.single_player.launch(self.theme, self.scale, self.piece_set, self.timer_config)
 
-    def launch_multi_player(self) -> None:
+    def launch_multi_player_client(self) -> None:
         self.multi_player.launch(self.server_ip, self.theme, self.scale, self.piece_set)
 
     def run_local_server(self) -> None:
