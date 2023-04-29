@@ -15,6 +15,7 @@ from config import GAME_SURFACE_SPACING
 
 
 def init_chess(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> None:
+    GameSize.reset()
     pygame.init()
 
     PieceMovement.load()

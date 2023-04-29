@@ -65,3 +65,7 @@ class GameSize:
         I instead divide it by the default_scale which is 3.5 and then multiply by scale
         """
         return (size * GameSize.get_scale()) / DEFAULT_SCALE
+
+    @staticmethod
+    def reset() -> None:
+        GameSize.width = GameSize.height = GameSize.scale = None
