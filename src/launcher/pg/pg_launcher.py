@@ -1,11 +1,11 @@
-from launcher.single_player import SinglePlayerLauncher
-from launcher.multi_player_client import MultiPlayerLauncher
+from launcher.pg.single_player import SinglePlayerLauncher
+from launcher.pg.multi_player_client import MultiPlayerLauncher
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
 from chess.timer.timer_config import TimerConfig
 from server import Server
 
 
-class ChessLauncher:
+class PygameChessLauncher:
 
     def __init__(self):
         self.theme: ChessTheme = Themes.PLAIN1
