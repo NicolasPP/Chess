@@ -13,7 +13,7 @@ from chess.chess_init import init_chess
 from chess.notation.forsyth_edwards_notation import Fen
 
 
-class SinglePlayerLauncher:
+class OfflineLauncher:
     def __init__(self) -> None:
         self.prev_time = time.time()
         self.delta_time: float = 0

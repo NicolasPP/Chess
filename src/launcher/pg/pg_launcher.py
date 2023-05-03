@@ -1,5 +1,5 @@
-from launcher.pg.single_player import SinglePlayerLauncher
-from launcher.pg.multi_player_client import MultiPlayerLauncher
+from launcher.pg.offline_launcher import OfflineLauncher
+from launcher.pg.online_launcher import OnlineLauncher
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
 from chess.timer.timer_config import TimerConfig
 from server import Server
@@ -13,8 +13,8 @@ class PygameChessLauncher:
         self.piece_set: PieceSetAsset = PieceSetAssets.SIMPLE16x16
         self.timer_config: TimerConfig = TimerConfig(60 * 10, 0)
         self.server_ip: str = '127.0.0.1'
-        self.multi_player: MultiPlayerLauncher = MultiPlayerLauncher()
-        self.single_player: SinglePlayerLauncher = SinglePlayerLauncher()
+        self.multi_player: OnlineLauncher = OnlineLauncher()
+        self.single_player: OfflineLauncher = OfflineLauncher()
         self.server: Server = Server(self.timer_config)
         self.is_running: bool = False
 

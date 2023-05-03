@@ -17,7 +17,7 @@ from chess.game.game_surface import GameSurface
 from config import *
 
 
-class MultiPlayerLauncher:
+class OnlineLauncher:
 
     def __init__(self) -> None:
         self.logger = set_up_logging(CLIENT_NAME, CLIENT_LOG_FILE)
