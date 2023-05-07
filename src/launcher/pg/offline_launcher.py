@@ -1,4 +1,3 @@
-import sys
 import time
 
 import pygame
@@ -6,8 +5,8 @@ import pygame
 from chess.game.chess_match import Match
 from chess.chess_player import Player, process_command_local, State
 from chess.board.side import Side
-from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
-from chess.timer.timer_config import DefaultConfigs, TimerConfig
+from chess.asset.chess_assets import ChessTheme, PieceSetAsset
+from chess.timer.timer_config import TimerConfig
 from chess.game.game_surface import GameSurface
 from chess.chess_init import init_chess
 from chess.notation.forsyth_edwards_notation import Fen
