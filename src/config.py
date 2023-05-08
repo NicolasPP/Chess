@@ -123,4 +123,5 @@ LOG_FILE_MODE: str = "w"
 LOG_FORMAT: str = "%(asctime)s\t%(levelname)s\t%(message)s"
 
 # -- tkinter launcher --
-WINDOW_SIZE: str = "300x600"
+WINDOW_WIDTH: int = 200
+WINDOW_HEIGHT: int = 300
