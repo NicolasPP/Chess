@@ -1,7 +1,7 @@
 from __future__ import annotations
 import string
 
-from config import *
+from config.pg_config import *
 
 
 class AlgebraicNotation:

@@ -10,7 +10,7 @@ from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
 from chess.notation.forsyth_edwards_notation import FenChars
 
-from config import *
+from config.pg_config import *
 
 
 @dataclasses.dataclass

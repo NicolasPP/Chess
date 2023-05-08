@@ -1,0 +1,2 @@
+WINDOW_WIDTH: int = 200
+WINDOW_HEIGHT: int = 300

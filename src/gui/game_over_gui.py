@@ -4,7 +4,7 @@ from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
 from chess.game.chess_match import MatchResult
 from chess.asset.asset_manager import AssetManager
-from config import *
+from config.pg_config import *
 
 
 class GameOverGui:

@@ -2,7 +2,7 @@ import pygame
 import dataclasses
 
 from chess.game.game_surface import GameSurface
-from config import HOVER_ALPHA
+from config.pg_config import HOVER_ALPHA
 
 
 @dataclasses.dataclass

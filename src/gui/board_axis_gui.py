@@ -6,7 +6,7 @@ from chess.asset.asset_manager import AssetManager
 from chess.game.game_surface import GameSurface
 from chess.game.game_surface import GameSize
 from chess.board.board_tile import BoardTile
-from config import *
+from config.pg_config import *
 
 
 class TileHover(typing.NamedTuple):

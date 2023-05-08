@@ -3,7 +3,7 @@ import pygame
 from chess.asset.chess_assets import PieceSurfaces, PieceSetAsset, load_piece_set, ChessTheme
 from chess.notation.forsyth_edwards_notation import FenChars
 
-from config import *
+from config.pg_config import *
 
 
 class AssetManager:

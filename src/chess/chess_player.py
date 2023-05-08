@@ -24,7 +24,7 @@ from gui.verify_gui import VerifyGui
 from gui.previous_move_gui import PreviousMoveGui
 from chess.game.chess_match import Match
 from gui.played_moves_gui import PlayedMovesGui
-from config import *
+from config.pg_config import *
 
 
 class State(enum.Enum):

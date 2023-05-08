@@ -15,7 +15,7 @@ from chess.chess_logging import set_up_logging
 from chess.chess_init import init_chess
 from chess.game.game_surface import GameSurface
 
-from config import *
+from config.pg_config import *
 
 logger = set_up_logging(CLIENT_NAME, CLIENT_LOG_FILE)
 

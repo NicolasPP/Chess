@@ -1,6 +1,6 @@
 import pygame
 
-from config import DEFAULT_SCALE
+from config.pg_config import DEFAULT_SCALE
 
 
 class GameSize:
@@ -60,7 +60,7 @@ class GameSize:
     @staticmethod
     def get_relative_size(size: int | float) -> float:
         """
-        when designing the gui I picked fixed sizes which looked good on 3.5 scale.
+        when designing the gui I choose fixed sizes which looked good on 3.5 scale.
         Instead of implementing a smart way to calculate the size according to the given scale,
         I instead divide it by the default_scale which is 3.5 and then multiply by scale
         """

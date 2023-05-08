@@ -5,7 +5,7 @@ from gui.game_over_gui import GameOverGui
 from gui.button_gui import ButtonGui
 from chess.game.game_size import GameSize
 
-from config import *
+from config.pg_config import *
 
 
 class EndGameGui:

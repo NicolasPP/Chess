@@ -9,7 +9,7 @@ from chess.game.game_surface import GameSurface
 from chess.asset.asset_manager import AssetManager
 from chess.game.game_size import GameSize
 
-from config import *
+from config.pg_config import *
 
 
 @dataclasses.dataclass

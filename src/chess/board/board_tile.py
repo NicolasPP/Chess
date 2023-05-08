@@ -8,7 +8,7 @@ from chess.board.side import Side
 from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
 from chess.game.game_surface import GameSurface
-from config import *
+from config.pg_config import *
 
 
 class BoardTileIndex(typing.NamedTuple):

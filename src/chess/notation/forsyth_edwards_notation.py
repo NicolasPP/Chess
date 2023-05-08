@@ -2,7 +2,7 @@ import dataclasses
 import typing
 
 from chess.notation.algebraic_notation import AlgebraicNotation, validate_file_and_rank
-from config import *
+from config.pg_config import *
 
 
 class FenChars:

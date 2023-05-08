@@ -11,7 +11,7 @@ from gui.timer_gui import TimerGui, TimerRects
 from gui.played_moves_gui import PlayedMovesGui
 from chess.board.chess_board import Board
 from chess.notation.forsyth_edwards_notation import FenChars
-from config import GAME_SURFACE_SPACING
+from config.pg_config import GAME_SURFACE_SPACING
 
 
 def init_chess(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> None:

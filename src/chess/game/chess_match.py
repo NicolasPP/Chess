@@ -9,7 +9,8 @@ from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenCha
 from chess.notation.forsyth_edwards_notation import validate_fen_castling_rights, validate_fen_en_passant_rights
 from chess.movement.validate_move import is_move_valid, is_take, is_check
 from chess.movement.validate_move import is_checkmate, is_stale_mate, is_material_insufficient
-from config import HALF_MOVE_LIMIT
+
+from config.pg_config import HALF_MOVE_LIMIT
 
 
 class MoveTags(enum.Enum):

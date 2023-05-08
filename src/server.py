@@ -14,7 +14,7 @@ from chess.notation.forsyth_edwards_notation import encode_fen_data
 from chess.movement.piece_movement import PieceMovement
 from chess.board.side import Side
 from chess.chess_logging import set_up_logging
-from config import *
+from config.pg_config import *
 
 '''
 [Errno 48] Address already in use

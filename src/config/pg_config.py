@@ -121,7 +121,3 @@ CLIENT_NAME: str = "client"
 CLIENT_LOG_FILE: str = "../Chess/log/client.log"
 LOG_FILE_MODE: str = "w"
 LOG_FORMAT: str = "%(asctime)s\t%(levelname)s\t%(message)s"
-
-# -- tkinter launcher --
-WINDOW_WIDTH: int = 200
-WINDOW_HEIGHT: int = 300

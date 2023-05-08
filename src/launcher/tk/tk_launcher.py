@@ -8,7 +8,7 @@ from launcher.tk.pages.settings_page import SettingsPage
 from launcher.tk.pages.start_page import StartPage
 from launcher.tk.page_manager import PageManager
 
-from config import *
+from config.tk_config import *
 
 
 class ChessTkinterLauncher(tk.Tk):

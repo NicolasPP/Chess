@@ -5,7 +5,7 @@ import typing
 
 import pygame
 
-from config import *
+from config.pg_config import *
 
 
 @dataclasses.dataclass

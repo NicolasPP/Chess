@@ -8,7 +8,7 @@ from chess.game.game_surface import GameSurface
 from chess.board.chess_board import Board
 from chess.board.side import Side
 from chess.board.board_tile import BoardTile
-from config import *
+from config.pg_config import *
 
 
 class AvailableMovesGui:
