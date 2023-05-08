@@ -9,7 +9,7 @@ class PygameChessLauncher:
 
     def __init__(self):
         self.theme: ChessTheme = Themes.PLAIN1
-        self.scale: float = 5
+        self.scale: float = 3.5
         self.piece_set: PieceSetAsset = PieceSetAssets.SIMPLE16x16
         self.timer_config: TimerConfig = TimerConfig(60 * 10, 0)
         self.server_ip: str = '127.0.0.1'
