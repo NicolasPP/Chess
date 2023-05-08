@@ -1,21 +1,36 @@
+import typing
 import tkinter as tk
 import ttkbootstrap as ttk
 from launcher.tk.page_frame import PageFrame
+from launcher.tk.page_manager import PageManager
+
+
+class StartPageButtons(typing.NamedTuple):
+    settings: ttk.Button
+    online: ttk.Button
+    offline: ttk.Button
 
 
 class StartPage(PageFrame):
+
     def __init__(
             self,
             parent_frame: tk.Frame,
-            launcher: tk.Tk,
+            page_manager: PageManager,
     ) -> None:
-        super().__init__(parent_frame, launcher)
+        super().__init__(parent_frame)
+        buttons = self.create_buttons(page_manager)
+        label = ttk.Label(self, text="Startpage", font=("Verdana", 20))
+        label.pack(expand=True)
+        buttons.online.pack(expand=True)
+        buttons.offline.pack(expand=True)
+        buttons.settings.pack(expand=True)
 
-        LARGEFONT = ("Verdana", 35)
-        label = ttk.Label(self, text="Startpage", font=LARGEFONT)
-        label2 = ttk.Label(self, text="Startpage", font=LARGEFONT)
-        label.pack()
-        label2.pack()
-        button1 = ttk.Button(self, text="Page 1",
-                             command=lambda: self.launcher.show_page('SettingsPage'))
-        button1.pack()
+    def create_buttons(self, page_manger: PageManager) -> StartPageButtons:
+        settings_buttons: ttk.Button = ttk.Button(
+            self, text="Settings", command=lambda: page_manger.show_page("SettingsPage"))
+        online_button: ttk.Button = ttk.Button(
+            self, text="Online", command=lambda: page_manger.show_page("OnlinePage"))
+        offline_button: ttk.Button = ttk.Button(
+            self, text="Offline", command=lambda: page_manger.show_page("OfflinePage"))
+        return StartPageButtons(settings_buttons, online_button, offline_button)
