@@ -1,9 +1,0 @@
-2023-05-08 19:59:23,680	INFO	Server started
-2023-05-08 19:59:23,681	INFO	Waiting for clients to connect
-2023-05-08 19:59:24,945	INFO	Connected to address : ('127.0.0.1', 53558)
-2023-05-08 19:59:25,087	INFO	Connected to address : ('127.0.0.1', 53559)
-2023-05-08 19:59:31,291	DEBUG	client : 0, sent move MOVE to server
-2023-05-08 19:59:33,528	DEBUG	invalid data
-2023-05-08 19:59:33,535	INFO	client : 0  disconnected
-2023-05-08 19:59:34,940	DEBUG	invalid data
-2023-05-08 19:59:34,941	INFO	client : 1  disconnected
