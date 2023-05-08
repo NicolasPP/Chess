@@ -4,6 +4,7 @@ import tkinter as tk
 import ttkbootstrap as ttk
 from launcher.tk.page_frame import PageFrame
 from launcher.tk.page_manager import PageManager
+from launcher.pg.pg_launcher import PygameChessLauncher
 
 
 class SettingsPageButtons(typing.NamedTuple):
@@ -11,7 +12,12 @@ class SettingsPageButtons(typing.NamedTuple):
 
 
 class SettingsPage(PageFrame):
-    def __init__(self, parent_frame: tk.Frame, page_manager: PageManager) -> None:
+    def __init__(
+            self,
+            parent_frame: tk.Frame,
+            page_manager: PageManager,
+            pg_launcher: PygameChessLauncher
+    ) -> None:
         super().__init__(parent_frame)
         buttons = self.create_buttons(page_manager)
         label = ttk.Label(self, text="Settings", font=("Verdana", 20))
