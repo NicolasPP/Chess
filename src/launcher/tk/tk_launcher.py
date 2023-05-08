@@ -26,7 +26,11 @@ class ChessTkinterLauncher(tk.Tk):
 
     def __init__(self, *args, **kwargs) -> None:
         tk.Tk.__init__(self, *args, **kwargs)
-        self.root_frame: tk.Frame = tk.Frame(self, height=100, width=150, bg="Red")
+        self.geometry("300x450")
+        self.title("Chess Launcher")
+        # remove window icon
+        self.wm_attributes("-toolwindow", "True")
+        self.root_frame: tk.Frame = tk.Frame(self)
         self.root_frame.pack(side="top", fill="none")
         self.page_manager: PageManager = PageManager()
         self.page_manager.add_page(StartPage(self.root_frame, self))
