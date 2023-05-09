@@ -136,9 +136,10 @@ class Match:
         target_fen = command.info[CommandManager.target_fen]
         time_iso = command.info[CommandManager.time_iso]
 
-        if not is_side_valid(side, self.fen.is_white_turn()) \
-                or not is_move_valid(from_index, dest_index, self.fen):
-            return [MoveTags.INVALID]
+        valid_side = is_side_valid(side, self.fen.is_white_turn())
+        valid_move = is_move_valid(from_index, dest_index, self.fen)
+
+        if not valid_side or not valid_move: return [MoveTags.INVALID]
 
         time = datetime.datetime.fromisoformat(time_iso)
         if self.prev_time is not None:

@@ -23,6 +23,10 @@ class ButtonGui:
         self.surface.fill(bg_color)
         self.hover_surface.fill(bg_color)
         self.hover_surface.set_alpha(HOVER_ALPHA)
+        self.enabled: bool = True
+
+    def set_enable(self, new_enable: bool) -> None:
+        self.enabled = new_enable
 
     def set_hover_color(self, hover_color: tuple[int, int, int]) -> None:
         self.hover_surface.fill(hover_color)
@@ -43,7 +47,7 @@ class ButtonGui:
     def render(self, game_offset: pygame.rect.Rect) -> None:
         GameSurface.get().blit(self.surface, self.rect)
         vec_offset: pygame.math.Vector2 = pygame.math.Vector2(game_offset.topleft)
-        if not self.hover: return
+        if not self or not self.enabled: return
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - vec_offset
         if self.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             GameSurface.get().blit(self.hover_surface, self.rect)

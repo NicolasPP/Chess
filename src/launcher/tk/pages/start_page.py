@@ -22,7 +22,7 @@ class StartPage(PageFrame):
     ) -> None:
         super().__init__(parent_frame)
         buttons = self.create_buttons(page_manager)
-        label = ttk.Label(self, text="Startpage", font=("Verdana", 20))
+        label = ttk.Label(self, text="Startpage", font=("Verdana", 20), style="title.TLabel")
         label.pack(expand=True)
         buttons.online.pack(expand=True)
         buttons.offline.pack(expand=True)

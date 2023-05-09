@@ -34,7 +34,7 @@ class ChessTkinterLauncher(tk.Tk):
         self.page_manager.show_page(StartPage.__name__)
 
     def create_styles(self) -> None:
-        self.style.configure('page_frame.TFrame', background='#7AC5CD')
+        self.style.configure('title.TLabel', background='#343A40', foreground='white')
 
     def window_innit(self) -> None:
         self.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
