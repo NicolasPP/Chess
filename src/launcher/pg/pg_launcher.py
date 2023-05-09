@@ -1,3 +1,4 @@
+import typing
 import dataclasses
 
 from launcher.pg.offline_launcher import OfflineLauncher
@@ -5,6 +6,8 @@ from launcher.pg.online_launcher import OnlineLauncher
 from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
 from chess.timer.timer_config import TimerConfig
 from server import Server
+
+PossibleConfigValues: typing.TypeAlias = str | float | ChessTheme | PieceSetAsset | TimerConfig
 
 
 @dataclasses.dataclass
@@ -52,12 +55,26 @@ class PygameChessLauncher:
         self.server.run()
         self.is_running = False
 
-    def update_config(
-            self,
-            theme: ChessTheme | None = None,
-            scale: float | None = None,
-            piece_set: PieceSetAsset | None = None,
-            timer_config: TimerConfig | None = None,
-            server_ip: str | None = None
-    ) -> None:
-        updated_config: PygameLauncherConfig = PygameLauncherConfig()
+    def update_config(self, **new_values: PossibleConfigValues) -> None:
+
+        def assert_type(val, val_type) -> None:
+            assert isinstance(val, val_type), f"got: {type(val).__name__} expected: {val_type.__name__}"
+
+        for name, value in new_values.items():
+            if name == "theme":
+                assert_type(value, ChessTheme)
+                self.config.theme = value
+            elif name == "scale":
+                assert_type(value, float)
+                self.config.scale = value
+            elif name == "piece_set":
+                assert_type(value, PieceSetAsset)
+                self.config.piece_set = value
+            elif name == "timer_config":
+                assert_type(value, TimerConfig)
+                self.config.timer_config = value
+            elif name == "server_ip":
+                assert_type(value, str)
+                self.config.server_ip = value
+            else:
+                raise Exception(f"Launcher Config has nor variable: {name}")
