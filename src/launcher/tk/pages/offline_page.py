@@ -22,7 +22,7 @@ class OfflinePage(PageFrame):
     ) -> None:
         super().__init__(parent_frame)
         buttons: OfflinePageButtons = self.create_buttons(page_manager, pg_launcher)
-        label: ttk.Label = ttk.Label(self, text="Offline", font=("Verdana", 20))
+        label: ttk.Label = ttk.Label(self, text="Offline", font=("Verdana", 20), style='title.TLabel')
         label.pack(expand=True)
         buttons.vs_human.pack(expand=True)
         buttons.vs_bot.pack(expand=True)

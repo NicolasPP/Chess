@@ -20,7 +20,7 @@ class OnlinePage(PageFrame):
     ) -> None:
         super().__init__(parent_frame)
         buttons: OnlinePageButtons = self.create_buttons(page_manager)
-        label: ttk.Label = ttk.Label(self, text="Online", font=("Verdana", 20))
+        label: ttk.Label = ttk.Label(self, text="Online", font=("Verdana", 20), style="title.TLabel")
         label.pack()
         buttons.back.pack()
 

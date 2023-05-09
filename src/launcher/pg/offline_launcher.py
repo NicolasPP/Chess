@@ -46,6 +46,8 @@ class OfflineLauncher:
             for event in pygame.event.get():
                 keys = pygame.key.get_pressed()
                 if event.type == pygame.KEYDOWN:
+                    # TODO: make stock_fish help move multithreading
+                    # TODO: asking for draw breaks the game
                     if keys[pygame.K_SPACE]:
                         stock_fish.make_move(player_side)
                 if event.type == pygame.QUIT:
