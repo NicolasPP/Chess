@@ -109,13 +109,15 @@ class Player:
         if self.state == State.RESIGN_DOUBLE_CHECK: return
         if self.state == State.DRAW_DOUBLE_CHECK: return
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
-        if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos.x, mouse_pos.y):
+        if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos.x, mouse_pos.y) and \
+                self.end_game_gui.offer_draw.enabled:
             self.state = State.DRAW_DOUBLE_CHECK
             self.verify_gui.set_action_label(DRAW_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
-        elif self.end_game_gui.resign.rect.collidepoint(mouse_pos.x, mouse_pos.y):
+        elif self.end_game_gui.resign.rect.collidepoint(mouse_pos.x, mouse_pos.y) and \
+                self.end_game_gui.resign.enabled:
             self.state = State.RESIGN_DOUBLE_CHECK
             self.verify_gui.set_action_label(RESIGN_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
@@ -274,7 +276,7 @@ class Player:
 
     def render(self) -> None:
         if self.game_over:
-            self.end_game_gui.game_over_gui.render()
+            # self.end_game_gui.game_over_gui.render()
             return
 
         self.timer_gui.render()
@@ -315,12 +317,14 @@ class Player:
         self.set_require_render(True)
 
     def end_game(self, game_result: str, result_type: str) -> None:
+        print('hello')
         self.state = State.PICK_PIECE
         self.set_require_render(True)
         self.render()
         self.set_turn(False)
         self.set_game_over(True)
         self.end_game_gui.game_over_gui.set_final_frame(game_result, result_type)
+        self.end_game_gui.game_over_gui.render()
 
     def update_turn(self, fen: Fen) -> None:
         if self.side is Side.WHITE:
