@@ -18,7 +18,7 @@ class StockFishBot:
         # assume stockfish installed globally,
         # TODO: create field in launcher to specify path to stockfish engine bin folder
         self.stock_fish: Stockfish = Stockfish(
-            path=r"C:\Users\nicol\Downloads\stockfish_15.1_win_x64_popcnt\stockfish_15.1_win_x64_popcnt\stockfish-windows-2022-x86-64-modern.exe")
+            path=r"C:\Users\nicol\Documents\chess-engine\stockfish_15.1_win_x64_popcnt\stockfish_15.1_win_x64_popcnt\stockfish-windows-2022-x86-64-modern.exe")
         self.move_thread: threading.Thread = self.get_move_thread()
 
     def get_best_move(self) -> str:
