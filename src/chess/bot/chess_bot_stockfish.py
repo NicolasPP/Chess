@@ -59,6 +59,7 @@ class StockFishBot:
         send_command(True, None, move_command)
 
     def play_game(self, player: Player) -> None:
+        if player.game_over: return
         if not player.turn and not self.move_thread.is_alive():
             new_thread: threading.Thread = self.get_move_thread()
             new_thread.start()
