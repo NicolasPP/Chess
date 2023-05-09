@@ -37,6 +37,8 @@ class OfflineLauncher:
         center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
         match = Match(timer_config)
         player: Player = Player.get_player_local(player_side, match, center)
+        player.end_game_gui.offer_draw.set_enable(False)
+        player.end_game_gui.resign.set_enable(False)
         game_fen: Fen = Fen()
         stock_fish: StockFishBot = StockFishBot(game_fen, opp_side)
         while not done:
@@ -47,7 +49,6 @@ class OfflineLauncher:
                 keys = pygame.key.get_pressed()
                 if event.type == pygame.KEYDOWN:
                     # TODO: make stock_fish help move multithreading
-                    # TODO: asking for draw breaks the game
                     if keys[pygame.K_SPACE]:
                         stock_fish.make_move(player_side)
                 if event.type == pygame.QUIT:
