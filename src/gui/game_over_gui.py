@@ -46,7 +46,6 @@ class GameOverGui:
         self.game_result_bg.blit(result_type_surface, result_type_pos)
 
     def render(self) -> None:
-        GameSurface.get().fill(self.bg_color)
         GameSurface.get().blit(self.final_frame, (0, 0))
         GameSurface.get().blit(
             self.game_result_bg,
