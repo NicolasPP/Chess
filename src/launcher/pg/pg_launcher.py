@@ -1,5 +1,6 @@
 import typing
 import dataclasses
+import enum
 
 from launcher.pg.offline_launcher import OfflineLauncher
 from launcher.pg.online_launcher import OnlineLauncher
@@ -8,6 +9,11 @@ from chess.timer.timer_config import TimerConfig
 from server import Server
 
 PossibleConfigValues: typing.TypeAlias = str | float | ChessTheme | PieceSetAsset | TimerConfig
+
+
+class Opponent(enum.Enum):
+    HUMAN = enum.auto()
+    BOT = enum.auto()
 
 
 @dataclasses.dataclass
@@ -37,10 +43,13 @@ class PygameChessLauncher:
     def get_is_running(self) -> bool:
         return self.is_running
 
-    def launch_single_player(self) -> None:
+    def launch_single_player(self, opponent: Opponent) -> None:
         if self.get_is_running(): return
         self.is_running = True
-        self.single_player.launch(*self.config.single_player_args())
+        if opponent is Opponent.HUMAN:
+            self.single_player.launch_against_human(*self.config.single_player_args())
+        elif opponent is Opponent.BOT:
+            self.single_player.launch_against_bot(*self.config.single_player_args())
         self.is_running = False
 
     def launch_multi_player_client(self) -> None:
