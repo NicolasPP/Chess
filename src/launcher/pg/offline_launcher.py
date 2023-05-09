@@ -27,17 +27,18 @@ class OfflineLauncher:
             self,
             theme: ChessTheme,
             scale: float,
-            piece_set:PieceSetAsset,
-            timer_config: TimerConfig
+            piece_set: PieceSetAsset,
+            timer_config: TimerConfig,
+            player_side: Side
     ) -> None:
         done = False
+        opp_side: Side = Side.WHITE if player_side == Side.BLACK else Side.BLACK
         init_chess(theme, piece_set, scale)
         center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
-        match: Match = Match(timer_config)
-        player: Player = Player.get_player_local(Side.WHITE, match, center)
+        match = Match(timer_config)
+        player: Player = Player.get_player_local(player_side, match, center)
         game_fen: Fen = Fen()
-        stock_fish = StockFishBot(game_fen, player, Side.BLACK)
-
+        stock_fish: StockFishBot = StockFishBot(game_fen, opp_side)
         while not done:
 
             self.set_delta_time()
@@ -46,10 +47,12 @@ class OfflineLauncher:
                 keys = pygame.key.get_pressed()
                 if event.type == pygame.KEYDOWN:
                     if keys[pygame.K_SPACE]:
-                        stock_fish.make_move(game_fen, Side.WHITE)
+                        stock_fish.make_move(player_side)
                 if event.type == pygame.QUIT:
                     done = True
                 player.parse_input(event, game_fen, local=True)
+
+            stock_fish.play_game(player)
             match.process_local_move()
             process_command_local(game_fen, player)
             player.update(self.delta_time, local=True)
