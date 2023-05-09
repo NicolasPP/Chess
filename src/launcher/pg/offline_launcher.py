@@ -40,25 +40,61 @@ class OfflineLauncher:
         player.end_game_gui.offer_draw.set_enable(False)
         player.end_game_gui.resign.set_enable(False)
         game_fen: Fen = Fen()
-        stock_fish: StockFishBot = StockFishBot(game_fen, opp_side)
+        stock_fish: StockFishBot = StockFishBot(game_fen, opp_side, player)
         while not done:
 
             self.set_delta_time()
 
             for event in pygame.event.get():
-                keys = pygame.key.get_pressed()
-                if event.type == pygame.KEYDOWN:
-                    # TODO: make stock_fish help move multithreading
-                    if keys[pygame.K_SPACE]:
-                        stock_fish.make_move(player_side)
                 if event.type == pygame.QUIT:
                     done = True
                 player.parse_input(event, game_fen, local=True)
 
-            stock_fish.play_game(player)
+            stock_fish.play_game()
             match.process_local_move()
             process_command_local(game_fen, player)
             player.update(self.delta_time, local=True)
+            player.render()
+
+            pygame.display.get_surface().blit(GameSurface.get(), center)
+
+            pygame.display.flip()
+
+        pygame.quit()
+
+    def launch_bot_vs_bot(
+            self,
+            theme: ChessTheme,
+            scale: float,
+            piece_set: PieceSetAsset,
+            timer_config: TimerConfig,
+            perspective_side: Side
+    ) -> None:
+        done = False
+        opp_side: Side = Side.WHITE if perspective_side == Side.BLACK else Side.BLACK
+        init_chess(theme, piece_set, scale)
+        center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
+        match = Match(timer_config)
+        player: Player = Player.get_player_local(perspective_side, match, center)
+        bot_player: Player = Player.get_player_local(opp_side, match, center)
+        bot_player.set_final_render(False)
+        player.end_game_gui.offer_draw.set_enable(False)
+        player.end_game_gui.resign.set_enable(False)
+        game_fen: Fen = Fen()
+        stock_fish: StockFishBot = StockFishBot(game_fen, opp_side, player)
+        while not done:
+
+            self.set_delta_time()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+
+            stock_fish.play_both_sides()
+            match.process_local_move()
+            process_command_local(game_fen, player, bot_player)
+            player.update(self.delta_time, local=True)
+            bot_player.update(self.delta_time, local=True)
             player.render()
 
             pygame.display.get_surface().blit(GameSurface.get(), center)

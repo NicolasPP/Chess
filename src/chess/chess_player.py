@@ -72,6 +72,7 @@ class Player:
         self.read_input: bool = True
         self.opponent_promoting: bool = False
         self.timed_out: bool = False
+        self.final_render: bool = True
 
         self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.get_rect())
         self.captured_gui: CapturedGui = CapturedGui('', self.board.get_rect())
@@ -317,14 +318,15 @@ class Player:
         self.set_require_render(True)
 
     def end_game(self, game_result: str, result_type: str) -> None:
-        print('hello')
         self.state = State.PICK_PIECE
         self.set_require_render(True)
-        self.render()
+        if self.final_render:
+            self.render()
         self.set_turn(False)
         self.set_game_over(True)
         self.end_game_gui.game_over_gui.set_final_frame(game_result, result_type)
-        self.end_game_gui.game_over_gui.render()
+        if self.final_render:
+            self.end_game_gui.game_over_gui.render()
 
     def update_turn(self, fen: Fen) -> None:
         if self.side is Side.WHITE:
@@ -337,6 +339,9 @@ class Player:
                 self.set_turn(True)
             else:
                 self.set_turn(False)
+
+    def set_final_render(self, final_render: bool) -> None:
+        self.final_render = final_render
 
     def set_require_render(self, is_render_required: bool) -> None:
         self.is_render_required = is_render_required
