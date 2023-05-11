@@ -9,7 +9,7 @@ from chess.timer.timer_config import TimerConfig, DefaultConfigs
 from server import Server
 from chess.board.side import Side
 
-PossibleConfigValues: typing.TypeAlias = str | float | ChessTheme | PieceSetAsset | TimerConfig
+PossibleConfigValues: typing.TypeAlias = str | float | ChessTheme | PieceSetAsset | TimerConfig | None | Side
 
 
 class SinglePlayerGameType(enum.Enum):
@@ -26,6 +26,7 @@ class PygameLauncherConfig:
     timer_config: TimerConfig = DefaultConfigs.BULLET_1_0
     server_ip: str = '127.0.0.1'
     bot_side: Side = Side.WHITE
+    engine_path: str | None = None
 
     def single_player_args(self) -> tuple[ChessTheme, float, PieceSetAsset, TimerConfig]:
         return self.theme, self.scale, self.piece_set, self.timer_config
@@ -33,8 +34,8 @@ class PygameLauncherConfig:
     def multi_player_args(self) -> tuple[str, ChessTheme, float, PieceSetAsset]:
         return self.server_ip, self.theme, self.scale, self.piece_set
 
-    def single_player_bot_args(self) -> tuple[ChessTheme, float, PieceSetAsset, TimerConfig, Side]:
-        return self.theme, self.scale, self.piece_set, self.timer_config, self.bot_side
+    def single_player_bot_args(self) -> tuple[ChessTheme, float, PieceSetAsset, TimerConfig, Side, str | None]:
+        return self.theme, self.scale, self.piece_set, self.timer_config, self.bot_side, self.engine_path
 
 
 class PygameChessLauncher:
@@ -45,6 +46,10 @@ class PygameChessLauncher:
         self.single_player: OfflineLauncher = OfflineLauncher()
         self.server: Server = Server(self.config.timer_config)
         self.is_running: bool = False
+        self.update_config(
+            engine_path=r"C:\Users\nicol\Documents\chess-engine\stockfish_15.1_win_x64_popcnt\stockfish_15"
+                        r".1_win_x64_popcnt\stockfish-windows-2022-x86-64-modern.exe "
+        )
 
     def get_is_running(self) -> bool:
         return self.is_running
@@ -96,5 +101,8 @@ class PygameChessLauncher:
             elif name == "bot_side":
                 assert_type(value, Side)
                 self.config.bot_side = value
+            elif name == "engine_path":
+                assert value is None or isinstance(name, str)
+                self.config.engine_path = value
             else:
                 raise Exception(f"Launcher Config has nor variable: {name}")
