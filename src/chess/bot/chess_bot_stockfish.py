@@ -10,15 +10,21 @@ from chess.board.side import Side
 
 
 class StockFishBot:
-    def __init__(self, fen: Fen, side: Side, player: Player) -> None:
+    def __init__(self, fen: Fen, side: Side, player: Player, engine_binary_path: str | None) -> None:
         self.side: Side = side
         self.fen: Fen = fen
         self.player: Player = player
-        # FIXME: this will only work on my machine :(
-        # assume stockfish installed globally,
-        # TODO: create field in launcher to specify path to stockfish engine binary folder
-        self.stock_fish: Stockfish = Stockfish(
-            path=r"C:\Users\nicol\Documents\chess-engine\stockfish_15.1_win_x64_popcnt\stockfish_15.1_win_x64_popcnt\stockfish-windows-2022-x86-64-modern.exe")
+        self.stock_fish: Stockfish | None = engine_binary_path
+
+        '''
+        if engine_binary_path is None 
+        it is assumed the engine is installed globally
+        '''
+        if engine_binary_path is not None:
+            self.stock_fish = Stockfish(path=engine_binary_path)
+        else:
+            self.stock_fish = Stockfish()
+
         self.move_thread: threading.Thread = self.get_move_thread()
 
     def get_best_move(self) -> str:
