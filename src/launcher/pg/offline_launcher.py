@@ -31,7 +31,8 @@ class OfflineLauncher:
             scale: float,
             piece_set: PieceSetAsset,
             timer_config: TimerConfig,
-            bot_side: Side
+            bot_side: Side,
+            engine_path: str | None
     ) -> None:
         done = False
         player_side: Side = Side.WHITE if bot_side == Side.BLACK else Side.BLACK
@@ -42,7 +43,7 @@ class OfflineLauncher:
         player.end_game_gui.offer_draw.set_enable(False)
         player.end_game_gui.resign.set_enable(False)
         game_fen: Fen = Fen(match.fen.notation)
-        stock_fish: StockFishBot = StockFishBot(game_fen, bot_side, player)
+        stock_fish: StockFishBot = StockFishBot(game_fen, bot_side, player, engine_path)
         while not done:
 
             self.set_delta_time()
@@ -70,7 +71,8 @@ class OfflineLauncher:
             scale: float,
             piece_set: PieceSetAsset,
             timer_config: TimerConfig,
-            perspective_side: Side
+            perspective_side: Side,
+            engine_path: str | None
     ) -> None:
         done = False
         opp_side: Side = Side.WHITE if perspective_side == Side.BLACK else Side.BLACK
@@ -83,7 +85,7 @@ class OfflineLauncher:
         player.end_game_gui.offer_draw.set_enable(False)
         player.end_game_gui.resign.set_enable(False)
         game_fen: Fen = Fen(match.fen.notation)
-        stock_fish: StockFishBot = StockFishBot(game_fen, opp_side, player)
+        stock_fish: StockFishBot = StockFishBot(game_fen, opp_side, player, engine_path)
         while not done:
 
             self.set_delta_time()
