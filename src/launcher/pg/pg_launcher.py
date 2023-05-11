@@ -21,7 +21,7 @@ class SinglePlayerGameType(enum.Enum):
 @dataclasses.dataclass
 class PygameLauncherConfig:
     theme: ChessTheme = Themes.PLAIN1
-    scale: float = 3.5
+    scale: float = 5
     piece_set: PieceSetAsset = PieceSetAssets.SIMPLE16x16
     timer_config: TimerConfig = DefaultConfigs.BULLET_1_0
     server_ip: str = '127.0.0.1'
