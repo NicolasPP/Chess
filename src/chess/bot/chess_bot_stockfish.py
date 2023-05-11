@@ -16,7 +16,7 @@ class StockFishBot:
         self.player: Player = player
         # FIXME: this will only work on my machine :(
         # assume stockfish installed globally,
-        # TODO: create field in launcher to specify path to stockfish engine bin folder
+        # TODO: create field in launcher to specify path to stockfish engine binary folder
         self.stock_fish: Stockfish = Stockfish(
             path=r"C:\Users\nicol\Documents\chess-engine\stockfish_15.1_win_x64_popcnt\stockfish_15.1_win_x64_popcnt\stockfish-windows-2022-x86-64-modern.exe")
         self.move_thread: threading.Thread = self.get_move_thread()
@@ -26,7 +26,7 @@ class StockFishBot:
         bot_time_left: float = self.player.timer_gui.opponents_timer.time_left
         white_time: float = player_time_left if self.player.side is Side.WHITE else bot_time_left
         black_time: float = player_time_left if self.player.side is Side.BLACK else bot_time_left
-        assert self.stock_fish.is_fen_valid(self.fen.notation)
+        assert self.stock_fish.is_fen_valid(self.fen.notation), "fen is not valid!"
         self.stock_fish.set_fen_position(self.fen.notation)
         return self.stock_fish.get_best_move(wtime=int(white_time*1000), btime=int(black_time*1000))
 
@@ -37,10 +37,19 @@ class StockFishBot:
         if side is None: side = self.side
         move = self.get_best_move()
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        target_fen: str | None = None
+
+        # promotion
+        if len(move) == 5:
+            target_fen = move[len(move)-1:]
+            move = move[:len(move)-1]
 
         from_an_val, dest_an_val = move[:2], move[2:]
         from_an = AlgebraicNotation(*from_an_val)
         dest_an = AlgebraicNotation(*dest_an_val)
+
+        if target_fen is None:
+            target_fen = self.fen[from_an.index]
 
         ks_king_index = 62 if self.fen.is_white_turn() else 6
         qs_king_index = 58 if self.fen.is_white_turn() else 2
@@ -56,7 +65,7 @@ class StockFishBot:
             CommandManager.from_coordinates: from_an.coordinates,
             CommandManager.dest_coordinates: dest_an.coordinates,
             CommandManager.side: side.name,
-            CommandManager.target_fen: self.fen[from_an.index],
+            CommandManager.target_fen: target_fen,
             CommandManager.time_iso: time_iso
         }
 
