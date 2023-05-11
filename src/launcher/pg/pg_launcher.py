@@ -79,30 +79,28 @@ class PygameChessLauncher:
 
     def update_config(self, **new_values: PossibleConfigValues) -> None:
 
-        def assert_type(val, val_type) -> None:
-            assert isinstance(val, val_type), f"got: {type(val).__name__} expected: {val_type.__name__}"
-
         for name, value in new_values.items():
+            wrong_type_message: str = f"got {type(value).__name__} expected: "
             if name == "theme":
-                assert_type(value, ChessTheme)
+                assert isinstance(value, ChessTheme), wrong_type_message + ChessTheme.__name__
                 self.config.theme = value
             elif name == "scale":
-                assert_type(value, float)
+                assert isinstance(value, float), wrong_type_message + float.__name__
                 self.config.scale = value
             elif name == "piece_set":
-                assert_type(value, PieceSetAsset)
+                assert isinstance(value, PieceSetAsset), wrong_type_message + PieceSetAsset.__name__
                 self.config.piece_set = value
             elif name == "timer_config":
-                assert_type(value, TimerConfig)
+                assert isinstance(value, TimerConfig), wrong_type_message + TimerConfig.__name__
                 self.config.timer_config = value
             elif name == "server_ip":
-                assert_type(value, str)
+                assert isinstance(value, str), wrong_type_message + str.__name__
                 self.config.server_ip = value
             elif name == "bot_side":
-                assert_type(value, Side)
+                assert isinstance(value, Side), wrong_type_message + Side.__name__
                 self.config.bot_side = value
             elif name == "engine_path":
-                assert value is None or isinstance(name, str)
+                assert value is None or isinstance(name, str), wrong_type_message + str.__name__ + " or " + "None"
                 self.config.engine_path = value
             else:
                 raise Exception(f"Launcher Config has nor variable: {name}")

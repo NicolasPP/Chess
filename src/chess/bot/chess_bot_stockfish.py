@@ -10,20 +10,18 @@ from chess.board.side import Side
 
 
 class StockFishBot:
+    @staticmethod
+    def get_stock_fish(engine_binary_path: str | None) -> Stockfish:
+        # if engine_binary_path is None it is assumed the engine is installed globally
+        if engine_binary_path is not None:
+            return Stockfish(path=engine_binary_path)
+        return Stockfish()
+
     def __init__(self, fen: Fen, side: Side, player: Player, engine_binary_path: str | None) -> None:
         self.side: Side = side
         self.fen: Fen = fen
         self.player: Player = player
-        self.stock_fish: Stockfish | None = engine_binary_path
-
-        '''
-        if engine_binary_path is None 
-        it is assumed the engine is installed globally
-        '''
-        if engine_binary_path is not None:
-            self.stock_fish = Stockfish(path=engine_binary_path)
-        else:
-            self.stock_fish = Stockfish()
+        self.stock_fish: Stockfish = StockFishBot.get_stock_fish(engine_binary_path)
 
         self.move_thread: threading.Thread = self.get_move_thread()
 
@@ -34,7 +32,7 @@ class StockFishBot:
         black_time: float = player_time_left if self.player.side is Side.BLACK else bot_time_left
         assert self.stock_fish.is_fen_valid(self.fen.notation), "fen is not valid!"
         self.stock_fish.set_fen_position(self.fen.notation)
-        return self.stock_fish.get_best_move(wtime=int(white_time*1000), btime=int(black_time*1000))
+        return self.stock_fish.get_best_move(wtime=int(white_time * 1000), btime=int(black_time * 1000))
 
     def get_move_thread(self) -> threading.Thread:
         return threading.Thread(target=self.make_move)
@@ -47,8 +45,8 @@ class StockFishBot:
 
         # promotion
         if len(move) == 5:
-            target_fen = move[len(move)-1:]
-            move = move[:len(move)-1]
+            target_fen = move[len(move) - 1:]
+            move = move[:len(move) - 1]
 
         from_an_val, dest_an_val = move[:2], move[2:]
         from_an = AlgebraicNotation(*from_an_val)
