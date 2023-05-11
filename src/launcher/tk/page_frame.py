@@ -7,3 +7,4 @@ class PageFrame(ttk.Frame):
         self["width"], self["height"] = parent_frame["width"], parent_frame["height"]
         self.parent_frame: ttk.Frame = parent_frame
         self.grid(column=0, row=0, sticky='nsew')
+        self.pack_propagate(False)
