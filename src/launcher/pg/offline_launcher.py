@@ -29,18 +29,18 @@ class OfflineLauncher:
             scale: float,
             piece_set: PieceSetAsset,
             timer_config: TimerConfig,
-            player_side: Side
+            bot_side: Side
     ) -> None:
         done = False
-        opp_side: Side = Side.WHITE if player_side == Side.BLACK else Side.BLACK
+        player_side: Side = Side.WHITE if bot_side == Side.BLACK else Side.BLACK
         init_chess(theme, piece_set, scale)
         center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
         match = Match(timer_config)
         player: Player = Player.get_player_local(player_side, match, center)
         player.end_game_gui.offer_draw.set_enable(False)
         player.end_game_gui.resign.set_enable(False)
-        game_fen: Fen = Fen()
-        stock_fish: StockFishBot = StockFishBot(game_fen, opp_side, player)
+        game_fen: Fen = Fen(match.fen.notation)
+        stock_fish: StockFishBot = StockFishBot(game_fen, bot_side, player)
         while not done:
 
             self.set_delta_time()
@@ -80,7 +80,7 @@ class OfflineLauncher:
         bot_player.set_final_render(False)
         player.end_game_gui.offer_draw.set_enable(False)
         player.end_game_gui.resign.set_enable(False)
-        game_fen: Fen = Fen()
+        game_fen: Fen = Fen(match.fen.notation)
         stock_fish: StockFishBot = StockFishBot(game_fen, opp_side, player)
         while not done:
 
@@ -117,7 +117,7 @@ class OfflineLauncher:
         match = Match(timer_config)
         white_player: Player = Player.get_player_local(Side.WHITE, match, center)
         black_player: Player = Player.get_player_local(Side.BLACK, match, center)
-        game_fen: Fen = Fen()
+        game_fen: Fen = Fen(match.fen.notation)
         while not done:
 
             self.set_delta_time()
