@@ -12,6 +12,8 @@ from chess.chess_init import init_chess
 from chess.notation.forsyth_edwards_notation import Fen
 from chess.bot.chess_bot_stockfish import StockFishBot
 
+from config.pg_config import MOUSECLICK_SCROLL_UP, MOUSECLICK_SCROLL_DOWN
+
 
 class OfflineLauncher:
     def __init__(self) -> None:
@@ -89,6 +91,11 @@ class OfflineLauncher:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == MOUSECLICK_SCROLL_UP:
+                        player.played_moves_gui.scroll_up(player.game_offset)
+                    if event.button == MOUSECLICK_SCROLL_DOWN:
+                        player.played_moves_gui.scroll_down(player.game_offset)
 
             stock_fish.play_both_sides()
             match.process_local_move()
