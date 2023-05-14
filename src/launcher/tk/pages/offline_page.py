@@ -23,7 +23,7 @@ class OfflinePage(PageFrame):
         label: ttk.Label = ttk.Label(self, text="Offline", font=(FONT_NAME, 20), style='title.TLabel')
 
         self.is_bot_valid: ttk.BooleanVar = is_bot_valid
-        self.set_bot_button_state("disabled")
+        self.set_bot_button_state("normal" if is_bot_valid.get() else "disabled")
 
         is_bot_valid.trace_add('write', self.is_bot_valid_callback)
 
