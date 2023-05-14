@@ -1,2 +1,8 @@
 DEFAULT_WINDOW_WIDTH: int = 400
 DEFAULT_WINDOW_HEIGHT: int = 300
+
+FONT_NAME: str = "Verdana"
+
+BG_COLOR: str = '#343A40'
+FG_LIGHT: str = '#FFF8DC'
+FG_DARK: str = '#E0AF69'
