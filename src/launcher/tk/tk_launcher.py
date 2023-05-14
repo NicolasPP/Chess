@@ -34,14 +34,14 @@ class ChessTkinterLauncher(tk.Tk):
         self.page_manager.show_page(StartPage.__name__)
 
     def create_styles(self) -> None:
-        self.style.configure('title.TLabel', background=BG_COLOR, foreground=FG_LIGHT)
-        self.style.configure('TFrame', background=BG_COLOR)
-        self.style.configure('TLabelframe', background=BG_COLOR, bordercolor=FG_LIGHT, anchor='center', relief='solid')
-        self.style.configure('TLabelframe.Label', foreground=FG_DARK, background=BG_COLOR, font=(FONT_NAME, 15))
-        self.style.configure('TButton', foreground=FG_DARK, background=BG_COLOR, focuscolor=FG_DARK,
+        self.style.configure('title.TLabel', background=BG_DARK, foreground=FG_LIGHT)
+        self.style.configure('TFrame', background=BG_DARK)
+        self.style.configure('TLabelframe', background=BG_DARK, bordercolor=FG_LIGHT, anchor='center', relief='solid')
+        self.style.configure('TLabelframe.Label', foreground=FG_DARK, background=BG_DARK, font=(FONT_NAME, 15))
+        self.style.configure('TButton', foreground=FG_DARK, background=BG_DARK, focuscolor=FG_DARK,
                              bordercolor=FG_LIGHT, relief='flat', anchor='center', font=(FONT_NAME, 13),
                              focusthickness=5)
-        self.style.map('TButton', background=[('active', BG_COLOR)])
+        self.style.map('TButton', background=[('active', BG_LIGHT)])
 
     def window_innit(self) -> None:
         self.geometry(f"{DEFAULT_WINDOW_WIDTH}x{DEFAULT_WINDOW_HEIGHT}")

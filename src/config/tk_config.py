@@ -3,6 +3,7 @@ DEFAULT_WINDOW_HEIGHT: int = 300
 
 FONT_NAME: str = "Verdana"
 
-BG_COLOR: str = '#343A40'
+BG_DARK: str = '#343A40'
+BG_LIGHT: str = '#3B4754'
 FG_LIGHT: str = '#FFF8DC'
 FG_DARK: str = '#E0AF69'
