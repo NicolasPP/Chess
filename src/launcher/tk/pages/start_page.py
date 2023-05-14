@@ -69,9 +69,8 @@ class StartPage(PageFrame):
         settings_frame.grid(row=0, column=1, rowspan=2, sticky="news", padx=5, pady=5)
         settings_widgets.create_bot["command"] = lambda: create_bot_command(settings_widgets, is_bot_valid,
                                                                             path_entry_str)
-        is_bot_created: bool = StockFishBot.create_bot()
-        is_bot_valid.set(is_bot_created)
-        if is_bot_created:
+        is_bot_valid.set(StockFishBot.create_bot())
+        if is_bot_valid.get():
             settings_widgets.engine_valid.pack(expand=True)
         else:
             settings_widgets.path_entry.pack(expand=True)
