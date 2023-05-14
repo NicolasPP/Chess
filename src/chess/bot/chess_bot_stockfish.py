@@ -1,3 +1,4 @@
+from __future__ import annotations
 import datetime
 import threading
 from stockfish import Stockfish
@@ -10,18 +11,33 @@ from chess.board.side import Side
 
 
 class StockFishBot:
-    @staticmethod
-    def get_stock_fish(engine_binary_path: str | None) -> Stockfish:
-        # if engine_binary_path is None it is assumed the engine is installed globally
-        if engine_binary_path is not None:
-            return Stockfish(path=engine_binary_path)
-        return Stockfish()
+    stock_fish: Stockfish | None = None
 
-    def __init__(self, fen: Fen, side: Side, player: Player, engine_binary_path: str | None) -> None:
+    @staticmethod
+    def create_bot(engine_path: str = "stockfish") -> bool:
+        try:
+            StockFishBot.stock_fish = Stockfish(engine_path)
+            return True
+        except FileNotFoundError:
+            return False
+        except OSError:
+            return False
+
+    @staticmethod
+    def is_created() -> bool:
+        return StockFishBot.stock_fish is not None
+
+    @staticmethod
+    def get() -> Stockfish:
+        if StockFishBot.stock_fish is None:
+            raise Exception('stock fish bot not created')
+        return StockFishBot.stock_fish
+
+    def __init__(self, fen: Fen, side: Side, player: Player) -> None:
         self.side: Side = side
         self.fen: Fen = fen
         self.player: Player = player
-        self.stock_fish: Stockfish = StockFishBot.get_stock_fish(engine_binary_path)
+        self.stock_fish: Stockfish = StockFishBot.get()
 
         self.move_thread: threading.Thread = self.get_move_thread()
 
@@ -65,13 +81,11 @@ class StockFishBot:
             elif dest_an.index == qs_king_index:
                 dest_an = AlgebraicNotation.get_an_from_index(dest_an.index - 1)
 
-        move_info: dict[str, str] = {
-            CommandManager.from_coordinates: from_an.coordinates,
-            CommandManager.dest_coordinates: dest_an.coordinates,
-            CommandManager.side: side.name,
-            CommandManager.target_fen: target_fen,
-            CommandManager.time_iso: time_iso
-        }
+        move_info: dict[str, str] = {CommandManager.from_coordinates: from_an.coordinates,
+                                     CommandManager.dest_coordinates: dest_an.coordinates,
+                                     CommandManager.side: side.name,
+                                     CommandManager.target_fen: target_fen,
+                                     CommandManager.time_iso: time_iso}
 
         move_command = CommandManager.get(ClientCommand.MOVE, move_info)
         send_command(True, None, move_command)
