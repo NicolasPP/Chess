@@ -127,6 +127,7 @@ def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.Bool
     if StockFishBot.create_bot(path_entry_str.get()):
         settings_widgets.create_bot.grid_forget()
         settings_widgets.path_entry.grid_forget()
+        settings_widgets.engine_valid.configure(foreground='green')
         settings_widgets.engine_valid.grid(row=3, column=0, columnspan=2, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         is_bot_valid.set(True)
     else:
