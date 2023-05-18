@@ -7,3 +7,5 @@ BG_DARK: str = '#343A40'
 BG_LIGHT: str = '#3B4754'
 FG_LIGHT: str = '#FFF8DC'
 FG_DARK: str = '#E0AF69'
+
+SETTINGS_PAD: int = 15
