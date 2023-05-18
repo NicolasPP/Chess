@@ -77,14 +77,16 @@ class PygameChessLauncher:
         for name, value in new_values.items():
             wrong_type_message: str = f"got {type(value).__name__} expected: "
             if name == "theme":
-                assert isinstance(value, ChessTheme), wrong_type_message + ChessTheme.__name__
-                self.config.theme = value
+                theme = Themes.get_theme(int(value))
+                assert isinstance(theme, ChessTheme), wrong_type_message + ChessTheme.__name__
+                self.config.theme = theme
             elif name == "scale":
                 assert isinstance(value, float), wrong_type_message + float.__name__
                 self.config.scale = value
             elif name == "piece_set":
-                assert isinstance(value, PieceSetAsset), wrong_type_message + PieceSetAsset.__name__
-                self.config.piece_set = value
+                piece_set = PieceSetAssets.get_asset(str(value))
+                assert isinstance(piece_set, PieceSetAsset), wrong_type_message + PieceSetAsset.__name__
+                self.config.piece_set = piece_set
             elif name == "timer_config":
                 assert isinstance(value, TimerConfig), wrong_type_message + TimerConfig.__name__
                 self.config.timer_config = value
