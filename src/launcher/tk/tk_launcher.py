@@ -44,15 +44,16 @@ class ChessTkinterLauncher(tk.Tk):
         self.style.map('TButton', background=[('active', BG_LIGHT)])
         self.style.configure('TMenubutton', background=BG_DARK, foreground=FG_DARK, font=(FONT_NAME, 13),
                              arrowcolor=FG_LIGHT, bordercolor=BG_LIGHT, relief='solid')
-        self.style.map('TMenubutton', background=[('active', BG_LIGHT)])
-        self.style.configure('TCombobox', font=(FONT_NAME, 13), foreground=FG_DARK)
-        self.style.map('TCombobox', background=[('readonly', BG_DARK)], fieldbackground=[('readonly', BG_DARK)],
-                       bordercolor=[('readonly', BG_DARK)], lightcolor=[('readonly', FG_LIGHT)],
-                       arrowcolor=[('pressed !disabled', FG_LIGHT)])
+        self.style.configure('TScale', background=BG_DARK)
+        self.style.configure('TLabel', background=BG_DARK, font=(FONT_NAME, 13), foreground=FG_DARK)
+        self.style.configure('TEntry', fieldbackground=BG_DARK, font=(FONT_NAME, 13), foreground=FG_DARK,
+                             darkcolor=BG_DARK, lightcolor=BG_DARK, bordercolor=FG_DARK, selectbackground=BG_DARK,
+                             selectforeground=BG_DARK)
 
     def window_innit(self) -> None:
         self.geometry(f"{DEFAULT_WINDOW_WIDTH}x{DEFAULT_WINDOW_HEIGHT}")
         self.title("ChessLauncher")
+        self.minsize(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)
 
 
 if __name__ == "__main__":
