@@ -18,8 +18,8 @@ class ChessTkinterLauncher(tk.Tk):
         self.style: ttk.Style = ttk.Style()
         self.pg_launcher: PygameChessLauncher = PygameChessLauncher()
 
-        self.create_styles()
         self.window_innit()
+        self.create_styles()
 
         self.root_frame: ttk.Frame = ttk.Frame(self, width=DEFAULT_WINDOW_WIDTH, height=DEFAULT_WINDOW_HEIGHT)
         self.root_frame.pack(fill='both', expand=True)
@@ -27,7 +27,7 @@ class ChessTkinterLauncher(tk.Tk):
         is_bot_valid: ttk.BooleanVar = ttk.BooleanVar(value=False)
 
         self.page_manager: PageManager = PageManager()
-        self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, is_bot_valid))
+        self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, is_bot_valid, self.pg_launcher))
         self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher, is_bot_valid))
         self.page_manager.add_page(OnlinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(ServerPage(self.root_frame, self.page_manager, self.pg_launcher))
@@ -42,6 +42,13 @@ class ChessTkinterLauncher(tk.Tk):
                              bordercolor=FG_LIGHT, relief='flat', anchor='center', font=(FONT_NAME, 13),
                              focusthickness=5)
         self.style.map('TButton', background=[('active', BG_LIGHT)])
+        self.style.configure('TMenubutton', background=BG_DARK, foreground=FG_DARK, font=(FONT_NAME, 13),
+                             arrowcolor=FG_LIGHT, bordercolor=BG_LIGHT, relief='solid')
+        self.style.map('TMenubutton', background=[('active', BG_LIGHT)])
+        self.style.configure('TCombobox', font=(FONT_NAME, 13), foreground=FG_DARK)
+        self.style.map('TCombobox', background=[('readonly', BG_DARK)], fieldbackground=[('readonly', BG_DARK)],
+                       bordercolor=[('readonly', BG_DARK)], lightcolor=[('readonly', FG_LIGHT)],
+                       arrowcolor=[('pressed !disabled', FG_LIGHT)])
 
     def window_innit(self) -> None:
         self.geometry(f"{DEFAULT_WINDOW_WIDTH}x{DEFAULT_WINDOW_HEIGHT}")
