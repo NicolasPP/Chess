@@ -37,16 +37,17 @@ class ChessTkinterLauncher(tk.Tk):
         self.style.configure('title.TLabel', background=BG_DARK, foreground=FG_LIGHT)
         self.style.configure('TFrame', background=BG_DARK)
         self.style.configure('TLabelframe', background=BG_DARK, bordercolor=FG_LIGHT, anchor='center', relief='solid')
-        self.style.configure('TLabelframe.Label', foreground=FG_DARK, background=BG_DARK, font=(FONT_NAME, 15))
+        self.style.configure('TLabelframe.Label', foreground=FG_DARK, background=BG_DARK, font=(FONT_NAME,
+                                                                                                FRAME_FONT_SIZE))
         self.style.configure('TButton', foreground=FG_DARK, background=BG_DARK, focuscolor=FG_DARK,
-                             bordercolor=FG_LIGHT, relief='flat', anchor='center', font=(FONT_NAME, 13),
+                             bordercolor=FG_LIGHT, relief='flat', anchor='center', font=(FONT_NAME, DEFAULT_FONT_SIZE),
                              focusthickness=5)
         self.style.map('TButton', background=[('active', BG_LIGHT)])
-        self.style.configure('TMenubutton', background=BG_DARK, foreground=FG_DARK, font=(FONT_NAME, 13),
+        self.style.configure('TMenubutton', background=BG_DARK, foreground=FG_DARK, font=(FONT_NAME, DEFAULT_FONT_SIZE),
                              arrowcolor=FG_LIGHT, bordercolor=BG_LIGHT, relief='solid')
         self.style.configure('TScale', background=BG_DARK)
-        self.style.configure('TLabel', background=BG_DARK, font=(FONT_NAME, 13), foreground=FG_DARK)
-        self.style.configure('TEntry', fieldbackground=BG_DARK, font=(FONT_NAME, 13), foreground=FG_DARK,
+        self.style.configure('TLabel', background=BG_DARK, font=(FONT_NAME, DEFAULT_FONT_SIZE), foreground=FG_DARK)
+        self.style.configure('TEntry', fieldbackground=BG_DARK, font=(FONT_NAME, DEFAULT_FONT_SIZE), foreground=FG_DARK,
                              darkcolor=BG_DARK, lightcolor=BG_DARK, bordercolor=FG_DARK, selectbackground=BG_DARK,
                              selectforeground=BG_DARK)
 

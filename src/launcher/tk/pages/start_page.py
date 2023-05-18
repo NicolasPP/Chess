@@ -38,7 +38,7 @@ class StartPage(PageFrame):
     @staticmethod
     def create_settings_widgets(settings_frame: ttk.LabelFrame, path_entry_str: ttk.StringVar, pg_launcher:
                                 PygameChessLauncher) -> SettingsWidgets:
-        engine_valid: ttk.Label = ttk.Label(settings_frame, text="Stock Fish ready!", font=(FONT_NAME, 13))
+        engine_valid: ttk.Label = ttk.Label(settings_frame, text="Stock Fish ready!")
         path_entry: ttk.Entry = ttk.Entry(settings_frame, textvariable=path_entry_str, width=18)
         path_entry.bind("<Button>", lambda e: path_entry_str.set(''))
         create_bot: ttk.Button = ttk.Button(settings_frame, text="create bot")
@@ -55,7 +55,7 @@ class StartPage(PageFrame):
         theme_menu.add_radiobutton(value="4", label="4", background=BG_DARK, foreground=FG_DARK, command=lambda:
                                    configure_pygame_launcher(pg_launcher, theme_options, theme=4))
         theme_menu.add_radiobutton(value="RANDOM", label="RANDOM", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(pg_launcher, theme=-1))
+                                   command=lambda: configure_pygame_launcher(pg_launcher, theme_options, theme=-1))
         theme_options['menu'] = theme_menu
 
         asset_label: ttk.Label = ttk.Label(settings_frame, text="Asset: ")
@@ -87,14 +87,15 @@ class StartPage(PageFrame):
         self.rowconfigure(1, weight=10)
 
         play_buttons = StartPage.create_play_buttons(page_manager, play_frame)
-        play_frame.grid(row=0, column=0, sticky="news", padx=5, pady=5)
+        play_frame.grid(row=0, column=0, sticky="news", padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
         play_buttons.online.pack(side="left", expand=True, anchor='center')
         play_buttons.offline.pack(side="left", expand=True, anchor='center')
 
         path_entry_str: ttk.StringVar = ttk.StringVar(value="stock fish engine path")
         settings_widgets = StartPage.create_settings_widgets(settings_frame, path_entry_str, pg_launcher)
 
-        settings_frame.grid(row=0, column=1, rowspan=2, sticky="news", padx=5, pady=5)
+        settings_frame.grid(row=0, column=1, rowspan=2, sticky="news", padx=START_PAGE_FRAME_PAD,
+                            pady=START_PAGE_FRAME_PAD)
         settings_widgets.create_bot["command"] = lambda: create_bot_command(settings_widgets, is_bot_valid,
                                                                             path_entry_str)
 
@@ -118,7 +119,7 @@ class StartPage(PageFrame):
             settings_widgets.path_entry.grid(row=3, column=0, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
             settings_widgets.create_bot.grid(row=3, column=1, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
 
-        user_frame.grid(row=1, column=0, sticky="news", padx=5, pady=5)
+        user_frame.grid(row=1, column=0, sticky="news", padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
 
 
 def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.BooleanVar,
