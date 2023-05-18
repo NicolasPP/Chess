@@ -16,7 +16,7 @@ class ChessTkinterLauncher(tk.Tk):
     def __init__(self, *args, **kwargs) -> None:
         tk.Tk.__init__(self, *args, **kwargs)
         self.style: ttk.Style = ttk.Style()
-        self.pg_launcher: PygameChessLauncher = PygameChessLauncher()
+        self.pg_launcher: PygameChessLauncher = PygameChessLauncher(self.deiconify, self.withdraw)
 
         self.window_innit()
         self.create_styles()

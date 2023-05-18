@@ -39,12 +39,14 @@ class PygameLauncherConfig:
 
 class PygameChessLauncher:
 
-    def __init__(self):
+    def __init__(self, show_app: typing.Callable[[], None], hide_app: typing.Callable[[], None]):
         self.config: PygameLauncherConfig = PygameLauncherConfig()
         self.multi_player: OnlineLauncher = OnlineLauncher()
         self.single_player: OfflineLauncher = OfflineLauncher()
         self.server: Server = Server(self.config.timer_config)
         self.is_running: bool = False
+        self.show_app: typing.Callable[[], None] = show_app
+        self.hide_app: typing.Callable[[], None] = hide_app
 
     def get_is_running(self) -> bool:
         return self.is_running
@@ -52,6 +54,7 @@ class PygameChessLauncher:
     def launch_single_player(self, game_type: SinglePlayerGameType) -> None:
         if self.get_is_running(): return
         self.is_running = True
+        self.hide_app()
         if game_type is SinglePlayerGameType.HUMAN_VS_HUMAN:
             self.single_player.launch_against_human(*self.config.single_player_args())
         elif game_type is SinglePlayerGameType.BOT_VS_BOT:
@@ -59,6 +62,7 @@ class PygameChessLauncher:
         elif game_type is SinglePlayerGameType.HUMAN_VS_BOT:
             self.single_player.launch_against_bot(*self.config.single_player_bot_args())
         self.is_running = False
+        self.show_app()
 
     def launch_multi_player_client(self) -> None:
         if self.get_is_running(): return
