@@ -56,7 +56,7 @@ class ChessPygameLauncher:
         self.server.run()
         self.is_running = False
 
-    def update_config(self, **new_values: PossibleConfigValues) -> None:
+    def update_config(self, update_config: bool = True, **new_values: PossibleConfigValues) -> None:
 
         for name, value in new_values.items():
             wrong_type_message: str = f"got {type(value).__name__} expected: "
@@ -81,4 +81,5 @@ class ChessPygameLauncher:
             else:
                 raise Exception(f"Launcher Config has nor variable: {name}")
 
-        self.config.write_config()
+        if update_config:
+            self.config.write_config()
