@@ -5,7 +5,7 @@ from launcher.pg.offline_launcher import OfflineLauncher
 from launcher.pg.online_launcher import OnlineLauncher
 from chess.timer.timer_config import DefaultConfigs
 from config.user_config import UserConfig, PossibleConfigValues
-from server import Server
+from chess.network.server import Server
 
 
 class SinglePlayerGameType(enum.Enum):
