@@ -6,7 +6,7 @@ from launcher.tk.pages.online_page import OnlinePage
 from launcher.tk.pages.server_page import ServerPage
 from launcher.tk.pages.start_page import StartPage
 from launcher.tk.page_manager import PageManager
-from launcher.pg.pg_launcher import PygameChessLauncher
+from launcher.pg.pg_launcher import ChessPygameLauncher
 
 from config.tk_config import *
 
@@ -16,7 +16,7 @@ class ChessTkinterLauncher(tk.Tk):
     def __init__(self, *args, **kwargs) -> None:
         tk.Tk.__init__(self, *args, **kwargs)
         self.style: ttk.Style = ttk.Style()
-        self.pg_launcher: PygameChessLauncher = PygameChessLauncher(self.deiconify, self.withdraw)
+        self.pg_launcher: ChessPygameLauncher = ChessPygameLauncher(self.deiconify, self.withdraw)
 
         self.window_innit()
         self.create_styles()
@@ -56,8 +56,3 @@ class ChessTkinterLauncher(tk.Tk):
         self.geometry(f"{DEFAULT_WINDOW_WIDTH}x{DEFAULT_WINDOW_HEIGHT}")
         self.title("ChessLauncher")
         self.minsize(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)
-
-
-if __name__ == "__main__":
-    root = ChessTkinterLauncher()
-    root.mainloop()

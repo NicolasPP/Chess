@@ -4,7 +4,7 @@ import tkinter as tk
 import ttkbootstrap as ttk
 from launcher.tk.page_frame import PageFrame
 from launcher.tk.page_manager import PageManager
-from launcher.pg.pg_launcher import PygameChessLauncher, SinglePlayerGameType
+from launcher.pg.pg_launcher import ChessPygameLauncher, SinglePlayerGameType
 from config.tk_config import *
 
 
@@ -16,7 +16,7 @@ class OfflinePageButtons(typing.NamedTuple):
 
 
 class OfflinePage(PageFrame):
-    def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, pg_launcher: PygameChessLauncher,
+    def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, pg_launcher: ChessPygameLauncher,
                  is_bot_valid: ttk.BooleanVar) -> None:
         super().__init__(parent_frame)
         self.buttons: OfflinePageButtons = self.create_buttons(page_manager, pg_launcher)
@@ -37,7 +37,7 @@ class OfflinePage(PageFrame):
         self.buttons.vs_bot["state"] = state
         self.buttons.bot_vs_bot["state"] = state
 
-    def create_buttons(self, page_manager: PageManager, pg_launcher: PygameChessLauncher) -> OfflinePageButtons:
+    def create_buttons(self, page_manager: PageManager, pg_launcher: ChessPygameLauncher) -> OfflinePageButtons:
         human_button: ttk.Button = ttk.Button(self, text="vs Human", command=lambda: pg_launcher.launch_single_player(
             SinglePlayerGameType.HUMAN_VS_HUMAN))
         bot_button: ttk.Button = ttk.Button(self, text="vs Bot", command=lambda: pg_launcher.launch_single_player(

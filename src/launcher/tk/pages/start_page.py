@@ -5,7 +5,7 @@ from launcher.tk.page_frame import PageFrame
 from launcher.tk.page_manager import PageManager
 from config.tk_config import *
 from chess.bot.chess_bot_stockfish import StockFishBot
-from launcher.pg.pg_launcher import PossibleConfigValues, PygameChessLauncher
+from launcher.pg.pg_launcher import PossibleConfigValues, ChessPygameLauncher
 
 
 class PlayButtons(typing.NamedTuple):
@@ -37,7 +37,7 @@ class StartPage(PageFrame):
 
     @staticmethod
     def create_settings_widgets(settings_frame: ttk.LabelFrame, path_entry_str: ttk.StringVar,
-                                pg_launcher: PygameChessLauncher) -> SettingsWidgets:
+                                pg_launcher: ChessPygameLauncher) -> SettingsWidgets:
         engine_valid: ttk.Label = ttk.Label(settings_frame, text="Stock Fish ready!", foreground='green')
         path_entry: ttk.Entry = ttk.Entry(settings_frame, textvariable=path_entry_str, width=18)
         path_entry.bind("<Button>", lambda e: path_entry_str.set(''))
@@ -79,7 +79,7 @@ class StartPage(PageFrame):
                                asset_label, size_scale, size_scale_label)
 
     def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, is_bot_valid: ttk.BooleanVar,
-                 pg_launcher: PygameChessLauncher) -> None:
+                 pg_launcher: ChessPygameLauncher) -> None:
         super().__init__(parent_frame)
         play_frame: ttk.LabelFrame = ttk.LabelFrame(self, text='Play')
         settings_frame: ttk.LabelFrame = ttk.LabelFrame(self, text='Settings')
@@ -137,7 +137,7 @@ def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.Bool
         path_entry_str.set("Path Incorrect")
 
 
-def configure_pygame_launcher(pygame_launcher: PygameChessLauncher, menu_button: ttk.Menubutton,
+def configure_pygame_launcher(pygame_launcher: ChessPygameLauncher, menu_button: ttk.Menubutton,
                               **args: PossibleConfigValues) -> None:
     assert len(args) == 1, 'invalid number of args'
     for value in args.values():
@@ -146,7 +146,7 @@ def configure_pygame_launcher(pygame_launcher: PygameChessLauncher, menu_button:
     pygame_launcher.update_config(**args)
 
 
-def handle_scale_click(scale_size: str, size_scale_label: ttk.Label, pygame_launcher: PygameChessLauncher) -> None:
+def handle_scale_click(scale_size: str, size_scale_label: ttk.Label, pygame_launcher: ChessPygameLauncher) -> None:
     size: float = float('%.2f' % float(scale_size))
     size_scale_label["text"] = f"game size: {size}"
     pygame_launcher.update_config(scale=size)
