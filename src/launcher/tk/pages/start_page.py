@@ -69,7 +69,7 @@ class StartPage(PageFrame):
                                                                              piece_set="LARGE"))
         asset_options['menu'] = asset_menu
         size_scale_label: ttk.Label = ttk.Label(settings_frame, text="game size : 3.0", width=13, anchor='w')
-        size_scale: ttk.Scale = ttk.Scale(settings_frame, from_=3, to=10, style='warning',
+        size_scale: ttk.Scale = ttk.Scale(settings_frame, from_=3, to=7, style='warning',
                                           command=lambda size: handle_scale_click(size, size_scale_label, pg_launcher))
         return SettingsWidgets(engine_valid, path_entry, create_bot, theme_options, theme_label, asset_options,
                                asset_label, size_scale, size_scale_label)
