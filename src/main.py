@@ -40,7 +40,6 @@ def start_app(
 ) -> None:
     app_type: AppType = AppType[app_type]
     pg_launcher: ChessPygameLauncher = ChessPygameLauncher()
-    tk_launcher: ChessTkinterLauncher = ChessTkinterLauncher()
 
     pg_launcher.update_config(
         update_config=False,
@@ -52,7 +51,7 @@ def start_app(
     )
 
     if app_type is AppType.LAUNCHER:
-        tk_launcher.mainloop()
+        ChessTkinterLauncher().mainloop()
 
     elif app_type is AppType.SERVER:
         pg_launcher.run_local_server()
