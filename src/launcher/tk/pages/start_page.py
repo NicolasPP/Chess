@@ -91,14 +91,14 @@ class StartPage(PageFrame):
         self.rowconfigure(1, weight=10)
 
         play_buttons = StartPage.create_play_buttons(page_manager, play_frame)
-        play_frame.grid(row=0, column=0, sticky="news", padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
-        play_buttons.online.pack(side="left", expand=True, anchor='center')
-        play_buttons.offline.pack(side="left", expand=True, anchor='center')
+        play_frame.grid(row=0, column=0, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
+        play_buttons.online.pack(side=ttk.LEFT, expand=True, anchor=ttk.CENTER)
+        play_buttons.offline.pack(side=ttk.LEFT, expand=True, anchor=ttk.CENTER)
 
         path_entry_str: ttk.StringVar = ttk.StringVar(value="stock fish engine path")
         settings_widgets = StartPage.create_settings_widgets(settings_frame, path_entry_str, pg_launcher)
 
-        settings_frame.grid(row=0, column=1, rowspan=2, sticky="news", padx=START_PAGE_FRAME_PAD,
+        settings_frame.grid(row=0, column=1, rowspan=2, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD,
                             pady=START_PAGE_FRAME_PAD)
         settings_widgets.create_bot["command"] = lambda: create_bot_command(settings_widgets, is_bot_valid,
                                                                             path_entry_str)
@@ -108,22 +108,22 @@ class StartPage(PageFrame):
         settings_frame.grid_columnconfigure(0, weight=1)
         settings_frame.grid_columnconfigure(1, weight=1)
 
-        settings_widgets.size_scale_label.grid(row=0, column=0, sticky='ew', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-        settings_widgets.size_scale.grid(row=0, column=1, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
+        settings_widgets.size_scale_label.grid(row=0, column=0, sticky=ttk.EW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
+        settings_widgets.size_scale.grid(row=0, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
 
-        settings_widgets.theme_label.grid(row=1, column=0, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-        settings_widgets.theme_options.grid(row=1, column=1, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
+        settings_widgets.theme_label.grid(row=1, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
+        settings_widgets.theme_options.grid(row=1, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
 
-        settings_widgets.asset_label.grid(row=2, column=0, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-        settings_widgets.asset_options.grid(row=2, column=1, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
+        settings_widgets.asset_label.grid(row=2, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
+        settings_widgets.asset_options.grid(row=2, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
 
         if is_bot_valid.get():
             settings_widgets.engine_valid.grid(row=3, column=0, columnspan=2, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         else:
-            settings_widgets.path_entry.grid(row=3, column=0, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-            settings_widgets.create_bot.grid(row=3, column=1, sticky='news', padx=SETTINGS_PAD, pady=SETTINGS_PAD)
+            settings_widgets.path_entry.grid(row=3, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
+            settings_widgets.create_bot.grid(row=3, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
 
-        user_frame.grid(row=1, column=0, sticky="news", padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
+        user_frame.grid(row=1, column=0, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
 
 
 def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.BooleanVar,
@@ -131,7 +131,6 @@ def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.Bool
     if StockFishBot.create_bot(path_entry_str.get()):
         settings_widgets.create_bot.grid_forget()
         settings_widgets.path_entry.grid_forget()
-        # settings_widgets.engine_valid.configure(foreground='green')
         settings_widgets.engine_valid.grid(row=3, column=0, columnspan=2, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         is_bot_valid.set(True)
     else:
