@@ -36,40 +36,44 @@ class StartPage(PageFrame):
         return PlayButtons(online_button, offline_button)
 
     @staticmethod
-    def create_settings_widgets(settings_frame: ttk.LabelFrame, path_entry_str: ttk.StringVar, pg_launcher:
-                                PygameChessLauncher) -> SettingsWidgets:
+    def create_settings_widgets(settings_frame: ttk.LabelFrame, path_entry_str: ttk.StringVar,
+                                pg_launcher: PygameChessLauncher) -> SettingsWidgets:
         engine_valid: ttk.Label = ttk.Label(settings_frame, text="Stock Fish ready!")
         path_entry: ttk.Entry = ttk.Entry(settings_frame, textvariable=path_entry_str, width=18)
         path_entry.bind("<Button>", lambda e: path_entry_str.set(''))
         create_bot: ttk.Button = ttk.Button(settings_frame, text="create bot")
 
         theme_label: ttk.Label = ttk.Label(settings_frame, text="Theme: ")
-        theme_options: ttk.Menubutton = ttk.Menubutton(settings_frame, text="RANDOM")
+        theme_id_name: str = str(pg_launcher.config.data.theme_id)
+        if theme_id_name == "-1": theme_id_name = 'RANDOM'
+        theme_options: ttk.Menubutton = ttk.Menubutton(settings_frame, text=theme_id_name)
         theme_menu: ttk.Menu = ttk.Menu(theme_options)
-        theme_menu.add_radiobutton(value="1", label="1", background=BG_DARK, foreground=FG_DARK, command=lambda:
-                                   configure_pygame_launcher(pg_launcher, theme_options, theme=1))
-        theme_menu.add_radiobutton(value="2", label="2", background=BG_DARK, foreground=FG_DARK, command=lambda:
-                                   configure_pygame_launcher(pg_launcher, theme_options, theme=2))
-        theme_menu.add_radiobutton(value="3", label="3", background=BG_DARK, foreground=FG_DARK, command=lambda:
-                                   configure_pygame_launcher(pg_launcher, theme_options, theme=3))
-        theme_menu.add_radiobutton(value="4", label="4", background=BG_DARK, foreground=FG_DARK, command=lambda:
-                                   configure_pygame_launcher(pg_launcher, theme_options, theme=4))
+        theme_menu.add_radiobutton(value="1", label="1", background=BG_DARK, foreground=FG_DARK,
+                                   command=lambda: configure_pygame_launcher(pg_launcher, theme_options, theme_id=1))
+        theme_menu.add_radiobutton(value="2", label="2", background=BG_DARK, foreground=FG_DARK,
+                                   command=lambda: configure_pygame_launcher(pg_launcher, theme_options, theme_id=2))
+        theme_menu.add_radiobutton(value="3", label="3", background=BG_DARK, foreground=FG_DARK,
+                                   command=lambda: configure_pygame_launcher(pg_launcher, theme_options, theme_id=3))
+        theme_menu.add_radiobutton(value="4", label="4", background=BG_DARK, foreground=FG_DARK,
+                                   command=lambda: configure_pygame_launcher(pg_launcher, theme_options, theme_id=4))
         theme_menu.add_radiobutton(value="RANDOM", label="RANDOM", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(pg_launcher, theme_options, theme=-1))
+                                   command=lambda: configure_pygame_launcher(pg_launcher, theme_options, theme_id=-1))
         theme_options['menu'] = theme_menu
 
         asset_label: ttk.Label = ttk.Label(settings_frame, text="Asset: ")
-        asset_options: ttk.Menubutton = ttk.Menubutton(settings_frame, text="SMALL")
+        asset_options: ttk.Menubutton = ttk.Menubutton(settings_frame, text=pg_launcher.config.data.asset_name)
         asset_menu: ttk.Menu = ttk.Menu(asset_options)
         asset_menu.add_radiobutton(value="SMALL", label="SMALL", background=BG_DARK, foreground=FG_DARK,
                                    command=lambda: configure_pygame_launcher(pg_launcher, asset_options,
-                                                                             piece_set="SMALL"))
+                                                                             asset_name="SMALL"))
         asset_menu.add_radiobutton(value="LARGE", label="LARGE", background=BG_DARK, foreground=FG_DARK,
                                    command=lambda: configure_pygame_launcher(pg_launcher, asset_options,
-                                                                             piece_set="LARGE"))
+                                                                             asset_name="LARGE"))
         asset_options['menu'] = asset_menu
-        size_scale_label: ttk.Label = ttk.Label(settings_frame, text="game size : 3.0", width=13, anchor='w')
-        size_scale: ttk.Scale = ttk.Scale(settings_frame, from_=3, to=7, style='warning',
+        current_scale: float = pg_launcher.config.data.scale
+        size_scale_label: ttk.Label = ttk.Label(settings_frame, text=f"game size : {current_scale}", width=13,
+                                                anchor='w')
+        size_scale: ttk.Scale = ttk.Scale(settings_frame, from_=3, to=7, style='warning', value=current_scale,
                                           command=lambda size: handle_scale_click(size, size_scale_label, pg_launcher))
         return SettingsWidgets(engine_valid, path_entry, create_bot, theme_options, theme_label, asset_options,
                                asset_label, size_scale, size_scale_label)
@@ -138,6 +142,7 @@ def configure_pygame_launcher(pygame_launcher: PygameChessLauncher, menu_button:
                               **args: PossibleConfigValues) -> None:
     assert len(args) == 1, 'invalid number of args'
     for value in args.values():
+        if value == -1: value = 'RANDOM'
         menu_button['text'] = value
     pygame_launcher.update_config(**args)
 
