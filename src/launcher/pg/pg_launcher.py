@@ -14,16 +14,17 @@ class SinglePlayerGameType(enum.Enum):
     BOT_VS_BOT = enum.auto()
 
 
-class PygameChessLauncher:
+class ChessPygameLauncher:
 
-    def __init__(self, show_app: typing.Callable[[], None], hide_app: typing.Callable[[], None]):
+    def __init__(self, show_app: typing.Callable[[], None] | None = None, hide_app: typing.Callable[[], None] | None
+                 = None):
         self.config: UserConfig = UserConfig()
         self.multi_player: OnlineLauncher = OnlineLauncher()
         self.single_player: OfflineLauncher = OfflineLauncher()
         self.server: Server = Server(DefaultConfigs.get_timer_config(self.config.data.timer_config_name))
         self.is_running: bool = False
-        self.show_app: typing.Callable[[], None] = show_app
-        self.hide_app: typing.Callable[[], None] = hide_app
+        self.show_app: typing.Callable[[], None] | None = show_app
+        self.hide_app: typing.Callable[[], None] | None = hide_app
 
     def get_is_running(self) -> bool:
         return self.is_running
@@ -31,7 +32,8 @@ class PygameChessLauncher:
     def launch_single_player(self, game_type: SinglePlayerGameType) -> None:
         if self.get_is_running(): return
         self.is_running = True
-        self.hide_app()
+        if self.hide_app is not None:
+            self.hide_app()
         if game_type is SinglePlayerGameType.HUMAN_VS_HUMAN:
             self.single_player.launch_against_human(*self.config.single_player_args())
         elif game_type is SinglePlayerGameType.BOT_VS_BOT:
@@ -39,7 +41,8 @@ class PygameChessLauncher:
         elif game_type is SinglePlayerGameType.HUMAN_VS_BOT:
             self.single_player.launch_against_bot(*self.config.single_player_bot_args())
         self.is_running = False
-        self.show_app()
+        if self.show_app is not None:
+            self.show_app()
 
     def launch_multi_player_client(self) -> None:
         if self.get_is_running(): return
@@ -68,7 +71,7 @@ class PygameChessLauncher:
                 self.config.data.asset_name = value
             elif name == "timer_config_name":
                 assert isinstance(value, str), wrong_type_message + str.__name__
-                self.config.data.timer_config = value
+                self.config.data.timer_config_name = value
             elif name == "server_ip":
                 assert isinstance(value, str), wrong_type_message + str.__name__
                 self.config.data.server_ip = value
