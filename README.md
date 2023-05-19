@@ -5,48 +5,50 @@ python 3.10+
 Stockfish 15.1 https://stockfishchess.org/download/
 
 # Features
-- Local : 
-	- play on one computer, where two players take turns making the moves.
-	- press "SPACE" to change the player perspective
-- Network : play over the network
+ - Play against other Player on same machine
+ - Play against other Player on the local network
+ - Start server on the local network
+ - Play against stock fish bot
+ - Watch stock fish play against itself
+ - tkinter launcher
 		  
 # Instructions
-
-Local :
-- start local game
 ```
-python src/local.py
+# start launcher
+python src/main.py
 
-Options:
-    --scale
-    --theme_id
-    --pieces_asset
-    --timer
+# all features are accessible from the launcher
+# Also able to use features from the terminal
 
-```
-Network :
-- start the server
-```
-python src/server.py
+#start server
+python src/main.py --app_type "SERVER"
+    options:
+        -- timer
 
-Options:
-    --timer
-```
-- start the client
-```
-python src/client.py
+#start client
+python src/main.py --app_type "CLIENT"
+    options:
+        --server_ip
+        --scale
+        --theme_id
+        --pieces_asset
 
-Options:
-    --server_ip
-    --scale
-    --theme_id
-    --pieces_asset
-
-
+#start player vs player on same machine
+python src/main.py --app_type "PLAYER_V_PLAYER"
+    options:
+        --scale
+        --theme_id
+        --pieces_asset
+        --timer
 ```
-- Options description
+
+# Options description
 ```
--- timer  :  Choose timer settings.
+--app_type : select what to launch. 
+    LAUNCHER, CLIENT, SERVER, PLAYER_V_PLAYER
+    default = LAUNCHER
+
+--timer  :  Choose timer settings.
     Custom setting format: 
         "time increment" 
         (time-minutes, increment-seconds)
@@ -76,10 +78,7 @@ Options:
 
 --pieces_asset  :  Choose Pieces Asset
     possible pieces Asset: SMALL, LARGE, RANDOM
-
-
 ```
-
 
 # Resources
 - sprites : https://dani-maccari.itch.io/pixel-chess
