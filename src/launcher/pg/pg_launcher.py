@@ -1,15 +1,11 @@
 import typing
-import dataclasses
 import enum
 
 from launcher.pg.offline_launcher import OfflineLauncher
 from launcher.pg.online_launcher import OnlineLauncher
-from chess.asset.chess_assets import PieceSetAssets, Themes, ChessTheme, PieceSetAsset
-from chess.timer.timer_config import TimerConfig, DefaultConfigs
+from chess.timer.timer_config import DefaultConfigs
+from config.user_config import UserConfig, PossibleConfigValues
 from server import Server
-from chess.board.side import Side
-
-PossibleConfigValues: typing.TypeAlias = str | float | ChessTheme | PieceSetAsset | TimerConfig  | Side
 
 
 class SinglePlayerGameType(enum.Enum):
@@ -18,32 +14,13 @@ class SinglePlayerGameType(enum.Enum):
     BOT_VS_BOT = enum.auto()
 
 
-@dataclasses.dataclass
-class PygameLauncherConfig:
-    theme: ChessTheme = Themes.PLAIN1
-    scale: float = 5
-    piece_set: PieceSetAsset = PieceSetAssets.SIMPLE16x16
-    timer_config: TimerConfig = DefaultConfigs.BULLET_1_0
-    server_ip: str = '127.0.0.1'
-    bot_side: Side = Side.WHITE
-
-    def single_player_args(self) -> tuple[ChessTheme, float, PieceSetAsset, TimerConfig]:
-        return self.theme, self.scale, self.piece_set, self.timer_config
-
-    def multi_player_args(self) -> tuple[str, ChessTheme, float, PieceSetAsset]:
-        return self.server_ip, self.theme, self.scale, self.piece_set
-
-    def single_player_bot_args(self) -> tuple[ChessTheme, float, PieceSetAsset, TimerConfig, Side]:
-        return self.theme, self.scale, self.piece_set, self.timer_config, self.bot_side
-
-
 class PygameChessLauncher:
 
     def __init__(self, show_app: typing.Callable[[], None], hide_app: typing.Callable[[], None]):
-        self.config: PygameLauncherConfig = PygameLauncherConfig()
+        self.config: UserConfig = UserConfig()
         self.multi_player: OnlineLauncher = OnlineLauncher()
         self.single_player: OfflineLauncher = OfflineLauncher()
-        self.server: Server = Server(self.config.timer_config)
+        self.server: Server = Server(DefaultConfigs.get_timer_config(self.config.data.timer_config_name))
         self.is_running: bool = False
         self.show_app: typing.Callable[[], None] = show_app
         self.hide_app: typing.Callable[[], None] = hide_app
@@ -80,25 +57,25 @@ class PygameChessLauncher:
 
         for name, value in new_values.items():
             wrong_type_message: str = f"got {type(value).__name__} expected: "
-            if name == "theme":
-                theme = Themes.get_theme(int(value))
-                assert isinstance(theme, ChessTheme), wrong_type_message + ChessTheme.__name__
-                self.config.theme = theme
+            if name == "theme_id":
+                assert isinstance(value, int), wrong_type_message + int.__name__
+                self.config.data.theme_id = value
             elif name == "scale":
                 assert isinstance(value, float), wrong_type_message + float.__name__
-                self.config.scale = value
-            elif name == "piece_set":
-                piece_set = PieceSetAssets.get_asset(str(value))
-                assert isinstance(piece_set, PieceSetAsset), wrong_type_message + PieceSetAsset.__name__
-                self.config.piece_set = piece_set
-            elif name == "timer_config":
-                assert isinstance(value, TimerConfig), wrong_type_message + TimerConfig.__name__
-                self.config.timer_config = value
+                self.config.data.scale = value
+            elif name == "asset_name":
+                assert isinstance(value, str), wrong_type_message + str.__name__
+                self.config.data.asset_name = value
+            elif name == "timer_config_name":
+                assert isinstance(value, str), wrong_type_message + str.__name__
+                self.config.data.timer_config = value
             elif name == "server_ip":
                 assert isinstance(value, str), wrong_type_message + str.__name__
-                self.config.server_ip = value
-            elif name == "bot_side":
-                assert isinstance(value, Side), wrong_type_message + Side.__name__
-                self.config.bot_side = value
+                self.config.data.server_ip = value
+            elif name == "bot_side_name":
+                assert isinstance(value, str), wrong_type_message + str.__name__
+                self.config.data.bot_side = value
             else:
                 raise Exception(f"Launcher Config has nor variable: {name}")
+
+        self.config.write_config()
