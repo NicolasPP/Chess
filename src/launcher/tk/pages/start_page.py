@@ -38,7 +38,7 @@ class StartPage(PageFrame):
     @staticmethod
     def create_settings_widgets(settings_frame: ttk.LabelFrame, path_entry_str: ttk.StringVar,
                                 pg_launcher: PygameChessLauncher) -> SettingsWidgets:
-        engine_valid: ttk.Label = ttk.Label(settings_frame, text="Stock Fish ready!")
+        engine_valid: ttk.Label = ttk.Label(settings_frame, text="Stock Fish ready!", foreground='green')
         path_entry: ttk.Entry = ttk.Entry(settings_frame, textvariable=path_entry_str, width=18)
         path_entry.bind("<Button>", lambda e: path_entry_str.set(''))
         create_bot: ttk.Button = ttk.Button(settings_frame, text="create bot")
@@ -131,7 +131,7 @@ def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.Bool
     if StockFishBot.create_bot(path_entry_str.get()):
         settings_widgets.create_bot.grid_forget()
         settings_widgets.path_entry.grid_forget()
-        settings_widgets.engine_valid.configure(foreground='green')
+        # settings_widgets.engine_valid.configure(foreground='green')
         settings_widgets.engine_valid.grid(row=3, column=0, columnspan=2, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         is_bot_valid.set(True)
     else:
