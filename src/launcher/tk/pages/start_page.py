@@ -14,6 +14,7 @@ from launcher.tk.user import LauncherUser
 class PlayButtons(typing.NamedTuple):
     online: ttk.Button
     offline: ttk.Button
+    is_logged_in: ttk.BooleanVar
 
 
 class SettingsWidgets(typing.NamedTuple):
@@ -48,10 +49,12 @@ class StartPage(PageFrame):
     @staticmethod
     def create_play_buttons(page_manger: PageManager, play_frame: ttk.LabelFrame) -> PlayButtons:
         online_button: ttk.Button = ttk.Button(play_frame, text="Online",
-                                               command=lambda: page_manger.show_page("OnlinePage"))
+                                               command=lambda: page_manger.show_page("OnlinePage"), state=ttk.DISABLED)
         offline_button: ttk.Button = ttk.Button(play_frame, text="Offline",
                                                 command=lambda: page_manger.show_page("OfflinePage"))
-        return PlayButtons(online_button, offline_button)
+        is_logged_in: ttk.BooleanVar = ttk.BooleanVar(value=False)
+        is_logged_in.trace_add('write', lambda v, i, m: handle_update_online_button(online_button, is_logged_in))
+        return PlayButtons(online_button, offline_button, is_logged_in)
 
     @staticmethod
     def create_settings_widgets(settings_frame: ttk.LabelFrame, path_entry_str: ttk.StringVar,
@@ -172,11 +175,13 @@ class StartPage(PageFrame):
         user_widgets.register_button[ttk.COMMAND] = lambda: handle_register(user_widgets, user_frame)
         user_widgets.cancel_button[ttk.COMMAND] = lambda: handle_cancel(user_widgets, user_frame)
         user_widgets.log_in_button[ttk.COMMAND] = lambda: handle_log_in(user_widgets, user_name_var, user_password_var,
-                                                                        error_var, database, user_frame)
+                                                                        error_var, database, user_frame,
+                                                                        play_buttons.is_logged_in)
         user_widgets.create_user_button[ttk.COMMAND] = lambda: handle_create_user(user_widgets, user_name_var,
                                                                                   user_password_var, error_var,
                                                                                   database, user_frame)
-        user_widgets.log_out_button[ttk.COMMAND] = lambda: handle_log_out(user_widgets, user_frame)
+        user_widgets.log_out_button[ttk.COMMAND] = lambda: handle_log_out(user_widgets, user_frame,
+                                                                          play_buttons.is_logged_in)
 
         user_widgets.user_name_label.grid(row=0, column=0, pady=(0, SETTINGS_PAD // 2), padx=(0, SETTINGS_PAD // 2))
         user_widgets.user_name_entry.grid(row=0, column=1, pady=(0, SETTINGS_PAD // 2), padx=(SETTINGS_PAD // 2, 0))
@@ -217,13 +222,15 @@ def handle_scale_click(scale_size: str, size_scale_label: ttk.Label, pygame_laun
 
 
 def handle_log_in(user_widgets: UserWidgets, user_name_var: ttk.StringVar, user_password_var: ttk.StringVar,
-                  error_var: ttk.StringVar, database: ChessDataBase, user_frame: ttk.LabelFrame) -> None:
+                  error_var: ttk.StringVar, database: ChessDataBase, user_frame: ttk.LabelFrame, is_logged_in:
+                  ttk.BooleanVar) -> None:
     user: User | None = database.log_in(user_name_var.get(), user_password_var.get())
     if user is None:
         error_var.set("user name or password: incorrect")
         user_widgets.error_label.pack(expand=True)
     else:
         LauncherUser.log_in(user)
+        is_logged_in.set(True)
         user_widgets.entry_frame.pack_forget()
         user_widgets.log_in_button.pack_forget()
         user_widgets.register_button.pack_forget()
@@ -282,7 +289,7 @@ def handle_cancel(user_widgets: UserWidgets, user_frame: ttk.LabelFrame) -> None
     user_frame["text"] = "Log In"
 
 
-def handle_log_out(user_widgets: UserWidgets, user_frame: ttk.LabelFrame) -> None:
+def handle_log_out(user_widgets: UserWidgets, user_frame: ttk.LabelFrame, is_logged_in: ttk.BooleanVar) -> None:
     # clear
     user_widgets.log_out_button.pack_forget()
     user_widgets.button_frame.pack_forget()
@@ -296,3 +303,9 @@ def handle_log_out(user_widgets: UserWidgets, user_frame: ttk.LabelFrame) -> Non
 
     user_frame["text"] = "Log In"
     LauncherUser.log_out()
+    is_logged_in.set(False)
+
+
+def handle_update_online_button(online_button: ttk.Button, is_logged_in: ttk.BooleanVar) -> None:
+    state = ttk.NORMAL if is_logged_in.get() else ttk.DISABLED
+    online_button["state"] = state
