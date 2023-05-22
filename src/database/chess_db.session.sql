@@ -1,7 +1,7 @@
 -- @Block
 CREATE TABLE Users(
     u_id INT PRIMARY KEY AUTO_INCREMENT,
-    elo INT DEFAULT 0,
+    elo INT DEFAULT 1200,
     u_pass VARCHAR(255) NOT NULL,
     u_name VARCHAR(255) NOT NULL UNIQUE
 );
