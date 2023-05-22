@@ -29,7 +29,8 @@ class ChessTkinterLauncher(tk.Tk):
 
         is_bot_valid: ttk.BooleanVar = ttk.BooleanVar(value=False)
         self.page_manager: PageManager = PageManager()
-        self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, is_bot_valid, self.pg_launcher))
+        self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, is_bot_valid, self.pg_launcher,
+                                             self.database))
         self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher, is_bot_valid))
         self.page_manager.add_page(OnlinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(ServerPage(self.root_frame, self.page_manager, self.pg_launcher))
@@ -51,8 +52,8 @@ class ChessTkinterLauncher(tk.Tk):
         self.style.configure('TScale', background=BG_DARK)
         self.style.configure('TLabel', background=BG_DARK, font=(FONT_NAME, DEFAULT_FONT_SIZE), foreground=FG_DARK)
         self.style.configure('TEntry', fieldbackground=BG_DARK, font=(FONT_NAME, DEFAULT_FONT_SIZE), foreground=FG_DARK,
-                             darkcolor=BG_DARK, lightcolor=BG_DARK, bordercolor=FG_DARK, selectbackground=BG_DARK,
-                             selectforeground=BG_DARK)
+                             darkcolor=BG_DARK, lightcolor=BG_DARK, bordercolor=FG_DARK, selectbackground=BG_LIGHT,
+                             selectforeground=FG_LIGHT)
 
     def window_innit(self) -> None:
         self.geometry(f"{DEFAULT_WINDOW_WIDTH}x{DEFAULT_WINDOW_HEIGHT}")
