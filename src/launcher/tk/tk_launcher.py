@@ -7,6 +7,7 @@ from launcher.tk.pages.server_page import ServerPage
 from launcher.tk.pages.start_page import StartPage
 from launcher.tk.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher
+from database.chess_db import ChessDataBase, DataBaseInfo
 
 from config.tk_config import *
 
@@ -17,6 +18,8 @@ class ChessTkinterLauncher(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.style: ttk.Style = ttk.Style()
         self.pg_launcher: ChessPygameLauncher = ChessPygameLauncher(self.deiconify, self.withdraw)
+        database_info: DataBaseInfo = DataBaseInfo('root', 'chess-database', '35.197.134.140', 3306, 'chess_db')
+        self.database: ChessDataBase = ChessDataBase(database_info)
 
         self.window_innit()
         self.create_styles()
@@ -25,7 +28,6 @@ class ChessTkinterLauncher(tk.Tk):
         self.root_frame.pack(fill=ttk.BOTH, expand=True)
 
         is_bot_valid: ttk.BooleanVar = ttk.BooleanVar(value=False)
-
         self.page_manager: PageManager = PageManager()
         self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, is_bot_valid, self.pg_launcher))
         self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher, is_bot_valid))
