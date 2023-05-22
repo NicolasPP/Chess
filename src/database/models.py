@@ -12,7 +12,7 @@ class User(Base):
     __tablename__ = "Users"
 
     u_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    elo: Mapped[int] = mapped_column(default=0)
+    elo: Mapped[int] = mapped_column(default=1000)
     u_pass: Mapped[str] = mapped_column(nullable=False)
     u_name: Mapped[str] = mapped_column(nullable=False)
 
