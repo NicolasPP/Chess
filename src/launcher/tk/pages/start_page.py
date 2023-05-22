@@ -6,6 +6,9 @@ from launcher.tk.page_manager import PageManager
 from config.tk_config import *
 from chess.bot.chess_bot_stockfish import StockFishBot
 from launcher.pg.pg_launcher import PossibleConfigValues, ChessPygameLauncher
+from database.chess_db import ChessDataBase, CreateUserResult
+from database.models import User
+from launcher.tk.user import LauncherUser
 
 
 class PlayButtons(typing.NamedTuple):
@@ -23,6 +26,21 @@ class SettingsWidgets(typing.NamedTuple):
     asset_label: ttk.Label
     size_scale: ttk.Scale
     size_scale_label: ttk.Label
+
+
+class UserWidgets(typing.NamedTuple):
+    entry_frame: ttk.Frame
+    button_frame: ttk.Frame
+    user_name_entry: ttk.Entry
+    user_name_label: ttk.Label
+    user_password_entry: ttk.Entry
+    user_password_label: ttk.Label
+    log_in_button: ttk.Button
+    register_button: ttk.Button
+    create_user_button: ttk.Button
+    cancel_button: ttk.Button
+    log_out_button: ttk.Button
+    error_label: ttk.Label
 
 
 class StartPage(PageFrame):
@@ -78,17 +96,39 @@ class StartPage(PageFrame):
         return SettingsWidgets(engine_valid, path_entry, create_bot, theme_options, theme_label, asset_options,
                                asset_label, size_scale, size_scale_label)
 
+    @staticmethod
+    def create_user_widgets(user_frame: ttk.LabelFrame, user_name_var: ttk.StringVar, user_password_var: ttk.StringVar,
+                            error_var: ttk.StringVar) -> UserWidgets:
+        entry_frame: ttk.Frame = ttk.Frame(user_frame)
+        button_frame: ttk.Frame = ttk.Frame(user_frame)
+
+        user_name_entry: ttk.Entry = ttk.Entry(entry_frame, textvariable=user_name_var)
+        user_name_label: ttk.Label = ttk.Label(entry_frame, text="user name:")
+        user_password_entry: ttk.Entry = ttk.Entry(entry_frame, textvariable=user_password_var, show="*")
+        user_password_label: ttk.Label = ttk.Label(entry_frame, text="password:")
+
+        log_in_button: ttk.Button = ttk.Button(button_frame, text="LOG IN", command=lambda: print("LOG IN"))
+        register_button: ttk.Button = ttk.Button(button_frame, text="REGISTER")
+
+        create_user_button: ttk.Button = ttk.Button(button_frame, text="CREATE")
+        cancel_button: ttk.Button = ttk.Button(button_frame, text="CANCEL")
+        log_out_button: ttk.Button = ttk.Button(button_frame, text="LOG OUT")
+        error_label: ttk.Label = ttk.Label(user_frame, textvariable=error_var, foreground='red')
+        return UserWidgets(entry_frame, button_frame, user_name_entry, user_name_label, user_password_entry,
+                           user_password_label, log_in_button, register_button, create_user_button, cancel_button,
+                           log_out_button, error_label)
+
     def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, is_bot_valid: ttk.BooleanVar,
-                 pg_launcher: ChessPygameLauncher) -> None:
+                 pg_launcher: ChessPygameLauncher, database: ChessDataBase) -> None:
         super().__init__(parent_frame)
         play_frame: ttk.LabelFrame = ttk.LabelFrame(self, text='Play')
         settings_frame: ttk.LabelFrame = ttk.LabelFrame(self, text='Settings')
-        user_frame: ttk.LabelFrame = ttk.LabelFrame(self, text='User')
+        user_frame: ttk.LabelFrame = ttk.LabelFrame(self, text="Log In")
 
         self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=5)
+        self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=10)
+        self.rowconfigure(1, weight=1)
 
         play_buttons = StartPage.create_play_buttons(page_manager, play_frame)
         play_frame.grid(row=0, column=0, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
@@ -100,8 +140,8 @@ class StartPage(PageFrame):
 
         settings_frame.grid(row=0, column=1, rowspan=2, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD,
                             pady=START_PAGE_FRAME_PAD)
-        settings_widgets.create_bot["command"] = lambda: create_bot_command(settings_widgets, is_bot_valid,
-                                                                            path_entry_str)
+        settings_widgets.create_bot[ttk.COMMAND] = lambda: create_bot_command(settings_widgets, is_bot_valid,
+                                                                              path_entry_str)
 
         is_bot_valid.set(StockFishBot.create_bot())
 
@@ -123,7 +163,31 @@ class StartPage(PageFrame):
             settings_widgets.path_entry.grid(row=3, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
             settings_widgets.create_bot.grid(row=3, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
 
+        user_name_var: ttk.StringVar = ttk.StringVar()
+        user_password_var: ttk.StringVar = ttk.StringVar()
+        error_var: ttk.StringVar = ttk.StringVar()
+        user_widgets: UserWidgets = StartPage.create_user_widgets(user_frame, user_name_var, user_password_var,
+                                                                  error_var)
         user_frame.grid(row=1, column=0, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
+        user_widgets.register_button[ttk.COMMAND] = lambda: handle_register(user_widgets, user_frame)
+        user_widgets.cancel_button[ttk.COMMAND] = lambda: handle_cancel(user_widgets, user_frame)
+        user_widgets.log_in_button[ttk.COMMAND] = lambda: handle_log_in(user_widgets, user_name_var, user_password_var,
+                                                                        error_var, database, user_frame)
+        user_widgets.create_user_button[ttk.COMMAND] = lambda: handle_create_user(user_widgets, user_name_var,
+                                                                                  user_password_var, error_var,
+                                                                                  database, user_frame)
+        user_widgets.log_out_button[ttk.COMMAND] = lambda: handle_log_out(user_widgets, user_frame)
+
+        user_widgets.user_name_label.grid(row=0, column=0, pady=(0, SETTINGS_PAD // 2), padx=(0, SETTINGS_PAD // 2))
+        user_widgets.user_name_entry.grid(row=0, column=1, pady=(0, SETTINGS_PAD // 2), padx=(SETTINGS_PAD // 2, 0))
+        user_widgets.user_password_label.grid(row=1, column=0, pady=(SETTINGS_PAD // 2, 0), padx=(0, SETTINGS_PAD // 2))
+        user_widgets.user_password_entry.grid(row=1, column=1, pady=(SETTINGS_PAD // 2, 0), padx=(SETTINGS_PAD // 2, 0))
+
+        user_widgets.log_in_button.pack(side=ttk.LEFT, expand=True)
+        user_widgets.register_button.pack(side=ttk.LEFT, expand=True)
+
+        user_widgets.entry_frame.pack(expand=True)
+        user_widgets.button_frame.pack(expand=True)
 
 
 def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.BooleanVar,
@@ -150,3 +214,85 @@ def handle_scale_click(scale_size: str, size_scale_label: ttk.Label, pygame_laun
     size: float = float('%.2f' % float(scale_size))
     size_scale_label["text"] = f"game size: {size}"
     pygame_launcher.update_config(scale=size)
+
+
+def handle_log_in(user_widgets: UserWidgets, user_name_var: ttk.StringVar, user_password_var: ttk.StringVar,
+                  error_var: ttk.StringVar, database: ChessDataBase, user_frame: ttk.LabelFrame) -> None:
+    user: User | None = database.log_in(user_name_var.get(), user_password_var.get())
+    if user is None:
+        error_var.set("user name or password: incorrect")
+        user_widgets.error_label.pack(expand=True)
+    else:
+        LauncherUser.log_in(user)
+        user_widgets.entry_frame.pack_forget()
+        user_widgets.log_in_button.pack_forget()
+        user_widgets.register_button.pack_forget()
+        user_widgets.error_label.pack_forget()
+        user_widgets.log_out_button.pack(expand=True)
+        user_frame["text"] = user.u_name
+    user_name_var.set("")
+    user_password_var.set("")
+
+
+def handle_register(user_widgets: UserWidgets, user_frame: ttk.LabelFrame) -> None:
+    # clear button frame
+    user_widgets.log_in_button.pack_forget()
+    user_widgets.register_button.pack_forget()
+    user_widgets.error_label.pack_forget()
+
+    # pack new buttons
+    user_widgets.cancel_button.pack(side=ttk.LEFT, expand=True)
+    user_widgets.create_user_button.pack(side=ttk.LEFT, expand=True)
+
+    user_frame["text"] = "Create User"
+
+
+def handle_create_user(user_widgets: UserWidgets, user_name_var: ttk.StringVar, user_password_var: ttk.StringVar,
+                       error_var: ttk.StringVar, database: ChessDataBase, user_frame: ttk.LabelFrame) -> None:
+    create_user_result: CreateUserResult = database.create_user(user_name_var.get(), user_password_var.get())
+
+    if create_user_result is CreateUserResult.SUCCESS:
+        handle_cancel(user_widgets, user_frame)
+        user_name_var.set("")
+        user_password_var.set("")
+        return
+
+    elif create_user_result is CreateUserResult.INVALID_USER_NAME:
+        error_var.set("user name only alphanumeric")
+
+    elif create_user_result is CreateUserResult.USER_NAME_TAKEN:
+        error_var.set("user name taken")
+
+    elif create_user_result is CreateUserResult.INVALID_PASSWORD:
+        error_var.set("password cannot be empty")
+
+    user_widgets.error_label.pack(expand=True)
+
+
+def handle_cancel(user_widgets: UserWidgets, user_frame: ttk.LabelFrame) -> None:
+    # clear button frame
+    user_widgets.cancel_button.pack_forget()
+    user_widgets.create_user_button.pack_forget()
+    user_widgets.error_label.pack_forget()
+
+    # pack new buttons
+    user_widgets.log_in_button.pack(side=ttk.LEFT, expand=True)
+    user_widgets.register_button.pack(side=ttk.LEFT, expand=True)
+
+    user_frame["text"] = "Log In"
+
+
+def handle_log_out(user_widgets: UserWidgets, user_frame: ttk.LabelFrame) -> None:
+    # clear
+    user_widgets.log_out_button.pack_forget()
+    user_widgets.button_frame.pack_forget()
+
+    # pack
+    user_widgets.log_in_button.pack(side=ttk.LEFT, expand=True)
+    user_widgets.register_button.pack(side=ttk.LEFT, expand=True)
+
+    user_widgets.entry_frame.pack(expand=True)
+    user_widgets.button_frame.pack(expand=True)
+
+    user_frame["text"] = "Log In"
+    LauncherUser.log_out()
