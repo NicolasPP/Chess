@@ -110,7 +110,7 @@ class StartPage(PageFrame):
         user_password_entry: ttk.Entry = ttk.Entry(entry_frame, textvariable=user_password_var, show="*")
         user_password_label: ttk.Label = ttk.Label(entry_frame, text="password:")
 
-        log_in_button: ttk.Button = ttk.Button(button_frame, text="LOG IN", command=lambda: print("LOG IN"))
+        log_in_button: ttk.Button = ttk.Button(button_frame, text="LOG IN")
         register_button: ttk.Button = ttk.Button(button_frame, text="REGISTER")
 
         create_user_button: ttk.Button = ttk.Button(button_frame, text="CREATE")
