@@ -48,5 +48,5 @@ class OfflinePage(PageFrame):
         return OfflinePageButtons(human_button, bot_button, bot_vs_bot, back_button)
 
     def is_bot_valid_callback(self, var: str, index: str, mode: str) -> None:
-        state: str = "normal" if self.is_bot_valid.get() else "disabled"
+        state: str = ttk.NORMAL if self.is_bot_valid.get() else ttk.DISABLED
         self.set_bot_button_state(state)
