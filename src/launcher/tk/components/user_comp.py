@@ -67,6 +67,7 @@ class UserWidgets(typing.NamedTuple):
 
     def place_forget_logged_in(self) -> None:
         self.elo_label.pack_forget()
+        self.games_played_label.pack_forget()
         self.log_out_button.pack_forget()
         self.button_frame.pack_forget()
 
