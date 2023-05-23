@@ -106,9 +106,9 @@ class StartPage(PageFrame):
         button_frame: ttk.Frame = ttk.Frame(user_frame)
 
         user_name_entry: ttk.Entry = ttk.Entry(entry_frame, textvariable=user_name_var)
-        user_name_label: ttk.Label = ttk.Label(entry_frame, text="user name:")
+        user_name_label: ttk.Label = ttk.Label(entry_frame, text="username: ")
         user_password_entry: ttk.Entry = ttk.Entry(entry_frame, textvariable=user_password_var, show="*")
-        user_password_label: ttk.Label = ttk.Label(entry_frame, text="password:")
+        user_password_label: ttk.Label = ttk.Label(entry_frame, text="password: ")
 
         log_in_button: ttk.Button = ttk.Button(button_frame, text="LOG IN")
         register_button: ttk.Button = ttk.Button(button_frame, text="REGISTER")
@@ -127,6 +127,7 @@ class StartPage(PageFrame):
         play_frame: ttk.LabelFrame = ttk.LabelFrame(self, text='Play')
         settings_frame: ttk.LabelFrame = ttk.LabelFrame(self, text='Settings')
         user_frame: ttk.LabelFrame = ttk.LabelFrame(self, text="Log In")
+        is_database_up: ttk.BooleanVar = ttk.BooleanVar(value=False)
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
@@ -171,12 +172,15 @@ class StartPage(PageFrame):
         error_var: ttk.StringVar = ttk.StringVar()
         user_widgets: UserWidgets = StartPage.create_user_widgets(user_frame, user_name_var, user_password_var,
                                                                   error_var)
+        is_database_up.trace_add('write', lambda v, i, m: is_database_up_callback(user_widgets, is_database_up,
+                                                                                error_var))
         user_frame.grid(row=1, column=0, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
-        user_widgets.register_button[ttk.COMMAND] = lambda: handle_register(user_widgets, user_frame)
+        user_widgets.register_button[ttk.COMMAND] = lambda: handle_register(user_widgets, user_frame, database,
+                                                                            is_database_up)
         user_widgets.cancel_button[ttk.COMMAND] = lambda: handle_cancel(user_widgets, user_frame)
         user_widgets.log_in_button[ttk.COMMAND] = lambda: handle_log_in(user_widgets, user_name_var, user_password_var,
                                                                         error_var, database, user_frame,
-                                                                        play_buttons.is_logged_in)
+                                                                        play_buttons.is_logged_in, is_database_up)
         user_widgets.create_user_button[ttk.COMMAND] = lambda: handle_create_user(user_widgets, user_name_var,
                                                                                   user_password_var, error_var,
                                                                                   database, user_frame)
@@ -222,8 +226,15 @@ def handle_scale_click(scale_size: str, size_scale_label: ttk.Label, pygame_laun
 
 
 def handle_log_in(user_widgets: UserWidgets, user_name_var: ttk.StringVar, user_password_var: ttk.StringVar,
-                  error_var: ttk.StringVar, database: ChessDataBase, user_frame: ttk.LabelFrame, is_logged_in:
-                  ttk.BooleanVar) -> None:
+                  error_var: ttk.StringVar, database: ChessDataBase, user_frame: ttk.LabelFrame,
+                  is_logged_in: ttk.BooleanVar, is_database_up: ttk.BooleanVar) -> None:
+
+    if not is_database_up.get():
+        is_database_up.set(database.test_connection())
+
+    if not is_database_up.get(): return
+    if len(user_name_var.get()) == 0: return
+    if len(user_password_var.get()) == 0: return
     user: User | None = database.log_in(user_name_var.get(), user_password_var.get())
     if user is None:
         error_var.set("user name or password: incorrect")
@@ -241,7 +252,13 @@ def handle_log_in(user_widgets: UserWidgets, user_name_var: ttk.StringVar, user_
     user_password_var.set("")
 
 
-def handle_register(user_widgets: UserWidgets, user_frame: ttk.LabelFrame) -> None:
+def handle_register(user_widgets: UserWidgets, user_frame: ttk.LabelFrame, database: ChessDataBase, is_database_up:
+                    ttk.BooleanVar) -> None:
+    if not is_database_up.get():
+        is_database_up.set(database.test_connection())
+
+    if not is_database_up.get(): return
+
     # clear button frame
     user_widgets.log_in_button.pack_forget()
     user_widgets.register_button.pack_forget()
@@ -309,3 +326,18 @@ def handle_log_out(user_widgets: UserWidgets, user_frame: ttk.LabelFrame, is_log
 def handle_update_online_button(online_button: ttk.Button, is_logged_in: ttk.BooleanVar) -> None:
     state = ttk.NORMAL if is_logged_in.get() else ttk.DISABLED
     online_button["state"] = state
+
+
+def is_database_up_callback(user_widgets: UserWidgets, is_database_up: ttk.BooleanVar, error_var: ttk.StringVar) -> \
+        None:
+    is_database: bool = is_database_up.get()
+    state = ttk.NORMAL if is_database else ttk.DISABLED
+    user_widgets.create_user_button["state"] = state
+    user_widgets.log_in_button["state"] = state
+    user_widgets.log_out_button["state"] = state
+    user_widgets.register_button["state"] = state
+
+    if is_database: return
+
+    error_var.set("database is not available")
+    user_widgets.error_label.pack(expand=True)
