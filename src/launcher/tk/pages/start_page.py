@@ -229,12 +229,14 @@ def handle_log_in(user_widgets: UserWidgets, user_name_var: ttk.StringVar, user_
                   error_var: ttk.StringVar, database: ChessDataBase, user_frame: ttk.LabelFrame,
                   is_logged_in: ttk.BooleanVar, is_database_up: ttk.BooleanVar) -> None:
 
+    if len(user_name_var.get()) == 0: return
+    if len(user_password_var.get()) == 0: return
+
     if not is_database_up.get():
         is_database_up.set(database.test_connection())
 
     if not is_database_up.get(): return
-    if len(user_name_var.get()) == 0: return
-    if len(user_password_var.get()) == 0: return
+
     user: User | None = database.log_in(user_name_var.get(), user_password_var.get())
     if user is None:
         error_var.set("user name or password: incorrect")
