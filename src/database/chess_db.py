@@ -5,7 +5,7 @@ import hashlib
 import sqlalchemy
 from sqlalchemy import Select
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, DatabaseError
 from sqlalchemy import or_, and_
 
 from database.models import User, Game
@@ -53,6 +53,14 @@ class ChessDataBase:
         except Exception as ex:
             print(f'engine could could not be created due to the following error: {ex}')
 
+    def test_connection(self) -> bool:
+        try:
+            self.engine.connect()
+            return True
+        except DatabaseError as err:
+            print(f"could not connect to the database due to: {err}")
+            return False
+
     def log_in(self, user_name: str, user_password: str) -> User | None:
         user: User | None = self.get_user(user_name)
         if user is None: return None
@@ -91,12 +99,8 @@ class ChessDataBase:
         select: Select = Select(Game).filter(or_(Game.white_id == user.u_id, Game.black_id == user.u_id))
 
         if opp_user is not None:
-            select = Select(Game).filter(
-                or_(
-                    and_(Game.white_id == user.u_id, Game.black_id == opp_user.u_id),
-                    and_(Game.white_id == opp_user.u_id, Game.black_id == user.u_id)
-                )
-            )
+            select = Select(Game).filter(or_(and_(Game.white_id == user.u_id, Game.black_id == opp_user.u_id),
+                and_(Game.white_id == opp_user.u_id, Game.black_id == user.u_id)))
 
         with Session(self.engine) as session:
             for game in session.scalars(select).all():
