@@ -1,11 +1,11 @@
 import tkinter as tk
 import ttkbootstrap as ttk
 
-from launcher.tk.pages.offline_page import OfflinePage
-from launcher.tk.pages.online_page import OnlinePage
-from launcher.tk.pages.server_page import ServerPage
-from launcher.tk.pages.start_page import StartPage
-from launcher.tk.page_manager import PageManager
+from launcher.tk.page.pages.offline_page import OfflinePage
+from launcher.tk.page.pages.online_page import OnlinePage
+from launcher.tk.page.pages.server_page import ServerPage
+from launcher.tk.page.pages.start_page import StartPage
+from launcher.tk.page.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from database.chess_db import ChessDataBase, DataBaseInfo
 

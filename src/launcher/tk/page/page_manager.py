@@ -1,4 +1,4 @@
-from launcher.tk.page_frame import PageFrame
+from launcher.tk.page.page_frame import PageFrame
 
 
 class PageManager:

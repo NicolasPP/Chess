@@ -1,6 +1,6 @@
 import tkinter as tk
-from launcher.tk.page_frame import PageFrame
-from launcher.tk.page_manager import PageManager
+from launcher.tk.page.page_frame import PageFrame
+from launcher.tk.page.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher
 
 

@@ -1,14 +1,14 @@
 import typing
 import tkinter as tk
 import ttkbootstrap as ttk
-from launcher.tk.page_frame import PageFrame
-from launcher.tk.page_manager import PageManager
+from launcher.tk.page.page_frame import PageFrame
+from launcher.tk.page.page_manager import PageManager
 from config.tk_config import *
 from chess.bot.chess_bot_stockfish import StockFishBot
 from launcher.pg.pg_launcher import PossibleConfigValues, ChessPygameLauncher
 from database.chess_db import ChessDataBase, CreateUserResult
 from database.models import User
-from launcher.tk.user import LauncherUser
+from launcher.tk.launcher_user import LauncherUser
 
 
 class PlayButtons(typing.NamedTuple):
@@ -173,7 +173,7 @@ class StartPage(PageFrame):
         user_widgets: UserWidgets = StartPage.create_user_widgets(user_frame, user_name_var, user_password_var,
                                                                   error_var)
         is_database_up.trace_add('write', lambda v, i, m: is_database_up_callback(user_widgets, is_database_up,
-                                                                                error_var))
+                                                                                  error_var))
         user_frame.grid(row=1, column=0, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD, pady=START_PAGE_FRAME_PAD)
         user_widgets.register_button[ttk.COMMAND] = lambda: handle_register(user_widgets, user_frame, database,
                                                                             is_database_up)

@@ -99,8 +99,12 @@ class ChessDataBase:
         select: Select = Select(Game).filter(or_(Game.white_id == user.u_id, Game.black_id == user.u_id))
 
         if opp_user is not None:
-            select = Select(Game).filter(or_(and_(Game.white_id == user.u_id, Game.black_id == opp_user.u_id),
-                and_(Game.white_id == opp_user.u_id, Game.black_id == user.u_id)))
+            select = Select(Game).filter(
+                or_(
+                    and_(Game.white_id == user.u_id, Game.black_id == opp_user.u_id),
+                    and_(Game.white_id == opp_user.u_id, Game.black_id == user.u_id)
+                )
+            )
 
         with Session(self.engine) as session:
             for game in session.scalars(select).all():
