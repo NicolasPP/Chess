@@ -4,7 +4,8 @@ from config.tk_config import *
 from database.chess_db import ChessDataBase, CreateUserResult
 from database.models import User
 from launcher.tk.launcher_user import LauncherUser
-from launcher.tk.components.play_comp import PlayButtons
+from launcher.tk.components.network_play_comp import NetworkPlayButtons
+from launcher.tk.components.tk_component import Component
 
 
 class UserWidgets(typing.NamedTuple):
@@ -81,15 +82,15 @@ class UserVars(typing.NamedTuple):
     games_played_var: ttk.StringVar
 
 
-class UserComponent:
+class UserComponent(Component):
 
     @staticmethod
     def get_vars() -> UserVars:
         return UserVars(ttk.BooleanVar(value=False), ttk.StringVar(), ttk.StringVar(), ttk.StringVar(), ttk.StringVar(),
                         ttk.StringVar())
 
-    def __init__(self, parent: ttk.Frame, database: ChessDataBase, play_buttons: PlayButtons) -> None:
-        self.frame: ttk.LabelFrame = ttk.LabelFrame(parent, text="Log In")
+    def __init__(self, parent: ttk.Frame, database: ChessDataBase, play_buttons: NetworkPlayButtons) -> None:
+        super().__init__(parent, "Log In")
         self.vars: UserVars = UserComponent.get_vars()
 
         user_widgets: UserWidgets = self.create_user_widgets()
@@ -103,11 +104,8 @@ class UserComponent:
         user_widgets.place_log_in_entry()
         user_widgets.place()
 
-    def get_frame(self) -> ttk.LabelFrame:
-        return self.frame
-
     def set_commands(self, user_widgets: UserWidgets, database: ChessDataBase, user_vars: UserVars,
-                     play_buttons: PlayButtons) -> None:
+                     play_buttons: NetworkPlayButtons) -> None:
         user_widgets.register_button[ttk.COMMAND] = lambda: handle_register(user_widgets, self.frame, database,
                                                                             user_vars.is_database_up)
         user_widgets.cancel_button[ttk.COMMAND] = lambda: handle_cancel(user_widgets, self.frame)

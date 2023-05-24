@@ -3,6 +3,7 @@ import ttkbootstrap as ttk
 from config.tk_config import *
 from chess.bot.chess_bot_stockfish import StockFishBot
 from launcher.pg.pg_launcher import PossibleConfigValues, ChessPygameLauncher
+from launcher.tk.components.tk_component import Component
 
 
 class SettingsWidgets(typing.NamedTuple):
@@ -17,7 +18,7 @@ class SettingsWidgets(typing.NamedTuple):
     size_scale_label: ttk.Label
 
 
-class SettingsComponent:
+class SettingsComponent(Component):
 
     @staticmethod
     def create_settings_widgets(settings_frame: ttk.LabelFrame, path_entry_str: ttk.StringVar,
@@ -64,7 +65,7 @@ class SettingsComponent:
                                asset_label, size_scale, size_scale_label)
 
     def __init__(self, parent: ttk.Frame, is_bot_valid: ttk.BooleanVar, pg_launcher: ChessPygameLauncher) -> None:
-        self.frame: ttk.LabelFrame = ttk.LabelFrame(parent, text='Settings')
+        super().__init__(parent, text="Settings")
 
         path_entry_str: ttk.StringVar = ttk.StringVar(value="stock fish engine path")
         settings_widgets = SettingsComponent.create_settings_widgets(self.frame, path_entry_str, pg_launcher)
@@ -87,9 +88,6 @@ class SettingsComponent:
         else:
             settings_widgets.path_entry.grid(row=3, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
             settings_widgets.create_bot.grid(row=3, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-
-    def get_frame(self) -> ttk.LabelFrame:
-        return self.frame
 
 
 def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.BooleanVar,

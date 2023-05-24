@@ -1,52 +1,29 @@
-import typing
-
 import tkinter as tk
 import ttkbootstrap as ttk
 from launcher.tk.page.page_frame import PageFrame
 from launcher.tk.page.page_manager import PageManager
-from launcher.pg.pg_launcher import ChessPygameLauncher, SinglePlayerGameType
+from launcher.pg.pg_launcher import ChessPygameLauncher
+from launcher.tk.components.offline_play_comp import OfflinePlayComponent
+from launcher.tk.components.bot_config_comp import BotConfigComponent
+from launcher.tk.components.time_config_comp import TimeConfigComponent
 from config.tk_config import *
-
-
-class OfflinePageButtons(typing.NamedTuple):
-    vs_human: ttk.Button
-    vs_bot: ttk.Button
-    bot_vs_bot: ttk.Button
-    back: ttk.Button
 
 
 class OfflinePage(PageFrame):
     def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, pg_launcher: ChessPygameLauncher,
                  is_bot_valid: ttk.BooleanVar) -> None:
         super().__init__(parent_frame)
-        self.buttons: OfflinePageButtons = self.create_buttons(page_manager, pg_launcher)
-        label: ttk.Label = ttk.Label(self, text="Offline", font=(FONT_NAME, 20), style='title.TLabel')
+        offline_play_comp: OfflinePlayComponent = OfflinePlayComponent(self, page_manager, pg_launcher, is_bot_valid)
+        bot_config_comp: BotConfigComponent = BotConfigComponent(self)
+        time_config_comp: TimeConfigComponent = TimeConfigComponent(self)
 
-        self.is_bot_valid: ttk.BooleanVar = is_bot_valid
-        self.set_bot_button_state("normal" if is_bot_valid.get() else "disabled")
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
-        is_bot_valid.trace_add('write', self.is_bot_valid_callback)
-
-        label.pack(expand=True)
-        self.buttons.vs_human.pack(expand=True)
-        self.buttons.vs_bot.pack(expand=True)
-        self.buttons.bot_vs_bot.pack(expand=True)
-        self.buttons.back.pack(expand=True)
-
-    def set_bot_button_state(self, state: str) -> None:
-        self.buttons.vs_bot["state"] = state
-        self.buttons.bot_vs_bot["state"] = state
-
-    def create_buttons(self, page_manager: PageManager, pg_launcher: ChessPygameLauncher) -> OfflinePageButtons:
-        human_button: ttk.Button = ttk.Button(self, text="vs Human", command=lambda: pg_launcher.launch_single_player(
-            SinglePlayerGameType.HUMAN_VS_HUMAN))
-        bot_button: ttk.Button = ttk.Button(self, text="vs Bot", command=lambda: pg_launcher.launch_single_player(
-            SinglePlayerGameType.HUMAN_VS_BOT))
-        bot_vs_bot: ttk.Button = ttk.Button(self, text="bot vs bot", command=lambda: pg_launcher.launch_single_player(
-            SinglePlayerGameType.BOT_VS_BOT))
-        back_button: ttk.Button = ttk.Button(self, text="Back", command=lambda: page_manager.show_page("StartPage"))
-        return OfflinePageButtons(human_button, bot_button, bot_vs_bot, back_button)
-
-    def is_bot_valid_callback(self, var: str, index: str, mode: str) -> None:
-        state: str = ttk.NORMAL if self.is_bot_valid.get() else ttk.DISABLED
-        self.set_bot_button_state(state)
+        offline_play_comp.get_frame().grid(row=0, column=0, sticky=ttk.NSEW, padx=OFFLINE_PAGE_PAD,
+                                           pady=OFFLINE_PAGE_PAD)
+        bot_config_comp.get_frame().grid(row=0, column=1, sticky=ttk.NSEW, padx=OFFLINE_PAGE_PAD, pady=OFFLINE_PAGE_PAD)
+        time_config_comp.get_frame().grid(row=0, column=2, sticky=ttk.NSEW, padx=OFFLINE_PAGE_PAD,
+                                          pady=OFFLINE_PAGE_PAD)
