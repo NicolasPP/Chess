@@ -2,6 +2,7 @@ import click
 import enum
 from launcher.tk.tk_launcher import ChessTkinterLauncher
 from launcher.pg.pg_launcher import ChessPygameLauncher, SinglePlayerGameType
+from config.user_config import UserConfig
 
 
 class AppType(enum.Enum):
@@ -41,7 +42,7 @@ def start_app(
     app_type: AppType = AppType[app_type]
     pg_launcher: ChessPygameLauncher = ChessPygameLauncher()
 
-    pg_launcher.update_config(
+    UserConfig.get().update_config(
         update_config=False,
         theme_id=theme_id,
         scale=scale,
@@ -51,6 +52,7 @@ def start_app(
     )
 
     if app_type is AppType.LAUNCHER:
+        UserConfig.get().load_user_config()
         ChessTkinterLauncher().mainloop()
 
     elif app_type is AppType.SERVER:

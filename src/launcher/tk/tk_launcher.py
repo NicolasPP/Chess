@@ -29,8 +29,7 @@ class ChessTkinterLauncher(tk.Tk):
 
         is_bot_valid: ttk.BooleanVar = ttk.BooleanVar(value=False)
         self.page_manager: PageManager = PageManager()
-        self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, is_bot_valid, self.pg_launcher,
-                                             self.database))
+        self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, is_bot_valid, self.database))
         self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher, is_bot_valid))
         self.page_manager.add_page(OnlinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(ServerPage(self.root_frame, self.page_manager, self.pg_launcher))
