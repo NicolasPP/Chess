@@ -8,7 +8,7 @@ from chess.timer.timer_config import TimerConfig, DefaultConfigs
 from chess.board.side import Side
 from config.tk_config import *
 
-PossibleConfigValues: typing.TypeAlias = str | float | int
+PossibleConfigValues: typing.TypeAlias = str | float | int | bool
 
 
 @dataclasses.dataclass
@@ -19,6 +19,9 @@ class UserConfigData:
     timer_config_name: str = 'BULLET_1_0'
     server_ip: str = '127.0.0.1'
     bot_side_name: str = 'WHITE'
+    bot_skill_level: int = 10
+    bot_elo: int = 1350
+    bot_use_time: bool = False
 
 
 class UserConfig:

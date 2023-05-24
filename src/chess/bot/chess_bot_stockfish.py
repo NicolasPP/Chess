@@ -8,6 +8,7 @@ from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.chess_player import Player, send_command
 from chess.network.command_manager import CommandManager, ClientCommand
 from chess.board.side import Side
+from config.user_config import UserConfig
 
 
 class StockFishBot:
@@ -37,18 +38,27 @@ class StockFishBot:
         self.side: Side = side
         self.fen: Fen = fen
         self.player: Player = player
-        self.stock_fish: Stockfish = StockFishBot.get()
-
         self.move_thread: threading.Thread = self.get_move_thread()
+        StockFishBot.get().update_engine_parameters(
+            {
+                "UCI_Elo": UserConfig.get().data.bot_elo,
+                "Skill Level": UserConfig.get().data.bot_skill_level
+            }
+        )
+        print(StockFishBot.get().get_parameters())
 
     def get_best_move(self) -> str:
         player_time_left: float = self.player.timer_gui.own_timer.time_left
         bot_time_left: float = self.player.timer_gui.opponents_timer.time_left
         white_time: float = player_time_left if self.player.side is Side.WHITE else bot_time_left
         black_time: float = player_time_left if self.player.side is Side.BLACK else bot_time_left
-        assert self.stock_fish.is_fen_valid(self.fen.notation), "fen is not valid!"
-        self.stock_fish.set_fen_position(self.fen.notation)
-        return self.stock_fish.get_best_move(wtime=int(white_time * 1000), btime=int(black_time * 1000))
+        assert StockFishBot.get().is_fen_valid(self.fen.notation), "fen is not valid!"
+        StockFishBot.get().set_fen_position(self.fen.notation)
+
+        if UserConfig.get().data.bot_use_time:
+            return StockFishBot.get().get_best_move(wtime=int(white_time * 1000), btime=int(black_time * 1000))
+        else:
+            return StockFishBot.get().get_best_move()
 
     def get_move_thread(self) -> threading.Thread:
         return threading.Thread(target=self.make_move)
