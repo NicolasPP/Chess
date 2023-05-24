@@ -7,7 +7,7 @@ from launcher.pg.pg_launcher import ChessPygameLauncher
 from database.chess_db import ChessDataBase
 from launcher.tk.components.settings_comp import SettingsComponent
 from launcher.tk.components.user_comp import UserComponent
-from launcher.tk.components.play_comp import PlayComponent
+from launcher.tk.components.network_play_comp import NetworkPlayComponent
 
 
 class StartPage(PageFrame):
@@ -17,7 +17,7 @@ class StartPage(PageFrame):
         super().__init__(parent_frame)
 
         settings_comp: SettingsComponent = SettingsComponent(self, is_bot_valid, pg_launcher)
-        play_comp: PlayComponent = PlayComponent(self, page_manager)
+        play_comp: NetworkPlayComponent = NetworkPlayComponent(self, page_manager)
         user_comp: UserComponent = UserComponent(self, database, play_comp.get_play_buttons())
 
         self.columnconfigure(0, weight=1)
