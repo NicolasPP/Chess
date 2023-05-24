@@ -12,5 +12,6 @@ SETTINGS_PAD: int = 15
 START_PAGE_FRAME_PAD: int = 5
 DEFAULT_FONT_SIZE: int = 13
 FRAME_FONT_SIZE: int = 15
+OFFLINE_PAGE_PAD: int = 10
 
 LOCAL_CONFIG_PATH: str = 'src/config/user_config.txt'
