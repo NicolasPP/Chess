@@ -2,6 +2,7 @@
 Chess in pygame\
 Requires:  
 python 3.10+  
+Optional:  
 Stockfish 15.1 https://stockfishchess.org/download/
 
 # Features
