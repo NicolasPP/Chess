@@ -2,7 +2,7 @@ import typing
 import ttkbootstrap as ttk
 from config.tk_config import *
 from chess.bot.chess_bot_stockfish import StockFishBot
-from launcher.pg.pg_launcher import PossibleConfigValues
+from config.user_config import PossibleConfigValues
 from launcher.tk.components.tk_component import Component
 from config.user_config import UserConfig
 

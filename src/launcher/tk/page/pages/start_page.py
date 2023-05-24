@@ -3,7 +3,6 @@ import ttkbootstrap as ttk
 from launcher.tk.page.page_frame import PageFrame
 from launcher.tk.page.page_manager import PageManager
 from config.tk_config import *
-from launcher.pg.pg_launcher import ChessPygameLauncher
 from database.chess_db import ChessDataBase
 from launcher.tk.components.settings_comp import SettingsComponent
 from launcher.tk.components.user_comp import UserComponent

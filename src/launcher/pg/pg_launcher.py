@@ -4,7 +4,7 @@ import enum
 from launcher.pg.offline_launcher import OfflineLauncher
 from launcher.pg.online_launcher import OnlineLauncher
 from chess.timer.timer_config import DefaultConfigs
-from config.user_config import UserConfig, PossibleConfigValues
+from config.user_config import UserConfig
 from chess.network.server import Server
 
 
@@ -54,4 +54,3 @@ class ChessPygameLauncher:
         self.is_running = True
         self.server.run()
         self.is_running = False
-
