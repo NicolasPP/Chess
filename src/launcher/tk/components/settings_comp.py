@@ -43,7 +43,6 @@ class SettingsComponent(Component):
                                    command=lambda: configure_pygame_launcher(theme_options, theme_id=4))
         theme_menu.add_radiobutton(value="RANDOM", label="RANDOM", background=BG_DARK, foreground=FG_DARK,
                                    command=lambda: configure_pygame_launcher(theme_options, theme_id=-1))
-
         theme_options['menu'] = theme_menu
 
         asset_label: ttk.Label = ttk.Label(settings_frame, text="Asset: ")
@@ -54,7 +53,10 @@ class SettingsComponent(Component):
                                                                              asset_name="SMALL"))
         asset_menu.add_radiobutton(value="LARGE", label="LARGE", background=BG_DARK, foreground=FG_DARK,
                                    command=lambda: configure_pygame_launcher(asset_options, asset_name="LARGE"))
+        asset_menu.add_radiobutton(value="RANDOM", label="RANDOM", background=BG_DARK, foreground=FG_DARK,
+                                   command=lambda: configure_pygame_launcher(asset_options, asset_name="RANDOM"))
         asset_options['menu'] = asset_menu
+
         current_scale: float = UserConfig.get().data.scale
         size_scale_label: ttk.Label = ttk.Label(settings_frame, text=f"size : {current_scale}", anchor=ttk.W)
         size_scale: ttk.Scale = ttk.Scale(settings_frame, from_=3, to=7, style='warning', value=current_scale,
