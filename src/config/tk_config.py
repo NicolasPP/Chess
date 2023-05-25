@@ -15,3 +15,8 @@ FRAME_FONT_SIZE: int = 15
 OFFLINE_PAGE_PAD: int = 10
 
 LOCAL_CONFIG_PATH: str = 'src/config/user_config.txt'
+
+MAX_ELO: int = 3544
+MIN_ELO: int = 0
+MAX_SKILL: int = 20
+MIN_SKILL: int = 0
