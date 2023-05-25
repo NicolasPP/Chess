@@ -58,7 +58,8 @@ class SettingsComponent(Component):
         asset_options['menu'] = asset_menu
 
         current_scale: float = UserConfig.get().data.scale
-        size_scale_label: ttk.Label = ttk.Label(settings_frame, text=f"size : {current_scale}", anchor=ttk.W)
+        size_scale_label: ttk.Label = ttk.Label(settings_frame, text=f"size : {current_scale}", anchor=ttk.W,
+                                                width=SCALE_LABEL_WIDTH)
         size_scale: ttk.Scale = ttk.Scale(settings_frame, from_=3, to=7, style='warning', value=current_scale,
                                           command=lambda size: handle_scale_click(size, size_scale_label))
         return SettingsWidgets(engine_valid, path_entry, create_bot, theme_options, theme_label, asset_options,
