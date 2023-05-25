@@ -1,4 +1,4 @@
-import ttkbootstrap as ttk
+from ttkbootstrap import ttk
 
 
 class Component:

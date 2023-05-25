@@ -20,7 +20,7 @@ class SettingsWidgets(typing.NamedTuple):
 
 
 class SettingsComponent(Component):
-
+    # FIXME make this class variable
     @staticmethod
     def create_settings_widgets(settings_frame: ttk.LabelFrame, path_entry_str: ttk.StringVar) -> SettingsWidgets:
         engine_valid: ttk.Label = ttk.Label(settings_frame, text="Stock Fish ready!", foreground='green')

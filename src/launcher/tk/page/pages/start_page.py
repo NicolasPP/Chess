@@ -1,5 +1,5 @@
 import tkinter as tk
-import ttkbootstrap as ttk
+from ttkbootstrap import ttk
 from launcher.tk.page.page_frame import PageFrame
 from launcher.tk.page.page_manager import PageManager
 from config.tk_config import *
@@ -11,7 +11,7 @@ from launcher.tk.components.network_play_comp import NetworkPlayComponent
 
 class StartPage(PageFrame):
 
-    def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, is_bot_valid: ttk.BooleanVar,
+    def __init__(self, parent_frame: ttk.Frame, page_manager: PageManager, is_bot_valid: tk.BooleanVar,
                  database: ChessDataBase) -> None:
         super().__init__(parent_frame)
 
@@ -24,9 +24,9 @@ class StartPage(PageFrame):
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
-        play_comp.get_frame().grid(row=0, column=0, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD,
+        play_comp.get_frame().grid(row=0, column=0, sticky=tk.NSEW, padx=START_PAGE_FRAME_PAD,
                                    pady=START_PAGE_FRAME_PAD)
-        settings_comp.get_frame().grid(row=0, column=1, rowspan=2, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD,
+        settings_comp.get_frame().grid(row=0, column=1, rowspan=2, sticky=tk.NSEW, padx=START_PAGE_FRAME_PAD,
                                        pady=START_PAGE_FRAME_PAD)
-        user_comp.get_frame().grid(row=1, column=0, sticky=ttk.NSEW, padx=START_PAGE_FRAME_PAD,
+        user_comp.get_frame().grid(row=1, column=0, sticky=tk.NSEW, padx=START_PAGE_FRAME_PAD,
                                    pady=START_PAGE_FRAME_PAD)

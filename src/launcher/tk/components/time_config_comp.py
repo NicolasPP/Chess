@@ -1,4 +1,4 @@
-import ttkbootstrap as ttk
+from ttkbootstrap import ttk
 from launcher.tk.components.tk_component import Component
 
 

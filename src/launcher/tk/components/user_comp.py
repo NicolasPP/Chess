@@ -1,5 +1,6 @@
 import typing
-import ttkbootstrap as ttk
+import tkinter as tk
+from ttkbootstrap import ttk
 from config.tk_config import *
 from database.chess_db import ChessDataBase, CreateUserResult
 from database.models import User
@@ -40,12 +41,12 @@ class UserWidgets(typing.NamedTuple):
         self.place_log_in_buttons()
 
     def place_log_in_buttons(self) -> None:
-        self.log_in_button.pack(side=ttk.LEFT, expand=True)
-        self.register_button.pack(side=ttk.LEFT, expand=True)
+        self.log_in_button.pack(side=tk.LEFT, expand=True)
+        self.register_button.pack(side=tk.LEFT, expand=True)
 
     def place_register_buttons(self) -> None:
-        self.cancel_button.pack(side=ttk.LEFT, expand=True)
-        self.create_user_button.pack(side=ttk.LEFT, expand=True)
+        self.cancel_button.pack(side=tk.LEFT, expand=True)
+        self.create_user_button.pack(side=tk.LEFT, expand=True)
 
     def place_forget_button(self) -> None:
         self.log_in_button.pack_forget()
@@ -61,10 +62,10 @@ class UserWidgets(typing.NamedTuple):
         self.user_password_entry.grid_forget()
 
     def place_logged_in(self) -> None:
-        self.elo_label.pack(side=ttk.TOP, expand=True)
-        self.games_played_label.pack(side=ttk.TOP, expand=True)
-        self.log_out_button.pack(side=ttk.TOP, expand=True)
-        self.button_frame.pack(side=ttk.TOP, expand=True)
+        self.elo_label.pack(side=tk.TOP, expand=True)
+        self.games_played_label.pack(side=tk.TOP, expand=True)
+        self.log_out_button.pack(side=tk.TOP, expand=True)
+        self.button_frame.pack(side=tk.TOP, expand=True)
 
     def place_forget_logged_in(self) -> None:
         self.elo_label.pack_forget()
@@ -74,20 +75,20 @@ class UserWidgets(typing.NamedTuple):
 
 
 class UserVars(typing.NamedTuple):
-    is_database_up: ttk.BooleanVar
-    user_name_var: ttk.StringVar
-    user_password_var: ttk.StringVar
-    error_var: ttk.StringVar
-    elo_var: ttk.StringVar
-    games_played_var: ttk.StringVar
+    is_database_up: tk.BooleanVar
+    user_name_var: tk.StringVar
+    user_password_var: tk.StringVar
+    error_var: tk.StringVar
+    elo_var: tk.StringVar
+    games_played_var: tk.StringVar
 
 
 class UserComponent(Component):
 
     @staticmethod
     def get_vars() -> UserVars:
-        return UserVars(ttk.BooleanVar(value=False), ttk.StringVar(), ttk.StringVar(), ttk.StringVar(), ttk.StringVar(),
-                        ttk.StringVar())
+        return UserVars(tk.BooleanVar(value=False), tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar(),
+                        tk.StringVar())
 
     def __init__(self, parent: ttk.Frame, database: ChessDataBase, play_buttons: NetworkPlayButtons) -> None:
         super().__init__(parent, "Log In")
@@ -106,15 +107,15 @@ class UserComponent(Component):
 
     def set_commands(self, user_widgets: UserWidgets, database: ChessDataBase, user_vars: UserVars,
                      play_buttons: NetworkPlayButtons) -> None:
-        user_widgets.register_button[ttk.COMMAND] = lambda: handle_register(user_widgets, self.frame, database,
-                                                                            user_vars.is_database_up)
-        user_widgets.cancel_button[ttk.COMMAND] = lambda: handle_cancel(user_widgets, self.frame)
-        user_widgets.log_in_button[ttk.COMMAND] = lambda: handle_log_in(user_widgets, database, self.frame,
-                                                                        play_buttons.is_logged_in, user_vars)
-        user_widgets.create_user_button[ttk.COMMAND] = lambda: handle_create_user(user_widgets, database, self.frame,
-                                                                                  user_vars)
-        user_widgets.log_out_button[ttk.COMMAND] = lambda: handle_log_out(user_widgets, self.frame,
-                                                                          play_buttons.is_logged_in)
+        user_widgets.register_button[tk.COMMAND] = lambda: handle_register(user_widgets, self.frame, database,
+                                                                           user_vars.is_database_up)
+        user_widgets.cancel_button[tk.COMMAND] = lambda: handle_cancel(user_widgets, self.frame)
+        user_widgets.log_in_button[tk.COMMAND] = lambda: handle_log_in(user_widgets, database, self.frame,
+                                                                       play_buttons.is_logged_in, user_vars)
+        user_widgets.create_user_button[tk.COMMAND] = lambda: handle_create_user(user_widgets, database, self.frame,
+                                                                                 user_vars)
+        user_widgets.log_out_button[tk.COMMAND] = lambda: handle_log_out(user_widgets, self.frame,
+                                                                         play_buttons.is_logged_in)
 
     def create_user_widgets(self) -> UserWidgets:
         entry_frame: ttk.Frame = ttk.Frame(self.frame)
@@ -140,7 +141,7 @@ class UserComponent(Component):
 
 
 def handle_log_in(user_widgets: UserWidgets, database: ChessDataBase, user_frame: ttk.LabelFrame,
-                  is_logged_in: ttk.BooleanVar, user_vars: UserVars) -> None:
+                  is_logged_in: tk.BooleanVar, user_vars: UserVars) -> None:
     if len(user_vars.user_name_var.get()) == 0: return
     if len(user_vars.user_password_var.get()) == 0: return
 
@@ -171,7 +172,7 @@ def handle_log_in(user_widgets: UserWidgets, database: ChessDataBase, user_frame
 
 
 def handle_register(user_widgets: UserWidgets, user_frame: ttk.LabelFrame, database: ChessDataBase,
-                    is_database_up: ttk.BooleanVar) -> None:
+                    is_database_up: tk.BooleanVar) -> None:
     if not is_database_up.get():
         is_database_up.set(database.test_connection())
 
@@ -214,7 +215,7 @@ def handle_cancel(user_widgets: UserWidgets, user_frame: ttk.LabelFrame) -> None
     user_frame["text"] = "Log In"
 
 
-def handle_log_out(user_widgets: UserWidgets, user_frame: ttk.LabelFrame, is_logged_in: ttk.BooleanVar) -> None:
+def handle_log_out(user_widgets: UserWidgets, user_frame: ttk.LabelFrame, is_logged_in: tk.BooleanVar) -> None:
     user_widgets.place_forget_logged_in()
     user_widgets.place_log_in_buttons()
     user_widgets.place()
@@ -225,7 +226,7 @@ def handle_log_out(user_widgets: UserWidgets, user_frame: ttk.LabelFrame, is_log
 
 def is_database_up_callback(user_widgets: UserWidgets, user_vars: UserVars) -> None:
     is_database: bool = user_vars.is_database_up.get()
-    state = ttk.NORMAL if is_database else ttk.DISABLED
+    state = tk.NORMAL if is_database else tk.DISABLED
     user_widgets.create_user_button["state"] = state
     user_widgets.log_in_button["state"] = state
     user_widgets.log_out_button["state"] = state

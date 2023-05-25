@@ -1,7 +1,7 @@
 import typing
 
 import tkinter as tk
-import ttkbootstrap as ttk
+from ttkbootstrap import ttk
 from launcher.tk.page.page_frame import PageFrame
 from launcher.tk.page.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher
