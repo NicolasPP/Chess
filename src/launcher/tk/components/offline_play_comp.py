@@ -1,6 +1,6 @@
 import typing
-
-import ttkbootstrap as ttk
+import tkinter as tk
+from ttkbootstrap import ttk
 from launcher.tk.page.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher, SinglePlayerGameType
 from launcher.tk.components.tk_component import Component
@@ -15,18 +15,17 @@ class OfflinePlayButtons(typing.NamedTuple):
 
 class OfflinePlayComponent(Component):
     def __init__(self, parent: ttk.Frame, page_manager: PageManager, pg_launcher: ChessPygameLauncher,
-                 is_bot_valid: ttk.BooleanVar) -> None:
+                 is_bot_valid: tk.BooleanVar) -> None:
         super().__init__(parent, "Play")
-        buttons: OfflinePlayButtons = self.create_buttons(page_manager, pg_launcher)
-        is_bot_valid.trace_add('write', lambda v, i, m: is_bot_valid_callback(is_bot_valid, buttons))
+        self.buttons: OfflinePlayButtons = self.create_buttons(page_manager, pg_launcher)
 
-        self.is_bot_valid: ttk.BooleanVar = is_bot_valid
-        set_bot_button_state(buttons, "normal" if is_bot_valid.get() else "disabled")
+        self.is_bot_valid: tk.BooleanVar = is_bot_valid
+        self.set_bot_button_state("normal" if is_bot_valid.get() else "disabled")
 
-        buttons.vs_human.pack(expand=True)
-        buttons.vs_bot.pack(expand=True)
-        buttons.bot_vs_bot.pack(expand=True)
-        buttons.back.pack(expand=True)
+        self.buttons.vs_human.pack(expand=True)
+        self.buttons.vs_bot.pack(expand=True)
+        self.buttons.bot_vs_bot.pack(expand=True)
+        self.buttons.back.pack(expand=True)
 
     def create_buttons(self, page_manager: PageManager, pg_launcher: ChessPygameLauncher) -> OfflinePlayButtons:
         human_button: ttk.Button = ttk.Button(self.frame, text="vs Human", command=lambda:
@@ -39,12 +38,10 @@ class OfflinePlayComponent(Component):
                                              "StartPage"))
         return OfflinePlayButtons(human_button, bot_button, bot_vs_bot, back_button)
 
+    def is_bot_valid_callback(self, is_bot_valid: tk.BooleanVar) -> None:
+        state: str = tk.NORMAL if is_bot_valid.get() else tk.DISABLED
+        self.set_bot_button_state(state)
 
-def is_bot_valid_callback(is_bot_valid: ttk.BooleanVar, offline_play_buttons: OfflinePlayButtons) -> None:
-    state: str = ttk.NORMAL if is_bot_valid.get() else ttk.DISABLED
-    set_bot_button_state(offline_play_buttons, state)
-
-
-def set_bot_button_state(buttons: OfflinePlayButtons, state: str) -> None:
-    buttons.vs_bot["state"] = state
-    buttons.bot_vs_bot["state"] = state
+    def set_bot_button_state(self, state: str) -> None:
+        self.buttons.vs_bot["state"] = state
+        self.buttons.bot_vs_bot["state"] = state
