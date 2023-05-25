@@ -36,4 +36,4 @@ class OfflinePage(PageFrame):
 def is_bot_valid_callback(offline_play_comp: OfflinePlayComponent, bot_config_comp: BotConfigComponent, is_bot_valid:
                           tk.BooleanVar) -> None:
     offline_play_comp.is_bot_valid_callback(is_bot_valid)
-    bot_config_comp.is_bot_valid_callback()
+    bot_config_comp.is_bot_valid_callback(is_bot_valid)
