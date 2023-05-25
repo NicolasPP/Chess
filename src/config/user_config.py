@@ -90,6 +90,14 @@ class UserConfig:
             elif name == "bot_side_name":
                 assert isinstance(value, str), wrong_type_message + str.__name__
                 self.data.bot_side = value
+            elif name == "bot_skill_level":
+                assert isinstance(value, int), wrong_type_message + int.__name__
+                self.data.bot_skill_level = value
+            elif name == "bot_elo":
+                assert isinstance(value, int), wrong_type_message + int.__name__
+                self.data.bot_elo = value
+            elif name == "bot_use_time":
+                assert isinstance(value, bool), wrong_type_message + bool.__name__
             else:
                 raise Exception(f"Launcher Config has nor variable: {name}")
 
