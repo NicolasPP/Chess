@@ -17,6 +17,7 @@ SKILL_LABEL_WIDTH: int = 1
 DEFAULT_FONT_SIZE: int = 13
 FRAME_FONT_SIZE: int = 15
 OFFLINE_PAGE_PAD: int = 10
+RADIO_FONT_SIZE: int = 13
 
 LOCAL_CONFIG_PATH: str = 'src/config/user_config.txt'
 
