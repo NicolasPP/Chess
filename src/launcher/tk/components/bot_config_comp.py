@@ -39,7 +39,11 @@ class BotConfigComponent(Component):
         return BotConfigVars(elo_var, skill_var, time_var, side_var)
 
     def __init__(self, parent: ttk.Frame, is_bot_valid: tk.BooleanVar) -> None:
-        super().__init__(parent, "Bot Settings")
+        if is_bot_valid.get():
+            super().__init__(parent, "Bot Settings")
+        else:
+            super().__init__(parent, "Bot Unavailable")
+
         self.vars: BotConfigVars = BotConfigComponent.get_bot_vars()
         self.widgets: BotConfigCompWidgets = self.create_widgets(is_bot_valid)
 
@@ -104,6 +108,8 @@ class BotConfigComponent(Component):
 
     def is_bot_valid_callback(self, is_bot_valid: tk.BooleanVar) -> None:
         state = tk.DISABLED if not is_bot_valid.get() else tk.NORMAL
+        if is_bot_valid.get():
+            self.set_title("Bot Settings")
         self.widgets.elo_scale["state"] = state
         self.widgets.skill_scale["state"] = state
         self.widgets.black_side_button["state"] = state
