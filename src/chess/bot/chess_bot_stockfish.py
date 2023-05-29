@@ -45,7 +45,6 @@ class StockFishBot:
                 "Skill Level": UserConfig.get().data.bot_skill_level
             }
         )
-        print(StockFishBot.get().get_parameters())
 
     def get_best_move(self) -> str:
         player_time_left: float = self.player.timer_gui.own_timer.time_left
