@@ -53,7 +53,10 @@ class ChessTkinterLauncher(tk.Tk):
         self.style.configure('TEntry', fieldbackground=BG_DARK, font=(FONT_NAME, DEFAULT_FONT_SIZE), foreground=FG_DARK,
                              darkcolor=BG_DARK, lightcolor=BG_DARK, bordercolor=FG_DARK, selectbackground=BG_LIGHT,
                              selectforeground=FG_LIGHT)
-        self.style.configure('Toolbutton', background=BG_DARK, foreground=FG_DARK)
+        self.style.configure('Toolbutton', background=BG_DARK, foreground=FG_DARK, relief=tk.SOLID,
+                             font=(FONT_NAME, RADIO_FONT_SIZE))
+        self.style.map('Toolbutton', background=[(tk.DISABLED, BG_LIGHT), ('selected', BG_DARK)],
+                       foreground=[('!selected', BG_LIGHT), (tk.DISABLED, BG_LIGHT)])
 
     def window_innit(self) -> None:
         self.geometry(f"{DEFAULT_WINDOW_WIDTH}x{DEFAULT_WINDOW_HEIGHT}")
