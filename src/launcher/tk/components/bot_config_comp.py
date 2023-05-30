@@ -59,15 +59,13 @@ class BotConfigComponent(Component):
         self.frame.grid_columnconfigure(1, weight=1)
         self.frame.grid_columnconfigure(2, weight=1)
 
-        self.widgets.elo_label.grid(row=0, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=(BOT_CONFIG_PAD, 0))
+        self.widgets.elo_label.grid(row=0, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
         self.widgets.elo_scale.grid(row=0, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
-        self.widgets.elo_value_label.grid(row=0, column=2, sticky=tk.NSEW, pady=BOT_CONFIG_PAD,
-                                          padx=(0, BOT_CONFIG_PAD))
+        self.widgets.elo_value_label.grid(row=0, column=2, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
 
-        self.widgets.skill_label.grid(row=1, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=(BOT_CONFIG_PAD, 0))
+        self.widgets.skill_label.grid(row=1, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
         self.widgets.skill_scale.grid(row=1, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
-        self.widgets.skill_value_label.grid(row=1, column=2, sticky=tk.NSEW, pady=BOT_CONFIG_PAD,
-                                            padx=(0, BOT_CONFIG_PAD))
+        self.widgets.skill_value_label.grid(row=1, column=2, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
 
         self.widgets.move_time_label.grid(row=2, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=(BOT_CONFIG_PAD,
                                                                                                       0))
@@ -90,8 +88,8 @@ class BotConfigComponent(Component):
                                            command=lambda size: handle_scale_click(self.vars, bot_skill_level=int(
                                                float(size))))
         skill_label: ttk.Label = ttk.Label(self.frame, text="bot skill: ")
-        skill_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.skill_var, width=SKILL_LABEL_WIDTH)
-        elo_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.elo_var, width=ELO_LABEL_WIDTH)
+        skill_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.skill_var)
+        elo_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.elo_var)
         move_time_label: ttk.Label = ttk.Label(self.frame, text="move time: ")
         fast_move_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="fast", variable=self.vars.time_var,
                                                             value=False, style="toolbutton", state=state)
