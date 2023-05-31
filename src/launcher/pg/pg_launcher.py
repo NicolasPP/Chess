@@ -34,11 +34,11 @@ class ChessPygameLauncher:
         if self.hide_app is not None:
             self.hide_app()
         if game_type is SinglePlayerGameType.HUMAN_VS_HUMAN:
-            self.single_player.launch_against_human(*UserConfig.get().single_player_args())
+            self.single_player.launch_against_human()
         elif game_type is SinglePlayerGameType.BOT_VS_BOT:
-            self.single_player.launch_bot_vs_bot(*UserConfig.get().single_player_bot_args())
+            self.single_player.launch_bot_vs_bot()
         elif game_type is SinglePlayerGameType.HUMAN_VS_BOT:
-            self.single_player.launch_against_bot(*UserConfig.get().single_player_bot_args())
+            self.single_player.launch_against_bot()
         self.is_running = False
         if self.show_app is not None:
             self.show_app()
@@ -46,7 +46,7 @@ class ChessPygameLauncher:
     def launch_multi_player_client(self) -> None:
         if self.get_is_running(): return
         self.is_running = True
-        self.multi_player.launch(*UserConfig.get().multi_player_args())
+        self.multi_player.launch()
         self.is_running = False
 
     def run_local_server(self) -> None:

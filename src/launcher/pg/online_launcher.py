@@ -8,11 +8,12 @@ import pygame
 from chess.chess_player import process_server_command, Player
 from chess.notation.forsyth_edwards_notation import Fen
 from chess.network.command_manager import CommandManager, Command
-from chess.asset.chess_assets import ChessTheme, PieceSetAsset
+from chess.asset.chess_assets import PieceSetAssets, Themes
 from chess.network.chess_network import ChessNetwork
 from chess.chess_logging import set_up_logging
 from chess.chess_init import init_chess
 from chess.game.game_surface import GameSurface
+from config.user_config import UserConfig
 
 from config.pg_config import *
 
@@ -29,11 +30,15 @@ class OnlineLauncher:
         self.delta_time = now - self.prev_time
         self.prev_time = now
 
-    def launch(self, server_ip: str, theme: ChessTheme, scale: float, piece_set: PieceSetAsset) -> None:
-        init_chess(theme, piece_set, scale)
+    def launch(self) -> None:
+        init_chess(
+            Themes.get_theme(UserConfig.get().data.theme_id),
+            PieceSetAssets.get_asset(UserConfig.get().data.asset_name),
+            UserConfig.get().data.scale
+        )
         center = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
 
-        network = ChessNetwork(server_ip)
+        network = ChessNetwork(UserConfig.get().data.server_ip)
         init_info: Command = network.connect()
 
         player: Player = Player.get_player_client(init_info, center)
@@ -78,6 +83,3 @@ def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen, l
 
         logger.debug("server disconnected")
         return
-
-
-
