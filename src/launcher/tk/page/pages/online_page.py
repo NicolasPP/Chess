@@ -1,25 +1,29 @@
-import typing
-
 import tkinter as tk
 from ttkbootstrap import ttk
 from launcher.tk.page.page_frame import PageFrame
 from launcher.tk.page.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher
+from launcher.tk.components.local_server_component import LocalServerComponent
+from launcher.tk.components.connect_component import ConnectComponent
 from config.tk_config import *
-
-
-class OnlinePageButtons(typing.NamedTuple):
-    back: ttk.Button
 
 
 class OnlinePage(PageFrame):
     def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, pg_launcher: ChessPygameLauncher) -> None:
         super().__init__(parent_frame)
-        buttons: OnlinePageButtons = self.create_buttons(page_manager)
-        label: ttk.Label = ttk.Label(self, text="Online", font=(FONT_NAME, 20), style="title.TLabel")
-        label.pack()
-        buttons.back.pack()
+        self.back: ttk.Button = self.create_back_button(page_manager)
+        self.connect_comp: ConnectComponent = ConnectComponent(self, page_manager)
+        self.local_server_comp: LocalServerComponent = LocalServerComponent(self)
 
-    def create_buttons(self, page_manager: PageManager) -> OnlinePageButtons:
-        back_button: ttk.Button = ttk.Button(self, text="Back", command=lambda: page_manager.show_page("StartPage"))
-        return OnlinePageButtons(back_button)
+        self.grid_rowconfigure(0, weight=10)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=6)
+        self.grid_columnconfigure(1, weight=2)
+
+        self.connect_comp.get_frame().grid(row=0, column=0, rowspan=2, sticky=tk.NSEW, padx=ONLINE_PAD,
+                                           pady=ONLINE_PAD)
+        self.local_server_comp.get_frame().grid(row=0, column=1, sticky=tk.NSEW, padx=ONLINE_PAD, pady=ONLINE_PAD)
+        self.back.grid(row=1, column=1)
+
+    def create_back_button(self, page_manager: PageManager) -> ttk.Button:
+        return ttk.Button(self, text="Back", command=lambda: page_manager.show_page("StartPage"))
