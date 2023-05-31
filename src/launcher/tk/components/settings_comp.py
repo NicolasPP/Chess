@@ -62,9 +62,7 @@ class SettingsComponent(Component):
         create_bot: ttk.Button = ttk.Button(self.frame, text="create bot")
 
         theme_label: ttk.Label = ttk.Label(self.frame, text="Theme: ")
-        theme_id_name: str = str(UserConfig.get().config.data.theme_id)
-        if theme_id_name == "-1": theme_id_name = 'RANDOM'
-        theme_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=theme_id_name)
+        theme_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=Themes.get_name(UserConfig.get().data.theme_id))
         theme_menu: ttk.Menu = ttk.Menu(theme_options)
 
         for theme_id in range(-1, 4):
