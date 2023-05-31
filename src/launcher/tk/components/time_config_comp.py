@@ -1,4 +1,5 @@
 import typing
+import functools
 import tkinter as tk
 from ttkbootstrap import ttk
 from launcher.tk.components.tk_component import Component
@@ -61,43 +62,27 @@ class TimeConfigComponent(Component):
         increment_label: ttk.Label = ttk.Label(self.frame, text="Incr")
         default_time_label: ttk.Label = ttk.Label(self.frame, text="Default Times", anchor="center")
 
+        def add_menu_command(menu: tk.Menu, *timer_configs: TimerConfig) -> None:
+            for timer_config in timer_configs:
+                menu.add_command(label=timer_config.get_name(), background=BG_DARK, foreground=FG_DARK,
+                                 command=functools.partial(self.handle_time_click, timer_config))
+
         bullet_times: ttk.Menubutton = ttk.Menubutton(self.frame, text="Bullet times")
         bullet_times_menu: tk.Menu = tk.Menu(bullet_times)
-        bullet_times_menu.add_radiobutton(label=DefaultConfigs.BULLET_1_0.get_name(),
-                                          background=BG_DARK, foreground=FG_DARK,
-                                          command=lambda: self.handle_time_click(DefaultConfigs.BULLET_1_0))
-        bullet_times_menu.add_radiobutton(label=DefaultConfigs.BULLET_1_1.get_name(), background=BG_DARK,
-                                          foreground=FG_DARK,
-                                          command=lambda: self.handle_time_click(DefaultConfigs.BULLET_1_1))
-        bullet_times_menu.add_radiobutton(label=DefaultConfigs.BULLET_2_1.get_name(), background=BG_DARK,
-                                          foreground=FG_DARK,
-                                          command=lambda: self.handle_time_click(DefaultConfigs.BULLET_2_1))
+        add_menu_command(bullet_times_menu, DefaultConfigs.BULLET_1_0, DefaultConfigs.BULLET_1_1,
+                         DefaultConfigs.BULLET_2_1)
         bullet_times["menu"] = bullet_times_menu
 
         blitz_times: ttk.Menubutton = ttk.Menubutton(self.frame, text="Blitz times")
         blitz_times_menu: tk.Menu = tk.Menu(blitz_times)
-        blitz_times_menu.add_radiobutton(label=DefaultConfigs.BLITZ_3_0.get_name(), background=BG_DARK,
-                                         foreground=FG_DARK,
-                                         command=lambda: self.handle_time_click(DefaultConfigs.BLITZ_3_0))
-        blitz_times_menu.add_radiobutton(label=DefaultConfigs.BLITZ_3_2.get_name(), background=BG_DARK,
-                                         foreground=FG_DARK,
-                                         command=lambda: self.handle_time_click(DefaultConfigs.BLITZ_3_2))
-        blitz_times_menu.add_radiobutton(label=DefaultConfigs.BLITZ_5_0.get_name(), background=BG_DARK,
-                                         foreground=FG_DARK,
-                                         command=lambda: self.handle_time_click(DefaultConfigs.BLITZ_5_0))
+        add_menu_command(blitz_times_menu, DefaultConfigs.BLITZ_3_0, DefaultConfigs.BLITZ_3_2,
+                         DefaultConfigs.BLITZ_5_0)
         blitz_times["menu"] = blitz_times_menu
 
         rapid_times: ttk.Menubutton = ttk.Menubutton(self.frame, text="Rapid times")
         rapid_times_menu: tk.Menu = tk.Menu(rapid_times)
-        rapid_times_menu.add_radiobutton(label=DefaultConfigs.RAPID_15_10.get_name(), background=BG_DARK,
-                                         foreground=FG_DARK,
-                                         command=lambda: self.handle_time_click(DefaultConfigs.RAPID_15_10))
-        rapid_times_menu.add_radiobutton(label=DefaultConfigs.RAPID_30_0.get_name(), background=BG_DARK,
-                                         foreground=FG_DARK,
-                                         command=lambda: self.handle_time_click(DefaultConfigs.RAPID_30_0))
-        rapid_times_menu.add_radiobutton(label=DefaultConfigs.RAPID_60_0.get_name(), background=BG_DARK,
-                                         foreground=FG_DARK,
-                                         command=lambda: self.handle_time_click(DefaultConfigs.RAPID_60_0))
+        add_menu_command(rapid_times_menu, DefaultConfigs.RAPID_15_10, DefaultConfigs.RAPID_30_0,
+                         DefaultConfigs.RAPID_60_0)
         rapid_times["menu"] = rapid_times_menu
 
         return TimeConfigWidgets(time_entry, increment_entry, time_label, increment_label, default_time_label,
