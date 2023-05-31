@@ -20,6 +20,7 @@ TIME_ENTRY_WIDTH: int = 5
 OFFLINE_PAGE_PAD: int = 10
 RADIO_FONT_SIZE: int = 13
 ONLINE_PAD: int = 10
+SERVER_PAD: int = 10
 
 LOCAL_CONFIG_PATH: str = 'src/config/user_config.txt'
 
