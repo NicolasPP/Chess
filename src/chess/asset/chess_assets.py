@@ -67,10 +67,10 @@ class Themes:
     @staticmethod
     def get_name(theme_id: int) -> str:
         if theme_id == -1: return "RANDOM"
-        if theme_id == 0: return "0"
-        if theme_id == 1: return "1"
-        if theme_id == 2: return "2"
-        if theme_id == 3: return "3"
+        if theme_id == 0: return "CONTRAST 2"
+        if theme_id == 1: return "LIGHT"
+        if theme_id == 2: return "LIGHT GREY"
+        if theme_id == 3: return "CONTRAST"
         else:
             raise Exception(f'theme_id : {theme_id} is not a valid theme_id')
 
@@ -113,4 +113,4 @@ def load_surface(file: str, surface_scale: float) -> pygame.surface.Surface:
 
 def load_piece_set(piece_set: PieceSetAsset, piece_scale: float) -> PieceSurfaces:
     return PieceSurfaces(load_surface_sheet(piece_set.white_assets_file, piece_scale),
-        load_surface_sheet(piece_set.black_assets_file, piece_scale))
+                         load_surface_sheet(piece_set.black_assets_file, piece_scale))
