@@ -1,10 +1,11 @@
+import functools
 import typing
 import ttkbootstrap as ttk
 from config.tk_config import *
 from chess.bot.chess_bot_stockfish import StockFishBot
-from config.user_config import PossibleConfigValues
 from launcher.tk.components.tk_component import Component
 from config.user_config import UserConfig
+from chess.asset.chess_assets import Themes
 
 
 class SettingsWidgets(typing.NamedTuple):
@@ -65,28 +66,18 @@ class SettingsComponent(Component):
         if theme_id_name == "-1": theme_id_name = 'RANDOM'
         theme_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=theme_id_name)
         theme_menu: ttk.Menu = ttk.Menu(theme_options)
-        theme_menu.add_radiobutton(value="1", label="1", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(theme_options, theme_id=1))
-        theme_menu.add_radiobutton(value="2", label="2", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(theme_options, theme_id=2))
-        theme_menu.add_radiobutton(value="3", label="3", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(theme_options, theme_id=3))
-        theme_menu.add_radiobutton(value="4", label="4", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(theme_options, theme_id=4))
-        theme_menu.add_radiobutton(value="RANDOM", label="RANDOM", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(theme_options, theme_id=-1))
+
+        for theme_id in range(-1, 4):
+            theme_menu.add_command(label=Themes.get_name(theme_id), background=BG_DARK, foreground=FG_DARK,
+                                   command=functools.partial(handle_theme_selection, theme_id, theme_options))
         theme_options['menu'] = theme_menu
 
         asset_label: ttk.Label = ttk.Label(self.frame, text="Asset: ")
         asset_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=UserConfig.get().data.asset_name)
         asset_menu: ttk.Menu = ttk.Menu(asset_options)
-        asset_menu.add_radiobutton(value="SMALL", label="SMALL", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(asset_options,
-                                                                             asset_name="SMALL"))
-        asset_menu.add_radiobutton(value="LARGE", label="LARGE", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(asset_options, asset_name="LARGE"))
-        asset_menu.add_radiobutton(value="RANDOM", label="RANDOM", background=BG_DARK, foreground=FG_DARK,
-                                   command=lambda: configure_pygame_launcher(asset_options, asset_name="RANDOM"))
+        for option in ["SMALL", "LARGE", "RANDOM"]:
+            asset_menu.add_command(label=option, background=BG_DARK, foreground=FG_DARK,
+                                   command=functools.partial(handle_asset_selection, option, asset_options))
         asset_options['menu'] = asset_menu
 
         current_scale: float = UserConfig.get().data.scale
@@ -109,15 +100,17 @@ def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.Bool
         path_entry_str.set("Path Incorrect")
 
 
-def configure_pygame_launcher(menu_button: ttk.Menubutton, **args: PossibleConfigValues) -> None:
-    assert len(args) == 1, 'invalid number of args'
-    for value in args.values():
-        if value == -1: value = 'RANDOM'
-        menu_button['text'] = value
-    UserConfig.get().update_config(**args)
-
-
 def handle_scale_click(scale_size: str, size_scale_label: ttk.Label) -> None:
     size: float = float('%.2f' % float(scale_size))
     size_scale_label["text"] = f"size: {size}"
     UserConfig.get().update_config(scale=size)
+
+
+def handle_theme_selection(theme_id: int, menu_button: ttk.Menubutton) -> None:
+    menu_button.configure(text=Themes.get_name(theme_id))
+    UserConfig.get().update_config(theme_id=theme_id)
+
+
+def handle_asset_selection(asset_name: str, menu_button: ttk.Menubutton) -> None:
+    menu_button.configure(text=asset_name)
+    UserConfig.get().update_config(asset_name=asset_name)
