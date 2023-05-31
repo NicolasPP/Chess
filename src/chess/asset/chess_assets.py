@@ -56,11 +56,21 @@ class Themes:
     @staticmethod
     def get_theme(theme_id: int) -> ChessTheme:
         if theme_id == -1: return random.choice([Themes.PLAIN1, Themes.PLAIN2, Themes.PLAIN3, Themes.PLAIN4])
-        if theme_id == 1: return Themes.PLAIN1
-        if theme_id == 2: return Themes.PLAIN2
-        if theme_id == 3: return Themes.PLAIN3
-        if theme_id == 4:
+        if theme_id == 0: return Themes.PLAIN1
+        if theme_id == 1: return Themes.PLAIN2
+        if theme_id == 2: return Themes.PLAIN3
+        if theme_id == 3:
             return Themes.PLAIN4
+        else:
+            raise Exception(f'theme_id : {theme_id} is not a valid theme_id')
+
+    @staticmethod
+    def get_name(theme_id: int) -> str:
+        if theme_id == -1: return "RANDOM"
+        if theme_id == 0: return "0"
+        if theme_id == 1: return "1"
+        if theme_id == 2: return "2"
+        if theme_id == 3: return "3"
         else:
             raise Exception(f'theme_id : {theme_id} is not a valid theme_id')
 
@@ -102,7 +112,5 @@ def load_surface(file: str, surface_scale: float) -> pygame.surface.Surface:
 
 
 def load_piece_set(piece_set: PieceSetAsset, piece_scale: float) -> PieceSurfaces:
-    return PieceSurfaces(
-        load_surface_sheet(piece_set.white_assets_file, piece_scale),
-        load_surface_sheet(piece_set.black_assets_file, piece_scale)
-    )
+    return PieceSurfaces(load_surface_sheet(piece_set.white_assets_file, piece_scale),
+        load_surface_sheet(piece_set.black_assets_file, piece_scale))
