@@ -122,7 +122,7 @@ class TimeConfigComponent(Component):
         time_var.trace_add("write", lambda v, i, m: self.handle_entry_var())
         increment_var: tk.StringVar = tk.StringVar(value="secs")
         increment_var.trace_add("write", lambda v, i, m: self.handle_entry_var())
-        current_time_var: tk.StringVar = tk.StringVar(value=DefaultConfigs.get_timer_config(UserConfig.get(
+        current_time_var: tk.StringVar = tk.StringVar(value=TimerConfig.get_timer_config(UserConfig.get(
                                                       ).data.timer_config_name).get_value_str())
         return TimeConfigVars(time_var, increment_var, current_time_var)
 

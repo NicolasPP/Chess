@@ -3,7 +3,7 @@ import enum
 
 from launcher.pg.offline_launcher import OfflineLauncher
 from launcher.pg.online_launcher import OnlineLauncher
-from chess.timer.timer_config import DefaultConfigs
+from chess.timer.timer_config import TimerConfig
 from config.user_config import UserConfig
 from chess.network.server import Server
 
@@ -20,7 +20,7 @@ class ChessPygameLauncher:
                  = None):
         self.multi_player: OnlineLauncher = OnlineLauncher()
         self.single_player: OfflineLauncher = OfflineLauncher()
-        self.server: Server = Server(DefaultConfigs.get_timer_config(UserConfig.get().data.timer_config_name))
+        self.server: Server = Server(TimerConfig.get_timer_config(UserConfig.get().data.timer_config_name))
         self.is_running: bool = False
         self.show_app: typing.Callable[[], None] | None = show_app
         self.hide_app: typing.Callable[[], None] | None = hide_app

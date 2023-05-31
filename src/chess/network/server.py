@@ -6,7 +6,7 @@ import typing
 
 import click
 
-from chess.timer.timer_config import DefaultConfigs, TimerConfig
+from chess.timer.timer_config import TimerConfig
 from chess.game.chess_match import Match, MatchResult
 from chess.network.chess_network import Net
 from chess.network.command_manager import CommandManager, Command, ServerCommand
@@ -226,7 +226,7 @@ def process_server_control_command(command: ServerControlCommands, server: Serve
     '''
 )
 def start_server(timer: str) -> None:
-    Server(DefaultConfigs.get_timer_config(timer)).run()
+    Server(TimerConfig.get_timer_config(timer)).run()
 
 
 if __name__ == "__main__":

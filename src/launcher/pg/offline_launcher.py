@@ -6,7 +6,7 @@ from chess.game.chess_match import Match
 from chess.chess_player import Player, process_command_local, State
 from chess.board.side import Side
 from chess.asset.chess_assets import Themes, PieceSetAssets
-from chess.timer.timer_config import DefaultConfigs
+from chess.timer.timer_config import TimerConfig
 from chess.game.game_surface import GameSurface
 from chess.chess_init import init_chess
 from chess.notation.forsyth_edwards_notation import Fen
@@ -36,7 +36,7 @@ class OfflineLauncher:
             UserConfig.get().data.scale
         )
         center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
-        match = Match(DefaultConfigs.get_timer_config(UserConfig.get().data.timer_config_name))
+        match = Match(TimerConfig.get_timer_config(UserConfig.get().data.timer_config_name))
         player: Player = Player.get_player_local(player_side, match, center)
         player.end_game_gui.offer_draw.set_enable(False)
         player.end_game_gui.resign.set_enable(False)
@@ -73,7 +73,7 @@ class OfflineLauncher:
             UserConfig.get().data.scale
         )
         center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
-        match = Match(DefaultConfigs.get_timer_config(UserConfig.get().data.timer_config_name))
+        match = Match(TimerConfig.get_timer_config(UserConfig.get().data.timer_config_name))
         player: Player = Player.get_player_local(perspective_side, match, center)
         bot_player: Player = Player.get_player_local(opp_side, match, center)
         bot_player.set_final_render(False)
@@ -116,7 +116,7 @@ class OfflineLauncher:
             UserConfig.get().data.scale
         )
         center: pygame.rect.Rect = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
-        match = Match(DefaultConfigs.get_timer_config(UserConfig.get().data.timer_config_name))
+        match = Match(TimerConfig.get_timer_config(UserConfig.get().data.timer_config_name))
         white_player: Player = Player.get_player_local(Side.WHITE, match, center)
         black_player: Player = Player.get_player_local(Side.BLACK, match, center)
         game_fen: Fen = Fen(match.fen.notation)
