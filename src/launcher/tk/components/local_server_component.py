@@ -26,7 +26,7 @@ class LocalServerComponent(Component):
         self.widgets.start_server_button.pack(expand=True)
 
     def create_vars(self) -> LocalServerVars:
-        is_server_online_var: tk.BooleanVar = tk.BooleanVar(value=self.try_connect())
+        is_server_online_var: tk.BooleanVar = tk.BooleanVar(value=self.is_server_online())
         server_online_text_var: tk.StringVar = tk.StringVar(value=get_online_label_value(is_server_online_var.get()))
         return LocalServerVars(server_online_text_var, is_server_online_var)
 
@@ -41,13 +41,13 @@ class LocalServerComponent(Component):
                                                     command=lambda: self.handle_stop_server())
         return LocalServerWidgets(server_online_label, start_server_button, stop_server_button)
 
-    def try_connect(self) -> bool:
+    def is_server_online(self) -> bool:
         # FIXME: Implement Me
         return False
 
     def handle_start_server(self):
         if self.vars.is_server_online_var.get(): return
-        if not self.try_connect(): return
+        if not self.is_server_online(): return
         self.vars.is_server_online_var.set(True)
         self.vars.server_online_text_var.set(get_online_label_value(True))
         self.widgets.server_online_label.config(foreground=get_online_label_color(True))
