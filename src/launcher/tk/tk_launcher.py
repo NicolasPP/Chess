@@ -50,6 +50,7 @@ class ChessTkinterLauncher(tk.Tk):
                              arrowcolor=FG_LIGHT, bordercolor=BG_LIGHT, relief=ttk.SOLID)
         self.style.configure('TScale', background=BG_DARK)
         self.style.configure('TLabel', background=BG_DARK, font=(FONT_NAME, DEFAULT_FONT_SIZE), foreground=FG_DARK)
+        self.style.map('TLabel', foreground=[(tk.DISABLED, BG_LIGHT)])
         self.style.configure('TEntry', fieldbackground=BG_DARK, font=(FONT_NAME, DEFAULT_FONT_SIZE), foreground=FG_DARK,
                              darkcolor=BG_DARK, lightcolor=BG_DARK, bordercolor=FG_DARK, selectbackground=BG_LIGHT,
                              selectforeground=FG_LIGHT)
