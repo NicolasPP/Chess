@@ -27,6 +27,10 @@ class CommandManager:
     game_result: str = 'game_result'
     from_index: str = 'from_index'
     dest_index: str = 'dest_index'
+    user_name: str = 'user_name'
+    user_elo: str = 'user_elo'
+    user_pass: str = 'user_pass'
+    user_id: str = 'user_id'
 
     @staticmethod
     def serialize_command(command: Command) -> bytes:
