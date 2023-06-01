@@ -68,6 +68,10 @@ class StockFishBot:
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
         target_fen: str | None = None
 
+        # crashed once cause move was None so. ;)
+        # crashed during bot v bot, checkmate move
+        if move is None: return
+
         # promotion
         if len(move) == 5:
             target_fen = move[len(move) - 1:]
