@@ -9,3 +9,4 @@ class ClientCommand(enum.Enum):
     OFFER_DRAW = enum.auto()
     DRAW_RESPONSE = enum.auto()
     TIME_OUT = enum.auto()
+    VERIFICATION = enum.auto()
