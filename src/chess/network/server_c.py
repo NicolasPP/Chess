@@ -13,7 +13,7 @@ from chess.network.commands.command_manager import CommandManager, Command, Serv
 from chess.notation.forsyth_edwards_notation import encode_fen_data
 from chess.movement.piece_movement import PieceMovement
 from chess.board.side import Side
-from chess.chess_logging import set_up_logging
+from chess.chess_logging import set_up_logging, LoggingOut
 from config.pg_config import *
 
 '''
@@ -21,7 +21,7 @@ from config.pg_config import *
 you can get the process ID with port with this command : sudo lsof -i:PORT
 '''
 
-logger = set_up_logging(SERVER_NAME, SERVER_LOG_FILE)
+logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE)
 
 
 class ServerControlCommands(enum.Enum):
