@@ -9,7 +9,7 @@ import click
 from chess.timer.timer_config import TimerConfig
 from chess.game.chess_match import Match, MatchResult
 from chess.network.chess_network import Net
-from chess.network.command_manager import CommandManager, Command, ServerCommand
+from chess.network.commands.command_manager import CommandManager, Command, ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data
 from chess.movement.piece_movement import PieceMovement
 from chess.board.side import Side

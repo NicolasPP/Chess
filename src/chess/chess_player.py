@@ -12,7 +12,10 @@ from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
 from chess.movement.piece_movement import is_pawn_promotion
 from chess.network.chess_network import ChessNetwork
-from chess.network.command_manager import CommandManager, ClientCommand, ServerCommand, Command
+from chess.network.commands.command_manager import CommandManager
+from chess.network.commands.command import Command
+from chess.network.commands.client_commands import ClientCommand
+from chess.network.commands.server_commands import ServerCommand
 from chess.notation.forsyth_edwards_notation import Fen, FenChars
 from gui.available_moves_gui import AvailableMovesGui
 from gui.board_axis_gui import BoardAxisGui

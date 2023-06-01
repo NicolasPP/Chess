@@ -6,7 +6,8 @@ from stockfish import Stockfish
 from chess.notation.forsyth_edwards_notation import Fen
 from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.chess_player import Player, send_command
-from chess.network.command_manager import CommandManager, ClientCommand
+from chess.network.commands.command_manager import CommandManager
+from chess.network.commands.client_commands import ClientCommand
 from chess.board.side import Side
 from config.user_config import UserConfig
 
