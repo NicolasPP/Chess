@@ -1,39 +1,9 @@
-import enum
 import pickle
 import queue
 
-
-class ClientCommand(enum.Enum):
-    # commands that the client can send to the server
-    MOVE = enum.auto()
-    PICKING_PROMOTION = enum.auto()
-    RESIGN = enum.auto()
-    OFFER_DRAW = enum.auto()
-    DRAW_RESPONSE = enum.auto()
-    TIME_OUT = enum.auto()
-
-
-class ServerCommand(enum.Enum):
-    # commands that the server can send to the client
-    UPDATE_FEN = enum.auto()
-    END_GAME = enum.auto()
-    INVALID_MOVE = enum.auto()
-    UPDATE_CAP_PIECES = enum.auto()
-    INIT_INFO = enum.auto()
-    CLIENT_PROMOTING = enum.auto()
-    CLIENT_DRAW_OFFER = enum.auto()
-    CONTINUE = enum.auto()
-
-
-class Command:
-    @staticmethod
-    def is_name_valid(name: str) -> bool:
-        return name in [command.name for command in list(ClientCommand) + list(ServerCommand)]
-
-    def __init__(self, name: str, **information):
-        assert Command.is_name_valid(name), f"{name} IS NOT A VALID COMMAND NAME"
-        self.name = name
-        self.info: dict[str, str] = {key: str(value) for key, value in information.items()}
+from chess.network.commands.client_commands import ClientCommand
+from chess.network.commands.server_commands import ServerCommand
+from chess.network.commands.command import Command
 
 
 class CommandManager:
