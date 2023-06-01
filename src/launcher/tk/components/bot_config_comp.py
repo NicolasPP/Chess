@@ -67,8 +67,8 @@ class BotConfigComponent(Component):
         self.widgets.skill_scale.grid(row=1, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
         self.widgets.skill_value_label.grid(row=1, column=2, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
 
-        self.widgets.move_time_label.grid(row=2, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=(BOT_CONFIG_PAD,
-                                                                                                      0))
+        self.widgets.move_time_label.grid(row=2, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD,
+                                          padx=(BOT_CONFIG_PAD, 0))
         self.widgets.regular_move_button.grid(row=2, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
         self.widgets.fast_move_button.grid(row=2, column=2, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
 
@@ -81,39 +81,42 @@ class BotConfigComponent(Component):
         elo_scale: ttk.Scale = ttk.Scale(self.frame, from_=MIN_ELO, to=MAX_ELO, value=UserConfig.get().data.bot_elo,
                                          command=lambda size: handle_scale_click(self.vars, bot_elo=int(float(size))),
                                          state=state, style="warning")
-        elo_label: ttk.Label = ttk.Label(self.frame, text="bot elo: ")
+        elo_label: ttk.Label = ttk.Label(self.frame, text="bot elo: ", state=state)
 
         skill_scale: ttk.Scale = ttk.Scale(self.frame, from_=MIN_SKILL, to=MAX_SKILL,
                                            value=UserConfig.get().data.bot_skill_level, state=state, style="warning",
-                                           command=lambda size: handle_scale_click(self.vars, bot_skill_level=int(
-                                               float(size))))
-        skill_label: ttk.Label = ttk.Label(self.frame, text="bot skill: ")
-        skill_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.skill_var)
-        elo_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.elo_var)
-        move_time_label: ttk.Label = ttk.Label(self.frame, text="move time: ")
+                                           command=lambda size: handle_scale_click(self.vars,
+                                                                                   bot_skill_level=int(float(size))))
+        skill_label: ttk.Label = ttk.Label(self.frame, text="bot skill: ", state=state)
+        skill_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.skill_var, state=state)
+        elo_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.elo_var, state=state)
+        move_time_label: ttk.Label = ttk.Label(self.frame, text="move time: ", state=state)
         fast_move_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="fast", variable=self.vars.time_var,
                                                             value=False, style="toolbutton", state=state)
         regular_move_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="regular", style="toolbutton",
                                                                variable=self.vars.time_var, value=True, state=state)
-        bot_side_label: ttk.Label = ttk.Label(self.frame, text="bot side: ")
+        bot_side_label: ttk.Label = ttk.Label(self.frame, text="bot side: ", state=state)
         white_side_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="white", variable=self.vars.side_var,
                                                              value="WHITE", style="toolbutton", state=state)
         black_side_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="black", variable=self.vars.side_var,
                                                              value="BLACK", style="toolbutton", state=state)
-        return BotConfigCompWidgets(elo_scale, elo_label, skill_scale, skill_label, skill_value_label,
-                                    elo_value_label, move_time_label, fast_move_button, regular_move_button,
-                                    bot_side_label, white_side_button, black_side_button)
+        return BotConfigCompWidgets(elo_scale, elo_label, skill_scale, skill_label, skill_value_label, elo_value_label,
+                                    move_time_label, fast_move_button, regular_move_button, bot_side_label,
+                                    white_side_button, black_side_button)
 
     def is_bot_valid_callback(self, is_bot_valid: tk.BooleanVar) -> None:
         state = tk.DISABLED if not is_bot_valid.get() else tk.NORMAL
         if is_bot_valid.get():
             self.set_title("Bot Settings")
-        self.widgets.elo_scale["state"] = state
-        self.widgets.skill_scale["state"] = state
-        self.widgets.black_side_button["state"] = state
-        self.widgets.white_side_button["state"] = state
-        self.widgets.fast_move_button["state"] = state
-        self.widgets.regular_move_button["state"] = state
+
+        for widget in self.get_widget_list():
+            widget.configure(state=state)
+
+    def get_widget_list(self) -> list[ttk.Scale | ttk.Button | ttk.Label]:
+        return [self.widgets.elo_scale, self.widgets.elo_label, self.widgets.skill_scale, self.widgets.skill_label,
+                self.widgets.skill_value_label, self.widgets.elo_value_label, self.widgets.move_time_label,
+                self.widgets.fast_move_button, self.widgets.regular_move_button, self.widgets.bot_side_label,
+                self.widgets.white_side_button, self.widgets.black_side_button]
 
     def time_var_callback(self) -> None:
         UserConfig.get().update_config(bot_use_time=self.vars.time_var.get())
