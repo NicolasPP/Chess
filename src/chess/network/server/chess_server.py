@@ -3,12 +3,16 @@ import socket as skt
 import enum
 import logging
 import threading
+from _thread import start_new_thread
 
 from chess.network.chess_network import Net
 from chess.chess_logging import set_up_logging, LoggingOut
 from chess.network.server.server_user import ServerUser
+from chess.network.commands.client_commands import ClientCommand
 from chess.network.commands.command import Command
 from chess.network.commands.command_manager import CommandManager
+from database.chess_db import ChessDataBase, DataBaseInfo
+from database.models import User
 from config.pg_config import *
 
 '''
@@ -24,6 +28,9 @@ class ChessServer(Net):
         self.logger: logging.Logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE, logging.INFO)
         self.users: list[ServerUser] = []
         self.server_control_thread: threading.Thread = threading.Thread(target=self.server_control_command_parser)
+        self.database: ChessDataBase = ChessDataBase(
+            DataBaseInfo('root', 'chess-database', '35.197.134.140', 3306, 'chess_db')
+        )
 
     def start(self) -> None:
         self.logger.info('Server started')
@@ -59,19 +66,21 @@ class ChessServer(Net):
         while self.get_is_running():
 
             user: ServerUser = self.accept_user()
-            if user is None and not self.get_is_running(): return
+            if user is None: return
 
             self.logger.info("Connected to address : %s", user.address)
-            t = threading.Thread(target=self.user_listener, args=(user,))
-            t.start()
-            self.users.append(user)
+            if self.receive_verification(user):
+                self.users.append(user)
+                start_new_thread(self.user_listener, (user,))
+            else:
+                user.socket.close()
+                self.logger.info("could not verify user")
 
     def server_control_command_parser(self) -> None:
         while self.get_is_running():
             input_command = input()
             command: ServerControlCommands | None = ServerControlCommands.get_command_from_input(input_command)
             if command is None:
-                print('hello')
                 self.logger.info("command %s not recognised", input_command)
             else:
                 self.process_server_control_command(command)
@@ -82,27 +91,55 @@ class ChessServer(Net):
             self.set_is_running(False)
             self.socket.close()
 
-    def user_listener(self, user: ServerUser):
+    def user_listener(self, user: ServerUser) -> None:
         with user.socket:
             while self.get_is_running():
                 try:
                     data: bytes = user.socket.recv(DATA_SIZE)
                 except ConnectionResetError as error:
                     self.logger.debug("connection error: %s", error)
-                    self.set_is_running(False)
                     break
 
                 if not data:
                     self.logger.debug("invalid data")
-                    self.set_is_running(False)
                     break
 
-                commands: list[Command] = []
                 command: Command = CommandManager.deserialize_command_bytes(data)
+                self.logger.info("command : %s received from the client", command.name)
 
         self.users.remove(user)
         user.socket.close()
-        self.logger.info("client disconnected")
+        self.logger.info("client %s disconnected", user.db_user.u_name)
+        return
+
+    def receive_verification(self, user: ServerUser) -> bool:
+        try:
+            data: bytes = user.socket.recv(DATA_SIZE)
+        except ConnectionResetError as error:
+            self.logger.debug("connection error: %s", error)
+            return False
+
+        if not data:
+            self.logger.debug("invalid data")
+            return False
+
+        verification: Command = CommandManager.deserialize_command_bytes(data)
+        if verification.name != ClientCommand.VERIFICATION.name:
+            self.logger.info("initial command cannot be : %s", verification.name)
+            return False
+
+        db_user_name: str = verification.info[CommandManager.user_name]
+        db_user: User = self.database.get_user(db_user_name)
+        if db_user is None:
+            self.logger.info("database could not find user : %s", db_user_name)
+            return False
+
+        for server_users in self.users:
+            if server_users.get_db_user().u_name == db_user.u_name:
+                self.logger.info("user : %s is already connected", db_user.u_name)
+                return False
+
+        return user.set_db_user(verification.info, db_user)
 
 
 class ServerControlCommands(enum.Enum):
