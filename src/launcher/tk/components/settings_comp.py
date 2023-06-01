@@ -62,7 +62,8 @@ class SettingsComponent(Component):
         create_bot: ttk.Button = ttk.Button(self.frame, text="create bot")
 
         theme_label: ttk.Label = ttk.Label(self.frame, text="Theme: ")
-        theme_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=Themes.get_name(UserConfig.get().data.theme_id))
+        theme_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=Themes.get_name(UserConfig.get().data.theme_id),
+                                                       width=SETTINGS_MENUBUTTON_WIDTH)
         theme_menu: ttk.Menu = ttk.Menu(theme_options)
 
         for theme_id in range(-1, 4):
@@ -71,7 +72,8 @@ class SettingsComponent(Component):
         theme_options['menu'] = theme_menu
 
         asset_label: ttk.Label = ttk.Label(self.frame, text="Asset: ")
-        asset_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=UserConfig.get().data.asset_name)
+        asset_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=UserConfig.get().data.asset_name,
+                                                       width=SETTINGS_MENUBUTTON_WIDTH)
         asset_menu: ttk.Menu = ttk.Menu(asset_options)
         for option in ["SMALL", "LARGE", "RANDOM"]:
             asset_menu.add_command(label=option, background=BG_DARK, foreground=FG_DARK,
