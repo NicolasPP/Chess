@@ -68,9 +68,9 @@ class ChessServer(Net):
             server_user: ServerUser = self.accept_user()
             if server_user is None: return
 
-            self.logger.info("Connected to address : %s", server_user.address)
             if self.verify_user(server_user):
                 self.users.append(server_user)
+                self.logger.info("client: %s connected", server_user.get_db_user().u_name)
                 start_new_thread(self.user_listener, (server_user,))
             else:
                 server_user.socket.close()
@@ -109,7 +109,7 @@ class ChessServer(Net):
 
         self.users.remove(user)
         user.socket.close()
-        self.logger.info("client %s disconnected", user.db_user.u_name)
+        self.logger.info("client: %s disconnected", user.db_user.u_name)
         return
 
     def verify_user(self, server_user: ServerUser) -> bool:
