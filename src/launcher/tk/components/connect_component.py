@@ -3,6 +3,7 @@ import tkinter as tk
 from ttkbootstrap import ttk
 from launcher.tk.components.tk_component import Component
 from launcher.tk.page.page_manager import PageManager
+from launcher.tk.launcher_user import LauncherUser
 
 
 class ConnectWidgets(typing.NamedTuple):
@@ -30,8 +31,14 @@ class ConnectComponent(Component):
         return ConnectWidgets(server_ip_entry, connect_button)
 
     def handle_connect(self) -> None:
-        # if connect is successful
-        self.page_manager.show_page("ServerPage")
+        LauncherUser.get_client().set_ip_address(self.vars.ip_entry_var.get())
+        is_connect_successful: bool = LauncherUser.get_client().start()
+
+        if is_connect_successful:
+            self.page_manager.show_page("ServerPage")
+        else:
+            # TODO: add error label to show when the client cannot connect
+            pass
 
 
 def create_vars() -> ConnectVars:
