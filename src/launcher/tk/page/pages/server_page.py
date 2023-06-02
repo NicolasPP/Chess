@@ -5,6 +5,7 @@ from launcher.tk.page.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.chat_component import ChatComponent
 from launcher.tk.components.server_lobby_component import ServerLobbyComponent
+from launcher.tk.launcher_user import LauncherUser
 from config.tk_config import *
 
 
@@ -31,4 +32,5 @@ class ServerPage(PageFrame):
         disconnect.grid(row=1, column=1)
 
     def handle_disconnect(self) -> None:
+        LauncherUser.get_client().disconnect()
         self.page_manager.show_page("OnlinePage")
