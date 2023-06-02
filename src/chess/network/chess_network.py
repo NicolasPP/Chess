@@ -12,6 +12,14 @@ class Net:
         self.port: int = 3389
         self.address: tuple[str, int] = (self.host, self.port)
 
+    def set_ip_address(self, server_ip: str) -> None:
+        self.host = server_ip
+        self.address = (self.host, self.port)
+
+    def reset_socket(self) -> None:
+        self.socket.close()
+        self.socket = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
+
 
 class ChessNetwork(Net):
     def __init__(self, server_ip: str):
@@ -21,8 +29,7 @@ class ChessNetwork(Net):
         try:
             self.socket.connect(self.address)
         except skt.error as e:
-            print(f'error connecting : {e}')
-            raise Exception("error connecting")
+            raise Exception(f"error connecting due to: {e}")
         init_data: bytes = self.read()
         init_info: Command = CommandManager.deserialize_command_bytes(init_data)
 
