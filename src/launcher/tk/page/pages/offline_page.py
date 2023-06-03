@@ -14,7 +14,8 @@ class OfflinePage(PageFrame):
                  is_bot_valid: tk.BooleanVar) -> None:
         super().__init__(parent_frame)
 
-        offline_play_comp: OfflinePlayComponent = OfflinePlayComponent(self, page_manager, pg_launcher, is_bot_valid)
+        back_button: ttk.Button = ttk.Button(self, text="back", command=lambda: page_manager.show_page("StartPage"))
+        offline_play_comp: OfflinePlayComponent = OfflinePlayComponent(self, pg_launcher, is_bot_valid)
         bot_config_comp: BotConfigComponent = BotConfigComponent(self, is_bot_valid)
         time_config_comp: TimeConfigComponent = TimeConfigComponent(self)
 
@@ -24,13 +25,16 @@ class OfflinePage(PageFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=8)
+        self.grid_rowconfigure(1, weight=2)
 
         offline_play_comp.get_frame().grid(row=0, column=0, sticky=tk.NSEW, padx=OFFLINE_PAGE_PAD,
                                            pady=OFFLINE_PAGE_PAD)
-        bot_config_comp.get_frame().grid(row=0, column=1, sticky=tk.NSEW, padx=OFFLINE_PAGE_PAD, pady=OFFLINE_PAGE_PAD)
+        bot_config_comp.get_frame().grid(row=0, column=1, sticky=tk.NSEW, padx=OFFLINE_PAGE_PAD,
+                                         pady=OFFLINE_PAGE_PAD, rowspan=2)
         time_config_comp.get_frame().grid(row=0, column=2, sticky=tk.NSEW, padx=OFFLINE_PAGE_PAD,
-                                          pady=OFFLINE_PAGE_PAD)
+                                          pady=OFFLINE_PAGE_PAD, rowspan=2)
+        back_button.grid(row=1, column=0, padx=OFFLINE_PAGE_PAD, pady=OFFLINE_PAGE_PAD)
 
 
 def is_bot_valid_callback(offline_play_comp: OfflinePlayComponent, bot_config_comp: BotConfigComponent, is_bot_valid:
