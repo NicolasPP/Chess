@@ -9,6 +9,7 @@ from chess.network.chess_network import Net
 from chess.chess_logging import set_up_logging, LoggingOut
 from chess.network.server.server_user import ServerUser
 from chess.network.commands.client_commands import ClientCommand
+from chess.network.commands.server_commands import ServerCommand
 from chess.network.commands.command import Command
 from chess.network.commands.command_manager import CommandManager
 from database.chess_db import ChessDataBase, DataBaseInfo
@@ -23,13 +24,21 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 
 class ChessServer(Net):
 
+    server: ChessServer | None = None
+
+    @staticmethod
+    def get() -> ChessServer:
+        if ChessServer.server is None:
+            ChessServer.server = ChessServer()
+        return ChessServer.server
+
     @staticmethod
     def is_local_server_online() -> bool:
         try:
             socket: skt.socket = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
             socket.connect(('127.0.0.1', 3389))
             return True
-        except skt.error as e:
+        except skt.error:
             return False
 
     def __init__(self) -> None:
@@ -42,19 +51,23 @@ class ChessServer(Net):
             DataBaseInfo('root', 'chess-database', '35.197.134.140', 3306, 'chess_db')
         )
 
-    def start(self) -> None:
-        self.logger.info('Server started')
+    def start(self) -> bool:
+        if ChessServer.is_local_server_online():
+            self.logger.info("server is already running")
+            return False
         try:
             self.socket.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
             self.socket.bind(self.address)
         except skt.error as e:
             self.logger.error("error binding due to: %s", e)
-            return
+            return False
 
-        self.set_is_running(True)
-        self.socket.listen()
-
+        self.logger.info("Server started")
         self.logger.info("Waiting for clients to connect")
+        self.socket.listen()
+        self.set_is_running(True)
+
+        return True
 
     def accept_user(self) -> ServerUser | None:
         try:
@@ -70,9 +83,13 @@ class ChessServer(Net):
     def get_is_running(self) -> bool:
         return self.is_running
 
-    def run(self) -> None:
-        self.start()
-        self.server_control_thread.start()
+    def run(self, start_control_thread: bool = True) -> None:
+        if not self.get_is_running():
+            if not self.start(): return
+
+        if start_control_thread:
+            self.server_control_thread.start()
+
         while self.get_is_running():
 
             server_user: ServerUser = self.accept_user()
@@ -98,8 +115,7 @@ class ChessServer(Net):
 
     def process_server_control_command(self, command: ServerControlCommands) -> None:
         if command is ServerControlCommands.SHUT_DOWN:
-            self.set_is_running(False)
-            self.socket.close()
+            self.shut_down()
 
     def user_listener(self, user: ServerUser) -> None:
         with user.socket:
@@ -121,6 +137,17 @@ class ChessServer(Net):
         user.socket.close()
         self.logger.info("client: %s disconnected", user.db_user.u_name)
         return
+
+    def shut_down(self) -> None:
+        self.set_is_running(False)
+        self.reset_socket()
+        disconnect_info: dict[str, str] = {}
+        disconnect: Command = CommandManager.get(ServerCommand.DISCONNECT, disconnect_info)
+        self.send_all(disconnect)
+
+    def send_all(self, command: Command) -> None:
+        for user in self.users:
+            user.socket.send(CommandManager.serialize_command(command))
 
     def verify_user(self, server_user: ServerUser) -> bool:
         verification_command: Command | None = self.receive_verification(server_user)
