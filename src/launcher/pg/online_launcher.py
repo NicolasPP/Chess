@@ -22,7 +22,7 @@ from config.pg_config import *
 class OnlineLauncher:
 
     def __init__(self) -> None:
-        self.logger = set_up_logging(CLIENT_NAME, LoggingOut.STDOUT, CLIENT_LOG_FILE)
+        self.logger = set_up_logging("online launcher logger", LoggingOut.STDOUT, CLIENT_LOG_FILE)
         self.prev_time = time.time()
         self.delta_time: float = 0
 
