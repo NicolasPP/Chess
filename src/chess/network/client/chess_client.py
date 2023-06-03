@@ -7,7 +7,9 @@ from chess.network.chess_network import Net
 from chess.network.commands.command_manager import CommandManager
 from chess.network.commands.command import Command
 from chess.network.commands.client_commands import ClientCommand
+from chess.network.commands.server_commands import ServerCommand
 from database.models import User
+from launcher.tk.global_vars import GlobalUserVars
 from config.pg_config import *
 
 
@@ -62,11 +64,11 @@ class ChessClient(Net):
                 if data_b is None or not data_b:
                     break
 
-                commands = CommandManager.deserialize_command_list_bytes(data_b)
+                command: Command = CommandManager.deserialize_command_bytes(data_b)
 
-                self.logger.debug("server sent commands :")
-                for command in commands:
-                    self.logger.debug(" - %s ", command.name)
+                parse_server_command(command)
+
+                self.logger.info("server sent %s command", command.name)
 
             self.logger.info("server disconnected")
             return
@@ -78,3 +80,11 @@ class ChessClient(Net):
                                         CommandManager.user_pass: self.user.u_pass}
         command: Command = CommandManager.get(ClientCommand.VERIFICATION, command_info)
         self.socket.send(CommandManager.serialize_command(command))
+
+
+def parse_server_command(command: Command) -> None:
+    if command.name == ServerCommand.DISCONNECT.name:
+        GlobalUserVars.get_server_disconnect().set(True)
+
+    else:
+        raise Exception(f"command : {command} not recognised")
