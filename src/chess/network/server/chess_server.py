@@ -1,10 +1,8 @@
 from __future__ import annotations
-
-import socket
-import socket as skt
 import enum
 import logging
 import threading
+import socket as skt
 from _thread import start_new_thread
 
 from chess.network.chess_network import Net
@@ -155,7 +153,9 @@ class ChessServer(Net):
 
     def shut_down(self) -> None:
         self.set_is_running(False)
-        self.socket.shutdown(socket.SHUT_RDWR)
+        try:
+            self.socket.shutdown(skt.SHUT_RDWR)
+        except OSError: pass
         self.reset_socket()
         disconnect_info: dict[str, str] = {}
         disconnect: Command = CommandManager.get(ServerCommand.DISCONNECT, disconnect_info)
