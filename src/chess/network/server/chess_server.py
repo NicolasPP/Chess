@@ -28,7 +28,16 @@ class ChessServer(Net):
 
     @staticmethod
     def get_host_ipv4() -> str:
-        return skt.gethostbyname(skt.gethostname())
+        socket = skt.socket(skt.AF_INET, skt.SOCK_DGRAM)
+        socket.settimeout(0)
+        try:
+            socket.connect(('10.254.254.254', 1))
+            ipv4 = socket.getsockname()[0]
+        except skt.error:
+            ipv4 = '127.0.0.1'
+        finally:
+            socket.close()
+        return ipv4
 
     @staticmethod
     def get() -> ChessServer:
@@ -40,13 +49,13 @@ class ChessServer(Net):
     def is_local_server_online() -> bool:
         try:
             socket: skt.socket = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
-            socket.connect(('127.0.0.1', 3389))
+            socket.connect(('', 3389))
             return True
         except skt.error:
             return False
 
     def __init__(self) -> None:
-        super().__init__('127.0.0.1')
+        super().__init__('')  # must be '' or other computers will not be able to join
         self.is_running: bool = False
         self.logger: logging.Logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE, logging.INFO)
         self.users: list[ServerUser] = []
@@ -86,8 +95,6 @@ class ChessServer(Net):
 
     def get_is_running(self) -> bool:
         return self.is_running
-
-
 
     def run(self, start_control_thread: bool = True) -> None:
         if not self.get_is_running():
