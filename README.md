@@ -81,6 +81,11 @@ python src/main.py --app_type "PLAYER_V_PLAYER"
     possible pieces Asset: SMALL, LARGE, RANDOM
 ```
 
+# Problems
+ - if windows is timing out incoming connections to the local server,
+you must allow python through the Windows Firewall.
+https://stackoverflow.com/questions/53231849/python-socket-windows-10-connection-times-out
+
 # Resources
 - sprites : https://dani-maccari.itch.io/pixel-chess
 - fonts 
