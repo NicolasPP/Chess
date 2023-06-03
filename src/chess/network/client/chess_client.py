@@ -1,5 +1,6 @@
 import logging
 import socket as skt
+import typing
 from _thread import start_new_thread
 
 from chess.chess_logging import set_up_logging, LoggingOut
@@ -13,6 +14,11 @@ from launcher.tk.global_vars import GlobalUserVars
 from config.pg_config import *
 
 
+class ClientConnectResult(typing.NamedTuple):
+    result: bool
+    error: skt.error | None
+
+
 class ChessClient(Net):
     def __init__(self, server_ip: str, user: User) -> None:
         super().__init__(server_ip)
@@ -20,20 +26,20 @@ class ChessClient(Net):
         self.logger: logging.Logger = set_up_logging(CLIENT_NAME, LoggingOut.STDOUT, CLIENT_LOG_FILE)
         self.is_connected: bool = False
 
-    def start(self) -> bool:
-        connect_result: bool = self.connect()
-        if connect_result:
+    def start(self) -> ClientConnectResult:
+        connect_result: ClientConnectResult = self.connect()
+        if connect_result.result:
             self.set_is_connected(True)
             start_new_thread(self.server_listener, ())
         return connect_result
 
-    def connect(self) -> bool:
+    def connect(self) -> ClientConnectResult:
         try:
             self.socket.connect(self.address)
-            return True
-        except skt.error as e:
-            self.logger.error(f'error connecting : {e}')
-            return False
+            return ClientConnectResult(True, None)
+        except skt.error as err:
+            self.logger.error(f'error connecting : {err}')
+            return ClientConnectResult(False, err)
 
     def disconnect(self) -> None:
         self.set_is_connected(False)
