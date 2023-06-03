@@ -6,6 +6,7 @@ from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.chat_component import ChatComponent
 from launcher.tk.components.server_lobby_component import ServerLobbyComponent
 from launcher.tk.launcher_user import LauncherUser
+from launcher.tk.global_vars import GlobalUserVars
 from config.tk_config import *
 
 
@@ -19,6 +20,7 @@ class ServerPage(PageFrame):
         super().__init__(parent_frame)
         self.page_manager: PageManager = page_manager
         disconnect: ttk.Button = ttk.Button(self, text="Disconnect", command=self.handle_disconnect)
+        GlobalUserVars.get_server_disconnect().trace_add("write", lambda v, i, m: self.server_disconnect_callback())
         chat_comp: ChatComponent = ChatComponent(self)
         lobby_comp: ServerLobbyComponent = ServerLobbyComponent(self)
 
@@ -34,3 +36,8 @@ class ServerPage(PageFrame):
     def handle_disconnect(self) -> None:
         LauncherUser.get_client().disconnect()
         self.page_manager.show_page("OnlinePage")
+
+    def server_disconnect_callback(self) -> None:
+        if GlobalUserVars.get_server_disconnect().get():
+            self.page_manager.show_page("OnlinePage")
+            GlobalUserVars.get_server_disconnect().set(False)
