@@ -15,6 +15,7 @@ class LocalServerWidgets(typing.NamedTuple):
     refresh_server_button: ttk.Button
     error_label: ttk.Label
     button_frame: ttk.Frame
+    ip_label: ttk.Label
 
 
 class LocalServerVars(typing.NamedTuple):
@@ -56,8 +57,9 @@ class LocalServerComponent(Component):
                                          self.vars.is_server_online_var.set(ChessServer.is_local_server_online()))
         error_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.error_var)
         GlobalUserVars.get_server_disconnect().trace_add("write", lambda v, i, m: self.handle_refresh_server())
+        ip_label: ttk.Label = ttk.Label(self.frame, text=f"server ip: {ChessServer.get_host_ipv4()}")
         return LocalServerWidgets(server_online_label, start_server_button, stop_server_button,
-                                  refresh, error_label, buttons_frame)
+                                  refresh, error_label, buttons_frame, ip_label)
 
     def handle_refresh_server(self) -> None:
         self.vars.is_server_online_var.set(ChessServer.is_local_server_online())
@@ -68,7 +70,6 @@ class LocalServerComponent(Component):
             self.started_server = False
             return
         if not ChessServer.get().start(): return
-        print(ChessServer.get_host_ipv4())
         start_new_thread(ChessServer.get().run, (False,))
         self.started_server = True
         self.vars.is_server_online_var.set(True)
@@ -89,6 +90,7 @@ class LocalServerComponent(Component):
             self.widgets.button_frame.pack_forget()
 
             self.widgets.server_online_label.pack(expand=True)
+            self.widgets.ip_label.pack(expand=True)
             if self.started_server:
                 self.widgets.stop_server_button.pack(expand=True)
                 self.widgets.button_frame.pack(expand=True)
@@ -100,6 +102,7 @@ class LocalServerComponent(Component):
             self.widgets.refresh_server_button.pack(side=tk.LEFT, expand=True)
             self.widgets.button_frame.pack(expand=True)
             self.widgets.stop_server_button.pack_forget()
+            self.widgets.ip_label.pack_forget()
 
 
 def get_online_label_value(is_online: bool) -> str:
