@@ -11,3 +11,4 @@ class ServerCommand(enum.Enum):
     CLIENT_PROMOTING = enum.auto()
     CLIENT_DRAW_OFFER = enum.auto()
     CONTINUE = enum.auto()
+    DISCONNECT = enum.auto()
