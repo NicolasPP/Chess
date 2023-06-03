@@ -21,7 +21,7 @@ from config.pg_config import *
 you can get the process ID with port with this command : sudo lsof -i:PORT
 '''
 
-logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE)
+logger = set_up_logging("server c", LoggingOut.STDOUT, SERVER_LOG_FILE)
 
 
 class ServerControlCommands(enum.Enum):
