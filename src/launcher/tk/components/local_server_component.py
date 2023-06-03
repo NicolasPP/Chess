@@ -68,6 +68,7 @@ class LocalServerComponent(Component):
             self.started_server = False
             return
         if not ChessServer.get().start(): return
+        print(ChessServer.get_host_ipv4())
         start_new_thread(ChessServer.get().run, (False,))
         self.started_server = True
         self.vars.is_server_online_var.set(True)

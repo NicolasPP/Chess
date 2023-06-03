@@ -27,6 +27,10 @@ class ChessServer(Net):
     server: ChessServer | None = None
 
     @staticmethod
+    def get_host_ipv4() -> str:
+        return skt.gethostbyname(skt.gethostname())
+
+    @staticmethod
     def get() -> ChessServer:
         if ChessServer.server is None:
             ChessServer.server = ChessServer()
@@ -42,7 +46,7 @@ class ChessServer(Net):
             return False
 
     def __init__(self) -> None:
-        super().__init__('')
+        super().__init__('127.0.0.1')
         self.is_running: bool = False
         self.logger: logging.Logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE, logging.INFO)
         self.users: list[ServerUser] = []
@@ -82,6 +86,8 @@ class ChessServer(Net):
 
     def get_is_running(self) -> bool:
         return self.is_running
+
+
 
     def run(self, start_control_thread: bool = True) -> None:
         if not self.get_is_running():
