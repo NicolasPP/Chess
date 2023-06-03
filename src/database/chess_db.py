@@ -1,7 +1,7 @@
+import logging
 import enum
 import dataclasses
 import hashlib
-
 import sqlalchemy
 from sqlalchemy import Select
 from sqlalchemy.orm import Session
@@ -9,7 +9,7 @@ from sqlalchemy.exc import NoResultFound, DatabaseError
 from sqlalchemy import or_, and_
 
 from database.models import User, Game
-
+from chess.chess_logging import set_up_logging, LoggingOut
 
 @dataclasses.dataclass
 class DataBaseInfo:
@@ -36,6 +36,7 @@ class CreateGameResult(enum.Enum):
 class ChessDataBase:
 
     def __init__(self, db_info: DataBaseInfo) -> None:
+        self.logger: logging.Logger = set_up_logging("database", LoggingOut.STDOUT)
         self.db_info: DataBaseInfo = db_info
         self.engine: sqlalchemy.Engine | None = None
         self.create_engine()
@@ -50,15 +51,15 @@ class ChessDataBase:
     def create_engine(self) -> None:
         try:
             self.engine = sqlalchemy.create_engine(self.get_connection_url())
-        except Exception as ex:
-            print(f'engine could could not be created due to the following error: {ex}')
+        except Exception as err:
+            self.logger.error("engine could not be created due to : %s", err)
 
     def test_connection(self) -> bool:
         try:
             self.engine.connect()
             return True
         except DatabaseError as err:
-            print(f"could not connect to the database due to: {err}")
+            self.logger.error("could not connect to the database due to : %s", err)
             return False
 
     def log_in(self, user_name: str, user_password: str) -> User | None:
