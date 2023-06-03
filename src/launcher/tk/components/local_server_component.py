@@ -25,9 +25,9 @@ class LocalServerVars(typing.NamedTuple):
 
 
 class LocalServerComponent(Component):
-    def __init__(self, parent: ttk.Frame) -> None:
+    def __init__(self, parent: ttk.Frame, started_server: tk.BooleanVar) -> None:
         super().__init__(parent, "Local Server")
-        self.started_server: bool = False
+        self.started_server: tk.BooleanVar = started_server
         self.vars: LocalServerVars = self.create_vars()
         self.widgets: LocalServerWidgets = self.create_widgets()
 
@@ -67,17 +67,17 @@ class LocalServerComponent(Component):
     def handle_start_server(self):
         self.handle_refresh_server()
         if self.vars.is_server_online_var.get():
-            self.started_server = False
+            self.started_server.set(False)
             return
         if not ChessServer.get().start(): return
         start_new_thread(ChessServer.get().run, (False,))
-        self.started_server = True
+        self.started_server.set(True)
         self.vars.is_server_online_var.set(True)
 
     def handle_stop_server(self) -> None:
         if not self.vars.is_server_online_var.get(): return
         ChessServer.get().shut_down()
-        self.started_server = False
+        self.started_server.set(False)
         self.vars.is_server_online_var.set(False)
 
     def is_server_online_callback(self) -> None:
@@ -91,7 +91,7 @@ class LocalServerComponent(Component):
 
             self.widgets.server_online_label.pack(expand=True)
             self.widgets.ip_label.pack(expand=True)
-            if self.started_server:
+            if self.started_server.get():
                 self.widgets.stop_server_button.pack(expand=True)
                 self.widgets.button_frame.pack(expand=True)
 

@@ -16,8 +16,9 @@ class ConnectVars(typing.NamedTuple):
 
 
 class ConnectComponent(Component):
-    def __init__(self, parent: ttk.Frame, page_manager: PageManager) -> None:
+    def __init__(self, parent: ttk.Frame, page_manager: PageManager, started_server: tk.BooleanVar) -> None:
         super().__init__(parent, "Connect")
+        self.started_server: tk.BooleanVar = started_server
         self.page_manager: PageManager = page_manager
         self.vars: ConnectVars = create_vars()
         self.widgets: ConnectWidgets = self.create_widgets()
@@ -31,7 +32,10 @@ class ConnectComponent(Component):
         return ConnectWidgets(server_ip_entry, connect_button)
 
     def handle_connect(self) -> None:
-        LauncherUser.get_client().set_ip_address(self.vars.ip_entry_var.get())
+        server_ip: str = self.vars.ip_entry_var.get()
+        if self.started_server.get() and not server_ip:
+            server_ip = "127.0.0.1"
+        LauncherUser.get_client().set_ip_address(server_ip)
         is_connect_successful: bool = LauncherUser.get_client().start()
 
         if is_connect_successful:

@@ -12,8 +12,9 @@ class OnlinePage(PageFrame):
     def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, pg_launcher: ChessPygameLauncher) -> None:
         super().__init__(parent_frame)
         self.back: ttk.Button = self.create_back_button(page_manager)
-        self.connect_comp: ConnectComponent = ConnectComponent(self, page_manager)
-        self.local_server_comp: LocalServerComponent = LocalServerComponent(self)
+        started_server: tk.BooleanVar = tk.BooleanVar(value=False)
+        self.connect_comp: ConnectComponent = ConnectComponent(self, page_manager, started_server)
+        self.local_server_comp: LocalServerComponent = LocalServerComponent(self, started_server)
 
         self.grid_rowconfigure(0, weight=10)
         self.grid_rowconfigure(1, weight=1)
