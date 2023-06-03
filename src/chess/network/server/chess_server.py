@@ -22,6 +22,16 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 
 
 class ChessServer(Net):
+
+    @staticmethod
+    def is_local_server_online() -> bool:
+        try:
+            socket: skt.socket = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
+            socket.connect(('127.0.0.1', 3389))
+            return True
+        except skt.error as e:
+            return False
+
     def __init__(self) -> None:
         super().__init__('')
         self.is_running: bool = False
