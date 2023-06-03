@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import socket
 import socket as skt
 import enum
 import logging
@@ -153,6 +155,7 @@ class ChessServer(Net):
 
     def shut_down(self) -> None:
         self.set_is_running(False)
+        self.socket.shutdown(socket.SHUT_RDWR)
         self.reset_socket()
         disconnect_info: dict[str, str] = {}
         disconnect: Command = CommandManager.get(ServerCommand.DISCONNECT, disconnect_info)

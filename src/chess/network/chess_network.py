@@ -17,7 +17,7 @@ class Net:
         self.address = (self.host, self.port)
 
     def reset_socket(self) -> None:
-        self.socket.shutdown(skt.SHUT_RDWR)
+        self.socket.close()
         self.socket = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
 
 

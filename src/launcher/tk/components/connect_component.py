@@ -43,6 +43,7 @@ class ConnectComponent(Component):
         if self.started_server.get() and not server_ip:
             server_ip = "127.0.0.1"
         LauncherUser.get_client().set_ip_address(server_ip)
+        LauncherUser.get_client().reset_socket()
         is_connect_successful: ClientConnectResult = LauncherUser.get_client().start()
         if is_connect_successful.result:
             self.page_manager.show_page("ServerPage")
