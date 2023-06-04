@@ -50,6 +50,7 @@ class PlayedMovesGui:
     @staticmethod
     def create_played_moves_surfaces(background_rect: pygame.rect.Rect) -> PlayedMovesSurfaces:
         background_surface = pygame.surface.Surface(background_rect.size)
+        background_surface.fill(AssetManager.get_theme().primary_light)
         scroll_window_surface: pygame.surface.Surface = pygame.surface.Surface(
             (background_rect.width - BOARD_OUTLINE_THICKNESS,
              background_rect.height - (BOARD_OUTLINE_THICKNESS * 2))
@@ -57,6 +58,7 @@ class PlayedMovesGui:
         scroll_surface: pygame.surface.Surface = pygame.surface.Surface(
             scroll_window_surface.get_size()
         )
+        scroll_surface.fill(AssetManager.get_theme().primary_dark)
         background_surface.blit(scroll_surface, (0, BOARD_OUTLINE_THICKNESS))
         return PlayedMovesSurfaces(background_surface, scroll_surface, scroll_window_surface)
 
