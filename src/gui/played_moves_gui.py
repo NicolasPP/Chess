@@ -50,7 +50,6 @@ class PlayedMovesGui:
     @staticmethod
     def create_played_moves_surfaces(background_rect: pygame.rect.Rect) -> PlayedMovesSurfaces:
         background_surface = pygame.surface.Surface(background_rect.size)
-        background_surface.fill(AssetManager.get_theme().primary_light)
         scroll_window_surface: pygame.surface.Surface = pygame.surface.Surface(
             (background_rect.width - BOARD_OUTLINE_THICKNESS,
              background_rect.height - (BOARD_OUTLINE_THICKNESS * 2))
@@ -58,7 +57,6 @@ class PlayedMovesGui:
         scroll_surface: pygame.surface.Surface = pygame.surface.Surface(
             scroll_window_surface.get_size()
         )
-        scroll_surface.fill(AssetManager.get_theme().primary_dark)
         background_surface.blit(scroll_surface, (0, BOARD_OUTLINE_THICKNESS))
         return PlayedMovesSurfaces(background_surface, scroll_surface, scroll_window_surface)
 
@@ -79,7 +77,8 @@ class PlayedMovesGui:
         self.moves.append(move)
 
     def recalculate_scroll_size(self, move_surface: pygame.surface.Surface) -> None:
-        if self.cell_pos.y < self.played_surfaces.scroll.get_height(): return
+        move_cell_height: int = PlayedMovesGui.get_move_cell_size()[1]
+        if self.cell_pos.y + move_cell_height < self.played_surfaces.scroll.get_height(): return
         new_surface = pygame.surface.Surface(
             (self.played_surfaces.scroll.get_width(),
              self.played_surfaces.scroll.get_height() + move_surface.get_rect().height))
@@ -89,7 +88,6 @@ class PlayedMovesGui:
 
     def update_scroll_surface(self, move: str) -> None:
         move_surface = PlayedMovesGui.create_move_cell_surface(move)
-
         self.recalculate_scroll_size(move_surface)
 
         self.played_surfaces.scroll.blit(move_surface, self.cell_pos)
