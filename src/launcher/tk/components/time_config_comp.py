@@ -112,6 +112,6 @@ class TimeConfigComponent(Component):
         return TimeConfigVars(time_var, increment_var, current_time_var)
 
     def handle_time_click(self, time_config: TimerConfig) -> None:
-        self.vars.time_var.set(time_config.time // 60)
-        self.vars.increment_var.set(time_config.increment)
+        self.vars.time_var.set(str(time_config.time // 60))
+        self.vars.increment_var.set(str(time_config.increment))
         UserConfig.get().update_config(timer_config_name=time_config.get_name())

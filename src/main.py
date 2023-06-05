@@ -39,7 +39,7 @@ def start_app(
         pieces_asset: str,
         timer: str
 ) -> None:
-    app_type: AppType = AppType[app_type]
+    app: AppType = AppType[app_type]
     pg_launcher: ChessPygameLauncher = ChessPygameLauncher()
 
     UserConfig.get().update_config(
@@ -51,17 +51,17 @@ def start_app(
         server_ip=server_ip
     )
 
-    if app_type is AppType.LAUNCHER:
+    if app is AppType.LAUNCHER:
         UserConfig.get().load_user_config()
         ChessTkinterLauncher().mainloop()
 
-    elif app_type is AppType.SERVER:
+    elif app is AppType.SERVER:
         pg_launcher.run_local_server()
 
-    elif app_type is AppType.PLAYER_V_PLAYER:
+    elif app is AppType.PLAYER_V_PLAYER:
         pg_launcher.launch_single_player(SinglePlayerGameType.HUMAN_VS_HUMAN)
 
-    elif app_type is AppType.CLIENT:
+    elif app is AppType.CLIENT:
         pg_launcher.launch_multi_player_client()
 
 

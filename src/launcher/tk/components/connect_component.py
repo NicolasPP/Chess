@@ -51,6 +51,7 @@ class ConnectComponent(Component):
         if is_connect_successful.result:
             self.page_manager.show_page("ServerPage")
         else:
+            assert is_connect_successful.error is not None, "error cannot be None here"
             self.vars.error_var.set(is_connect_successful.error.strerror)
 
 

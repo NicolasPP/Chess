@@ -32,8 +32,8 @@ class BotConfigComponent(Component):
 
     @staticmethod
     def get_bot_vars() -> BotConfigVars:
-        elo_var: tk.StringVar = tk.StringVar(value=UserConfig.get().data.bot_elo)
-        skill_var: tk.StringVar = tk.StringVar(value=UserConfig.get().data.bot_skill_level)
+        elo_var: tk.StringVar = tk.StringVar(value=str(UserConfig.get().data.bot_elo))
+        skill_var: tk.StringVar = tk.StringVar(value=str(UserConfig.get().data.bot_skill_level))
         time_var: tk.BooleanVar = tk.BooleanVar(value=UserConfig.get().data.bot_use_time)
         side_var: tk.StringVar = tk.StringVar(value=UserConfig.get().data.bot_side_name)
         return BotConfigVars(elo_var, skill_var, time_var, side_var)
@@ -126,10 +126,10 @@ class BotConfigComponent(Component):
 
 
 def handle_scale_click(bot_vars: BotConfigVars, **args: PossibleConfigValues) -> None:
-    elo_value: int | None = args.get("bot_elo")
-    skill_value: int | None = args.get("bot_skill_level")
+    elo_value: PossibleConfigValues | None = args.get("bot_elo")
+    skill_value: PossibleConfigValues | None = args.get("bot_skill_level")
 
     if elo_value is not None: bot_vars.elo_var.set(str(elo_value))
     if skill_value is not None: bot_vars.skill_var.set(str(skill_value))
 
-    UserConfig.get().update_config(**args)
+    UserConfig.get().update_config(True, **args)

@@ -40,14 +40,10 @@ class ChessDataBase:
         self.logger: logging.Logger = set_up_logging("database", LoggingOut.STDOUT)
         self.db_info: DataBaseInfo = db_info
         self.engine: sqlalchemy.Engine | None = None
-        self.create_engine()
 
     def get_connection_url(self) -> str:
         return f"mysql+mysqlconnector://{self.db_info.user}:{self.db_info.password}@{self.db_info.host}:" \
                f"{self.db_info.port}/{self.db_info.database}"
-
-    def get_engine(self) -> sqlalchemy.Engine | None:
-        return self.engine
 
     def create_engine(self) -> None:
         try:
@@ -57,7 +53,7 @@ class ChessDataBase:
 
     def test_connection(self) -> bool:
         try:
-            self.engine.connect()
+            self.get_engine().connect()
             return True
         except DatabaseError as err:
             self.logger.error("could not connect to the database due to : %s", err)
@@ -71,7 +67,7 @@ class ChessDataBase:
         return user
 
     def get_user(self, user_name: str) -> User | None:
-        with Session(self.engine) as session:
+        with Session(self.get_engine()) as session:
             try:
                 user: User = session.scalars((Select(User).where(User.u_name == user_name))).one()
                 return user
@@ -82,7 +78,7 @@ class ChessDataBase:
         if not is_user_name_valid(user_name): return CreateUserResult.INVALID_USER_NAME
         if self.get_user(user_name) is not None: return CreateUserResult.USER_NAME_TAKEN
         if not is_user_password_valid(user_password): return CreateUserResult.INVALID_PASSWORD
-        with Session(self.engine) as session:
+        with Session(self.get_engine()) as session:
             session.add(User(u_pass=hashlib.md5(user_password.encode('utf-8')).hexdigest(), u_name=user_name))
             session.commit()
         return CreateUserResult.SUCCESS
@@ -90,11 +86,14 @@ class ChessDataBase:
     def create_game(self, white: User, black: User, moves: str, result: str, time_config: str, ) -> CreateGameResult:
         if len(result) > 7: return CreateGameResult.INVALID_RESULT
         if len(time_config) > 20: return CreateGameResult.INVALID_TIME_CONFIG
-        with Session(self.engine) as session:
+
+        with Session(self.get_engine()) as session:
             game: Game = Game(white_id=white.u_id, black_id=black.u_id, moves=moves, result=result,
                               time_config=time_config)
             session.add(game)
             session.commit()
+
+        return CreateGameResult.SUCCESS
 
     def get_users_game(self, user: User, opp_user: User | None = None) -> list[Game]:
         result: list[Game] = []
@@ -108,11 +107,16 @@ class ChessDataBase:
                 )
             )
 
-        with Session(self.engine) as session:
+        with Session(self.get_engine()) as session:
             for game in session.scalars(select).all():
                 result.append(game)
 
         return result
+
+    def get_engine(self) -> sqlalchemy.Engine:
+        if self.engine is None: self.create_engine()
+        assert self.engine is not None, "at this point we can be sure the engine has been created"
+        return self.engine
 
 
 def is_user_name_valid(user_name: str) -> bool:

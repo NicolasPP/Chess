@@ -105,7 +105,7 @@ class ChessServer(Net):
 
         while self.get_is_running():
 
-            server_user: ServerUser = self.accept_user()
+            server_user: ServerUser | None = self.accept_user()
             if server_user is None: return
 
             if self.verify_user(server_user):
@@ -148,6 +148,7 @@ class ChessServer(Net):
 
         self.users.remove(user)
         user.socket.close()
+        assert user.db_user is not None, "user cannot be None, because at this point the user has been verified"
         self.logger.info("client: %s disconnected", user.db_user.u_name)
         return
 
@@ -176,7 +177,7 @@ class ChessServer(Net):
             return False
 
         db_user_name: str = verification_command.info[CommandManager.user_name]
-        db_user: User = self.database.get_user(db_user_name)
+        db_user: User | None = self.database.get_user(db_user_name)
         if db_user is None:
             self.logger.info("database could not find user : %s", db_user_name)
             return False

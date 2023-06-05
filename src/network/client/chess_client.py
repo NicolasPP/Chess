@@ -54,6 +54,7 @@ class ChessClient(Net):
             return None
         except OSError as err:
             self.logger.error("could not read data due to: %s", err)
+            return None
 
     def get_is_connected(self) -> bool:
         return self.is_connected
