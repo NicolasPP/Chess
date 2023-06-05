@@ -4,10 +4,10 @@ import enum
 from chess.timer.timer_config import TimerConfig
 from chess.board.side import Side
 from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.network.commands.command_manager import CommandManager
-from chess.network.commands.command import Command
-from chess.network.commands.client_commands import ClientCommand
-from chess.network.commands.server_commands import ServerCommand
+from network.commands.command_manager import CommandManager
+from network.commands.command import Command
+from network.commands.client_commands import ClientCommand
+from network.commands.server_commands import ServerCommand
 from chess.notation.forsyth_edwards_notation import encode_fen_data, Fen, FenChars, validate_fen_piece_placement
 from chess.notation.forsyth_edwards_notation import validate_fen_castling_rights, validate_fen_en_passant_rights
 from chess.movement.validate_move import is_move_valid, is_take, is_check

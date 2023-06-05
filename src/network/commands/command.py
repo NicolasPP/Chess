@@ -1,5 +1,5 @@
-from chess.network.commands.client_commands import ClientCommand
-from chess.network.commands.server_commands import ServerCommand
+from network.commands.client_commands import ClientCommand
+from network.commands.server_commands import ServerCommand
 
 
 class Command:

@@ -1,7 +1,7 @@
 import socket as skt
 
 from database.models import User
-from chess.network.commands.command_manager import CommandManager
+from network.commands.command_manager import CommandManager
 
 
 class ServerUser:

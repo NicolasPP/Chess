@@ -7,10 +7,10 @@ import pygame
 
 from chess.chess_player import process_server_command, Player
 from chess.notation.forsyth_edwards_notation import Fen
-from chess.network.commands.command_manager import CommandManager
-from chess.network.commands.command import Command
+from network.commands.command_manager import CommandManager
+from network.commands.command import Command
 from chess.asset.chess_assets import PieceSetAssets, Themes
-from chess.network.chess_network import ChessNetwork
+from network.chess_network import ChessNetwork
 from chess.chess_logging import set_up_logging, LoggingOut
 from chess.chess_init import init_chess
 from chess.game.game_surface import GameSurface
