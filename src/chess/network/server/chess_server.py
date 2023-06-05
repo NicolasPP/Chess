@@ -160,6 +160,8 @@ class ChessServer(Net):
         disconnect_info: dict[str, str] = {}
         disconnect: Command = CommandManager.get(ServerCommand.DISCONNECT, disconnect_info)
         self.send_all(disconnect)
+        self.logger.info("telling clients to disconnect")
+        self.logger.info("shutting down server")
 
     def send_all(self, command: Command) -> None:
         for user in self.users:
