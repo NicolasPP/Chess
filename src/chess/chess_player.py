@@ -279,9 +279,7 @@ class Player:
         self.state = State.PICK_PIECE
 
     def render(self) -> None:
-        if self.game_over:
-            # self.end_game_gui.game_over_gui.render()
-            return
+        if self.game_over: return
 
         self.timer_gui.render()
         self.axis_gui.render()
