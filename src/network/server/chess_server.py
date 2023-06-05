@@ -118,7 +118,7 @@ class ChessServer(Net):
 
     def server_control_command_parser(self) -> None:
         while self.get_is_running():
-            input_command = input()
+            input_command: str = input()
             command: ServerControlCommands | None = ServerControlCommands.get_command_from_input(input_command)
             if command is None:
                 self.logger.info("command %s not recognised", input_command)
