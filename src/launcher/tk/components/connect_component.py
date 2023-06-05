@@ -5,6 +5,7 @@ from launcher.tk.components.tk_component import Component
 from launcher.tk.page.page_manager import PageManager
 from launcher.tk.launcher_user import LauncherUser
 from chess.network.client.chess_client import ClientConnectResult
+from config.tk_config import *
 
 
 class ConnectWidgets(typing.NamedTuple):
@@ -33,7 +34,8 @@ class ConnectComponent(Component):
     def create_widgets(self) -> ConnectWidgets:
         server_ip_entry: ttk.Entry = ttk.Entry(self.frame, textvariable=self.vars.ip_entry_var)
         server_ip_entry.bind('<Return>', lambda e: self.handle_connect())
-        error_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.error_var, foreground="red")
+        error_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.error_var, foreground="red",
+                                           wraplength=CONNECT_ERROR_WRAP_LEN, justify=tk.CENTER)
         connect_button: ttk.Button = ttk.Button(self.frame, text="Connect", command=self.handle_connect)
         return ConnectWidgets(server_ip_entry, error_label, connect_button)
 
