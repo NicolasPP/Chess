@@ -5,13 +5,13 @@ import threading
 import socket as skt
 from _thread import start_new_thread
 
-from chess.network.chess_network import Net
+from network.chess_network import Net
 from chess.chess_logging import set_up_logging, LoggingOut
-from chess.network.server.server_user import ServerUser
-from chess.network.commands.client_commands import ClientCommand
-from chess.network.commands.server_commands import ServerCommand
-from chess.network.commands.command import Command
-from chess.network.commands.command_manager import CommandManager
+from network.server.server_user import ServerUser
+from network.commands.client_commands import ClientCommand
+from network.commands.server_commands import ServerCommand
+from network.commands.command import Command
+from network.commands.command_manager import CommandManager
 from database.chess_db import ChessDataBase, DataBaseInfo
 from database.models import User
 from config.pg_config import *

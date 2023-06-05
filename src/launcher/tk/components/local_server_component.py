@@ -3,7 +3,7 @@ import tkinter as tk
 from ttkbootstrap import ttk
 from _thread import start_new_thread
 
-from chess.network.server.chess_server import ChessServer
+from network.server.chess_server import ChessServer
 from launcher.tk.components.tk_component import Component
 from launcher.tk.global_vars import GlobalUserVars
 

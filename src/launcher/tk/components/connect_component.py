@@ -4,7 +4,7 @@ from ttkbootstrap import ttk
 from launcher.tk.components.tk_component import Component
 from launcher.tk.page.page_manager import PageManager
 from launcher.tk.launcher_user import LauncherUser
-from chess.network.client.chess_client import ClientConnectResult
+from network.client.chess_client import ClientConnectResult
 from config.tk_config import *
 
 

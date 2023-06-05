@@ -4,11 +4,11 @@ import typing
 from _thread import start_new_thread
 
 from chess.chess_logging import set_up_logging, LoggingOut
-from chess.network.chess_network import Net
-from chess.network.commands.command_manager import CommandManager
-from chess.network.commands.command import Command
-from chess.network.commands.client_commands import ClientCommand
-from chess.network.commands.server_commands import ServerCommand
+from network.chess_network import Net
+from network.commands.command_manager import CommandManager
+from network.commands.command import Command
+from network.commands.client_commands import ClientCommand
+from network.commands.server_commands import ServerCommand
 from database.models import User
 from launcher.tk.global_vars import GlobalUserVars
 from config.pg_config import *

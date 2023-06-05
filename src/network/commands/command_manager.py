@@ -1,9 +1,9 @@
 import pickle
 import queue
 
-from chess.network.commands.client_commands import ClientCommand
-from chess.network.commands.server_commands import ServerCommand
-from chess.network.commands.command import Command
+from network.commands.client_commands import ClientCommand
+from network.commands.server_commands import ServerCommand
+from network.commands.command import Command
 
 
 class CommandManager:

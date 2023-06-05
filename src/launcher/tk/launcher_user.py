@@ -1,5 +1,5 @@
 from database.models import User
-from chess.network.client.chess_client import ChessClient
+from network.client.chess_client import ChessClient
 from config.user_config import UserConfig
 
 

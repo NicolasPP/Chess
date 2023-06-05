@@ -11,6 +11,7 @@ from sqlalchemy import or_, and_
 from database.models import User, Game
 from chess.chess_logging import set_up_logging, LoggingOut
 
+
 @dataclasses.dataclass
 class DataBaseInfo:
     user: str

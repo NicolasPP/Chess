@@ -1,8 +1,8 @@
 import socket as skt
 from chess.board.side import Side
 from chess.notation.forsyth_edwards_notation import FenData, validate_fen_data
-from chess.network.commands.command_manager import CommandManager
-from chess.network.commands.command import Command
+from network.commands.command_manager import CommandManager
+from network.commands.command import Command
 
 
 class Net:
