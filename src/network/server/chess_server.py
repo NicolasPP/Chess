@@ -15,6 +15,7 @@ from network.commands.command_manager import CommandManager
 from database.chess_db import ChessDataBase, DataBaseInfo
 from database.models import User
 from config.pg_config import *
+from config.tk_config import *
 
 '''
 [Errno 48] Address already in use
@@ -61,7 +62,7 @@ class ChessServer(Net):
         self.users: list[ServerUser] = []
         self.server_control_thread: threading.Thread = threading.Thread(target=self.server_control_command_parser)
         self.database: ChessDataBase = ChessDataBase(
-            DataBaseInfo('root', 'chess-database', '35.197.134.140', 3306, 'chess_db')
+            DataBaseInfo(*LOCAL_CHESS_DB_INFO)
         )
 
     def start(self) -> bool:

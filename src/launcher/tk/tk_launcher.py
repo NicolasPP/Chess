@@ -18,7 +18,7 @@ class ChessTkinterLauncher(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.style: ttk.Style = ttk.Style()
         self.pg_launcher: ChessPygameLauncher = ChessPygameLauncher(self.deiconify, self.withdraw)
-        database_info: DataBaseInfo = DataBaseInfo('root', 'chess-database', '35.197.134.140', 3306, 'chess_db')
+        database_info: DataBaseInfo = DataBaseInfo(*LOCAL_CHESS_DB_INFO)
         self.database: ChessDataBase = ChessDataBase(database_info)
 
         self.window_innit()
