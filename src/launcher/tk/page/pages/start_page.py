@@ -11,11 +11,10 @@ from launcher.tk.components.network_play_comp import NetworkPlayComponent
 
 class StartPage(PageFrame):
 
-    def __init__(self, parent_frame: ttk.Frame, page_manager: PageManager, is_bot_valid: tk.BooleanVar,
-                 database: ChessDataBase) -> None:
+    def __init__(self, parent_frame: ttk.Frame, page_manager: PageManager, database: ChessDataBase) -> None:
         super().__init__(parent_frame)
 
-        settings_comp: SettingsComponent = SettingsComponent(self, is_bot_valid)
+        settings_comp: SettingsComponent = SettingsComponent(self)
         play_comp: NetworkPlayComponent = NetworkPlayComponent(self, page_manager)
         user_comp: UserComponent = UserComponent(self, database, play_comp.get_vars().is_logged_in)
 

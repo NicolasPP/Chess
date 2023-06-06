@@ -3,6 +3,7 @@ from ttkbootstrap import ttk
 import tkinter as tk
 from launcher.tk.components.tk_component import Component
 from config.user_config import UserConfig, PossibleConfigValues
+from launcher.tk.global_vars import GlobalUserVars
 from config.tk_config import *
 
 
@@ -38,14 +39,14 @@ class BotConfigComponent(Component):
         side_var: tk.StringVar = tk.StringVar(value=UserConfig.get().data.bot_side_name)
         return BotConfigVars(elo_var, skill_var, time_var, side_var)
 
-    def __init__(self, parent: ttk.Frame, is_bot_valid: tk.BooleanVar) -> None:
-        if is_bot_valid.get():
+    def __init__(self, parent: ttk.Frame) -> None:
+        if GlobalUserVars.get_is_bot_valid().get():
             super().__init__(parent, "Bot Settings")
         else:
             super().__init__(parent, "Bot Unavailable")
 
         self.vars: BotConfigVars = BotConfigComponent.get_bot_vars()
-        self.widgets: BotConfigCompWidgets = self.create_widgets(is_bot_valid)
+        self.widgets: BotConfigCompWidgets = self.create_widgets()
 
         self.vars.time_var.trace_add("write", lambda v, i, m: self.time_var_callback())
         self.vars.side_var.trace_add("write", lambda v, i, m: self.side_var_callback())
@@ -76,8 +77,8 @@ class BotConfigComponent(Component):
         self.widgets.white_side_button.grid(row=3, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
         self.widgets.black_side_button.grid(row=3, column=2, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
 
-    def create_widgets(self, is_bot_valid: tk.BooleanVar) -> BotConfigCompWidgets:
-        state = tk.DISABLED if not is_bot_valid.get() else tk.NORMAL
+    def create_widgets(self) -> BotConfigCompWidgets:
+        state = tk.DISABLED if not GlobalUserVars.get_is_bot_valid().get() else tk.NORMAL
         elo_scale: ttk.Scale = ttk.Scale(self.frame, from_=MIN_ELO, to=MAX_ELO, value=UserConfig.get().data.bot_elo,
                                          command=lambda size: handle_scale_click(self.vars, bot_elo=int(float(size))),
                                          state=state, style="warning")
@@ -104,9 +105,10 @@ class BotConfigComponent(Component):
                                     move_time_label, fast_move_button, regular_move_button, bot_side_label,
                                     white_side_button, black_side_button)
 
-    def is_bot_valid_callback(self, is_bot_valid: tk.BooleanVar) -> None:
-        state = tk.DISABLED if not is_bot_valid.get() else tk.NORMAL
-        if is_bot_valid.get():
+    def is_bot_valid_callback(self) -> None:
+        is_bot_valid: bool = GlobalUserVars.get_is_bot_valid().get()
+        state = tk.DISABLED if not is_bot_valid else tk.NORMAL
+        if is_bot_valid:
             self.set_title("Bot Settings")
 
         for widget in self.get_widget_list():

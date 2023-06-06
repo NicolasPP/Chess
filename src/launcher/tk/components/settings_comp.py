@@ -6,6 +6,7 @@ from chess.bot.chess_bot_stockfish import StockFishBot
 from launcher.tk.components.tk_component import Component
 from config.user_config import UserConfig
 from chess.asset.chess_assets import Themes
+from launcher.tk.global_vars import GlobalUserVars
 
 
 class SettingsWidgets(typing.NamedTuple):
@@ -22,13 +23,12 @@ class SettingsWidgets(typing.NamedTuple):
 
 class SettingsComponent(Component):
 
-    def __init__(self, parent: ttk.Frame, is_bot_valid: ttk.BooleanVar) -> None:
+    def __init__(self, parent: ttk.Frame) -> None:
         super().__init__(parent, "Settings")
 
         path_entry_str: ttk.StringVar = ttk.StringVar(value="stock fish engine path")
         settings_widgets = self.create_settings_widgets(path_entry_str)
-        settings_widgets.create_bot[ttk.COMMAND] = lambda: create_bot_command(settings_widgets, is_bot_valid,
-                                                                              path_entry_str)
+        settings_widgets.create_bot[ttk.COMMAND] = lambda: create_bot_command(settings_widgets, path_entry_str)
 
         self.frame.grid_rowconfigure(0, weight=1)
         self.frame.grid_rowconfigure(1, weight=1)
@@ -38,7 +38,7 @@ class SettingsComponent(Component):
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_columnconfigure(1, weight=1)
 
-        is_bot_valid.set(StockFishBot.create_bot())
+        GlobalUserVars.get_is_bot_valid().set(StockFishBot.create_bot())
 
         settings_widgets.size_scale_label.grid(row=0, column=0, sticky=ttk.EW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         settings_widgets.size_scale.grid(row=0, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
@@ -49,7 +49,7 @@ class SettingsComponent(Component):
         settings_widgets.asset_label.grid(row=2, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         settings_widgets.asset_options.grid(row=2, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
 
-        if is_bot_valid.get():
+        if GlobalUserVars.get_is_bot_valid().get():
             settings_widgets.engine_valid.grid(row=3, column=0, columnspan=2, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         else:
             settings_widgets.path_entry.grid(row=3, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
@@ -89,13 +89,12 @@ class SettingsComponent(Component):
                                asset_label, size_scale, size_scale_label)
 
 
-def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.BooleanVar,
-                       path_entry_str: ttk.StringVar) -> None:
+def create_bot_command(settings_widgets: SettingsWidgets, path_entry_str: ttk.StringVar) -> None:
     if StockFishBot.create_bot(path_entry_str.get()):
         settings_widgets.create_bot.grid_forget()
         settings_widgets.path_entry.grid_forget()
         settings_widgets.engine_valid.grid(row=3, column=0, columnspan=2, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-        is_bot_valid.set(True)
+        GlobalUserVars.get_is_bot_valid().set(True)
     else:
         path_entry_str.set("Path Incorrect")
 

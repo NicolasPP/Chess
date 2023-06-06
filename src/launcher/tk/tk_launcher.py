@@ -27,10 +27,9 @@ class ChessTkinterLauncher(tk.Tk):
         self.root_frame: ttk.Frame = ttk.Frame(self, width=DEFAULT_WINDOW_WIDTH, height=DEFAULT_WINDOW_HEIGHT)
         self.root_frame.pack(fill=ttk.BOTH, expand=True)
 
-        is_bot_valid: ttk.BooleanVar = ttk.BooleanVar(value=False)
         self.page_manager: PageManager = PageManager()
-        self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, is_bot_valid, self.database))
-        self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher, is_bot_valid))
+        self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, self.database))
+        self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(OnlinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(ServerPage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.show_page(StartPage.__name__)

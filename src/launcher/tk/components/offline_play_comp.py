@@ -3,6 +3,7 @@ import tkinter as tk
 from ttkbootstrap import ttk
 from launcher.pg.pg_launcher import ChessPygameLauncher, SinglePlayerGameType
 from launcher.tk.components.tk_component import Component
+from launcher.tk.global_vars import GlobalUserVars
 
 
 class OfflinePlayButtons(typing.NamedTuple):
@@ -12,12 +13,11 @@ class OfflinePlayButtons(typing.NamedTuple):
 
 
 class OfflinePlayComponent(Component):
-    def __init__(self, parent: ttk.Frame, pg_launcher: ChessPygameLauncher, is_bot_valid: tk.BooleanVar) -> None:
+    def __init__(self, parent: ttk.Frame, pg_launcher: ChessPygameLauncher) -> None:
         super().__init__(parent, "Play")
         self.buttons: OfflinePlayButtons = self.create_buttons(pg_launcher)
 
-        self.is_bot_valid: tk.BooleanVar = is_bot_valid
-        self.set_bot_button_state(tk.NORMAL if is_bot_valid.get() else tk.DISABLED)
+        self.set_bot_button_state(tk.NORMAL if GlobalUserVars.get_is_bot_valid().get() else tk.DISABLED)
 
         self.buttons.vs_human.pack(expand=True)
         self.buttons.vs_bot.pack(expand=True)
@@ -32,8 +32,8 @@ class OfflinePlayComponent(Component):
                                             pg_launcher.launch_single_player(SinglePlayerGameType.BOT_VS_BOT))
         return OfflinePlayButtons(human_button, bot_button, bot_vs_bot)
 
-    def is_bot_valid_callback(self, is_bot_valid: tk.BooleanVar) -> None:
-        state: str = tk.NORMAL if is_bot_valid.get() else tk.DISABLED
+    def is_bot_valid_callback(self) -> None:
+        state: str = tk.NORMAL if GlobalUserVars.get_is_bot_valid().get() else tk.DISABLED
         self.set_bot_button_state(state)
 
     def set_bot_button_state(self, state: str) -> None:
