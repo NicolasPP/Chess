@@ -70,7 +70,7 @@ class LocalServerComponent(Component):
         if self.vars.is_server_online_var.get():
             self.started_server.set(False)
             return
-        if not ChessServer.get().start(): return
+        if not ChessServer.get().start(self.vars.is_server_online_var.get()): return
         start_new_thread(ChessServer.get().run, (False,))
         self.started_server.set(True)
         self.vars.is_server_online_var.set(True)
@@ -89,21 +89,27 @@ class LocalServerComponent(Component):
             self.widgets.start_server_button.pack_forget()
             self.widgets.refresh_server_button.pack_forget()
             self.widgets.button_frame.pack_forget()
+            self.widgets.ip_label.pack_forget()
 
             self.widgets.server_online_label.pack(expand=True)
             self.widgets.ip_label.pack(expand=True)
+
             if self.started_server.get():
                 self.widgets.stop_server_button.pack(expand=True)
-                self.widgets.button_frame.pack(expand=True)
+            else:
+                self.widgets.refresh_server_button.pack(expand=True)
+
+            self.widgets.button_frame.pack(expand=True)
 
         else:
             self.vars.server_online_text_var.set(get_online_label_value(False))
             self.widgets.server_online_label.configure(foreground="red")
+            self.widgets.stop_server_button.pack_forget()
+            self.widgets.ip_label.pack_forget()
+            self.widgets.refresh_server_button.pack_forget()
             self.widgets.start_server_button.pack(side=tk.LEFT, expand=True)
             self.widgets.refresh_server_button.pack(side=tk.LEFT, expand=True)
             self.widgets.button_frame.pack(expand=True)
-            self.widgets.stop_server_button.pack_forget()
-            self.widgets.ip_label.pack_forget()
 
 
 def get_online_label_value(is_online: bool) -> str:
