@@ -112,11 +112,11 @@ class UserComponent(Component):
         self.widgets.place()
 
     def set_commands(self, database: ChessDataBase, is_logged_in: tk.BooleanVar) -> None:
-        self.widgets.register_button[tk.COMMAND] = lambda: self.handle_register(database)
-        self.widgets.cancel_button[tk.COMMAND] = lambda: self.handle_cancel()
-        self.widgets.log_in_button[tk.COMMAND] = lambda: self.handle_log_in(database, is_logged_in)
-        self.widgets.create_user_button[tk.COMMAND] = lambda: self.handle_create_user(database)
-        self.widgets.log_out_button[tk.COMMAND] = lambda: self.handle_log_out(is_logged_in)
+        self.widgets.register_button.configure(command=lambda: self.handle_register(database))
+        self.widgets.cancel_button.configure(command=lambda: self.handle_cancel())
+        self.widgets.log_in_button.configure(command=lambda: self.handle_log_in(database, is_logged_in))
+        self.widgets.create_user_button.configure(command=lambda: self.handle_create_user(database))
+        self.widgets.log_out_button.configure(command=lambda: self.handle_log_out(is_logged_in))
 
     def create_user_widgets(self) -> UserWidgets:
         entry_frame: ttk.Frame = ttk.Frame(self.frame)
@@ -193,7 +193,7 @@ class UserComponent(Component):
         self.widgets.error_label.pack_forget()
         self.widgets.place_register_buttons()
 
-        self.frame["text"] = "Create User"
+        self.frame.configure(text="Create User")
 
     def handle_cancel(self) -> None:
         if self.state is not UserComponentState.CREATE_USER: return
@@ -201,7 +201,7 @@ class UserComponent(Component):
         self.widgets.place_forget_button()
         self.widgets.error_label.pack_forget()
         self.widgets.place_log_in_entry()
-        self.frame["text"] = "Log In"
+        self.frame.configure(text="Log In")
 
     def handle_create_user(self, database: ChessDataBase) -> None:
         if self.state is not UserComponentState.CREATE_USER: return
@@ -236,10 +236,10 @@ class UserComponent(Component):
 def is_database_up_callback(user_widgets: UserWidgets, user_vars: UserVars) -> None:
     is_database: bool = user_vars.is_database_up.get()
     state = tk.NORMAL if is_database else tk.DISABLED
-    user_widgets.create_user_button["state"] = state
-    user_widgets.log_in_button["state"] = state
-    user_widgets.log_out_button["state"] = state
-    user_widgets.register_button["state"] = state
+    user_widgets.create_user_button.configure(state=state)
+    user_widgets.log_in_button.configure(state=state)
+    user_widgets.log_out_button.configure(state=state)
+    user_widgets.register_button.configure(state=state)
 
     if is_database: return
 

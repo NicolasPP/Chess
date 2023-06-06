@@ -15,4 +15,4 @@ class Component:
         return self.frame
 
     def set_title(self, title) -> None:
-        self.frame["text"] = Component.get_title(title)
+        self.frame.configure(text=Component.get_title(title))

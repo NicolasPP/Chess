@@ -69,7 +69,7 @@ class SettingsComponent(Component):
         for theme_id in range(-1, 4):
             theme_menu.add_command(label=Themes.get_name(theme_id), background=BG_DARK, foreground=FG_DARK,
                                    command=functools.partial(handle_theme_selection, theme_id, theme_options))
-        theme_options['menu'] = theme_menu
+        theme_options.configure(menu=theme_menu)
 
         asset_label: ttk.Label = ttk.Label(self.frame, text="Asset: ")
         asset_options: ttk.Menubutton = ttk.Menubutton(self.frame, text=UserConfig.get().data.asset_name,
@@ -78,7 +78,7 @@ class SettingsComponent(Component):
         for option in ["SMALL", "LARGE", "RANDOM"]:
             asset_menu.add_command(label=option, background=BG_DARK, foreground=FG_DARK,
                                    command=functools.partial(handle_asset_selection, option, asset_options))
-        asset_options['menu'] = asset_menu
+        asset_options.configure(menu=asset_menu)
 
         current_scale: float = UserConfig.get().data.scale
         size_scale_label: ttk.Label = ttk.Label(self.frame, text=f"size : {current_scale}", anchor=ttk.W,
@@ -102,7 +102,7 @@ def create_bot_command(settings_widgets: SettingsWidgets, is_bot_valid: ttk.Bool
 
 def handle_scale_click(scale_size: str, size_scale_label: ttk.Label) -> None:
     size: float = float('%.2f' % float(scale_size))
-    size_scale_label["text"] = f"size: {size}"
+    size_scale_label.configure(text=f"size: {size}")
     UserConfig.get().update_config(scale=size)
 
 

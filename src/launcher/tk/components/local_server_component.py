@@ -82,7 +82,7 @@ class LocalServerComponent(Component):
 
     def is_server_online_callback(self) -> None:
         if self.vars.is_server_online_var.get():
-            self.widgets.server_online_label.config(foreground="green")
+            self.widgets.server_online_label.configure(foreground="green")
             self.vars.server_online_text_var.set(get_online_label_value(True))
             self.widgets.server_online_label.pack_forget()
             self.widgets.start_server_button.pack_forget()
@@ -97,7 +97,7 @@ class LocalServerComponent(Component):
 
         else:
             self.vars.server_online_text_var.set(get_online_label_value(False))
-            self.widgets.server_online_label.config(foreground="red")
+            self.widgets.server_online_label.configure(foreground="red")
             self.widgets.start_server_button.pack(side=tk.LEFT, expand=True)
             self.widgets.refresh_server_button.pack(side=tk.LEFT, expand=True)
             self.widgets.button_frame.pack(expand=True)

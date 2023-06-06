@@ -17,7 +17,7 @@ class OfflinePlayComponent(Component):
         self.buttons: OfflinePlayButtons = self.create_buttons(pg_launcher)
 
         self.is_bot_valid: tk.BooleanVar = is_bot_valid
-        self.set_bot_button_state("normal" if is_bot_valid.get() else "disabled")
+        self.set_bot_button_state(tk.NORMAL if is_bot_valid.get() else tk.DISABLED)
 
         self.buttons.vs_human.pack(expand=True)
         self.buttons.vs_bot.pack(expand=True)
@@ -37,5 +37,5 @@ class OfflinePlayComponent(Component):
         self.set_bot_button_state(state)
 
     def set_bot_button_state(self, state: str) -> None:
-        self.buttons.vs_bot["state"] = state
-        self.buttons.bot_vs_bot["state"] = state
+        self.buttons.vs_bot.configure(state=state)
+        self.buttons.bot_vs_bot.configure(state=state)
