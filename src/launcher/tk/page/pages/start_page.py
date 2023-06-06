@@ -17,7 +17,7 @@ class StartPage(PageFrame):
 
         settings_comp: SettingsComponent = SettingsComponent(self, is_bot_valid)
         play_comp: NetworkPlayComponent = NetworkPlayComponent(self, page_manager)
-        user_comp: UserComponent = UserComponent(self, database, play_comp.get_play_buttons())
+        user_comp: UserComponent = UserComponent(self, database, play_comp.get_vars().is_logged_in)
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
