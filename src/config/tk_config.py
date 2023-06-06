@@ -32,3 +32,6 @@ MAX_ELO: int = 3544
 MIN_ELO: int = 0
 MAX_SKILL: int = 20
 MIN_SKILL: int = 0
+
+CHESS_DB_INFO: tuple[str, str, str, int, str] = 'root', 'chess-database', '35.197.134.140', 3306, 'chess_db'
+LOCAL_CHESS_DB_INFO: tuple[str, str, str, int, str] = 'root', 'nicolas', '127.0.0.1', 3306, 'local_chess_db'
