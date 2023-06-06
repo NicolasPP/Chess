@@ -5,18 +5,20 @@ import time
 
 import pygame
 
-from chess.chess_player import process_server_command, Player
-from chess.notation.forsyth_edwards_notation import Fen
-from network.commands.command_manager import CommandManager
-from network.commands.command import Command
-from chess.asset.chess_assets import PieceSetAssets, Themes
-from network.chess_network import ChessNetwork
-from chess.chess_logging import set_up_logging, LoggingOut
+from chess.asset.chess_assets import PieceSetAssets
+from chess.asset.chess_assets import Themes
 from chess.chess_init import init_chess
+from chess.chess_logging import LoggingOut
+from chess.chess_logging import set_up_logging
+from chess.chess_player import process_server_command, Player
 from chess.game.game_surface import GameSurface
+from chess.notation.forsyth_edwards_notation import Fen
+from config.pg_config import CLIENT_LOG_FILE
+from config.pg_config import DATA_SIZE
 from config.user_config import UserConfig
-
-from config.pg_config import *
+from network.chess_network import ChessNetwork
+from network.commands.command import Command
+from network.commands.command_manager import CommandManager
 
 
 class OnlineLauncher:

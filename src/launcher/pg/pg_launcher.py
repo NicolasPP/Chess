@@ -1,8 +1,10 @@
-import typing
 import enum
+import typing
 
 from launcher.pg.offline_launcher import OfflineLauncher
 from launcher.pg.online_launcher import OnlineLauncher
+
+
 # from chess.timer.timer_config import TimerConfig
 # from config.user_config import UserConfig
 

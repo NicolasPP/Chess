@@ -1,11 +1,16 @@
 import pygame
 
 from chess.asset.asset_manager import AssetManager
-from gui.game_over_gui import GameOverGui
-from gui.button_gui import ButtonGui
 from chess.game.game_size import GameSize
-
-from config.pg_config import *
+from config.pg_config import BOARD_OUTLINE_THICKNESS
+from config.pg_config import FONT_FILE
+from config.pg_config import OFFER_DRAW_FONT_SIZE
+from config.pg_config import OFFER_DRAW_LABEL
+from config.pg_config import RESIGN_FONT_SIZE
+from config.pg_config import RESIGN_LABEL
+from config.pg_config import SQUARE_SIZE
+from gui.button_gui import ButtonGui
+from gui.game_over_gui import GameOverGui
 
 
 class EndGameGui:

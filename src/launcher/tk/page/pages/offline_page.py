@@ -1,13 +1,15 @@
 import tkinter as tk
+
 from ttkbootstrap import ttk
-from launcher.tk.page.page_frame import PageFrame
-from launcher.tk.page.page_manager import PageManager
+
+from config.tk_config import OFFLINE_PAGE_PAD
 from launcher.pg.pg_launcher import ChessPygameLauncher
-from launcher.tk.components.offline_play_comp import OfflinePlayComponent
 from launcher.tk.components.bot_config_comp import BotConfigComponent
+from launcher.tk.components.offline_play_comp import OfflinePlayComponent
 from launcher.tk.components.time_config_comp import TimeConfigComponent
 from launcher.tk.global_vars import GlobalUserVars
-from config.tk_config import *
+from launcher.tk.page.page_frame import PageFrame
+from launcher.tk.page.page_manager import PageManager
 
 
 class OfflinePage(PageFrame):

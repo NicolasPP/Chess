@@ -5,7 +5,7 @@ from launcher.tk.page.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.local_server_component import LocalServerComponent
 from launcher.tk.components.connect_component import ConnectComponent
-from config.tk_config import *
+from config.tk_config import ONLINE_PAD
 
 
 class OnlinePage(PageFrame):

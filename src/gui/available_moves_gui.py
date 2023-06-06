@@ -2,13 +2,17 @@ import typing
 
 import pygame
 
-from chess.notation.forsyth_edwards_notation import Fen, FenChars
-from chess.movement.piece_movement import get_available_moves
-from chess.game.game_surface import GameSurface
+from chess.board.board_tile import BoardTile
 from chess.board.chess_board import Board
 from chess.board.side import Side
-from chess.board.board_tile import BoardTile
-from config.pg_config import *
+from chess.game.game_surface import GameSurface
+from chess.movement.piece_movement import get_available_moves
+from chess.notation.forsyth_edwards_notation import Fen
+from chess.notation.forsyth_edwards_notation import FenChars
+from config.pg_config import AVAILABLE_ALPHA
+from config.pg_config import AVAILABLE_MOVE_COLOR
+from config.pg_config import AVAILABLE_MOVE_SCALE
+from config.pg_config import BOARD_SIZE
 
 
 class AvailableMovesGui:

@@ -1,15 +1,20 @@
-import logging
-import enum
 import dataclasses
+import enum
 import hashlib
+import logging
+
 import sqlalchemy
 from sqlalchemy import Select
+from sqlalchemy import and_
+from sqlalchemy import or_
+from sqlalchemy.exc import DatabaseError
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import NoResultFound, DatabaseError
-from sqlalchemy import or_, and_
 
-from database.models import User, Game
-from chess.chess_logging import set_up_logging, LoggingOut
+from chess.chess_logging import LoggingOut
+from chess.chess_logging import set_up_logging
+from database.models import Game
+from database.models import User
 
 
 @dataclasses.dataclass

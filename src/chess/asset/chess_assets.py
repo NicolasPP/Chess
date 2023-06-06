@@ -5,7 +5,31 @@ import typing
 
 import pygame
 
-from config.pg_config import *
+from config.pg_config import NORMAL16x16_PIECE_FILE_BLACK
+from config.pg_config import NORMAL16x16_PIECE_FILE_WHITE
+from config.pg_config import NORMAL16x32_PIECE_FILE_BLACK
+from config.pg_config import NORMAL16x32_PIECE_FILE_WHITE
+from config.pg_config import PIECE_ASSET_COL
+from config.pg_config import PIECE_ASSET_ROW
+from config.pg_config import PIECE_BG
+from config.pg_config import SIMPLE16x16_PIECE_FILE_BLACK
+from config.pg_config import SIMPLE16x16_PIECE_FILE_WHITE
+from config.pg_config import THEME1_P_DARK
+from config.pg_config import THEME1_P_LIGHT
+from config.pg_config import THEME1_S_DARK
+from config.pg_config import THEME1_S_LIGHT
+from config.pg_config import THEME2_P_DARK
+from config.pg_config import THEME2_P_LIGHT
+from config.pg_config import THEME2_S_DARK
+from config.pg_config import THEME2_S_LIGHT
+from config.pg_config import THEME3_P_DARK
+from config.pg_config import THEME3_P_LIGHT
+from config.pg_config import THEME3_S_DARK
+from config.pg_config import THEME3_S_LIGHT
+from config.pg_config import THEME4_P_DARK
+from config.pg_config import THEME4_P_LIGHT
+from config.pg_config import THEME4_S_DARK
+from config.pg_config import THEME4_S_LIGHT
 
 
 @dataclasses.dataclass

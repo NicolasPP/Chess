@@ -6,7 +6,13 @@ from chess.asset.asset_manager import AssetManager
 from chess.game.game_surface import GameSurface
 from chess.game.game_surface import GameSize
 from chess.board.board_tile import BoardTile
-from config.pg_config import *
+from config.pg_config import FONT_FILE
+from config.pg_config import AXIS_FONT_SIZE
+from config.pg_config import SQUARE_SIZE
+from config.pg_config import BOARD_SIZE
+from config.pg_config import X_AXIS_HEIGHT
+from config.pg_config import Y_AXIS_WIDTH
+from config.pg_config import BOARD_OUTLINE_THICKNESS
 
 
 class TileHover(typing.NamedTuple):

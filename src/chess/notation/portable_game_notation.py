@@ -2,10 +2,14 @@ import dataclasses
 import re
 import typing
 
-from chess.movement.piece_movement import get_available_moves, is_pawn_promotion
-from chess.movement.validate_move import is_take, is_check, is_checkmate
-from chess.notation.forsyth_edwards_notation import Fen, FenChars
+from chess.movement.piece_movement import get_available_moves
+from chess.movement.piece_movement import is_pawn_promotion
+from chess.movement.validate_move import is_check
+from chess.movement.validate_move import is_checkmate
+from chess.movement.validate_move import is_take
 from chess.notation.algebraic_notation import AlgebraicNotation
+from chess.notation.forsyth_edwards_notation import Fen
+from chess.notation.forsyth_edwards_notation import FenChars
 
 TagPairs: typing.TypeAlias = dict[str, str]
 
@@ -28,7 +32,7 @@ class PGNMove:
 
 
 @dataclasses.dataclass
-class Game:
+class PGNGame:
     pgn_string: str
     tag_pairs: TagPairs
     pgn_moves: list[PGNMove]
@@ -51,10 +55,10 @@ class RegMovePair:
 class PortableGameNotation:
     def __init__(self, file_name: str):
         self.file_name: str = file_name
-        self.games: list[Game] = self.parse_pgn_file()
+        self.games: list[PGNGame] = self.parse_pgn_file()
 
-    def parse_pgn_file(self) -> list[Game]:
-        games: list[Game] = []
+    def parse_pgn_file(self) -> list[PGNGame]:
+        games: list[PGNGame] = []
         tag_pairs: TagPairs = {}
 
         with open(self.file_name, "r") as file:
@@ -66,7 +70,7 @@ class PortableGameNotation:
                 if is_tag_pair(line):
                     insert_tag_pair(tag_pairs, line)
                 else:
-                    games.append(Game(line, tag_pairs, *get_pgn_moves_and_result(line)))
+                    games.append(PGNGame(line, tag_pairs, *get_pgn_moves_and_result(line)))
                     tag_pairs = {}
 
             file.close()
@@ -122,7 +126,7 @@ def is_result(move: str) -> bool:
     return move in possible_results
 
 
-def get_an_from_pgn_game(game: Game) \
+def get_an_from_pgn_game(game: PGNGame) \
         -> typing.Generator[RegMovePair, None, None]:
     fen = Fen()
     for pgn_move in game.pgn_moves:

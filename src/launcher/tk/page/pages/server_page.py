@@ -1,13 +1,15 @@
 import tkinter as tk
+
 from ttkbootstrap import ttk
-from launcher.tk.page.page_frame import PageFrame
-from launcher.tk.page.page_manager import PageManager
+
+from config.tk_config import SERVER_PAD
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.chat_component import ChatComponent
 from launcher.tk.components.server_lobby_component import ServerLobbyComponent
-from launcher.tk.launcher_user import LauncherUser
 from launcher.tk.global_vars import GlobalUserVars
-from config.tk_config import *
+from launcher.tk.launcher_user import LauncherUser
+from launcher.tk.page.page_frame import PageFrame
+from launcher.tk.page.page_manager import PageManager
 
 
 class ServerPage(PageFrame):

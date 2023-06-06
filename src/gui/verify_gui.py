@@ -1,10 +1,22 @@
 import pygame
 
-from gui.button_gui import ButtonGui
-from chess.game.game_surface import GameSurface
-from chess.game.game_size import GameSize
 from chess.asset.asset_manager import AssetManager
-from config.pg_config import *
+from chess.game.game_size import GameSize
+from chess.game.game_surface import GameSurface
+from config.pg_config import DESCRIPTION_BUTTON_HEIGHT
+from config.pg_config import DESCRIPTION_FONT_SIZE
+from config.pg_config import DESCRIPTION_LABEL
+from config.pg_config import FONT_FILE
+from config.pg_config import NO_LABEL
+from config.pg_config import POP_UP_BG_HEIGHT
+from config.pg_config import POP_UP_BG_WIDTH
+from config.pg_config import POP_UP_FONT_SIZE
+from config.pg_config import POP_UP_SPACING
+from config.pg_config import VERIFY_BG_ALPHA
+from config.pg_config import VERIFY_BUTTON_HEIGHT
+from config.pg_config import VERIFY_BUTTON_WIDTH
+from config.pg_config import YES_LABEL
+from gui.button_gui import ButtonGui
 
 
 class VerifyGui:

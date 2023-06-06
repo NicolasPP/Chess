@@ -1,21 +1,26 @@
 from __future__ import annotations
+
 import enum
 import logging
-import threading
 import socket as skt
+import threading
 from _thread import start_new_thread
 
+from chess.chess_logging import LoggingOut
+from chess.chess_logging import set_up_logging
+from config.pg_config import DATA_SIZE
+from config.pg_config import SERVER_LOG_FILE
+from config.pg_config import SERVER_NAME
+from config.tk_config import LOCAL_CHESS_DB_INFO
+from database.chess_db import ChessDataBase
+from database.chess_db import DataBaseInfo
+from database.models import User
 from network.chess_network import Net
-from chess.chess_logging import set_up_logging, LoggingOut
-from network.server.server_user import ServerUser
 from network.commands.client_commands import ClientCommand
-from network.commands.server_commands import ServerCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
-from database.chess_db import ChessDataBase, DataBaseInfo
-from database.models import User
-from config.pg_config import *
-from config.tk_config import *
+from network.commands.server_commands import ServerCommand
+from network.server.server_user import ServerUser
 
 '''
 [Errno 48] Address already in use

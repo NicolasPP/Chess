@@ -1,17 +1,21 @@
 import pygame
 
-from chess.movement.piece_movement import PieceMovement
-from chess.asset.chess_assets import ChessTheme, PieceSetAsset, PieceSetAssets
 from chess.asset.asset_manager import AssetManager
-from gui.board_axis_gui import BoardAxisGui, AxisRects
-from gui.end_game_gui import EndGameGui
-from chess.game.game_surface import GameSurface
-from chess.game.game_size import GameSize
-from gui.timer_gui import TimerGui, TimerRects
-from gui.played_moves_gui import PlayedMovesGui
+from chess.asset.chess_assets import ChessTheme
+from chess.asset.chess_assets import PieceSetAsset
+from chess.asset.chess_assets import PieceSetAssets
 from chess.board.chess_board import Board
+from chess.game.game_size import GameSize
+from chess.game.game_surface import GameSurface
+from chess.movement.piece_movement import PieceMovement
 from chess.notation.forsyth_edwards_notation import FenChars
 from config.pg_config import GAME_SURFACE_SPACING
+from gui.board_axis_gui import AxisRects
+from gui.board_axis_gui import BoardAxisGui
+from gui.end_game_gui import EndGameGui
+from gui.played_moves_gui import PlayedMovesGui
+from gui.timer_gui import TimerGui
+from gui.timer_gui import TimerRects
 
 
 def init_chess(theme: ChessTheme, piece_set: PieceSetAsset, scale: float) -> None:

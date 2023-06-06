@@ -1,9 +1,9 @@
 import pygame
 
-from chess.board.side import Side
 from chess.asset.asset_manager import AssetManager
-from chess.game.game_surface import GameSurface
 from chess.asset.chess_assets import scale_surface
+from chess.board.side import Side
+from chess.game.game_surface import GameSurface
 from config.pg_config import PROMOTION_PIECE_SCALE
 
 

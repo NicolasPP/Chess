@@ -1,12 +1,14 @@
 import pygame
 
-from chess.board.board_tile import BoardTile
-from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
+from chess.board.board_tile import BoardTile
 from chess.board.side import Side
-from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
-from config.pg_config import *
+from chess.game.game_surface import GameSurface
+from chess.notation.forsyth_edwards_notation import FenChars
+from config.pg_config import BOARD_OUTLINE_THICKNESS
+from config.pg_config import BOARD_SIZE
+from config.pg_config import SQUARE_SIZE
 
 
 class Board:

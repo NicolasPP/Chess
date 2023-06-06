@@ -1,15 +1,18 @@
 from __future__ import annotations
+
 import datetime
 import threading
+
 from stockfish import Stockfish
 
-from chess.notation.forsyth_edwards_notation import Fen
-from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.chess_player import Player, send_command
-from network.commands.command_manager import CommandManager
-from network.commands.client_commands import ClientCommand
 from chess.board.side import Side
+from chess.chess_player import Player
+from chess.chess_player import send_command
+from chess.notation.algebraic_notation import AlgebraicNotation
+from chess.notation.forsyth_edwards_notation import Fen
 from config.user_config import UserConfig
+from network.commands.client_commands import ClientCommand
+from network.commands.command_manager import CommandManager
 
 
 class StockFishBot:

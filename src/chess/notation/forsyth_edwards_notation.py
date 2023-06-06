@@ -1,8 +1,10 @@
 import dataclasses
 import typing
 
-from chess.notation.algebraic_notation import AlgebraicNotation, validate_file_and_rank
-from config.pg_config import *
+from chess.notation.algebraic_notation import AlgebraicNotation
+from chess.notation.algebraic_notation import validate_file_and_rank
+from config.pg_config import BOARD_SIZE
+from config.pg_config import GAME_START_FEN
 
 
 class FenChars:

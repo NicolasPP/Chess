@@ -3,12 +3,12 @@ import typing
 
 import pygame
 
-from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.board.side import Side
-from chess.notation.forsyth_edwards_notation import FenChars
 from chess.asset.asset_manager import AssetManager
+from chess.board.side import Side
 from chess.game.game_surface import GameSurface
-from config.pg_config import *
+from chess.notation.algebraic_notation import AlgebraicNotation
+from chess.notation.forsyth_edwards_notation import FenChars
+from config.pg_config import BOARD_SIZE
 
 
 class BoardTileIndex(typing.NamedTuple):

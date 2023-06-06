@@ -1,11 +1,18 @@
-import typing
 import functools
 import tkinter as tk
+import typing
+
 from ttkbootstrap import ttk
-from launcher.tk.components.tk_component import Component
-from chess.timer.timer_config import DefaultConfigs, TimerConfig
-from config.tk_config import *
+
+from chess.timer.timer_config import DefaultConfigs
+from chess.timer.timer_config import TimerConfig
+from config.tk_config import BG_DARK
+from config.tk_config import DEFAULT_TIME_PAD
+from config.tk_config import FG_DARK
+from config.tk_config import TIME_ENTRY_PAD
+from config.tk_config import TIME_ENTRY_WIDTH
 from config.user_config import UserConfig
+from launcher.tk.components.tk_component import Component
 
 
 class TimeConfigWidgets(typing.NamedTuple):

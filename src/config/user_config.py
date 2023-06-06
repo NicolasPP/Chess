@@ -3,7 +3,7 @@ import typing
 import dataclasses
 import pickle
 
-from config.tk_config import *
+from config.tk_config import LOCAL_CONFIG_PATH
 
 PossibleConfigValues: typing.TypeAlias = str | float | int | bool
 

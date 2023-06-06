@@ -1,12 +1,14 @@
 import tkinter as tk
+
 from ttkbootstrap import ttk
-from launcher.tk.page.page_frame import PageFrame
-from launcher.tk.page.page_manager import PageManager
-from config.tk_config import *
+
+from config.tk_config import START_PAGE_FRAME_PAD
 from database.chess_db import ChessDataBase
+from launcher.tk.components.network_play_comp import NetworkPlayComponent
 from launcher.tk.components.settings_comp import SettingsComponent
 from launcher.tk.components.user_comp import UserComponent
-from launcher.tk.components.network_play_comp import NetworkPlayComponent
+from launcher.tk.page.page_frame import PageFrame
+from launcher.tk.page.page_manager import PageManager
 
 
 class StartPage(PageFrame):

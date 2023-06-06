@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import string
 
-from config.pg_config import *
+from config.pg_config import BOARD_SIZE
 
 
 class AlgebraicNotation:

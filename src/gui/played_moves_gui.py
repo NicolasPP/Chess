@@ -2,14 +2,18 @@ import dataclasses
 
 import pygame
 
-from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.notation.portable_game_notation import generate_move_text
-from chess.notation.forsyth_edwards_notation import Fen
-from chess.game.game_surface import GameSurface
 from chess.asset.asset_manager import AssetManager
 from chess.game.game_size import GameSize
-
-from config.pg_config import *
+from chess.game.game_surface import GameSurface
+from chess.notation.algebraic_notation import AlgebraicNotation
+from chess.notation.forsyth_edwards_notation import Fen
+from chess.notation.portable_game_notation import generate_move_text
+from config.pg_config import BOARD_OUTLINE_THICKNESS
+from config.pg_config import BOARD_SIZE
+from config.pg_config import FONT_FILE
+from config.pg_config import PLAYED_MOVE_FONT_SIZE
+from config.pg_config import SCROLL_SPEED
+from config.pg_config import SQUARE_SIZE
 
 
 @dataclasses.dataclass

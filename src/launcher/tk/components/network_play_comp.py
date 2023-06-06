@@ -1,8 +1,10 @@
-import typing
 import tkinter as tk
+import typing
+
 from ttkbootstrap import ttk
-from launcher.tk.page.page_manager import PageManager
+
 from launcher.tk.components.tk_component import Component
+from launcher.tk.page.page_manager import PageManager
 
 
 class NetworkPlayWidgets(typing.NamedTuple):

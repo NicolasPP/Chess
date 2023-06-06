@@ -1,10 +1,17 @@
-import typing
-from ttkbootstrap import ttk
 import tkinter as tk
+import typing
+
+from ttkbootstrap import ttk
+
+from config.tk_config import BOT_CONFIG_PAD
+from config.tk_config import MAX_ELO
+from config.tk_config import MAX_SKILL
+from config.tk_config import MIN_ELO
+from config.tk_config import MIN_SKILL
+from config.user_config import PossibleConfigValues
+from config.user_config import UserConfig
 from launcher.tk.components.tk_component import Component
-from config.user_config import UserConfig, PossibleConfigValues
 from launcher.tk.global_vars import GlobalUserVars
-from config.tk_config import *
 
 
 class BotConfigCompWidgets(typing.NamedTuple):

@@ -2,18 +2,21 @@ import time
 
 import pygame
 
-from chess.game.chess_match import Match
-from chess.chess_player import Player, process_command_local, State
+from chess.asset.chess_assets import PieceSetAssets
+from chess.asset.chess_assets import Themes
 from chess.board.side import Side
-from chess.asset.chess_assets import Themes, PieceSetAssets
-from chess.timer.timer_config import TimerConfig
-from chess.game.game_surface import GameSurface
-from chess.chess_init import init_chess
-from chess.notation.forsyth_edwards_notation import Fen
 from chess.bot.chess_bot_stockfish import StockFishBot
+from chess.chess_init import init_chess
+from chess.chess_player import Player
+from chess.chess_player import State
+from chess.chess_player import process_command_local
+from chess.game.chess_match import Match
+from chess.game.game_surface import GameSurface
+from chess.notation.forsyth_edwards_notation import Fen
+from chess.timer.timer_config import TimerConfig
+from config.pg_config import MOUSECLICK_SCROLL_DOWN
+from config.pg_config import MOUSECLICK_SCROLL_UP
 from config.user_config import UserConfig
-
-from config.pg_config import MOUSECLICK_SCROLL_UP, MOUSECLICK_SCROLL_DOWN
 
 
 class OfflineLauncher:

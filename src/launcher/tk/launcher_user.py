@@ -1,6 +1,6 @@
+from config.user_config import UserConfig
 from database.models import User
 from network.client.chess_client import ChessClient
-from config.user_config import UserConfig
 
 
 class LauncherUser:

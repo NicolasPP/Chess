@@ -3,15 +3,18 @@ import socket as skt
 import typing
 from _thread import start_new_thread
 
-from chess.chess_logging import set_up_logging, LoggingOut
-from network.chess_network import Net
-from network.commands.command_manager import CommandManager
-from network.commands.command import Command
-from network.commands.client_commands import ClientCommand
-from network.commands.server_commands import ServerCommand
+from chess.chess_logging import LoggingOut
+from chess.chess_logging import set_up_logging
+from config.pg_config import CLIENT_LOG_FILE
+from config.pg_config import CLIENT_NAME
+from config.pg_config import DATA_SIZE
 from database.models import User
 from launcher.tk.global_vars import GlobalUserVars
-from config.pg_config import *
+from network.chess_network import Net
+from network.commands.client_commands import ClientCommand
+from network.commands.command import Command
+from network.commands.command_manager import CommandManager
+from network.commands.server_commands import ServerCommand
 
 
 class ClientConnectResult(typing.NamedTuple):

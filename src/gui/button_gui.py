@@ -1,5 +1,6 @@
-import pygame
 import dataclasses
+
+import pygame
 
 from chess.game.game_surface import GameSurface
 from config.pg_config import HOVER_ALPHA

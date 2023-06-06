@@ -1,4 +1,5 @@
 import pytest
+
 import chess.notation.forsyth_edwards_notation as notation
 
 

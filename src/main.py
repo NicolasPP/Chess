@@ -1,8 +1,11 @@
-import click
 import enum
-from launcher.tk.tk_launcher import ChessTkinterLauncher
-from launcher.pg.pg_launcher import ChessPygameLauncher, SinglePlayerGameType
+
+import click
+
 from config.user_config import UserConfig
+from launcher.pg.pg_launcher import ChessPygameLauncher
+from launcher.pg.pg_launcher import SinglePlayerGameType
+from launcher.tk.tk_launcher import ChessTkinterLauncher
 
 
 class AppType(enum.Enum):

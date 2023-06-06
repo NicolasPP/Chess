@@ -2,8 +2,8 @@ import pickle
 import queue
 
 from network.commands.client_commands import ClientCommand
-from network.commands.server_commands import ServerCommand
 from network.commands.command import Command
+from network.commands.server_commands import ServerCommand
 
 
 class CommandManager:

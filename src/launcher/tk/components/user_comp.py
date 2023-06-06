@@ -1,12 +1,15 @@
 import enum
-import typing
 import tkinter as tk
+import typing
+
 from ttkbootstrap import ttk
-from config.tk_config import *
-from database.chess_db import ChessDataBase, CreateUserResult
+
+from config.tk_config import SETTINGS_PAD
+from database.chess_db import ChessDataBase
+from database.chess_db import CreateUserResult
 from database.models import User
-from launcher.tk.launcher_user import LauncherUser
 from launcher.tk.components.tk_component import Component
+from launcher.tk.launcher_user import LauncherUser
 
 
 class UserWidgets(typing.NamedTuple):

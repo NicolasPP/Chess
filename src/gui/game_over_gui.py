@@ -1,10 +1,19 @@
 import pygame
 
-from chess.game.game_surface import GameSurface
-from chess.game.game_size import GameSize
-from chess.game.chess_match import MatchResult
 from chess.asset.asset_manager import AssetManager
-from config.pg_config import *
+from chess.game.chess_match import MatchResult
+from chess.game.game_size import GameSize
+from chess.game.game_surface import GameSurface
+from config.pg_config import DRAW_MESSAGE
+from config.pg_config import FONT_FILE
+from config.pg_config import GAME_OVER_ALPHA
+from config.pg_config import GAME_OVER_COLOR
+from config.pg_config import OPAQUE
+from config.pg_config import POP_UP_BG_HEIGHT
+from config.pg_config import POP_UP_BG_WIDTH
+from config.pg_config import POP_UP_FONT_SIZE
+from config.pg_config import RESULT_TYPE_FONT_SIZE
+from config.pg_config import WINNING_MESSAGE
 
 
 class GameOverGui:

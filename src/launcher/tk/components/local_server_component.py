@@ -1,11 +1,12 @@
-import typing
 import tkinter as tk
-from ttkbootstrap import ttk
+import typing
 from _thread import start_new_thread
 
-from network.server.chess_server import ChessServer
+from ttkbootstrap import ttk
+
 from launcher.tk.components.tk_component import Component
 from launcher.tk.global_vars import GlobalUserVars
+from network.server.chess_server import ChessServer
 
 
 class LocalServerWidgets(typing.NamedTuple):

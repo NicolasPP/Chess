@@ -1,7 +1,10 @@
-import typing
 import tkinter as tk
+import typing
+
 from ttkbootstrap import ttk
-from launcher.pg.pg_launcher import ChessPygameLauncher, SinglePlayerGameType
+
+from launcher.pg.pg_launcher import ChessPygameLauncher
+from launcher.pg.pg_launcher import SinglePlayerGameType
 from launcher.tk.components.tk_component import Component
 from launcher.tk.global_vars import GlobalUserVars
 

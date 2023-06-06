@@ -3,14 +3,23 @@ import dataclasses
 import pygame
 
 from chess.asset.asset_manager import AssetManager
+from chess.asset.chess_assets import PieceSetAssets
+from chess.asset.chess_assets import scale_surface
 from chess.board.side import Side
-from chess.notation.forsyth_edwards_notation import validate_fen_val
-from chess.asset.chess_assets import scale_surface, PieceSetAssets
-from chess.game.game_surface import GameSurface
 from chess.game.game_size import GameSize
+from chess.game.game_surface import GameSurface
 from chess.notation.forsyth_edwards_notation import FenChars
-
-from config.pg_config import *
+from chess.notation.forsyth_edwards_notation import validate_fen_val
+from config.pg_config import B_SCORE
+from config.pg_config import FONT_FILE
+from config.pg_config import MAX_SCORE
+from config.pg_config import N_SCORE
+from config.pg_config import OPP_TIMER_SPACING
+from config.pg_config import P_SCORE
+from config.pg_config import Q_SCORE
+from config.pg_config import R_SCORE
+from config.pg_config import SCORE_FONT_SIZE
+from config.pg_config import X_AXIS_HEIGHT
 
 
 @dataclasses.dataclass

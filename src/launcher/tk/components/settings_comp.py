@@ -1,11 +1,17 @@
 import functools
 import typing
+
 import ttkbootstrap as ttk
-from config.tk_config import *
-from chess.bot.chess_bot_stockfish import StockFishBot
-from launcher.tk.components.tk_component import Component
-from config.user_config import UserConfig
+
 from chess.asset.chess_assets import Themes
+from chess.bot.chess_bot_stockfish import StockFishBot
+from config.tk_config import BG_DARK
+from config.tk_config import FG_DARK
+from config.tk_config import SCALE_LABEL_WIDTH
+from config.tk_config import SETTINGS_MENUBUTTON_WIDTH
+from config.tk_config import SETTINGS_PAD
+from config.user_config import UserConfig
+from launcher.tk.components.tk_component import Component
 from launcher.tk.global_vars import GlobalUserVars
 
 

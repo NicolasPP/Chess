@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import datetime
 import enum
 
@@ -8,26 +9,34 @@ from chess.asset.asset_manager import AssetManager
 from chess.board.board_tile import BoardTile
 from chess.board.chess_board import Board
 from chess.board.side import Side
+from chess.game.chess_match import Match
 from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
 from chess.movement.piece_movement import is_pawn_promotion
-from network.chess_network import ChessNetwork
-from network.commands.command_manager import CommandManager
-from network.commands.command import Command
-from network.commands.client_commands import ClientCommand
-from network.commands.server_commands import ServerCommand
-from chess.notation.forsyth_edwards_notation import Fen, FenChars
+from chess.notation.forsyth_edwards_notation import Fen
+from chess.notation.forsyth_edwards_notation import FenChars
+from config.pg_config import DRAW_DOUBLE_CHECK_LABEL
+from config.pg_config import MOUSECLICK_LEFT
+from config.pg_config import MOUSECLICK_SCROLL_DOWN
+from config.pg_config import MOUSECLICK_SCROLL_UP
+from config.pg_config import RESIGN_DOUBLE_CHECK_LABEL
+from config.pg_config import RESPOND_DRAW_LABEL
+from config.pg_config import Y_AXIS_WIDTH
 from gui.available_moves_gui import AvailableMovesGui
 from gui.board_axis_gui import BoardAxisGui
 from gui.captured_gui import CapturedGui
 from gui.end_game_gui import EndGameGui
-from gui.promotion_gui import PromotionGui
-from gui.timer_gui import TimerGui, TimerRects
-from gui.verify_gui import VerifyGui
-from gui.previous_move_gui import PreviousMoveGui
-from chess.game.chess_match import Match
 from gui.played_moves_gui import PlayedMovesGui
-from config.pg_config import *
+from gui.previous_move_gui import PreviousMoveGui
+from gui.promotion_gui import PromotionGui
+from gui.timer_gui import TimerGui
+from gui.timer_gui import TimerRects
+from gui.verify_gui import VerifyGui
+from network.chess_network import ChessNetwork
+from network.commands.client_commands import ClientCommand
+from network.commands.command import Command
+from network.commands.command_manager import CommandManager
+from network.commands.server_commands import ServerCommand
 
 
 class State(enum.Enum):

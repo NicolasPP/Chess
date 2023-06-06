@@ -2,7 +2,8 @@ import enum
 import logging
 import sys
 
-from config.pg_config import LOG_FORMAT, LOG_FILE_MODE
+from config.pg_config import LOG_FILE_MODE
+from config.pg_config import LOG_FORMAT
 
 formatter: logging.Formatter = logging.Formatter(LOG_FORMAT)
 

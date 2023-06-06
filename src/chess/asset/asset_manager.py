@@ -1,9 +1,16 @@
 import pygame
 
-from chess.asset.chess_assets import PieceSurfaces, PieceSetAsset, load_piece_set, ChessTheme
+from chess.asset.chess_assets import ChessTheme
+from chess.asset.chess_assets import PieceSetAsset
+from chess.asset.chess_assets import PieceSurfaces
+from chess.asset.chess_assets import load_piece_set
 from chess.notation.forsyth_edwards_notation import FenChars
-
-from config.pg_config import *
+from config.pg_config import B_ASSET_INDEX
+from config.pg_config import K_ASSET_INDEX
+from config.pg_config import N_ASSET_INDEX
+from config.pg_config import P_ASSET_INDEX
+from config.pg_config import Q_ASSET_INDEX
+from config.pg_config import R_ASSET_INDEX
 
 
 class AssetManager:

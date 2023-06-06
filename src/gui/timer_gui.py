@@ -2,11 +2,14 @@ import typing
 
 import pygame
 
-from chess.timer.chess_timer import ChessTimer
 from chess.board.side import Side
-from chess.notation.forsyth_edwards_notation import FenChars
 from chess.game.game_size import GameSize
-from config.pg_config import *
+from chess.notation.forsyth_edwards_notation import FenChars
+from chess.timer.chess_timer import ChessTimer
+from config.pg_config import FIVE_FONT_FILE
+from config.pg_config import OPP_TIMER_SPACING
+from config.pg_config import TIMER_FONT_SIZE
+from config.pg_config import X_AXIS_HEIGHT
 
 
 class TimerRects(typing.NamedTuple):

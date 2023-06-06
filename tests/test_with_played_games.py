@@ -2,10 +2,13 @@ import pytest
 
 from chess.movement.validate_move import is_move_valid
 from chess.notation.forsyth_edwards_notation import Fen
-from chess.notation.portable_game_notation import PortableGameNotation, get_an_from_pgn_game, Game, generate_move_text
+from chess.notation.portable_game_notation import PortableGameNotation
+from chess.notation.portable_game_notation import generate_move_text
+from chess.notation.portable_game_notation import get_an_from_pgn_game
+from chess.notation.portable_game_notation import PGNGame
 
 
-def get_games() -> list[Game]:
+def get_games() -> list[PGNGame]:
     magnus = PortableGameNotation('game_data/magnus_carlsen_latest_games.pgn')
     hikaru = PortableGameNotation('game_data/hikaru_nakamura_latest_games.pgn')
     return magnus.games + hikaru.games
@@ -13,7 +16,7 @@ def get_games() -> list[Game]:
 
 @pytest.mark.played_games
 @pytest.mark.parametrize("game", get_games())
-def test_against_played_games(game: Game):
+def test_against_played_games(game: PGNGame):
     fen = Fen()
     for reg_move, pgn_move in zip(get_an_from_pgn_game(game), game.pgn_moves):
         white_reg = reg_move.white_move

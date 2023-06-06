@@ -1,8 +1,9 @@
 import typing
 
-from chess.notation.forsyth_edwards_notation import Fen, FenChars
+from chess.notation.forsyth_edwards_notation import Fen
+from chess.notation.forsyth_edwards_notation import FenChars
 from chess.notation.algebraic_notation import AlgebraicNotation
-from config.pg_config import *
+from config.pg_config import BOARD_SIZE
 
 AvailableMovesGetter: typing.TypeAlias = typing.Callable[[int, Fen, None | bool], list[int]]
 

@@ -1,11 +1,13 @@
-import typing
 import tkinter as tk
+import typing
+
 from ttkbootstrap import ttk
+
+from config.tk_config import CONNECT_ERROR_WRAP_LEN
 from launcher.tk.components.tk_component import Component
-from launcher.tk.page.page_manager import PageManager
 from launcher.tk.launcher_user import LauncherUser
+from launcher.tk.page.page_manager import PageManager
 from network.client.chess_client import ClientConnectResult
-from config.tk_config import *
 
 
 class ConnectWidgets(typing.NamedTuple):
