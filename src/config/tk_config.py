@@ -35,3 +35,15 @@ MIN_SKILL: int = 0
 
 CHESS_DB_INFO: tuple[str, str, str, int, str] = 'root', 'chess-database', '35.197.134.140', 3306, 'chess_db'
 LOCAL_CHESS_DB_INFO: tuple[str, str, str, int, str] = 'root', 'nicolas', '127.0.0.1', 3306, 'local_chess_db'
+
+# -- Logging --
+SERVER_NAME: str = "server"
+CLIENT_NAME: str = "client"
+DATABASE_NAME: str = "database"
+BOT_NAME: str = "bot"
+SERVER_LOG_FILE: str = "../Chess/log/server.log"
+DATABASE_LOG_FILE: str = "../Chess/log/database.log"
+BOT_LOG_FILE: str = "../Chess/log/bot.log"
+CLIENT_LOG_FILE: str = "../Chess/log/client.log"
+LOG_FILE_MODE: str = "w"
+LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

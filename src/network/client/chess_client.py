@@ -5,8 +5,8 @@ from _thread import start_new_thread
 
 from chess.chess_logging import LoggingOut
 from chess.chess_logging import set_up_logging
-from config.pg_config import CLIENT_LOG_FILE
-from config.pg_config import CLIENT_NAME
+from config.tk_config import CLIENT_LOG_FILE
+from config.tk_config import CLIENT_NAME
 from config.pg_config import DATA_SIZE
 from database.models import User
 from launcher.tk.global_vars import GlobalUserVars

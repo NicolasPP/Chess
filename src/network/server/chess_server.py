@@ -9,8 +9,8 @@ from _thread import start_new_thread
 from chess.chess_logging import LoggingOut
 from chess.chess_logging import set_up_logging
 from config.pg_config import DATA_SIZE
-from config.pg_config import SERVER_LOG_FILE
-from config.pg_config import SERVER_NAME
+from config.tk_config import SERVER_LOG_FILE
+from config.tk_config import SERVER_NAME
 from config.tk_config import LOCAL_CHESS_DB_INFO
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo

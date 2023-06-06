@@ -113,11 +113,3 @@ MOUSECLICK_MIDDLE: int = 2
 MOUSECLICK_RIGHT: int = 3
 MOUSECLICK_SCROLL_UP: int = 4
 MOUSECLICK_SCROLL_DOWN: int = 5
-
-# -- Logging --
-SERVER_NAME: str = "server"
-SERVER_LOG_FILE: str = "../Chess/log/server.log"
-CLIENT_NAME: str = "client"
-CLIENT_LOG_FILE: str = "../Chess/log/client.log"
-LOG_FILE_MODE: str = "w"
-LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

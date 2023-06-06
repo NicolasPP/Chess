@@ -13,7 +13,7 @@ from chess.chess_logging import set_up_logging
 from chess.chess_player import process_server_command, Player
 from chess.game.game_surface import GameSurface
 from chess.notation.forsyth_edwards_notation import Fen
-from config.pg_config import CLIENT_LOG_FILE
+from config.tk_config import CLIENT_LOG_FILE
 from config.pg_config import DATA_SIZE
 from config.user_config import UserConfig
 from network.chess_network import ChessNetwork
