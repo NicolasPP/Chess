@@ -17,7 +17,7 @@ def set_up_logging(name: str, out_type: LoggingOut, log_file: str | None = None,
         logging.Logger:
     handler: logging.FileHandler | logging.StreamHandler = get_handler(out_type, log_file)
     handler.setFormatter(formatter)
-    logger: logging.Logger = logging.getLogger(name)
+    logger: logging.Logger = logging.getLogger(f"{name}:logger")
     logger.setLevel(log_level)
     logger.addHandler(handler)
     return logger
