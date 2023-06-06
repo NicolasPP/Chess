@@ -9,17 +9,16 @@ from _thread import start_new_thread
 from chess.chess_logging import LoggingOut
 from chess.chess_logging import set_up_logging
 from config.pg_config import DATA_SIZE
+from config.tk_config import LOCAL_CHESS_DB_INFO
 from config.tk_config import SERVER_LOG_FILE
 from config.tk_config import SERVER_NAME
-from config.tk_config import LOCAL_CHESS_DB_INFO
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo
-from database.models import User
 from network.chess_network import Net
-from network.commands.client_commands import ClientCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
 from network.commands.server_commands import ServerCommand
+from network.server.server_lobby import ServerLobby
 from network.server.server_user import ServerUser
 
 '''
@@ -29,7 +28,6 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 
 
 class ChessServer(Net):
-
     server: ChessServer | None = None
 
     @staticmethod
@@ -55,7 +53,7 @@ class ChessServer(Net):
     def is_local_server_online() -> bool:
         try:
             socket: skt.socket = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
-            socket.connect(('', 3389))
+            socket.connect(('127.0.0.1', 3389))
             return True
         except skt.error:
             return False
@@ -64,16 +62,18 @@ class ChessServer(Net):
         super().__init__('')  # must be '' or other computers will not be able to join
         self.is_running: bool = False
         self.logger: logging.Logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE, logging.INFO)
-        self.users: list[ServerUser] = []
         self.server_control_thread: threading.Thread = threading.Thread(target=self.server_control_command_parser)
-        self.database: ChessDataBase = ChessDataBase(
-            DataBaseInfo(*LOCAL_CHESS_DB_INFO)
-        )
+        self.database: ChessDataBase = ChessDataBase(DataBaseInfo(*LOCAL_CHESS_DB_INFO))
+        self.lobby: ServerLobby = ServerLobby(self.logger, self.database)
 
-    def start(self) -> bool:
-        if ChessServer.is_local_server_online():
-            self.logger.info("server is already running")
-            return False
+    def start(self, is_server_online: bool | None = None) -> bool:
+        if is_server_online is None:
+            if ChessServer.is_local_server_online():
+                self.logger.info("server is already running")
+                return False
+        else:
+            if is_server_online: return False
+
         try:
             self.socket.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
             self.socket.bind(self.address)
@@ -114,11 +114,18 @@ class ChessServer(Net):
             server_user: ServerUser | None = self.accept_user()
             if server_user is None: return
 
-            if self.verify_user(server_user):
-                self.users.append(server_user)
+            ver_bytes: bytes | None = self.receive_verification(server_user)
+
+            if self.lobby.verify_user(server_user, ver_bytes):
+                self.lobby.add_user(server_user)
                 self.logger.info("client: %s connected", server_user.get_db_user().u_name)
                 start_new_thread(self.user_listener, (server_user,))
             else:
+                disconnect_info: dict[str, str] = {
+                    CommandManager.disconnect_reason: "Could not verify user"
+                }
+                disconnect: Command = CommandManager.get(ServerCommand.DISCONNECT, disconnect_info)
+                server_user.socket.send(CommandManager.serialize_command(disconnect))
                 server_user.socket.close()
                 self.logger.info("could not verify user")
 
@@ -136,11 +143,11 @@ class ChessServer(Net):
         if command is ServerControlCommands.SHUT_DOWN:
             self.shut_down()
 
-    def user_listener(self, user: ServerUser) -> None:
-        with user.socket:
+    def user_listener(self, server_user: ServerUser) -> None:
+        with server_user.socket:
             while self.get_is_running():
                 try:
-                    data: bytes = user.socket.recv(DATA_SIZE)
+                    data: bytes = server_user.socket.recv(DATA_SIZE)
                 except ConnectionResetError as error:
                     self.logger.debug("connection error: %s", error)
                     break
@@ -152,50 +159,28 @@ class ChessServer(Net):
                 command: Command = CommandManager.deserialize_command_bytes(data)
                 self.logger.info("command : %s received from the client", command.name)
 
-        self.users.remove(user)
-        user.socket.close()
-        assert user.db_user is not None, "user cannot be None, because at this point the user has been verified"
-        self.logger.info("client: %s disconnected", user.db_user.u_name)
+        self.lobby.remove_user(server_user)
+        server_user.socket.close()
+        assert server_user.db_user is not None, "user cannot be None, because at this point the user has been verified"
+        self.logger.info("client: %s disconnected", server_user.db_user.u_name)
         return
 
     def shut_down(self) -> None:
         self.set_is_running(False)
         try:
             self.socket.shutdown(skt.SHUT_RDWR)
-        except OSError: pass
+        except OSError:
+            pass
         self.reset_socket()
-        disconnect_info: dict[str, str] = {}
+        disconnect_info: dict[str, str] = {
+            CommandManager.disconnect_reason: "Server Shut Down"
+        }
         disconnect: Command = CommandManager.get(ServerCommand.DISCONNECT, disconnect_info)
-        self.send_all(disconnect)
+        self.lobby.send_all_users(disconnect)
         self.logger.info("telling clients to disconnect")
         self.logger.info("shutting down server")
 
-    def send_all(self, command: Command) -> None:
-        for user in self.users:
-            user.socket.send(CommandManager.serialize_command(command))
-
-    def verify_user(self, server_user: ServerUser) -> bool:
-        verification_command: Command | None = self.receive_verification(server_user)
-
-        if verification_command is None: return False
-        if verification_command.name != ClientCommand.VERIFICATION.name:
-            self.logger.info("initial command cannot be : %s", verification_command.name)
-            return False
-
-        db_user_name: str = verification_command.info[CommandManager.user_name]
-        db_user: User | None = self.database.get_user(db_user_name)
-        if db_user is None:
-            self.logger.info("database could not find user : %s", db_user_name)
-            return False
-
-        for server_users in self.users:
-            if server_users.get_db_user().u_name == db_user.u_name:
-                self.logger.info("user : %s is already connected", db_user.u_name)
-                return False
-
-        return server_user.set_db_user(verification_command.info, db_user)
-
-    def receive_verification(self, user: ServerUser) -> Command | None:
+    def receive_verification(self, user: ServerUser) -> bytes | None:
         try:
             data: bytes = user.socket.recv(DATA_SIZE)
         except ConnectionResetError as error:
@@ -206,7 +191,7 @@ class ChessServer(Net):
             self.logger.debug("invalid data")
             return None
 
-        return CommandManager.deserialize_command_bytes(data)
+        return data
 
 
 class ServerControlCommands(enum.Enum):
