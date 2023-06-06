@@ -5,6 +5,7 @@ from ttkbootstrap import ttk
 
 from config.tk_config import CONNECT_ERROR_WRAP_LEN
 from launcher.tk.components.tk_component import Component
+from launcher.tk.global_vars import GlobalUserVars
 from launcher.tk.launcher_user import LauncherUser
 from launcher.tk.page.page_manager import PageManager
 from network.client.chess_client import ClientConnectResult
@@ -18,7 +19,6 @@ class ConnectWidgets(typing.NamedTuple):
 
 class ConnectVars(typing.NamedTuple):
     ip_entry_var: tk.StringVar
-    error_var: tk.StringVar
 
 
 class ConnectComponent(Component):
@@ -36,13 +36,13 @@ class ConnectComponent(Component):
     def create_widgets(self) -> ConnectWidgets:
         server_ip_entry: ttk.Entry = ttk.Entry(self.frame, textvariable=self.vars.ip_entry_var)
         server_ip_entry.bind('<Return>', lambda e: self.handle_connect())
-        error_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.error_var, foreground="red",
-                                           wraplength=CONNECT_ERROR_WRAP_LEN, justify=tk.CENTER)
+        error_label: ttk.Label = ttk.Label(self.frame, textvariable=GlobalUserVars.get_connect_error_var(),
+                                           foreground="red", wraplength=CONNECT_ERROR_WRAP_LEN, justify=tk.CENTER)
         connect_button: ttk.Button = ttk.Button(self.frame, text="Connect", command=self.handle_connect)
         return ConnectWidgets(server_ip_entry, error_label, connect_button)
 
     def handle_connect(self) -> None:
-        self.vars.error_var.set("")
+        GlobalUserVars.get_connect_error_var().set("")
         self.widgets.error_label.update()
         server_ip: str = self.vars.ip_entry_var.get()
         if self.started_server.get() and not server_ip:
@@ -54,10 +54,9 @@ class ConnectComponent(Component):
             self.page_manager.show_page("ServerPage")
         else:
             assert is_connect_successful.error is not None, "error cannot be None here"
-            self.vars.error_var.set(is_connect_successful.error.strerror)
+            GlobalUserVars.get_connect_error_var().set(is_connect_successful.error.strerror)
 
 
 def create_vars() -> ConnectVars:
     ip_entry_var: tk.StringVar = tk.StringVar()
-    error_var: tk.StringVar = tk.StringVar()
-    return ConnectVars(ip_entry_var, error_var)
+    return ConnectVars(ip_entry_var)
