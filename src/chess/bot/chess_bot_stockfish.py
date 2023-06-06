@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import datetime
 import threading
 
@@ -13,6 +14,10 @@ from chess.notation.forsyth_edwards_notation import Fen
 from config.user_config import UserConfig
 from network.commands.client_commands import ClientCommand
 from network.commands.command_manager import CommandManager
+from chess.chess_logging import set_up_logging
+from chess.chess_logging import LoggingOut
+from config.tk_config import BOT_NAME
+from config.tk_config import BOT_LOG_FILE
 
 
 class StockFishBot:
@@ -39,6 +44,7 @@ class StockFishBot:
         return StockFishBot.stock_fish
 
     def __init__(self, fen: Fen, side: Side, player: Player) -> None:
+        self.logger: logging.Logger = set_up_logging(BOT_NAME, LoggingOut.FILE, BOT_LOG_FILE)
         self.side: Side = side
         self.fen: Fen = fen
         self.player: Player = player
@@ -68,7 +74,9 @@ class StockFishBot:
 
     def make_move(self, side: Side | None = None) -> None:
         if side is None: side = self.side
+        self.logger.info("finding move")
         move = self.get_best_move()
+        self.logger.info("found move : %s", move)
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
         target_fen: str | None = None
 
@@ -103,7 +111,7 @@ class StockFishBot:
                                      CommandManager.side: side.name,
                                      CommandManager.target_fen: target_fen,
                                      CommandManager.time_iso: time_iso}
-
+        self.logger.info("move info : %s", move_info)
         move_command = CommandManager.get(ClientCommand.MOVE, move_info)
         send_command(True, None, move_command)
 

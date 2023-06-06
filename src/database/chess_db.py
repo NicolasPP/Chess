@@ -13,6 +13,8 @@ from sqlalchemy.orm import Session
 
 from chess.chess_logging import LoggingOut
 from chess.chess_logging import set_up_logging
+from config.tk_config import DATABASE_LOG_FILE
+from config.tk_config import DATABASE_NAME
 from database.models import Game
 from database.models import User
 
@@ -42,7 +44,7 @@ class CreateGameResult(enum.Enum):
 class ChessDataBase:
 
     def __init__(self, db_info: DataBaseInfo) -> None:
-        self.logger: logging.Logger = set_up_logging("database", LoggingOut.STDOUT)
+        self.logger: logging.Logger = set_up_logging(DATABASE_NAME, LoggingOut.STDOUT, DATABASE_LOG_FILE)
         self.db_info: DataBaseInfo = db_info
         self.engine: sqlalchemy.Engine | None = None
 
