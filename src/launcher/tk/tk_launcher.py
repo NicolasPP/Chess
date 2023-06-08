@@ -68,6 +68,7 @@ class ChessTkinterLauncher(tk.Tk):
                              font=(FONT_NAME, RADIO_FONT_SIZE))
         self.style.map('Toolbutton', background=[(tk.DISABLED, BG_LIGHT), ('selected', BG_DARK)],
                        foreground=[('!selected', BG_LIGHT), (tk.DISABLED, BG_LIGHT)])
+        self.style.map('Vertical.TScrollbar', background=BG_DARK)
 
     def window_innit(self) -> None:
         self.geometry(f"{DEFAULT_WINDOW_WIDTH}x{DEFAULT_WINDOW_HEIGHT}")
