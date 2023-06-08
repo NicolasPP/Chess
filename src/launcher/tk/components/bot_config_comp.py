@@ -1,6 +1,7 @@
 import tkinter as tk
 import typing
 
+import ttkbootstrap
 from ttkbootstrap import ttk
 
 from config.tk_config import BOT_CONFIG_PAD
@@ -100,14 +101,15 @@ class BotConfigComponent(Component):
         elo_value_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.elo_var, state=state)
         move_time_label: ttk.Label = ttk.Label(self.frame, text="move time: ", state=state)
         fast_move_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="fast", variable=self.vars.time_var,
-                                                            value=False, style="toolbutton", state=state)
-        regular_move_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="regular", style="toolbutton",
+                                                            value=False, style=ttkbootstrap.TOOLBUTTON, state=state)
+        regular_move_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="regular",
+                                                               style=ttkbootstrap.TOOLBUTTON,
                                                                variable=self.vars.time_var, value=True, state=state)
         bot_side_label: ttk.Label = ttk.Label(self.frame, text="bot side: ", state=state)
         white_side_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="white", variable=self.vars.side_var,
-                                                             value="WHITE", style="toolbutton", state=state)
+                                                             value="WHITE", style=ttkbootstrap.TOOLBUTTON, state=state)
         black_side_button: ttk.Radiobutton = ttk.Radiobutton(self.frame, text="black", variable=self.vars.side_var,
-                                                             value="BLACK", style="toolbutton", state=state)
+                                                             value="BLACK", style=ttkbootstrap.TOOLBUTTON, state=state)
         return BotConfigCompWidgets(elo_scale, elo_label, skill_scale, skill_label, skill_value_label, elo_value_label,
                                     move_time_label, fast_move_button, regular_move_button, bot_side_label,
                                     white_side_button, black_side_button)
