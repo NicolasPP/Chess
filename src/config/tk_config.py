@@ -26,6 +26,10 @@ SCALE_LABEL_WIDTH: int = 8
 TIME_ENTRY_WIDTH: int = 5
 SETTINGS_MENUBUTTON_WIDTH: int = 11
 
+CONNECTED_USERS_WIDTH: int = 100
+CONNECTED_USERS_HEIGHT: int = 200
+CONNECTED_USERS_POS: tuple[int, int] = 0, 0
+
 LOCAL_CONFIG_PATH: str = 'src/config/user_config.txt'
 
 MAX_ELO: int = 3544
