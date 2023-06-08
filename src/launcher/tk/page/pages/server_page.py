@@ -4,7 +4,7 @@ from ttkbootstrap import ttk
 
 from config.tk_config import SERVER_PAD
 from launcher.pg.pg_launcher import ChessPygameLauncher
-from launcher.tk.components.chat_component import ChatComponent
+from launcher.tk.components.connected_users_component import ConnectedUsersComponent
 from launcher.tk.components.server_lobby_component import ServerLobbyComponent
 from launcher.tk.global_vars import GlobalUserVars
 from launcher.tk.launcher_user import LauncherUser
@@ -23,7 +23,7 @@ class ServerPage(PageFrame):
         self.page_manager: PageManager = page_manager
         disconnect: ttk.Button = ttk.Button(self, text="Disconnect", command=self.handle_disconnect)
         GlobalUserVars.get_server_disconnect().trace_add("write", lambda v, i, m: self.server_disconnect_callback())
-        chat_comp: ChatComponent = ChatComponent(self)
+        connected_users_comp: ConnectedUsersComponent = ConnectedUsersComponent(self)
         lobby_comp: ServerLobbyComponent = ServerLobbyComponent(self)
 
         self.grid_rowconfigure(0, weight=10)
@@ -32,7 +32,7 @@ class ServerPage(PageFrame):
         self.grid_columnconfigure(1, weight=2)
 
         lobby_comp.get_frame().grid(row=0, column=0, rowspan=2, padx=SERVER_PAD, pady=SERVER_PAD, sticky=tk.NSEW)
-        chat_comp.get_frame().grid(row=0, column=1, padx=SERVER_PAD, pady=SERVER_PAD, sticky=tk.NSEW)
+        connected_users_comp.get_frame().grid(row=0, column=1, padx=SERVER_PAD, pady=SERVER_PAD, sticky=tk.NSEW)
         disconnect.grid(row=1, column=1)
 
     def handle_disconnect(self) -> None:
