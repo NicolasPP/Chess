@@ -34,7 +34,7 @@ class SettingsComponent(Component):
 
         path_entry_str: ttk.StringVar = ttk.StringVar(value="stock fish engine path")
         settings_widgets = self.create_settings_widgets(path_entry_str)
-        settings_widgets.create_bot[ttk.COMMAND] = lambda: create_bot_command(settings_widgets, path_entry_str)
+        settings_widgets.create_bot.configure(command=lambda: create_bot_command(settings_widgets, path_entry_str))
 
         self.frame.grid_rowconfigure(0, weight=1)
         self.frame.grid_rowconfigure(1, weight=1)
@@ -60,7 +60,7 @@ class SettingsComponent(Component):
         else:
             settings_widgets.path_entry.grid(row=3, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
             settings_widgets.create_bot.grid(row=3, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-
+    # FIXME make constants
     def create_settings_widgets(self, path_entry_str: ttk.StringVar) -> SettingsWidgets:
         engine_valid: ttk.Label = ttk.Label(self.frame, text="Stock Fish ready!", foreground='green')
         path_entry: ttk.Entry = ttk.Entry(self.frame, textvariable=path_entry_str, width=18)
