@@ -1,0 +1,6 @@
+greenlet==2.0.2
+mysql-connector-python==8.0.33
+protobuf==3.20.3
+-e git+https://github.com/NicolasPP/Chess.git@43aebc33e4ff11ba022d8a45729bc96796c3e9c6#egg=pygame_chess
+SQLAlchemy==2.0.16
+typing_extensions==4.6.3
