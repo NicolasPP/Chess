@@ -2,7 +2,7 @@ import logging
 
 from database.chess_db import ChessDataBase
 from database.models import User
-from network.commands.client_commands import ClientCommand
+from network.commands.client_commands import ClientLauncherCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
 from network.server.server_user import ServerUser
@@ -35,7 +35,7 @@ class ServerLobby:
         verification_command: Command | None = CommandManager.deserialize_command_bytes(verification_bytes)
 
         if verification_command is None: return False
-        if verification_command.name != ClientCommand.VERIFICATION.name:
+        if verification_command.name != ClientLauncherCommand.VERIFICATION.name:
             self.logger.info("initial command cannot be : %s", verification_command.name)
             return False
 

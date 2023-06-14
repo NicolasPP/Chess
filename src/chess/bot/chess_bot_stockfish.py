@@ -12,7 +12,7 @@ from chess.chess_player import send_command
 from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.notation.forsyth_edwards_notation import Fen
 from config.user_config import UserConfig
-from network.commands.client_commands import ClientCommand
+from network.commands.client_commands import ClientGameCommand
 from network.commands.command_manager import CommandManager
 from chess.chess_logging import set_up_logging
 from chess.chess_logging import LoggingOut
@@ -112,7 +112,7 @@ class StockFishBot:
                                      CommandManager.target_fen: target_fen,
                                      CommandManager.time_iso: time_iso}
         self.logger.info("move info : %s", move_info)
-        move_command = CommandManager.get(ClientCommand.MOVE, move_info)
+        move_command = CommandManager.get(ClientGameCommand.MOVE, move_info)
         send_command(True, None, move_command)
 
     def play_game(self) -> None:

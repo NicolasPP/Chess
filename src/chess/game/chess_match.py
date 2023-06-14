@@ -17,10 +17,10 @@ from chess.notation.forsyth_edwards_notation import validate_fen_en_passant_righ
 from chess.notation.forsyth_edwards_notation import validate_fen_piece_placement
 from chess.timer.timer_config import TimerConfig
 from config.pg_config import HALF_MOVE_LIMIT
-from network.commands.client_commands import ClientCommand
+from network.commands.client_commands import ClientGameCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerCommand
+from network.commands.server_commands import ServerGameCommand
 
 
 class MoveTags(enum.Enum):
@@ -86,41 +86,41 @@ class Match:
         end_game_info: dict[str, str] = {}
         move_tags: list[MoveTags] = []
         before_move_fen: Fen = Fen(encode_fen_data(self.fen.data))
-        if command.name == ClientCommand.PICKING_PROMOTION.name:
-            commands.append(CommandManager.get(ServerCommand.CLIENT_PROMOTING))
+        if command.name == ClientGameCommand.PICKING_PROMOTION.name:
+            commands.append(CommandManager.get(ServerGameCommand.CLIENT_PROMOTING))
 
-        elif command.name == ClientCommand.MOVE.name:
+        elif command.name == ClientGameCommand.MOVE.name:
             move_tags = self.process_move(command, before_move_fen)
 
-        elif command.name == ClientCommand.RESIGN.name:
+        elif command.name == ClientGameCommand.RESIGN.name:
             side = command.info[CommandManager.side]
             result = MatchResult.BLACK.name if side == Side.WHITE.name else MatchResult.WHITE.name
             end_game_info[CommandManager.game_result_type] = MatchResultType.RESIGNATION.name
             end_game_info[CommandManager.game_result] = result
-            commands.append(CommandManager.get(ServerCommand.END_GAME, end_game_info))
+            commands.append(CommandManager.get(ServerGameCommand.END_GAME, end_game_info))
 
-        elif command.name == ClientCommand.OFFER_DRAW.name:
-            commands.append(CommandManager.get(ServerCommand.CLIENT_DRAW_OFFER, command.info))
+        elif command.name == ClientGameCommand.OFFER_DRAW.name:
+            commands.append(CommandManager.get(ServerGameCommand.CLIENT_DRAW_OFFER, command.info))
 
-        elif command.name == ClientCommand.DRAW_RESPONSE.name:
+        elif command.name == ClientGameCommand.DRAW_RESPONSE.name:
             if bool(int(command.info[CommandManager.draw_offer_result])):
                 end_game_info[CommandManager.game_result_type] = MatchResultType.AGREEMENT.name
                 end_game_info[CommandManager.game_result] = MatchResult.DRAW.name
-                commands.append(CommandManager.get(ServerCommand.END_GAME, end_game_info))
+                commands.append(CommandManager.get(ServerGameCommand.END_GAME, end_game_info))
             else:
-                commands.append(CommandManager.get(ServerCommand.CONTINUE))
+                commands.append(CommandManager.get(ServerGameCommand.CONTINUE))
 
-        elif command.name == ClientCommand.TIME_OUT.name:
+        elif command.name == ClientGameCommand.TIME_OUT.name:
             side = command.info[CommandManager.side]
             result = MatchResult.BLACK.name if side == Side.WHITE.name else MatchResult.WHITE.name
             end_game_info[CommandManager.game_result_type] = MatchResultType.TIMEOUT.name
             end_game_info[CommandManager.game_result] = result
-            commands.append(CommandManager.get(ServerCommand.END_GAME, end_game_info))
+            commands.append(CommandManager.get(ServerGameCommand.END_GAME, end_game_info))
 
         else:
             assert False, f" {command.name} : Command not recognised"
 
-        if command.name == ClientCommand.MOVE.name:
+        if command.name == ClientGameCommand.MOVE.name:
             from_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.from_coordinates])
             dest_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.dest_coordinates])
 
@@ -202,7 +202,7 @@ class Match:
             CommandManager.from_index: str(from_index),
             CommandManager.dest_index: str(dest_index)
         }
-        update_fen_command: Command = CommandManager.get(ServerCommand.UPDATE_FEN, update_fen_info)
+        update_fen_command: Command = CommandManager.get(ServerGameCommand.UPDATE_FEN, update_fen_info)
         if tag == MoveTags.CHECK:
             ext_commands.append(update_fen_command)
         elif tag == MoveTags.CHECKMATE:
@@ -211,17 +211,17 @@ class Match:
                 CommandManager.game_result_type: MatchResultType.CHECKMATE.name,
                 CommandManager.game_result: result
             }
-            end_game_command: Command = CommandManager.get(ServerCommand.END_GAME, end_game_info)
+            end_game_command: Command = CommandManager.get(ServerGameCommand.END_GAME, end_game_info)
             ext_commands.append(update_fen_command)
             ext_commands.append(end_game_command)
         elif tag == MoveTags.REGULAR:
             ext_commands.append(update_fen_command)
         elif tag == MoveTags.INVALID:
-            invalid_move_command: Command = CommandManager.get(ServerCommand.INVALID_MOVE)
+            invalid_move_command: Command = CommandManager.get(ServerGameCommand.INVALID_MOVE)
             ext_commands.append(invalid_move_command)
         elif tag == MoveTags.TAKE:
             update_captured_info: dict[str, str] = {CommandManager.captured_pieces: self.captured_pieces}
-            update_captured_pieces = CommandManager.get(ServerCommand.UPDATE_CAP_PIECES, update_captured_info)
+            update_captured_pieces = CommandManager.get(ServerGameCommand.UPDATE_CAP_PIECES, update_captured_info)
             ext_commands.append(update_captured_pieces)
         else:
             assert False, "INVALID MATCH.MOVE_TAG"
@@ -232,7 +232,7 @@ class Match:
 
         # Checkmate
         for command in commands:
-            if command.name == ServerCommand.END_GAME.name: return []
+            if command.name == ServerGameCommand.END_GAME.name: return []
 
         # -- DRAW --
         # Stalemate
@@ -240,22 +240,22 @@ class Match:
 
         if is_stale_mate(self.fen):
             draw_info[CommandManager.game_result_type] = MatchResultType.STALEMATE.name
-            return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
+            return [CommandManager.get(ServerGameCommand.END_GAME, draw_info)]
 
         # Insufficient Material
         if is_material_insufficient(self.fen):
             draw_info[CommandManager.game_result_type] = MatchResultType.INSUFFICIENT_MATERIAL.name
-            return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
+            return [CommandManager.get(ServerGameCommand.END_GAME, draw_info)]
 
         # 50 move-rule
         if int(self.fen.data.half_move_clock) >= HALF_MOVE_LIMIT:
             draw_info[CommandManager.game_result_type] = MatchResultType.FIFTY_MOVE_RULE.name
-            return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
+            return [CommandManager.get(ServerGameCommand.END_GAME, draw_info)]
 
         # Repetition
         if self.repetition_counter.is_three_fold_repetition():
             draw_info[CommandManager.game_result_type] = MatchResultType.REPETITION.name
-            return [CommandManager.get(ServerCommand.END_GAME, draw_info)]
+            return [CommandManager.get(ServerGameCommand.END_GAME, draw_info)]
 
         return []
 

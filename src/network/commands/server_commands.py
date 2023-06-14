@@ -1,7 +1,7 @@
 import enum
 
 
-class ServerCommand(enum.Enum):
+class ServerGameCommand(enum.Enum):
     # commands that the server can send to the client
     UPDATE_FEN = enum.auto()
     END_GAME = enum.auto()
@@ -11,4 +11,7 @@ class ServerCommand(enum.Enum):
     CLIENT_PROMOTING = enum.auto()
     CLIENT_DRAW_OFFER = enum.auto()
     CONTINUE = enum.auto()
+
+
+class ServerLauncherCommand(enum.Enum):
     DISCONNECT = enum.auto()

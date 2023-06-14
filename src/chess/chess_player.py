@@ -33,10 +33,10 @@ from gui.timer_gui import TimerGui
 from gui.timer_gui import TimerRects
 from gui.verify_gui import VerifyGui
 from network.chess_network import ChessNetwork
-from network.commands.client_commands import ClientCommand
+from network.commands.client_commands import ClientGameCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerCommand
+from network.commands.server_commands import ServerGameCommand
 
 
 class State(enum.Enum):
@@ -155,7 +155,7 @@ class Player:
             CommandManager.target_fen: target_fen,
             CommandManager.time_iso: time_iso
         }
-        move = CommandManager.get(ClientCommand.MOVE, invalid_move_info)
+        move = CommandManager.get(ClientGameCommand.MOVE, invalid_move_info)
         is_promotion = False
 
         if dest_tile:
@@ -168,7 +168,7 @@ class Player:
                 CommandManager.target_fen: target_fen,
                 CommandManager.time_iso: time_iso
             }
-            move = CommandManager.get(ClientCommand.MOVE, move_info)
+            move = CommandManager.get(ClientGameCommand.MOVE, move_info)
 
         if not is_promotion:
             send_command(local, network, move)
@@ -179,7 +179,7 @@ class Player:
         else:
             self.state = State.PICKING_PROMOTION
             if not local:
-                picking_promotion = CommandManager.get(ClientCommand.PICKING_PROMOTION)
+                picking_promotion = CommandManager.get(ClientGameCommand.PICKING_PROMOTION)
                 send_command(local, network, picking_promotion)
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
@@ -203,7 +203,7 @@ class Player:
             draw_response_info: dict[str, str] = {
                 CommandManager.draw_offer_result: str(int(self.verify_gui.result))
             }
-            draw_response = CommandManager.get(ClientCommand.DRAW_RESPONSE, draw_response_info)
+            draw_response = CommandManager.get(ClientGameCommand.DRAW_RESPONSE, draw_response_info)
             send_command(local, network, draw_response)
             self.verify_gui.set_result(None)
         elif self.state is State.DRAW_DOUBLE_CHECK or self.state is State.RESIGN_DOUBLE_CHECK:
@@ -218,13 +218,13 @@ class Player:
             if self.state is State.DRAW_DOUBLE_CHECK:
                 self.state = State.OFFERED_DRAW
                 draw_info: dict[str, str] = {CommandManager.side: self.side.name}
-                offer_draw = CommandManager.get(ClientCommand.OFFER_DRAW, draw_info)
+                offer_draw = CommandManager.get(ClientGameCommand.OFFER_DRAW, draw_info)
                 send_command(local, network, offer_draw)
             else:
                 resign_info: dict[str, str] = {
                     CommandManager.side: self.side.name
                 }
-                resign = CommandManager.get(ClientCommand.RESIGN, resign_info)
+                resign = CommandManager.get(ClientGameCommand.RESIGN, resign_info)
                 send_command(local, network, resign)
 
             self.verify_gui.set_result(None)
@@ -248,7 +248,7 @@ class Player:
                 CommandManager.target_fen: val,
                 CommandManager.time_iso: self.prev_time_iso
             }
-            move = CommandManager.get(ClientCommand.MOVE, move_info)
+            move = CommandManager.get(ClientGameCommand.MOVE, move_info)
 
             send_command(local, network, move)
             self.board.reset_picked_up()
@@ -270,7 +270,7 @@ class Player:
             time_out_info: dict[str, str] = {
                 CommandManager.side: self.side.name
             }
-            time_out = CommandManager.get(ClientCommand.TIME_OUT, time_out_info)
+            time_out = CommandManager.get(ClientGameCommand.TIME_OUT, time_out_info)
             send_command(local, network, time_out)
             self.set_timed_out(True)
 
@@ -380,7 +380,7 @@ class Player:
 
 
 def process_server_command(command: Command, match_fen: Fen, *players: Player) -> None:
-    if command.name == ServerCommand.UPDATE_FEN.name:
+    if command.name == ServerGameCommand.UPDATE_FEN.name:
         fen_notation: str = command.info[CommandManager.fen_notation]
         white_time: str = command.info[CommandManager.white_time_left]
         black_time: str = command.info[CommandManager.black_time_left]
@@ -400,26 +400,26 @@ def process_server_command(command: Command, match_fen: Fen, *players: Player) -
         list(map(lambda player: player.played_moves_gui.add_played_move(
             int(from_index), int(dest_index), pre_move_fen, match_fen[int(dest_index)]), players))
 
-    elif command.name == ServerCommand.END_GAME.name:
+    elif command.name == ServerGameCommand.END_GAME.name:
         list(map(lambda player: player.end_game(
             command.info[CommandManager.game_result], command.info[CommandManager.game_result_type]
         ), players))
 
-    elif command.name == ServerCommand.INVALID_MOVE.name:
+    elif command.name == ServerGameCommand.INVALID_MOVE.name:
         list(map(lambda player: player.set_require_render(True), players))
         list(map(lambda player: player.set_read_input(True), players))
 
-    elif command.name == ServerCommand.UPDATE_CAP_PIECES.name:
+    elif command.name == ServerGameCommand.UPDATE_CAP_PIECES.name:
         captured_pieces: str = command.info[CommandManager.captured_pieces]
         list(map(lambda player: player.captured_gui.set_captured_pieces(captured_pieces), players))
 
-    elif command.name == ServerCommand.CLIENT_PROMOTING.name:
+    elif command.name == ServerGameCommand.CLIENT_PROMOTING.name:
         list(map(lambda player: player.set_opponent_promoting(True), players))
 
-    elif command.name == ServerCommand.CLIENT_DRAW_OFFER.name:
+    elif command.name == ServerGameCommand.CLIENT_DRAW_OFFER.name:
         list(map(lambda player: player.handle_draw_offer(command.info[CommandManager.side]), players))
 
-    elif command.name == ServerCommand.CONTINUE.name:
+    elif command.name == ServerGameCommand.CONTINUE.name:
         list(map(lambda player: player.continue_game(), players))
         list(map(lambda player: player.set_require_render(True), players))
 

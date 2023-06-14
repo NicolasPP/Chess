@@ -11,10 +11,10 @@ from config.tk_config import CLIENT_NAME
 from database.models import User
 from launcher.tk.global_vars import GlobalUserVars
 from network.chess_network import Net
-from network.commands.client_commands import ClientCommand
+from network.commands.client_commands import ClientLauncherCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerCommand
+from network.commands.server_commands import ServerLauncherCommand
 
 
 class ClientConnectResult(typing.NamedTuple):
@@ -88,12 +88,12 @@ class ChessClient(Net):
                                         CommandManager.user_elo: str(self.user.elo),
                                         CommandManager.user_id: str(self.user.u_id),
                                         CommandManager.user_pass: self.user.u_pass}
-        command: Command = CommandManager.get(ClientCommand.VERIFICATION, command_info)
+        command: Command = CommandManager.get(ClientLauncherCommand.VERIFICATION, command_info)
         self.socket.send(CommandManager.serialize_command(command))
 
 
 def parse_server_command(command: Command) -> None:
-    if command.name == ServerCommand.DISCONNECT.name:
+    if command.name == ServerLauncherCommand.DISCONNECT.name:
         GlobalUserVars.get_connect_error_var().set(
             command.info[CommandManager.disconnect_reason]
         )

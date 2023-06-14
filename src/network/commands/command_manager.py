@@ -1,9 +1,7 @@
 import pickle
 import queue
 
-from network.commands.client_commands import ClientCommand
-from network.commands.command import Command
-from network.commands.server_commands import ServerCommand
+from network.commands.command import Command, command_types
 
 
 class CommandManager:
@@ -50,7 +48,7 @@ class CommandManager:
         return pickle.loads(command_bytes)
 
     @staticmethod
-    def get(cmd_type: ClientCommand | ServerCommand, information: dict[str, str] | None = None) -> Command:
+    def get(cmd_type: command_types, information: dict[str, str] | None = None) -> Command:
         if information is None: return Command(cmd_type.name)
         return Command(cmd_type.name, **information)
 

@@ -17,7 +17,7 @@ from database.chess_db import DataBaseInfo
 from network.chess_network import Net
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerCommand
+from network.commands.server_commands import ServerLauncherCommand
 from network.server.server_lobby import ServerLobby
 from network.server.server_user import ServerUser
 
@@ -124,7 +124,7 @@ class ChessServer(Net):
                 disconnect_info: dict[str, str] = {
                     CommandManager.disconnect_reason: "Could not verify user"
                 }
-                disconnect: Command = CommandManager.get(ServerCommand.DISCONNECT, disconnect_info)
+                disconnect: Command = CommandManager.get(ServerLauncherCommand.DISCONNECT, disconnect_info)
                 server_user.socket.send(CommandManager.serialize_command(disconnect))
                 server_user.socket.close()
                 self.logger.info("could not verify user")
@@ -175,7 +175,7 @@ class ChessServer(Net):
         disconnect_info: dict[str, str] = {
             CommandManager.disconnect_reason: "Server Shut Down"
         }
-        disconnect: Command = CommandManager.get(ServerCommand.DISCONNECT, disconnect_info)
+        disconnect: Command = CommandManager.get(ServerLauncherCommand.DISCONNECT, disconnect_info)
         self.lobby.send_all_users(disconnect)
         self.logger.info("telling clients to disconnect")
         self.logger.info("shutting down server")
