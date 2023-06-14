@@ -1,4 +1,3 @@
-import functools
 import typing
 
 import tkinter as tk
@@ -7,70 +6,65 @@ import ttkbootstrap
 from ttkbootstrap import ttk
 
 from launcher.tk.components.tk_component import Component
-from config.tk_config import BG_DARK
-from config.tk_config import FG_DARK
-from config.tk_config import CONNECTED_USERS_POS
+
+from config.tk_config import CANVAS_WINDOW_POS
+from config.tk_config import SCROLLBAR_WIDTH
 
 
 class ConnectedUsersWidgets(typing.NamedTuple):
-    users_canvas: tk.Canvas
+    container: ttk.Frame
+    scroll_bar: ttk.Scrollbar
+    canvas: tk.Canvas
     window_frame: ttk.Frame
-    scrollbar: ttk.Scrollbar
+    window_id: int
 
 
-class ConnectedUserCard(typing.NamedTuple):
-    user_name: str
-    card_frame: ttk.Frame
-    button: ttk.Radiobutton
-
-
-class ConnectedUserVars(typing.NamedTuple):
-    users_var: tk.StringVar
+class CanvasWindowRect(typing.NamedTuple):
+    x: int
+    y: int
+    width: int
+    height: int
 
 
 class ConnectedUsersComponent(Component):
+
     def __init__(self, parent: ttk.Frame) -> None:
         super().__init__(parent, "Connected Users")
-        f = ttk.Frame(self.frame)
-        self.vars: ConnectedUserVars = create_vars()
-        self.widgets: ConnectedUsersWidgets = self.create_widgets(f)
-        self.user_cards: list[ConnectedUserCard] = []
+        self.widgets: ConnectedUsersWidgets = self.create_widgets()
 
-        for user in ["nicolas", "gus", "ron", "son", "mil", "nicolas", "gus", "ron", "son", "mil", "nicolas", "gus", "ron", "son", "mil"]:
-            card_frame: ttk.Frame = ttk.Frame(self.widgets.window_frame)
-            radio_button: ttk.Radiobutton = ttk.Radiobutton(self.widgets.window_frame, text=user, value=user,
-                                                            style=ttkbootstrap.TOOLBUTTON, variable=self.vars.users_var)
-            self.user_cards.append(ConnectedUserCard(user, card_frame, radio_button))
-
-        self.update_connected_users()
-
+        for i in range(10):
+            ttk.Button(self.widgets.window_frame, text=f"im {i}").pack(expand=True)
         self.widgets.window_frame.update()
-        self.widgets.users_canvas.configure(yscrollcommand=self.widgets.scrollbar.set,
-                                            scrollregion="0 0 0 %s" % self.widgets.window_frame.winfo_width())
+        self.widgets.canvas.configure(scrollregion=(0, 0, 0, self.widgets.window_frame.winfo_height()))
 
-        self.widgets.users_canvas.pack(side=tk.LEFT)
-        self.widgets.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        f.pack()
+        self.frame.grid_rowconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
 
-    def get_scroll_width(self) -> int:
-        return self.frame.winfo_width()
+        self.widgets.scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.widgets.canvas.pack(side=tk.LEFT, fill=tk.BOTH)
+        self.widgets.container.grid(sticky=tk.NSEW, pady=20, padx=20)
 
-    def get_scroll_height(self) -> int:
-        return self.frame.winfo_height()
+    def create_widgets(self) -> ConnectedUsersWidgets:
+        container: ttk.Frame = ttk.Frame(self.frame)
+        scroll_bar: ttk.Scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, style=ttkbootstrap.WARNING)
+        canvas: tk.Canvas = tk.Canvas(container)
+        window_frame: ttk.Frame = ttk.Frame(container)
+        window_id: int = canvas.create_window(*CANVAS_WINDOW_POS, window=window_frame, anchor=tk.NW)
+        canvas.configure(yscrollcommand=scroll_bar.set)
+        scroll_bar.configure(command=canvas.yview)
+        container.bind("<Configure>", self.handle_container_resize)
+        return ConnectedUsersWidgets(container, scroll_bar, canvas, window_frame, window_id)
 
-    def update_connected_users(self) -> None:
-        for user_card in self.user_cards:
-            user_card.button.pack(expand=True)
-            user_card.card_frame.pack(expand=True, fill=tk.X)
+    def handle_exit(self) -> None:
+        self.widgets.container.unbind("<Configure>")
 
-    def create_widgets(self, f) -> ConnectedUsersWidgets:
-        users_canvas: tk.Canvas = tk.Canvas(f, width=self.get_scroll_width(), height=self.get_scroll_height())
-        window_frame: ttk.Frame = ttk.Frame(users_canvas, width=self.get_scroll_width(), height=self.get_scroll_height())
-        scrollbar: ttk.Scrollbar = ttk.Scrollbar(f, orient=tk.VERTICAL, command=users_canvas.yview,
-                                                 style=ttkbootstrap.WARNING)
-        users_canvas.create_window(CONNECTED_USERS_POS, window=window_frame, anchor=tk.NW)
-        return ConnectedUsersWidgets(users_canvas, window_frame, scrollbar)
+    def get_canvas_window_rect(self) -> CanvasWindowRect:
+        return CanvasWindowRect(*self.widgets.canvas.bbox(self.widgets.window_id))
 
+    def handle_container_resize(self, event: tk.Event) -> None:
+        canvas_window_rect: CanvasWindowRect = self.get_canvas_window_rect()
+        if event.height > canvas_window_rect.height:
+            self.widgets.canvas.itemconfig(self.widgets.window_id, height=event.height)
+            self.widgets.canvas.configure(scrollregion=(0, 0, 0, event.height))
 
-def create_vars() -> ConnectedUserVars:
-    return ConnectedUserVars(tk.StringVar())
+        self.widgets.canvas.itemconfig(self.widgets.window_id, width=event.width - SCROLLBAR_WIDTH)
