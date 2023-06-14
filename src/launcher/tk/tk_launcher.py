@@ -11,7 +11,7 @@ from config.tk_config import FG_DARK
 from config.tk_config import FG_LIGHT
 from config.tk_config import FONT_NAME
 from config.tk_config import FRAME_FONT_SIZE
-from config.tk_config import LOCAL_CHESS_DB_INFO
+from config.tk_config import CHESS_DB_INFO
 from config.tk_config import RADIO_FONT_SIZE
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo
@@ -29,7 +29,7 @@ class ChessTkinterLauncher(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.style: ttk.Style = ttk.Style()
         self.pg_launcher: ChessPygameLauncher = ChessPygameLauncher(self.deiconify, self.withdraw)
-        database_info: DataBaseInfo = DataBaseInfo(*LOCAL_CHESS_DB_INFO)
+        database_info: DataBaseInfo = DataBaseInfo(*CHESS_DB_INFO)
         self.database: ChessDataBase = ChessDataBase(database_info)
 
         self.window_innit()
@@ -43,7 +43,7 @@ class ChessTkinterLauncher(tk.Tk):
         self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(OnlinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(ServerPage(self.root_frame, self.page_manager, self.pg_launcher))
-        self.page_manager.show_page(ServerPage.__name__)
+        self.page_manager.show_page(StartPage.__name__)
 
         self.protocol("WM_DELETE_WINDOW", self.exit)
 

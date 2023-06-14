@@ -9,7 +9,7 @@ from _thread import start_new_thread
 from chess.chess_logging import LoggingOut
 from chess.chess_logging import set_up_logging
 from config.pg_config import DATA_SIZE
-from config.tk_config import LOCAL_CHESS_DB_INFO
+from config.tk_config import CHESS_DB_INFO
 from config.tk_config import SERVER_LOG_FILE
 from config.tk_config import SERVER_NAME
 from database.chess_db import ChessDataBase
@@ -63,7 +63,7 @@ class ChessServer(Net):
         self.is_running: bool = False
         self.logger: logging.Logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE, logging.INFO)
         self.server_control_thread: threading.Thread = threading.Thread(target=self.server_control_command_parser)
-        self.database: ChessDataBase = ChessDataBase(DataBaseInfo(*LOCAL_CHESS_DB_INFO))
+        self.database: ChessDataBase = ChessDataBase(DataBaseInfo(*CHESS_DB_INFO))
         self.lobby: ServerLobby = ServerLobby(self.logger, self.database)
 
     def start(self, is_server_online: bool | None = None) -> bool:
