@@ -43,7 +43,13 @@ class ChessTkinterLauncher(tk.Tk):
         self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(OnlinePage(self.root_frame, self.page_manager, self.pg_launcher))
         self.page_manager.add_page(ServerPage(self.root_frame, self.page_manager, self.pg_launcher))
-        self.page_manager.show_page(StartPage.__name__)
+        self.page_manager.show_page(ServerPage.__name__)
+
+        self.protocol("WM_DELETE_WINDOW", self.exit)
+
+    def exit(self) -> None:
+        self.page_manager.get_page(ServerPage.__name__).handle_exit()
+        self.quit()
 
     def create_styles(self) -> None:
         self.style.configure('title.TLabel', background=BG_DARK, foreground=FG_LIGHT)
@@ -68,7 +74,6 @@ class ChessTkinterLauncher(tk.Tk):
                              font=(FONT_NAME, RADIO_FONT_SIZE))
         self.style.map('Toolbutton', background=[(tk.DISABLED, BG_LIGHT), ('selected', BG_DARK)],
                        foreground=[('!selected', BG_LIGHT), (tk.DISABLED, BG_LIGHT)])
-        self.style.map('Vertical.TScrollbar', background=BG_DARK)
 
     def window_innit(self) -> None:
         self.geometry(f"{DEFAULT_WINDOW_WIDTH}x{DEFAULT_WINDOW_HEIGHT}")
