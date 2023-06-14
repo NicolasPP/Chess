@@ -15,7 +15,7 @@ import chess.notation.forsyth_edwards_notation as notation
 ])
 def test_fen_getitem(index, expected):
     fen = notation.Fen()
-    assert fen[index] is expected
+    assert fen[index] == expected
 
 
 @pytest.mark.parametrize("index", [64, -1])

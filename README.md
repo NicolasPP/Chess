@@ -1,9 +1,10 @@
 # Chess
 Chess in pygame\
-Requires:  
-python 3.10+  
+Requires:
+  - python 3.11.4
+
 Optional:  
-Stockfish 15.1 https://stockfishchess.org/download/
+  - Stockfish 15.1 https://stockfishchess.org/download/
 
 # Features
  - Play against other Player on same machine
@@ -15,6 +16,11 @@ Stockfish 15.1 https://stockfishchess.org/download/
 		  
 # Instructions
 ```
+# use stockfish
+download the stockfish engine - https://stockfishchess.org/download/
+copy the path of the engine and paste it into the
+bot path entry inside the launcher
+
 # start launcher
 python src/main.py
 
