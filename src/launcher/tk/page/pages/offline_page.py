@@ -21,7 +21,7 @@ class OfflinePage(PageFrame):
         bot_config_comp: BotConfigComponent = BotConfigComponent(self)
         time_config_comp: TimeConfigComponent = TimeConfigComponent(self)
 
-        GlobalUserVars.get_is_bot_valid().trace_add(
+        GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).trace_add(
             "write", lambda v, i, m: is_bot_valid_callback(offline_play_comp, bot_config_comp)
         )
 

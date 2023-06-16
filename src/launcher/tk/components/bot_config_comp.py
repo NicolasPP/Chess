@@ -48,7 +48,7 @@ class BotConfigComponent(Component):
         return BotConfigVars(elo_var, skill_var, time_var, side_var)
 
     def __init__(self, parent: ttk.Frame) -> None:
-        if GlobalUserVars.get_is_bot_valid().get():
+        if GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).get():
             super().__init__(parent, "Bot Settings")
         else:
             super().__init__(parent, "Bot Unavailable")
@@ -86,7 +86,7 @@ class BotConfigComponent(Component):
         self.widgets.black_side_button.grid(row=3, column=2, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
 
     def create_widgets(self) -> BotConfigCompWidgets:
-        state = tk.DISABLED if not GlobalUserVars.get_is_bot_valid().get() else tk.NORMAL
+        state = tk.DISABLED if not GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).get() else tk.NORMAL
         elo_scale: ttk.Scale = ttk.Scale(self.frame, from_=MIN_ELO, to=MAX_ELO, value=UserConfig.get().data.bot_elo,
                                          command=lambda size: handle_scale_click(self.vars, bot_elo=int(float(size))),
                                          state=state, style="warning")
@@ -115,7 +115,7 @@ class BotConfigComponent(Component):
                                     white_side_button, black_side_button)
 
     def is_bot_valid_callback(self) -> None:
-        is_bot_valid: bool = GlobalUserVars.get_is_bot_valid().get()
+        is_bot_valid: bool = GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).get()
         state = tk.DISABLED if not is_bot_valid else tk.NORMAL
         if is_bot_valid:
             self.set_title("Bot Settings")

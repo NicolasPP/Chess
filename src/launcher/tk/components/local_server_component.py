@@ -57,7 +57,9 @@ class LocalServerComponent(Component):
         refresh: ttk.Button = ttk.Button(buttons_frame, text="refresh", command=lambda:
                                          self.vars.is_server_online_var.set(ChessServer.is_local_server_online()))
         error_label: ttk.Label = ttk.Label(self.frame, textvariable=self.vars.error_var)
-        GlobalUserVars.get_server_disconnect().trace_add("write", lambda v, i, m: self.handle_refresh_server())
+        GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).trace_add(
+            "write", lambda v, i, m: self.handle_refresh_server()
+        )
         ip_label: ttk.Label = ttk.Label(self.frame, text=f"server ip: {ChessServer.get_host_ipv4()}")
         return LocalServerWidgets(server_online_label, start_server_button, stop_server_button,
                                   refresh, error_label, buttons_frame, ip_label)
