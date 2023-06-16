@@ -9,7 +9,7 @@ from _thread import start_new_thread
 from chess.chess_logging import LoggingOut
 from chess.chess_logging import set_up_logging
 from config.pg_config import DATA_SIZE
-from config.tk_config import CHESS_DB_INFO
+from config.tk_config import LOCAL_CHESS_DB_INFO
 from config.tk_config import SERVER_LOG_FILE
 from config.tk_config import SERVER_NAME
 from database.chess_db import ChessDataBase
@@ -63,7 +63,7 @@ class ChessServer(Net):
         self.is_running: bool = False
         self.logger: logging.Logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE, logging.INFO)
         self.server_control_thread: threading.Thread = threading.Thread(target=self.server_control_command_parser)
-        self.database: ChessDataBase = ChessDataBase(DataBaseInfo(*CHESS_DB_INFO))
+        self.database: ChessDataBase = ChessDataBase(DataBaseInfo(*LOCAL_CHESS_DB_INFO))
         self.lobby: ServerLobby = ServerLobby(self.logger, self.database)
 
     def start(self, is_server_online: bool | None = None) -> bool:
@@ -120,6 +120,7 @@ class ChessServer(Net):
                 self.lobby.add_user(server_user)
                 self.logger.info("client: %s connected", server_user.get_db_user().u_name)
                 start_new_thread(self.user_listener, (server_user,))
+                self.lobby.update_connected_users()
             else:
                 disconnect_info: dict[str, str] = {
                     CommandManager.disconnect_reason: "Could not verify user"
@@ -160,6 +161,7 @@ class ChessServer(Net):
                 self.logger.info("command : %s received from the client", command.name)
 
         self.lobby.remove_user(server_user)
+        self.lobby.update_connected_users()
         server_user.socket.close()
         assert server_user.db_user is not None, "user cannot be None, because at this point the user has been verified"
         self.logger.info("client: %s disconnected", server_user.db_user.u_name)
