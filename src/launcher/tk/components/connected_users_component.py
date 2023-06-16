@@ -1,14 +1,14 @@
-import typing
-
 import tkinter as tk
+import typing
 
 import ttkbootstrap
 from ttkbootstrap import ttk
 
-from launcher.tk.components.tk_component import Component
-
 from config.tk_config import CANVAS_WINDOW_POS
 from config.tk_config import SCROLLBAR_WIDTH
+from launcher.tk.components.tk_component import Component
+from launcher.tk.global_vars import GlobalUserVars
+from launcher.tk.launcher_user import LauncherUser
 
 
 class ConnectedUsersWidgets(typing.NamedTuple):
@@ -30,6 +30,9 @@ class ConnectedUsersComponent(Component):
 
     def __init__(self, parent: ttk.Frame) -> None:
         super().__init__(parent, "Connected Users")
+        GlobalUserVars.get().get_var(GlobalUserVars.connected_users).trace_add(
+            "write", lambda v, i, m: self.handle_connected_users_update()
+        )
         self.widgets: ConnectedUsersWidgets = self.create_widgets()
 
         for i in range(10):
@@ -61,10 +64,15 @@ class ConnectedUsersComponent(Component):
     def get_canvas_window_rect(self) -> CanvasWindowRect:
         return CanvasWindowRect(*self.widgets.canvas.bbox(self.widgets.window_id))
 
-    def handle_container_resize(self, event: tk.Event) -> None:
+    def handle_container_resize(self, event) -> None:
         canvas_window_rect: CanvasWindowRect = self.get_canvas_window_rect()
         if event.height > canvas_window_rect.height:
             self.widgets.canvas.itemconfig(self.widgets.window_id, height=event.height)
             self.widgets.canvas.configure(scrollregion=(0, 0, 0, event.height))
 
         self.widgets.canvas.itemconfig(self.widgets.window_id, width=event.width - SCROLLBAR_WIDTH)
+
+    def handle_connected_users_update(self) -> None:
+        users: list[str] = GlobalUserVars.get().get_var(GlobalUserVars.connected_users).get().split()
+        users = list(filter(lambda u_name: u_name != LauncherUser.get_user().u_name, users))
+        print(users)
