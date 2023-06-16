@@ -1,12 +1,16 @@
 import functools
 import typing
 
+import ttkbootstrap
 import ttkbootstrap as ttk
 
 from chess.asset.chess_assets import Themes
 from chess.bot.chess_bot_stockfish import StockFishBot
 from config.tk_config import BG_DARK
 from config.tk_config import FG_DARK
+from config.tk_config import MAX_SIZE
+from config.tk_config import MIN_SIZE
+from config.tk_config import PATH_ENTRY_WIDTH
 from config.tk_config import SCALE_LABEL_WIDTH
 from config.tk_config import SETTINGS_MENUBUTTON_WIDTH
 from config.tk_config import SETTINGS_PAD
@@ -44,7 +48,7 @@ class SettingsComponent(Component):
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_columnconfigure(1, weight=1)
 
-        GlobalUserVars.get_is_bot_valid().set(StockFishBot.create_bot())
+        GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).set(StockFishBot.create_bot())
 
         settings_widgets.size_scale_label.grid(row=0, column=0, sticky=ttk.EW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         settings_widgets.size_scale.grid(row=0, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
@@ -55,15 +59,15 @@ class SettingsComponent(Component):
         settings_widgets.asset_label.grid(row=2, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         settings_widgets.asset_options.grid(row=2, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
 
-        if GlobalUserVars.get_is_bot_valid().get():
+        if GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).get():
             settings_widgets.engine_valid.grid(row=3, column=0, columnspan=2, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
         else:
             settings_widgets.path_entry.grid(row=3, column=0, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
             settings_widgets.create_bot.grid(row=3, column=1, sticky=ttk.NSEW, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-    # FIXME make constants
+
     def create_settings_widgets(self, path_entry_str: ttk.StringVar) -> SettingsWidgets:
         engine_valid: ttk.Label = ttk.Label(self.frame, text="Stock Fish ready!", foreground='green')
-        path_entry: ttk.Entry = ttk.Entry(self.frame, textvariable=path_entry_str, width=18)
+        path_entry: ttk.Entry = ttk.Entry(self.frame, textvariable=path_entry_str, width=PATH_ENTRY_WIDTH)
         path_entry.bind("<Button>", lambda e: path_entry_str.set(''))
         create_bot: ttk.Button = ttk.Button(self.frame, text="create bot")
 
@@ -89,7 +93,8 @@ class SettingsComponent(Component):
         current_scale: float = UserConfig.get().data.scale
         size_scale_label: ttk.Label = ttk.Label(self.frame, text=f"size : {current_scale}", anchor=ttk.W,
                                                 width=SCALE_LABEL_WIDTH)
-        size_scale: ttk.Scale = ttk.Scale(self.frame, from_=3, to=7, style='warning', value=current_scale,
+        size_scale: ttk.Scale = ttk.Scale(self.frame, from_=MIN_SIZE, to=MAX_SIZE,
+                                          style=ttkbootstrap.WARNING, value=current_scale,
                                           command=lambda size: handle_scale_click(size, size_scale_label))
         return SettingsWidgets(engine_valid, path_entry, create_bot, theme_options, theme_label, asset_options,
                                asset_label, size_scale, size_scale_label)
@@ -100,7 +105,7 @@ def create_bot_command(settings_widgets: SettingsWidgets, path_entry_str: ttk.St
         settings_widgets.create_bot.grid_forget()
         settings_widgets.path_entry.grid_forget()
         settings_widgets.engine_valid.grid(row=3, column=0, columnspan=2, padx=SETTINGS_PAD, pady=SETTINGS_PAD)
-        GlobalUserVars.get_is_bot_valid().set(True)
+        GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).set(True)
     else:
         path_entry_str.set("Path Incorrect")
 
