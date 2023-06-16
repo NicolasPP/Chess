@@ -22,7 +22,9 @@ class ServerPage(PageFrame):
         super().__init__(parent_frame)
         self.page_manager: PageManager = page_manager
         disconnect: ttk.Button = ttk.Button(self, text="Disconnect", command=self.handle_disconnect)
-        GlobalUserVars.get_server_disconnect().trace_add("write", lambda v, i, m: self.server_disconnect_callback())
+        GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).trace_add(
+            "write", lambda v, i, m: self.server_disconnect_callback()
+        )
         self.connected_users_comp: ConnectedUsersComponent = ConnectedUsersComponent(self)
         lobby_comp: ServerLobbyComponent = ServerLobbyComponent(self)
 
@@ -40,9 +42,9 @@ class ServerPage(PageFrame):
         self.page_manager.show_page("OnlinePage")
 
     def server_disconnect_callback(self) -> None:
-        if GlobalUserVars.get_server_disconnect().get():
+        if GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).get():
             self.page_manager.show_page("OnlinePage")
-            GlobalUserVars.get_server_disconnect().set(False)
+            GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(False)
 
     def handle_exit(self) -> None:
         self.connected_users_comp.handle_exit()
