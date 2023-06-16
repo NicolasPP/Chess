@@ -11,7 +11,6 @@ from config.tk_config import FG_DARK
 from config.tk_config import FG_LIGHT
 from config.tk_config import FONT_NAME
 from config.tk_config import FRAME_FONT_SIZE
-from config.tk_config import CHESS_DB_INFO
 from config.tk_config import RADIO_FONT_SIZE
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo
@@ -25,11 +24,10 @@ from launcher.tk.page.pages.start_page import StartPage
 
 class ChessTkinterLauncher(tk.Tk):
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, database_info: DataBaseInfo, *args, **kwargs) -> None:
         tk.Tk.__init__(self, *args, **kwargs)
         self.style: ttk.Style = ttk.Style()
         self.pg_launcher: ChessPygameLauncher = ChessPygameLauncher(self.deiconify, self.withdraw)
-        database_info: DataBaseInfo = DataBaseInfo(*CHESS_DB_INFO)
         self.database: ChessDataBase = ChessDataBase(database_info)
 
         self.window_innit()
