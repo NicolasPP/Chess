@@ -19,6 +19,12 @@ class ConnectedUsersWidgets(typing.NamedTuple):
     window_id: int
 
 
+class ConnectedUserCard(typing.NamedTuple):
+    user_name: str
+    card_frame: ttk.Frame
+    select_button: ttk.Button
+
+
 class CanvasWindowRect(typing.NamedTuple):
     x: int
     y: int
@@ -31,14 +37,12 @@ class ConnectedUsersComponent(Component):
     def __init__(self, parent: ttk.Frame) -> None:
         super().__init__(parent, "Connected Users")
         GlobalUserVars.get().get_var(GlobalUserVars.connected_users).trace_add(
-            "write", lambda v, i, m: self.handle_connected_users_update()
+            "write", lambda v, i, m: self.update_connected_users()
         )
         self.widgets: ConnectedUsersWidgets = self.create_widgets()
+        self.user_cards: list[ConnectedUserCard] = []
 
-        for i in range(10):
-            ttk.Button(self.widgets.window_frame, text=f"im {i}").pack(expand=True)
-        self.widgets.window_frame.update()
-        self.widgets.canvas.configure(scrollregion=(0, 0, 0, self.widgets.window_frame.winfo_height()))
+        self.pack_user_cards()
 
         self.frame.grid_rowconfigure(0, weight=1)
         self.frame.grid_columnconfigure(0, weight=1)
@@ -72,7 +76,28 @@ class ConnectedUsersComponent(Component):
 
         self.widgets.canvas.itemconfig(self.widgets.window_id, width=event.width - SCROLLBAR_WIDTH)
 
-    def handle_connected_users_update(self) -> None:
+    def update_connected_users(self) -> None:
         users: list[str] = GlobalUserVars.get().get_var(GlobalUserVars.connected_users).get().split()
         users = list(filter(lambda u_name: u_name != LauncherUser.get_user().u_name, users))
-        print(users)
+        self.pack_forget_user_cards()
+        self.user_cards = self.create_user_cards(users)
+        self.pack_user_cards()
+
+    def pack_forget_user_cards(self) -> None:
+        for user_card in self.user_cards:
+            user_card.card_frame.pack_forget()
+
+    def create_user_cards(self, users: list[str]) -> list[ConnectedUserCard]:
+        connected_users: list[ConnectedUserCard] = []
+        for user_name in users:
+            card_frame: ttk.Frame = ttk.Frame(self.widgets.window_frame)
+            select_button: ttk.Button = ttk.Button(card_frame, text=user_name)
+            connected_users.append(ConnectedUserCard(user_name, card_frame, select_button))
+        return connected_users
+
+    def pack_user_cards(self) -> None:
+        for user_card in self.user_cards:
+            user_card.select_button.pack(expand=True)
+            user_card.card_frame.pack(expand=True)
+        self.widgets.window_frame.update()
+        self.widgets.canvas.configure(scrollregion=(0, 0, 0, self.widgets.window_frame.winfo_height()))
