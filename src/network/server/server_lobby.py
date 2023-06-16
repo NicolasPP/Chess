@@ -5,6 +5,7 @@ from database.models import User
 from network.commands.client_commands import ClientLauncherCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
+from network.commands.server_commands import ServerLauncherCommand
 from network.server.server_user import ServerUser
 
 
@@ -51,3 +52,17 @@ class ServerLobby:
                 return False
 
         return server_user.set_db_user(verification_command.info, db_user)
+
+    def get_users_string(self) -> str:
+        return " ".join([user.db_user.u_name for user in self.users])
+
+    def update_connected_users(self) -> None:
+        update_connected_users_info: dict[str, str] = {
+            CommandManager.connected_users: self.get_users_string()
+        }
+        update_connected_users: Command = CommandManager.get(
+            ServerLauncherCommand.UPDATE_CONNECTED_USERS,
+            update_connected_users_info
+        )
+        self.send_all_users(update_connected_users)
+
