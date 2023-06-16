@@ -1,25 +1,33 @@
+from __future__ import annotations
+
 import tkinter as tk
+import typing
+
+possible_vars: typing.TypeAlias = tk.StringVar | tk.BooleanVar
 
 
 class GlobalUserVars:
-    server_disconnect: tk.BooleanVar | None = None
-    is_bot_valid: tk.BooleanVar | None = None
-    connect_error_var: tk.StringVar | None = None
+    global_vars: GlobalUserVars | None = None
+    server_disconnect: str = 'server_disconnect'
+    connected_users: str = 'connected_users'
+    connect_error: str = 'connect_error'
+    is_bot_valid: str = 'is_bot_valid'
 
     @staticmethod
-    def get_server_disconnect() -> tk.BooleanVar:
-        if GlobalUserVars.server_disconnect is None:
-            GlobalUserVars.server_disconnect = tk.BooleanVar(value=False)
-        return GlobalUserVars.server_disconnect
+    def get() -> GlobalUserVars:
+        if GlobalUserVars.global_vars is None:
+            GlobalUserVars.global_vars = GlobalUserVars()
+        return GlobalUserVars.global_vars
 
-    @staticmethod
-    def get_is_bot_valid() -> tk.BooleanVar:
-        if GlobalUserVars.is_bot_valid is None:
-            GlobalUserVars.is_bot_valid = tk.BooleanVar(value=False)
-        return GlobalUserVars.is_bot_valid
+    def __init__(self):
+        self.vars: dict[str | possible_vars] = {
+            GlobalUserVars.server_disconnect: tk.BooleanVar(value=False),
+            GlobalUserVars.is_bot_valid: tk.BooleanVar(value=False),
+            GlobalUserVars.connect_error: tk.StringVar(),
+            GlobalUserVars.connected_users: tk.StringVar()
+        }
 
-    @staticmethod
-    def get_connect_error_var() -> tk.StringVar:
-        if GlobalUserVars.connect_error_var is None:
-            GlobalUserVars.connect_error_var = tk.StringVar()
-        return GlobalUserVars.connect_error_var
+    def get_var(self, name: str) -> possible_vars:
+        var: possible_vars = self.vars.get(name)
+        if var is None: raise Exception(f"var with name: {name} not found")
+        return var
