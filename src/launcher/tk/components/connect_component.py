@@ -36,13 +36,14 @@ class ConnectComponent(Component):
     def create_widgets(self) -> ConnectWidgets:
         server_ip_entry: ttk.Entry = ttk.Entry(self.frame, textvariable=self.vars.ip_entry_var)
         server_ip_entry.bind('<Return>', lambda e: self.handle_connect())
-        error_label: ttk.Label = ttk.Label(self.frame, textvariable=GlobalUserVars.get_connect_error_var(),
-                                           foreground="red", wraplength=CONNECT_ERROR_WRAP_LEN, justify=tk.CENTER)
+        error_label: ttk.Label = ttk.Label(self.frame, textvariable=GlobalUserVars.get().get_var(
+                                           GlobalUserVars.connect_error), foreground="red",
+                                           wraplength=CONNECT_ERROR_WRAP_LEN, justify=tk.CENTER)
         connect_button: ttk.Button = ttk.Button(self.frame, text="Connect", command=self.handle_connect)
         return ConnectWidgets(server_ip_entry, error_label, connect_button)
 
     def handle_connect(self) -> None:
-        GlobalUserVars.get_connect_error_var().set("")
+        GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set("")
         self.widgets.error_label.update()
         server_ip: str = self.vars.ip_entry_var.get()
         if self.started_server.get() and not server_ip:
@@ -54,7 +55,7 @@ class ConnectComponent(Component):
             self.page_manager.show_page("ServerPage")
         else:
             assert is_connect_successful.error is not None, "error cannot be None here"
-            GlobalUserVars.get_connect_error_var().set(is_connect_successful.error.strerror)
+            GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(is_connect_successful.error.strerror)
 
 
 def create_vars() -> ConnectVars:
