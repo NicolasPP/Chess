@@ -29,6 +29,7 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 
 class ChessServer(Net):
     server: ChessServer | None = None
+    database_info: DataBaseInfo = DataBaseInfo(*LOCAL_CHESS_DB_INFO)
 
     @staticmethod
     def get_host_ipv4() -> str:
@@ -42,6 +43,10 @@ class ChessServer(Net):
         finally:
             socket.close()
         return ipv4
+
+    @staticmethod
+    def set_database_info(database_info: DataBaseInfo) -> None:
+        ChessServer.database_info = database_info
 
     @staticmethod
     def get() -> ChessServer:
@@ -63,7 +68,7 @@ class ChessServer(Net):
         self.is_running: bool = False
         self.logger: logging.Logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE, logging.INFO)
         self.server_control_thread: threading.Thread = threading.Thread(target=self.server_control_command_parser)
-        self.database: ChessDataBase = ChessDataBase(DataBaseInfo(*LOCAL_CHESS_DB_INFO))
+        self.database: ChessDataBase = ChessDataBase(ChessServer.database_info)
         self.lobby: ServerLobby = ServerLobby(self.logger, self.database)
 
     def start(self, is_server_online: bool | None = None) -> bool:
