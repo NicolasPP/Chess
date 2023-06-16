@@ -2,10 +2,13 @@ import enum
 
 import click
 
+from config.tk_config import CHESS_DB_INFO
 from config.user_config import UserConfig
+from database.chess_db import DataBaseInfo
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.pg.pg_launcher import SinglePlayerGameType
 from launcher.tk.tk_launcher import ChessTkinterLauncher
+from network.server.chess_server import ChessServer
 
 
 class AppType(enum.Enum):
@@ -44,6 +47,8 @@ def start_app(
 ) -> None:
     app: AppType = AppType[app_type]
     pg_launcher: ChessPygameLauncher = ChessPygameLauncher()
+    database_info: DataBaseInfo = DataBaseInfo(*CHESS_DB_INFO)
+    ChessServer.set_database_info(database_info)
 
     UserConfig.get().update_config(
         update_config=False,
@@ -56,7 +61,7 @@ def start_app(
 
     if app is AppType.LAUNCHER:
         UserConfig.get().load_user_config()
-        ChessTkinterLauncher().mainloop()
+        ChessTkinterLauncher(database_info).mainloop()
 
     elif app is AppType.SERVER:
         pg_launcher.run_local_server()
