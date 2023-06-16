@@ -94,10 +94,15 @@ class ChessClient(Net):
 
 def parse_server_command(command: Command) -> None:
     if command.name == ServerLauncherCommand.DISCONNECT.name:
-        GlobalUserVars.get_connect_error_var().set(
+        GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(
             command.info[CommandManager.disconnect_reason]
         )
-        GlobalUserVars.get_server_disconnect().set(True)
+        GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(True)
+
+    elif command.name == ServerLauncherCommand.UPDATE_CONNECTED_USERS.name:
+        GlobalUserVars.get().get_var(GlobalUserVars.connected_users).set(
+            command.info[CommandManager.connected_users]
+        )
 
     else:
         raise Exception(f"command : {command} not recognised")
