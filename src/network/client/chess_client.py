@@ -101,7 +101,7 @@ def parse_server_command(command: Command) -> None:
 
     elif command.name == ServerLauncherCommand.UPDATE_CONNECTED_USERS.name:
         GlobalUserVars.get().get_var(GlobalUserVars.connected_users).set(
-            command.info[CommandManager.connected_users]
+            command.info[CommandManager.connected_users_info]
         )
 
     else:
