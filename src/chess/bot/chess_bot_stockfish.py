@@ -73,6 +73,8 @@ class StockFishBot:
         if is_checkmate(self.fen):
             return None
 
+        # maybe change this to if the fen is invalid return None
+        # this might be cleaner but not too sure about the implications
         assert StockFishBot.get().is_fen_valid(self.fen.notation), "fen is not valid!"
         StockFishBot.get().set_fen_position(self.fen.notation)
 
