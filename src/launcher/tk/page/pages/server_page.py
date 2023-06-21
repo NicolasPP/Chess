@@ -35,7 +35,7 @@ class ServerPage(PageFrame):
 
         lobby_comp.get_frame().grid(row=0, column=0, rowspan=2, padx=SERVER_PAD, pady=SERVER_PAD, sticky=tk.NSEW)
         self.connected_users_comp.get_frame().grid(row=0, column=1, padx=SERVER_PAD, pady=SERVER_PAD, sticky=tk.NSEW)
-        disconnect.grid(row=1, column=1)
+        disconnect.grid(row=1, column=1, padx=SERVER_PAD, pady=SERVER_PAD)
 
     def handle_disconnect(self) -> None:
         LauncherUser.get_client().disconnect()
