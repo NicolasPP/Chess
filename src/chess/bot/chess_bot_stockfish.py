@@ -16,12 +16,20 @@ from network.commands.client_commands import ClientGameCommand
 from network.commands.command_manager import CommandManager
 from chess.chess_logging import set_up_logging
 from chess.chess_logging import LoggingOut
+from chess.movement.validate_move import is_checkmate
 from config.tk_config import BOT_NAME
 from config.tk_config import BOT_LOG_FILE
 
 
 class StockFishBot:
     stock_fish: Stockfish | None = None
+    logger: logging.Logger | None = None
+
+    @staticmethod
+    def get_logger() -> logging.Logger:
+        if StockFishBot.logger is None:
+            StockFishBot.logger = set_up_logging(BOT_NAME, LoggingOut.STDOUT, BOT_LOG_FILE)
+        return StockFishBot.logger
 
     @staticmethod
     def create_bot(engine_path: str = "stockfish") -> bool:
@@ -44,7 +52,7 @@ class StockFishBot:
         return StockFishBot.stock_fish
 
     def __init__(self, fen: Fen, side: Side, player: Player) -> None:
-        self.logger: logging.Logger = set_up_logging(BOT_NAME, LoggingOut.FILE, BOT_LOG_FILE)
+        self.logger: logging.Logger = StockFishBot.get_logger()
         self.side: Side = side
         self.fen: Fen = fen
         self.player: Player = player
@@ -56,11 +64,15 @@ class StockFishBot:
             }
         )
 
-    def get_best_move(self) -> str:
+    def get_best_move(self) -> str | None:
         player_time_left: float = self.player.timer_gui.own_timer.time_left
         bot_time_left: float = self.player.timer_gui.opponents_timer.time_left
         white_time: float = player_time_left if self.player.side is Side.WHITE else bot_time_left
         black_time: float = player_time_left if self.player.side is Side.BLACK else bot_time_left
+
+        if is_checkmate(self.fen):
+            return None
+
         assert StockFishBot.get().is_fen_valid(self.fen.notation), "fen is not valid!"
         StockFishBot.get().set_fen_position(self.fen.notation)
 
@@ -74,8 +86,8 @@ class StockFishBot:
 
     def make_move(self, side: Side | None = None) -> None:
         if side is None: side = self.side
-        self.logger.info("finding move")
-        move = self.get_best_move()
+        move: None | str = self.get_best_move()
+        self.logger.info("before move fen : %s", self.fen.notation)
         self.logger.info("found move : %s", move)
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
         target_fen: str | None = None
@@ -111,7 +123,6 @@ class StockFishBot:
                                      CommandManager.side: side.name,
                                      CommandManager.target_fen: target_fen,
                                      CommandManager.time_iso: time_iso}
-        self.logger.info("move info : %s", move_info)
         move_command = CommandManager.get(ClientGameCommand.MOVE, move_info)
         send_command(True, None, move_command)
 
