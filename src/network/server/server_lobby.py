@@ -26,6 +26,9 @@ class ServerLobby:
 
         self.users.remove(server_user)
 
+    def get_connection_count(self) -> int:
+        return len(self.users)
+
     def send_all_users(self, command: Command) -> None:
         for user in self.users:
             user.socket.send(CommandManager.serialize_command(command))
@@ -53,16 +56,19 @@ class ServerLobby:
 
         return server_user.set_db_user(verification_command.info, db_user)
 
-    def get_users_string(self) -> str:
-        return " ".join([user.db_user.u_name for user in self.users])
-
     def update_connected_users(self) -> None:
+        connected_users_info: list[str] = []
+        for user in self.users:
+            connected_users_info.append(f"{user.db_user.u_name}-{user.db_user.elo}")
+
         update_connected_users_info: dict[str, str] = {
-            CommandManager.connected_users: self.get_users_string()
+            CommandManager.connected_users_info: " ".join(connected_users_info)
         }
+
         update_connected_users: Command = CommandManager.get(
             ServerLauncherCommand.UPDATE_CONNECTED_USERS,
             update_connected_users_info
         )
+
         self.send_all_users(update_connected_users)
 
