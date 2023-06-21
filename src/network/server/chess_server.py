@@ -12,6 +12,7 @@ from config.pg_config import DATA_SIZE
 from config.tk_config import LOCAL_CHESS_DB_INFO
 from config.tk_config import SERVER_LOG_FILE
 from config.tk_config import SERVER_NAME
+from config.tk_config import MAX_CONNECTIONS
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo
 from network.chess_network import Net
@@ -121,17 +122,25 @@ class ChessServer(Net):
 
             ver_bytes: bytes | None = self.receive_verification(server_user)
 
-            if self.lobby.verify_user(server_user, ver_bytes):
+            disconnect_info: dict[str, str] = {}
+
+            if self.lobby.get_connection_count() >= MAX_CONNECTIONS:
+                disconnect_info[CommandManager.disconnect_reason] = "Too Many Connections"
+                server_user.socket.send(CommandManager.serialize_command(
+                    CommandManager.get(ServerLauncherCommand.DISCONNECT, disconnect_info)
+                ))
+
+            elif self.lobby.verify_user(server_user, ver_bytes):
                 self.lobby.add_user(server_user)
                 self.logger.info("client: %s connected", server_user.get_db_user().u_name)
                 start_new_thread(self.user_listener, (server_user,))
                 self.lobby.update_connected_users()
+
             else:
-                disconnect_info: dict[str, str] = {
-                    CommandManager.disconnect_reason: "Could not verify user"
-                }
-                disconnect: Command = CommandManager.get(ServerLauncherCommand.DISCONNECT, disconnect_info)
-                server_user.socket.send(CommandManager.serialize_command(disconnect))
+                disconnect_info[CommandManager.disconnect_reason] = "Could not verify user"
+                server_user.socket.send(CommandManager.serialize_command(
+                    CommandManager.get(ServerLauncherCommand.DISCONNECT, disconnect_info)
+                ))
                 server_user.socket.close()
                 self.logger.info("could not verify user")
 
