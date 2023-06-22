@@ -57,11 +57,10 @@ class ConnectedUsersComponent(Component):
         self.widgets.container.grid(sticky=tk.NSEW, pady=20, padx=20)
 
     def create_widgets(self) -> ConnectedUsersWidgets:
-        window_frame_height: int = MAX_CONNECTIONS * DEFAULT_CARD_HEIGHT
         container: ttk.Frame = ttk.Frame(self.frame)
         scroll_bar: ttk.Scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, style=ttkbootstrap.WARNING)
         canvas: tk.Canvas = tk.Canvas(container)
-        window_frame: ttk.Frame = ttk.Frame(container, height=window_frame_height)
+        window_frame: ttk.Frame = ttk.Frame(container, height=get_window_frame_height())
         window_id: int = canvas.create_window(*CANVAS_WINDOW_POS, window=window_frame, anchor=tk.NW)
         canvas.configure(yscrollcommand=scroll_bar.set)
         scroll_bar.configure(command=canvas.yview)
@@ -77,7 +76,7 @@ class ConnectedUsersComponent(Component):
     def handle_container_resize(self, event_width: int) -> None:
         # setting the size of the window_frame everytime we resize container. seems to be the
         # only way of prevent the created_window from shrinking to children combined height
-        self.widgets.canvas.itemconfig(self.widgets.window_id, height=MAX_CONNECTIONS * 100)
+        self.widgets.canvas.itemconfig(self.widgets.window_id, height=get_window_frame_height())
         self.widgets.canvas.itemconfig(self.widgets.window_id, width=event_width - SCROLLBAR_WIDTH)
 
     def update_connected_users(self) -> None:
@@ -124,3 +123,7 @@ class ConnectedUsersComponent(Component):
             user_card.select_button.pack(side=tk.LEFT, expand=True)
             user_card.card_frame.pack(padx=CONNECTED_USER_PAD, pady=USER_CARD_SPACING)
         self.update_scroll_region()
+
+
+def get_window_frame_height() -> int:
+    return MAX_CONNECTIONS * DEFAULT_CARD_HEIGHT
