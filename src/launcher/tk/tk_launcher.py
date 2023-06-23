@@ -11,7 +11,6 @@ from config.tk_config import FG_DARK
 from config.tk_config import FG_LIGHT
 from config.tk_config import FONT_NAME
 from config.tk_config import FRAME_FONT_SIZE
-from config.tk_config import RADIO_FONT_SIZE
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo
 from launcher.pg.pg_launcher import ChessPygameLauncher
@@ -69,7 +68,7 @@ class ChessTkinterLauncher(tk.Tk):
                              darkcolor=BG_DARK, lightcolor=BG_DARK, bordercolor=FG_DARK, selectbackground=BG_LIGHT,
                              selectforeground=FG_LIGHT)
         self.style.configure('Toolbutton', background=BG_DARK, foreground=FG_DARK, relief=tk.SOLID,
-                             font=(FONT_NAME, RADIO_FONT_SIZE))
+                             font=(FONT_NAME, DEFAULT_FONT_SIZE))
         self.style.map('Toolbutton', background=[(tk.DISABLED, BG_LIGHT), ('selected', BG_DARK)],
                        foreground=[('!selected', BG_LIGHT), (tk.DISABLED, BG_LIGHT)])
 
