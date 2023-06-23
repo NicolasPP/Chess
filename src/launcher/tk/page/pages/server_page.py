@@ -2,7 +2,7 @@ import tkinter as tk
 
 from ttkbootstrap import ttk
 
-from config.tk_config import SERVER_PAD
+from config.tk_config import LAUNCHER_PAD
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.connected_users_component import ConnectedUsersComponent
 from launcher.tk.components.server_lobby_component import ServerLobbyComponent
@@ -33,9 +33,9 @@ class ServerPage(PageFrame):
         self.grid_columnconfigure(0, weight=6)
         self.grid_columnconfigure(1, weight=2)
 
-        lobby_comp.get_frame().grid(row=0, column=0, rowspan=2, padx=SERVER_PAD, pady=SERVER_PAD, sticky=tk.NSEW)
-        self.connected_users_comp.get_frame().grid(row=0, column=1, padx=SERVER_PAD, pady=SERVER_PAD, sticky=tk.NSEW)
-        disconnect.grid(row=1, column=1, padx=SERVER_PAD, pady=SERVER_PAD)
+        lobby_comp.get_frame().grid(row=0, column=0, rowspan=2, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD, sticky=tk.NSEW)
+        self.connected_users_comp.get_frame().grid(row=0, column=1, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD, sticky=tk.NSEW)
+        disconnect.grid(row=1, column=1, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD)
 
     def handle_disconnect(self) -> None:
         LauncherUser.get_client().disconnect()

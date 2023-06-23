@@ -4,7 +4,7 @@ import typing
 import ttkbootstrap
 from ttkbootstrap import ttk
 
-from config.tk_config import BOT_CONFIG_PAD
+from config.tk_config import LAUNCHER_PAD
 from config.tk_config import MAX_ELO
 from config.tk_config import MAX_SKILL
 from config.tk_config import MIN_ELO
@@ -68,22 +68,22 @@ class BotConfigComponent(Component):
         self.frame.grid_columnconfigure(1, weight=1)
         self.frame.grid_columnconfigure(2, weight=1)
 
-        self.widgets.elo_label.grid(row=0, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
-        self.widgets.elo_scale.grid(row=0, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
-        self.widgets.elo_value_label.grid(row=0, column=2, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
+        self.widgets.elo_label.grid(row=0, column=0, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
+        self.widgets.elo_scale.grid(row=0, column=1, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
+        self.widgets.elo_value_label.grid(row=0, column=2, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
 
-        self.widgets.skill_label.grid(row=1, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
-        self.widgets.skill_scale.grid(row=1, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
-        self.widgets.skill_value_label.grid(row=1, column=2, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
+        self.widgets.skill_label.grid(row=1, column=0, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
+        self.widgets.skill_scale.grid(row=1, column=1, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
+        self.widgets.skill_value_label.grid(row=1, column=2, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
 
-        self.widgets.move_time_label.grid(row=2, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD,
-                                          padx=(BOT_CONFIG_PAD, 0))
-        self.widgets.regular_move_button.grid(row=2, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
-        self.widgets.fast_move_button.grid(row=2, column=2, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
+        self.widgets.move_time_label.grid(row=2, column=0, sticky=tk.NSEW, pady=LAUNCHER_PAD,
+                                          padx=(LAUNCHER_PAD, 0))
+        self.widgets.regular_move_button.grid(row=2, column=1, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
+        self.widgets.fast_move_button.grid(row=2, column=2, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
 
-        self.widgets.bot_side_label.grid(row=3, column=0, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=(BOT_CONFIG_PAD, 0))
-        self.widgets.white_side_button.grid(row=3, column=1, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
-        self.widgets.black_side_button.grid(row=3, column=2, sticky=tk.NSEW, pady=BOT_CONFIG_PAD, padx=BOT_CONFIG_PAD)
+        self.widgets.bot_side_label.grid(row=3, column=0, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=(LAUNCHER_PAD, 0))
+        self.widgets.white_side_button.grid(row=3, column=1, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
+        self.widgets.black_side_button.grid(row=3, column=2, sticky=tk.NSEW, pady=LAUNCHER_PAD, padx=LAUNCHER_PAD)
 
     def create_widgets(self) -> BotConfigCompWidgets:
         state = tk.DISABLED if not GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).get() else tk.NORMAL

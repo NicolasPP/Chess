@@ -2,7 +2,7 @@ import tkinter as tk
 
 from ttkbootstrap import ttk
 
-from config.tk_config import START_PAGE_FRAME_PAD
+from config.tk_config import LAUNCHER_PAD
 from database.chess_db import ChessDataBase
 from launcher.tk.components.network_play_comp import NetworkPlayComponent
 from launcher.tk.components.settings_comp import SettingsComponent
@@ -25,9 +25,9 @@ class StartPage(PageFrame):
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
-        play_comp.get_frame().grid(row=0, column=0, sticky=tk.NSEW, padx=START_PAGE_FRAME_PAD,
-                                   pady=START_PAGE_FRAME_PAD)
-        settings_comp.get_frame().grid(row=0, column=1, rowspan=2, sticky=tk.NSEW, padx=START_PAGE_FRAME_PAD,
-                                       pady=START_PAGE_FRAME_PAD)
-        user_comp.get_frame().grid(row=1, column=0, sticky=tk.NSEW, padx=START_PAGE_FRAME_PAD,
-                                   pady=START_PAGE_FRAME_PAD)
+        play_comp.get_frame().grid(row=0, column=0, sticky=tk.NSEW, padx=LAUNCHER_PAD,
+                                   pady=LAUNCHER_PAD)
+        settings_comp.get_frame().grid(row=0, column=1, rowspan=2, sticky=tk.NSEW, padx=LAUNCHER_PAD,
+                                       pady=LAUNCHER_PAD)
+        user_comp.get_frame().grid(row=1, column=0, sticky=tk.NSEW, padx=LAUNCHER_PAD,
+                                   pady=LAUNCHER_PAD)

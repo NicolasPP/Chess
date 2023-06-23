@@ -7,7 +7,7 @@ from ttkbootstrap import ttk
 from config.tk_config import CANVAS_WINDOW_POS
 from config.tk_config import SCROLLBAR_WIDTH
 from config.tk_config import USER_CARD_SPACING
-from config.tk_config import CONNECTED_USER_PAD
+from config.tk_config import LAUNCHER_PAD
 from config.tk_config import DEFAULT_CARD_HEIGHT
 from config.tk_config import MAX_CONNECTIONS
 from launcher.tk.components.tk_component import Component
@@ -121,7 +121,7 @@ class ConnectedUsersComponent(Component):
         for user_card in self.user_cards:
             user_card.elo_label.pack(side=tk.LEFT, expand=True)
             user_card.select_button.pack(side=tk.LEFT, expand=True)
-            user_card.card_frame.pack(padx=CONNECTED_USER_PAD, pady=USER_CARD_SPACING)
+            user_card.card_frame.pack(padx=LAUNCHER_PAD, pady=USER_CARD_SPACING)
         self.update_scroll_region()
 
 

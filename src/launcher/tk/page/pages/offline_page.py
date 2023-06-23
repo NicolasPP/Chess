@@ -2,7 +2,7 @@ import tkinter as tk
 
 from ttkbootstrap import ttk
 
-from config.tk_config import OFFLINE_PAGE_PAD
+from config.tk_config import LAUNCHER_PAD
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.bot_config_comp import BotConfigComponent
 from launcher.tk.components.offline_play_comp import OfflinePlayComponent
@@ -31,13 +31,13 @@ class OfflinePage(PageFrame):
         self.grid_rowconfigure(0, weight=8)
         self.grid_rowconfigure(1, weight=2)
 
-        offline_play_comp.get_frame().grid(row=0, column=0, sticky=tk.NSEW, padx=OFFLINE_PAGE_PAD,
-                                           pady=OFFLINE_PAGE_PAD)
-        bot_config_comp.get_frame().grid(row=0, column=1, sticky=tk.NSEW, padx=OFFLINE_PAGE_PAD,
-                                         pady=OFFLINE_PAGE_PAD, rowspan=2)
-        time_config_comp.get_frame().grid(row=0, column=2, sticky=tk.NSEW, padx=OFFLINE_PAGE_PAD,
-                                          pady=OFFLINE_PAGE_PAD, rowspan=2)
-        back_button.grid(row=1, column=0, padx=OFFLINE_PAGE_PAD, pady=OFFLINE_PAGE_PAD)
+        offline_play_comp.get_frame().grid(row=0, column=0, sticky=tk.NSEW, padx=LAUNCHER_PAD,
+                                           pady=LAUNCHER_PAD)
+        bot_config_comp.get_frame().grid(row=0, column=1, sticky=tk.NSEW, padx=LAUNCHER_PAD,
+                                         pady=LAUNCHER_PAD, rowspan=2)
+        time_config_comp.get_frame().grid(row=0, column=2, sticky=tk.NSEW, padx=LAUNCHER_PAD,
+                                          pady=LAUNCHER_PAD, rowspan=2)
+        back_button.grid(row=1, column=0, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD)
 
 
 def is_bot_valid_callback(offline_play_comp: OfflinePlayComponent, bot_config_comp: BotConfigComponent) -> None:

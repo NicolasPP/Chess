@@ -7,7 +7,7 @@ from ttkbootstrap import ttk
 from chess.timer.timer_config import DefaultConfigs
 from chess.timer.timer_config import TimerConfig
 from config.tk_config import BG_DARK
-from config.tk_config import DEFAULT_TIME_PAD
+from config.tk_config import LAUNCHER_PAD
 from config.tk_config import FG_DARK
 from config.tk_config import TIME_ENTRY_PAD
 from config.tk_config import TIME_ENTRY_WIDTH
@@ -55,10 +55,10 @@ class TimeConfigComponent(Component):
         self.widgets.increment_label.grid(row=0, column=2, pady=TIME_ENTRY_PAD)
         self.widgets.increment_entry.grid(row=0, column=3, pady=TIME_ENTRY_PAD)
 
-        self.widgets.default_time_label.grid(row=1, column=0, columnspan=4, pady=DEFAULT_TIME_PAD)
-        self.widgets.bullet_times.grid(row=2, column=0, columnspan=4, pady=DEFAULT_TIME_PAD)
-        self.widgets.blitz_times.grid(row=3, column=0, columnspan=4, pady=DEFAULT_TIME_PAD)
-        self.widgets.rapid_times.grid(row=4, column=0, columnspan=4, pady=DEFAULT_TIME_PAD)
+        self.widgets.default_time_label.grid(row=1, column=0, columnspan=4, pady=LAUNCHER_PAD)
+        self.widgets.bullet_times.grid(row=2, column=0, columnspan=4, pady=LAUNCHER_PAD)
+        self.widgets.blitz_times.grid(row=3, column=0, columnspan=4, pady=LAUNCHER_PAD)
+        self.widgets.rapid_times.grid(row=4, column=0, columnspan=4, pady=LAUNCHER_PAD)
 
     def create_widgets(self) -> TimeConfigWidgets:
         time_entry: ttk.Entry = ttk.Entry(self.frame, textvariable=self.vars.time_var, width=TIME_ENTRY_WIDTH)

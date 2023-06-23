@@ -5,7 +5,7 @@ from launcher.tk.page.page_manager import PageManager
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.local_server_component import LocalServerComponent
 from launcher.tk.components.connect_component import ConnectComponent
-from config.tk_config import ONLINE_PAD
+from config.tk_config import LAUNCHER_PAD
 
 
 class OnlinePage(PageFrame):
@@ -21,9 +21,9 @@ class OnlinePage(PageFrame):
         self.grid_columnconfigure(0, weight=6)
         self.grid_columnconfigure(1, weight=2)
 
-        self.connect_comp.get_frame().grid(row=0, column=0, rowspan=2, sticky=tk.NSEW, padx=ONLINE_PAD,
-                                           pady=ONLINE_PAD)
-        self.local_server_comp.get_frame().grid(row=0, column=1, sticky=tk.NSEW, padx=ONLINE_PAD, pady=ONLINE_PAD)
+        self.connect_comp.get_frame().grid(row=0, column=0, rowspan=2, sticky=tk.NSEW, padx=LAUNCHER_PAD,
+                                           pady=LAUNCHER_PAD)
+        self.local_server_comp.get_frame().grid(row=0, column=1, sticky=tk.NSEW, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD)
         self.back.grid(row=1, column=1)
 
     def create_back_button(self, page_manager: PageManager) -> ttk.Button:
