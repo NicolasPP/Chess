@@ -108,10 +108,9 @@ class ConnectedUsersComponent(Component):
 
     def get_scroll_region_height(self) -> int:
         self.widgets.window_frame.update()
-        height: int = USER_CARD_SPACING * len(self.widgets.window_frame.children.values()) * 2
-        for child in self.widgets.window_frame.children.values():
-            height += child.winfo_height()
-        return height
+        spacing_height: int = USER_CARD_SPACING * len(self.widgets.window_frame.children.values()) * 2
+        children_height: int = sum([child.winfo_height() for child in self.widgets.window_frame.children.values()])
+        return spacing_height + children_height
 
     def update_scroll_region(self) -> None:
         height: int = self.get_scroll_region_height()
