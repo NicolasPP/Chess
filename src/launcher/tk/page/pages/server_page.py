@@ -30,7 +30,7 @@ class ServerPage(PageFrame):
 
         self.grid_rowconfigure(0, weight=10)
         self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(0, weight=6)
+        self.grid_columnconfigure(0, weight=10)
         self.grid_columnconfigure(1, weight=2)
 
         lobby_comp.get_frame().grid(row=0, column=0, rowspan=2, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD, sticky=tk.NSEW)
