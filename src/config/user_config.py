@@ -47,7 +47,7 @@ class UserConfig:
         with open(LOCAL_CONFIG_PATH, 'wb') as file:
             file.write(pickle_user_data)
 
-    def update_config(self, update_config: bool = True, **new_values: PossibleConfigValues) -> None:
+    def update_config(self, update_local_config: bool = True, **new_values: PossibleConfigValues) -> None:
 
         for name, value in new_values.items():
             wrong_type_message: str = f"got {type(value).__name__} expected: "
@@ -81,5 +81,5 @@ class UserConfig:
             else:
                 raise Exception(f"Launcher Config has nor variable: {name}")
 
-        if update_config:
+        if update_local_config:
             self.write_config()

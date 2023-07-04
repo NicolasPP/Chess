@@ -51,7 +51,7 @@ def start_app(
     ChessServer.set_database_info(database_info)
 
     UserConfig.get().update_config(
-        update_config=False,
+        update_local_config=False,
         theme_id=theme_id,
         scale=scale,
         asset_name=pieces_asset,
