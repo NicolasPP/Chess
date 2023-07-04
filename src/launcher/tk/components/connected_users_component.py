@@ -54,7 +54,7 @@ class ConnectedUsersComponent(Component):
 
         self.widgets.scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
         self.widgets.canvas.pack(side=tk.LEFT, fill=tk.BOTH)
-        self.widgets.container.grid(sticky=tk.NSEW, pady=20, padx=20)
+        self.widgets.container.grid(sticky=tk.NSEW, pady=USER_CARD_SPACING, padx=USER_CARD_SPACING)
 
     def create_widgets(self) -> ConnectedUsersWidgets:
         container: ttk.Frame = ttk.Frame(self.frame)
@@ -74,8 +74,8 @@ class ConnectedUsersComponent(Component):
         return CanvasWindowRect(*self.widgets.canvas.bbox(self.widgets.window_id))
 
     def handle_container_resize(self, event_width: int) -> None:
-        # setting the size of the window_frame everytime we resize container. seems to be the
-        # only way of prevent the created_window from shrinking to children combined height
+        # setting the height of the window_frame to a constant size everytime we resize container
+        # seems to be the only way to prevent the created_window from shrinking its children combined height
         self.widgets.canvas.itemconfig(self.widgets.window_id, height=get_window_frame_height())
         self.widgets.canvas.itemconfig(self.widgets.window_id, width=event_width - SCROLLBAR_WIDTH)
 
@@ -98,7 +98,7 @@ class ConnectedUsersComponent(Component):
         connected_users: list[ConnectedUserCard] = []
         for user_info in users_info:
             user_name, user_elo = user_info
-            card_frame: ttk.Frame = ttk.Frame(self.widgets.window_frame)
+            card_frame: ttk.Frame = ttk.Frame(self.widgets.window_frame, width=self.get_canvas_window_rect().width)
             select_button: ttk.Button = ttk.Button(card_frame, text=user_name)
             elo_label: ttk.Label = ttk.Label(card_frame, text=f"elo : {user_elo}")
             connected_users.append(
@@ -113,14 +113,15 @@ class ConnectedUsersComponent(Component):
         return spacing_height + children_height
 
     def update_scroll_region(self) -> None:
-        height: int = self.get_scroll_region_height()
-        self.widgets.canvas.configure(scrollregion=(0, 0, 0, height))
+        self.widgets.canvas.configure(
+            scrollregion=(0, 0, 0, self.get_scroll_region_height())
+        )
 
     def pack_user_cards(self) -> None:
         for user_card in self.user_cards:
             user_card.elo_label.pack(side=tk.LEFT, expand=True)
             user_card.select_button.pack(side=tk.LEFT, expand=True)
-            user_card.card_frame.pack(padx=LAUNCHER_PAD, pady=USER_CARD_SPACING)
+            user_card.card_frame.pack(padx=LAUNCHER_PAD, pady=USER_CARD_SPACING, expand=True)
         self.update_scroll_region()
 
 
