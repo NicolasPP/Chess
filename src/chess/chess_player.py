@@ -59,16 +59,10 @@ class Player:
 
     @staticmethod
     def get_player_client(init_command: Command, game_offset: pygame.rect.Rect) -> Player:
-        return Player(
-            Side[init_command.info[CommandManager.side]],
-            float(init_command.info[CommandManager.time]),
-            game_offset
-        )
+        return Player(Side[init_command.info[CommandManager.side]], float(init_command.info[CommandManager.time]),
+                      game_offset)
 
-    def __init__(self,
-                 side: Side,
-                 time_left: float,
-                 game_offset: pygame.rect.Rect):
+    def __init__(self, side: Side, time_left: float, game_offset: pygame.rect.Rect):
 
         self.game_offset = game_offset
         self.board: Board = Board(side)
@@ -96,12 +90,8 @@ class Player:
         self.previous_move_gui: PreviousMoveGui = PreviousMoveGui(self.board.rect)
         self.played_moves_gui: PlayedMovesGui = PlayedMovesGui(self.board.rect)
 
-    def parse_input(
-            self,
-            event: pygame.event.Event,
-            fen: Fen,
-            network: ChessNetwork | None = None,
-            local: bool = False) -> None:
+    def parse_input(self, event: pygame.event.Event, fen: Fen, network: ChessNetwork | None = None,
+                    local: bool = False) -> None:
         if self.game_over: return
         if not self.read_input: return
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -122,15 +112,14 @@ class Player:
         if self.state == State.RESIGN_DOUBLE_CHECK: return
         if self.state == State.DRAW_DOUBLE_CHECK: return
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
-        if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos.x, mouse_pos.y) and \
-                self.end_game_gui.offer_draw.enabled:
+        if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos.x,
+                                                          mouse_pos.y) and self.end_game_gui.offer_draw.enabled:
             self.state = State.DRAW_DOUBLE_CHECK
             self.verify_gui.set_action_label(DRAW_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
-        elif self.end_game_gui.resign.rect.collidepoint(mouse_pos.x, mouse_pos.y) and \
-                self.end_game_gui.resign.enabled:
+        elif self.end_game_gui.resign.rect.collidepoint(mouse_pos.x, mouse_pos.y) and self.end_game_gui.resign.enabled:
             self.state = State.RESIGN_DOUBLE_CHECK
             self.verify_gui.set_action_label(RESIGN_DOUBLE_CHECK_LABEL)
             self.end_game_gui.offer_draw.set_hover(False)
@@ -148,26 +137,20 @@ class Player:
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         # invalid move
-        invalid_move_info: dict[str, str] = {
-            CommandManager.from_coordinates: from_coordinates,
-            CommandManager.dest_coordinates: from_coordinates,
-            CommandManager.side: self.side.name,
-            CommandManager.target_fen: target_fen,
-            CommandManager.time_iso: time_iso
-        }
+        invalid_move_info: dict[str, str] = {CommandManager.from_coordinates: from_coordinates,
+                                             CommandManager.dest_coordinates: from_coordinates,
+                                             CommandManager.side: self.side.name, CommandManager.target_fen: target_fen,
+                                             CommandManager.time_iso: time_iso}
         move = CommandManager.get(ClientGameCommand.MOVE, invalid_move_info)
         is_promotion = False
 
         if dest_tile:
             is_promotion = is_pawn_promotion(from_tile.algebraic_notation, dest_tile.algebraic_notation, fen)
             dest_coordinates = dest_tile.algebraic_notation.coordinates
-            move_info: dict[str, str] = {
-                CommandManager.from_coordinates: from_coordinates,
-                CommandManager.dest_coordinates: dest_coordinates,
-                CommandManager.side: self.side.name,
-                CommandManager.target_fen: target_fen,
-                CommandManager.time_iso: time_iso
-            }
+            move_info: dict[str, str] = {CommandManager.from_coordinates: from_coordinates,
+                                         CommandManager.dest_coordinates: dest_coordinates,
+                                         CommandManager.side: self.side.name, CommandManager.target_fen: target_fen,
+                                         CommandManager.time_iso: time_iso}
             move = CommandManager.get(ClientGameCommand.MOVE, move_info)
 
         if not is_promotion:
@@ -200,9 +183,7 @@ class Player:
         elif self.state is State.RESPOND_DRAW:
             self.verify_gui.handle_response(self.game_offset)
             if self.verify_gui.result is None: return
-            draw_response_info: dict[str, str] = {
-                CommandManager.draw_offer_result: str(int(self.verify_gui.result))
-            }
+            draw_response_info: dict[str, str] = {CommandManager.draw_offer_result: str(int(self.verify_gui.result))}
             draw_response = CommandManager.get(ClientGameCommand.DRAW_RESPONSE, draw_response_info)
             send_command(local, network, draw_response)
             self.verify_gui.set_result(None)
@@ -221,9 +202,7 @@ class Player:
                 offer_draw = CommandManager.get(ClientGameCommand.OFFER_DRAW, draw_info)
                 send_command(local, network, offer_draw)
             else:
-                resign_info: dict[str, str] = {
-                    CommandManager.side: self.side.name
-                }
+                resign_info: dict[str, str] = {CommandManager.side: self.side.name}
                 resign = CommandManager.get(ClientGameCommand.RESIGN, resign_info)
                 send_command(local, network, resign)
 
@@ -241,13 +220,10 @@ class Player:
             dest_coordinates = dest_tile.algebraic_notation.coordinates
 
             if self.prev_time_iso is None: return
-            move_info: dict[str, str] = {
-                CommandManager.from_coordinates: from_coordinates,
-                CommandManager.dest_coordinates: dest_coordinates,
-                CommandManager.side: self.side.name,
-                CommandManager.target_fen: val,
-                CommandManager.time_iso: self.prev_time_iso
-            }
+            move_info: dict[str, str] = {CommandManager.from_coordinates: from_coordinates,
+                                         CommandManager.dest_coordinates: dest_coordinates,
+                                         CommandManager.side: self.side.name, CommandManager.target_fen: val,
+                                         CommandManager.time_iso: self.prev_time_iso}
             move = CommandManager.get(ClientGameCommand.MOVE, move_info)
 
             send_command(local, network, move)
@@ -262,14 +238,11 @@ class Player:
         if self.state == State.RESPOND_DRAW: return
         if self.opponent_promoting: return
         if self.timed_out: return
-        if self.state != State.DRAW_DOUBLE_CHECK and \
-                self.state != State.RESIGN_DOUBLE_CHECK:
+        if self.state != State.DRAW_DOUBLE_CHECK and self.state != State.RESIGN_DOUBLE_CHECK:
             self.axis_gui.update_hover_highlight(self.board.get_collided_tile(self.game_offset))
         self.timer_gui.tick(delta_time)
         if self.timer_gui.own_timer.time_left <= 0:
-            time_out_info: dict[str, str] = {
-                CommandManager.side: self.side.name
-            }
+            time_out_info: dict[str, str] = {CommandManager.side: self.side.name}
             time_out = CommandManager.get(ClientGameCommand.TIME_OUT, time_out_info)
             send_command(local, network, time_out)
             self.set_timed_out(True)
@@ -368,9 +341,7 @@ class Player:
     def set_to_default_pos(self) -> None:
         timer_rects: TimerRects = TimerGui.calculate_timer_rects()
         self.board.get_rect().topleft = (
-            int(Y_AXIS_WIDTH * GameSize.get_scale()),
-            int(timer_rects.spacing.height + timer_rects.timer.height)
-        )
+            int(Y_AXIS_WIDTH * GameSize.get_scale()), int(timer_rects.spacing.height + timer_rects.timer.height))
 
     def set_read_input(self, read_input: bool) -> None:
         self.read_input = read_input
@@ -390,20 +361,18 @@ def process_server_command(command: Command, match_fen: Fen, *players: Player) -
         match_fen.notation = fen_notation
         list(map(lambda player: player.update_pieces_location(match_fen), players))
         list(map(lambda player: player.update_turn(match_fen), players))
-        list(map(lambda player: player.timer_gui.update(
-            player.side, match_fen.data.active_color, float(white_time), float(black_time)
-        ), players))
+        list(map(lambda player: player.timer_gui.update(player.side, match_fen.data.active_color, float(white_time),
+                                                        float(black_time)), players))
         list(map(lambda player: player.set_read_input(True), players))
         list(map(lambda player: player.set_opponent_promoting(False), players))
-        list(map(lambda player: player.previous_move_gui.set_prev_move(
-            int(from_index), int(dest_index), pre_move_fen, player.board.grid), players))
-        list(map(lambda player: player.played_moves_gui.add_played_move(
-            int(from_index), int(dest_index), pre_move_fen, match_fen[int(dest_index)]), players))
+        list(map(lambda player: player.previous_move_gui.set_prev_move(int(from_index), int(dest_index), pre_move_fen,
+                                                                       player.board.grid), players))
+        list(map(lambda player: player.played_moves_gui.add_played_move(int(from_index), int(dest_index), pre_move_fen,
+                                                                        match_fen[int(dest_index)]), players))
 
     elif command.name == ServerGameCommand.END_GAME.name:
-        list(map(lambda player: player.end_game(
-            command.info[CommandManager.game_result], command.info[CommandManager.game_result_type]
-        ), players))
+        list(map(lambda player: player.end_game(command.info[CommandManager.game_result],
+                                                command.info[CommandManager.game_result_type]), players))
 
     elif command.name == ServerGameCommand.INVALID_MOVE.name:
         list(map(lambda player: player.set_require_render(True), players))
