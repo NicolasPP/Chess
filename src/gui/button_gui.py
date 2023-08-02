@@ -48,7 +48,7 @@ class ButtonGui:
     def render(self, game_offset: pygame.rect.Rect) -> None:
         GameSurface.get().blit(self.surface, self.rect)
         vec_offset: pygame.math.Vector2 = pygame.math.Vector2(game_offset.topleft)
-        if not self or not self.enabled: return
+        if not self.hover or not self.enabled: return
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - vec_offset
         if self.rect.collidepoint(mouse_pos.x, mouse_pos.y):
             GameSurface.get().blit(self.hover_surface, self.rect)
