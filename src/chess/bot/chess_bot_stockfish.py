@@ -28,7 +28,7 @@ class StockFishBot:
     @staticmethod
     def get_logger() -> logging.Logger:
         if StockFishBot.logger is None:
-            StockFishBot.logger = set_up_logging(BOT_NAME, LoggingOut.STDOUT, BOT_LOG_FILE)
+            StockFishBot.logger = set_up_logging(BOT_NAME, LoggingOut.FILE, BOT_LOG_FILE)
         return StockFishBot.logger
 
     @staticmethod
