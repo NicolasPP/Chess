@@ -121,7 +121,7 @@ class ConnectedUsersComponent(Component):
         for user_card in self.user_cards:
             user_card.elo_label.pack(side=tk.LEFT, expand=True)
             user_card.select_button.pack(side=tk.LEFT, expand=True)
-            user_card.card_frame.pack(padx=LAUNCHER_PAD, pady=USER_CARD_SPACING, expand=True)
+            user_card.card_frame.pack(padx=LAUNCHER_PAD, pady=USER_CARD_SPACING)
         self.update_scroll_region()
 
 
