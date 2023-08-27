@@ -38,6 +38,8 @@ DEFAULT_SCALE: float = 3.5
 GAME_SURFACE_SPACING: int = 50
 SCORE_FONT_SIZE: int = 25
 MAX_SCORE: str = "+30"
+QUIT_WIDTH: int = 80
+QUIT_HEIGHT: int = 30
 # -- Colors --
 AVAILABLE_MOVE_COLOR: tuple[int, int, int] = (76, 155, 87)
 PIECE_BG: tuple[int, int, int] = (0, 0, 0)
@@ -76,6 +78,7 @@ RESIGN_DOUBLE_CHECK_LABEL: str = "resign the game"
 RESPOND_DRAW_LABEL: str = "opponent has offered a draw"
 WINNING_MESSAGE: str = " is the winner!"
 DRAW_MESSAGE: str = "Game Tied"
+QUIT_LABEL: str = "Quit"
 
 # -- File Name --
 FONT_FILE: str = "assets/fonts/Oleaguid.ttf"

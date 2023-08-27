@@ -147,6 +147,7 @@ class OfflineLauncher:
             black_player.update(self.delta_time, local=True)
             current_player.render()
 
+            if not pygame.get_init(): return
             pygame.display.get_surface().blit(GameSurface.get(), center)
 
             pygame.display.flip()

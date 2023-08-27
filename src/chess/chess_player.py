@@ -64,7 +64,7 @@ class Player:
 
     def __init__(self, side: Side, time_left: float, game_offset: pygame.rect.Rect):
 
-        self.game_offset = game_offset
+        self.game_offset: pygame.rect.Rect = game_offset
         self.board: Board = Board(side)
         self.set_to_default_pos()
         self.side: Side = side
@@ -92,7 +92,13 @@ class Player:
 
     def parse_input(self, event: pygame.event.Event, fen: Fen, network: ChessNetwork | None = None,
                     local: bool = False) -> None:
-        if self.game_over: return
+        if self.game_over:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == MOUSECLICK_LEFT:
+                    if self.end_game_gui.game_over_gui.is_quit_collision(self.game_offset):
+                        pygame.quit()
+            return
+
         if not self.read_input: return
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSECLICK_SCROLL_UP:
@@ -261,7 +267,10 @@ class Player:
         self.state = State.PICK_PIECE
 
     def render(self) -> None:
-        if self.game_over: return
+        if self.game_over:
+            if not pygame.get_init(): return
+            self.end_game_gui.game_over_gui.quit_button.render(self.game_offset)
+            return
 
         self.timer_gui.render()
         self.axis_gui.render()
@@ -309,7 +318,7 @@ class Player:
         self.set_game_over(True)
         self.end_game_gui.game_over_gui.set_final_frame(game_result, result_type)
         if self.final_render:
-            self.end_game_gui.game_over_gui.render()
+            self.end_game_gui.game_over_gui.render(self.game_offset)
 
     def update_turn(self, fen: Fen) -> None:
         if self.side is Side.WHITE:
