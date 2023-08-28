@@ -85,6 +85,21 @@ python src/main.py --app_type "PLAYER_V_PLAYER"
 
 --pieces_asset  :  Choose Pieces Asset
     possible pieces Asset: SMALL, LARGE, RANDOM
+
+```
+
+# Flags description
+
+```
+--server_log_stdout : sets server log output to stdout
+
+--client_log_stdout : sets client log output to stdout
+
+--bot_log_stdout : sets chess bot log output to stdout
+
+--database_log_stdout : sets database log output to stdout
+
+--launcher_log_stdout : sets launcher log output to stdout
 ```
 
 # Problems
