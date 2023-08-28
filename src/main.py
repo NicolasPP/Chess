@@ -61,7 +61,7 @@ def start_app(
 
     if app is AppType.LAUNCHER:
         UserConfig.get().load_user_config()
-        ChessTkinterLauncher(database_info).mainloop()
+        ChessTkinterLauncher(database_info, pg_launcher).mainloop()
 
     elif app is AppType.SERVER:
         pg_launcher.run_local_server()

@@ -23,10 +23,12 @@ from launcher.tk.page.pages.start_page import StartPage
 
 class ChessTkinterLauncher(tk.Tk):
 
-    def __init__(self, database_info: DataBaseInfo, *args, **kwargs) -> None:
+    def __init__(self, database_info: DataBaseInfo, pg_launcher: ChessPygameLauncher, *args, **kwargs) -> None:
         tk.Tk.__init__(self, *args, **kwargs)
         self.style: ttk.Style = ttk.Style()
-        self.pg_launcher: ChessPygameLauncher = ChessPygameLauncher(self.deiconify, self.withdraw)
+        self.pg_launcher: ChessPygameLauncher = pg_launcher
+        self.pg_launcher.set_show_app(self.deiconify)
+        self.pg_launcher.set_hide_app(self.withdraw)
         self.database: ChessDataBase = ChessDataBase(database_info)
 
         self.window_innit()

@@ -17,14 +17,19 @@ class SinglePlayerGameType(enum.Enum):
 
 class ChessPygameLauncher:
 
-    def __init__(self, show_app: typing.Callable[[], None] | None = None, hide_app: typing.Callable[[], None] | None
-                 = None):
+    def __init__(self):
         self.multi_player: OnlineLauncher = OnlineLauncher()
         self.single_player: OfflineLauncher = OfflineLauncher()
         # self.server: Server = Server(TimerConfig.get_timer_config(UserConfig.get().data.timer_config_name))
         self.is_running: bool = False
-        self.show_app: typing.Callable[[], None] | None = show_app
-        self.hide_app: typing.Callable[[], None] | None = hide_app
+        self.show_app: typing.Callable[[], None] | None = None
+        self.hide_app: typing.Callable[[], None] | None = None
+
+    def set_show_app(self, show_app: typing.Callable[[], None]) -> None:
+        self.show_app = show_app
+
+    def set_hide_app(self, hide_app: typing.Callable[[], None]) -> None:
+        self.hide_app = hide_app
 
     def get_is_running(self) -> bool:
         return self.is_running
