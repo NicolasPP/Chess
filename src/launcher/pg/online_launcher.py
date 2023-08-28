@@ -8,12 +8,11 @@ import pygame
 from chess.asset.chess_assets import PieceSetAssets
 from chess.asset.chess_assets import Themes
 from chess.chess_init import init_chess
-from chess.chess_logging import LoggingOut
-from chess.chess_logging import set_up_logging
 from chess.chess_player import process_server_command, Player
 from chess.game.game_surface import GameSurface
 from chess.notation.forsyth_edwards_notation import Fen
-from config.tk_config import CLIENT_LOG_FILE
+from config.logging_manager import AppLoggers
+from config.logging_manager import LoggingManager
 from config.pg_config import DATA_SIZE
 from config.user_config import UserConfig
 from network.chess_network import ChessNetwork
@@ -24,7 +23,7 @@ from network.commands.command_manager import CommandManager
 class OnlineLauncher:
 
     def __init__(self) -> None:
-        self.logger = set_up_logging("online launcher logger", LoggingOut.STDOUT, CLIENT_LOG_FILE)
+        self.logger = LoggingManager.get_logger(AppLoggers.ONLINE_LAUNCHER)
         self.prev_time = time.time()
         self.delta_time: float = 0
 

@@ -3,11 +3,9 @@ import socket as skt
 import typing
 from _thread import start_new_thread
 
-from chess.chess_logging import LoggingOut
-from chess.chess_logging import set_up_logging
+from config.logging_manager import AppLoggers
+from config.logging_manager import LoggingManager
 from config.pg_config import DATA_SIZE
-from config.tk_config import CLIENT_LOG_FILE
-from config.tk_config import CLIENT_NAME
 from database.models import User
 from launcher.tk.global_vars import GlobalUserVars
 from network.chess_network import Net
@@ -26,7 +24,7 @@ class ChessClient(Net):
     def __init__(self, server_ip: str, user: User) -> None:
         super().__init__(server_ip)
         self.user: User = user
-        self.logger: logging.Logger = set_up_logging(CLIENT_NAME, LoggingOut.STDOUT, CLIENT_LOG_FILE)
+        self.logger: logging.Logger = LoggingManager.get_logger(AppLoggers.CLIENT)
         self.is_connected: bool = False
 
     def start(self) -> ClientConnectResult:

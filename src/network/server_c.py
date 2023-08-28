@@ -1,28 +1,29 @@
 from __future__ import annotations
+
 import _thread as thread
-import socket as skt
 import enum
+import socket as skt
 import typing
 
 import click
 
-from chess.timer.timer_config import TimerConfig
+from chess.board.side import Side
 from chess.game.chess_match import Match, MatchResult
+from chess.movement.piece_movement import PieceMovement
+from chess.notation.forsyth_edwards_notation import encode_fen_data
+from chess.timer.timer_config import TimerConfig
+from config.logging_manager import AppLoggers
+from config.logging_manager import LoggingManager
+from config.pg_config import DATA_SIZE
 from network.chess_network import Net
 from network.commands.command_manager import CommandManager, Command, ServerCommand
-from chess.notation.forsyth_edwards_notation import encode_fen_data
-from chess.movement.piece_movement import PieceMovement
-from chess.board.side import Side
-from chess.chess_logging import set_up_logging, LoggingOut
-from config.pg_config import DATA_SIZE
-from config.tk_config import SERVER_LOG_FILE
 
 '''
 [Errno 48] Address already in use
 you can get the process ID with port with this command : sudo lsof -i:PORT
 '''
 
-logger = set_up_logging("server c", LoggingOut.STDOUT, SERVER_LOG_FILE)
+logger = LoggingManager.get_logger(AppLoggers.SERVER)
 
 
 class ServerControlCommands(enum.Enum):

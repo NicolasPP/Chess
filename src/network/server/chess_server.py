@@ -6,12 +6,10 @@ import socket as skt
 import threading
 from _thread import start_new_thread
 
-from chess.chess_logging import LoggingOut
-from chess.chess_logging import set_up_logging
+from config.logging_manager import AppLoggers
+from config.logging_manager import LoggingManager
 from config.pg_config import DATA_SIZE
 from config.tk_config import LOCAL_CHESS_DB_INFO
-from config.tk_config import SERVER_LOG_FILE
-from config.tk_config import SERVER_NAME
 from config.tk_config import MAX_CONNECTIONS
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo
@@ -67,7 +65,7 @@ class ChessServer(Net):
     def __init__(self) -> None:
         super().__init__('')  # must be '' or other computers will not be able to join
         self.is_running: bool = False
-        self.logger: logging.Logger = set_up_logging(SERVER_NAME, LoggingOut.STDOUT, SERVER_LOG_FILE, logging.INFO)
+        self.logger: logging.Logger = LoggingManager.get_logger(AppLoggers.SERVER)
         self.server_control_thread: threading.Thread = threading.Thread(target=self.server_control_command_parser)
         self.database: ChessDataBase = ChessDataBase(ChessServer.database_info)
         self.lobby: ServerLobby = ServerLobby(self.logger, self.database)

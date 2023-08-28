@@ -2,6 +2,9 @@ import enum
 
 import click
 
+from config.logging_manager import AppLoggers
+from config.logging_manager import LoggingManager
+from config.logging_manager import LoggingOut
 from config.tk_config import LOCAL_CHESS_DB_INFO
 from config.user_config import UserConfig
 from database.chess_db import DataBaseInfo
@@ -19,6 +22,11 @@ class AppType(enum.Enum):
 
 
 @click.command()
+@click.option('--server_log_stdout', is_flag=True, help='set server logging to stdout')
+@click.option('--client_log_stdout', is_flag=True, help='set client logging to stdout')
+@click.option('--bot_log_stdout', is_flag=True, help='set bot logging to stdout')
+@click.option('--database_log_stdout', is_flag=True, help='set database logging to stdout')
+@click.option('--launcher_log_stdout', is_flag=True, help='set launcher logging to stdout')
 @click.option('--app_type', default=AppType.LAUNCHER.name, help='select what to launch. LAUNCHER, CLIENT, '
                                                                 'SERVER or LOCAL')
 @click.option('--server_ip', default='127.0.0.1', help='set the server ip address default = 127.0.0.1')
@@ -38,6 +46,11 @@ class AppType(enum.Enum):
     '''
 )
 def start_app(
+        server_log_stdout: bool,
+        client_log_stdout: bool,
+        bot_log_stdout: bool,
+        database_log_stdout: bool,
+        launcher_log_stdout: bool,
         app_type: str,
         server_ip: str,
         scale: float,
@@ -45,6 +58,7 @@ def start_app(
         pieces_asset: str,
         timer: str
 ) -> None:
+    LoggingManager.load_configs()
     app: AppType = AppType[app_type]
     pg_launcher: ChessPygameLauncher = ChessPygameLauncher()
     database_info: DataBaseInfo = DataBaseInfo(*LOCAL_CHESS_DB_INFO)
@@ -58,6 +72,21 @@ def start_app(
         timer_config_name=timer,
         server_ip=server_ip
     )
+
+    if server_log_stdout:
+        LoggingManager.configure(AppLoggers.SERVER, out=LoggingOut.STDOUT)
+
+    if client_log_stdout:
+        LoggingManager.configure(AppLoggers.CLIENT, out=LoggingOut.STDOUT)
+
+    if bot_log_stdout:
+        LoggingManager.configure(AppLoggers.BOT, out=LoggingOut.STDOUT)
+
+    if database_log_stdout:
+        LoggingManager.configure(AppLoggers.DATABASE, out=LoggingOut.STDOUT)
+
+    if launcher_log_stdout:
+        LoggingManager.configure(AppLoggers.ONLINE_LAUNCHER, out=LoggingOut.STDOUT)
 
     if app is AppType.LAUNCHER:
         UserConfig.get().load_user_config()

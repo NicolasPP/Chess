@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import logging
 import datetime
+import logging
 import threading
 
 from stockfish import Stockfish
@@ -9,16 +9,14 @@ from stockfish import Stockfish
 from chess.board.side import Side
 from chess.chess_player import Player
 from chess.chess_player import send_command
+from chess.movement.validate_move import is_checkmate
 from chess.notation.algebraic_notation import AlgebraicNotation
 from chess.notation.forsyth_edwards_notation import Fen
+from config.logging_manager import AppLoggers
+from config.logging_manager import LoggingManager
 from config.user_config import UserConfig
 from network.commands.client_commands import ClientGameCommand
 from network.commands.command_manager import CommandManager
-from chess.chess_logging import set_up_logging
-from chess.chess_logging import LoggingOut
-from chess.movement.validate_move import is_checkmate
-from config.tk_config import BOT_NAME
-from config.tk_config import BOT_LOG_FILE
 
 
 class StockFishBot:
@@ -28,7 +26,7 @@ class StockFishBot:
     @staticmethod
     def get_logger() -> logging.Logger:
         if StockFishBot.logger is None:
-            StockFishBot.logger = set_up_logging(BOT_NAME, LoggingOut.FILE, BOT_LOG_FILE)
+            StockFishBot.logger = LoggingManager.get_logger(AppLoggers.BOT)
         return StockFishBot.logger
 
     @staticmethod
