@@ -20,7 +20,7 @@ class GlobalUserVars:
         return GlobalUserVars.global_vars
 
     def __init__(self):
-        self.vars: dict[str | possible_vars] = {
+        self.vars: dict[str, possible_vars] = {
             GlobalUserVars.server_disconnect: tk.BooleanVar(value=False),
             GlobalUserVars.is_bot_valid: tk.BooleanVar(value=False),
             GlobalUserVars.connect_error: tk.StringVar(),
