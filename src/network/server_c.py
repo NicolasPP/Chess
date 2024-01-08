@@ -9,8 +9,8 @@ import click
 
 from chess.board.side import Side
 from chess.game.chess_match import Match, MatchResult
-from chess.movement.piece_movement import PieceMovement
-from chess.notation.forsyth_edwards_notation import encode_fen_data
+from chess_engine.movement.piece_movement import PieceMovement
+from chess_engine.notation.forsyth_edwards_notation import encode_fen_data
 from chess.timer.timer_config import TimerConfig
 from config.logging_manager import AppLoggers
 from config.logging_manager import LoggingManager

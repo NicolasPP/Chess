@@ -8,8 +8,8 @@ from chess.asset.chess_assets import scale_surface
 from chess.board.side import Side
 from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
-from chess.notation.forsyth_edwards_notation import FenChars
-from chess.notation.forsyth_edwards_notation import validate_fen_val
+from chess_engine.notation.forsyth_edwards_notation import FenChars
+from chess_engine.notation.forsyth_edwards_notation import validate_fen_val
 from config.pg_config import B_SCORE
 from config.pg_config import FONT_FILE
 from config.pg_config import MAX_SCORE

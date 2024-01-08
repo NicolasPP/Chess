@@ -6,9 +6,9 @@ from chess.board.board_tile import BoardTile
 from chess.board.chess_board import Board
 from chess.board.side import Side
 from chess.game.game_surface import GameSurface
-from chess.movement.piece_movement import get_available_moves
-from chess.notation.forsyth_edwards_notation import Fen
-from chess.notation.forsyth_edwards_notation import FenChars
+from chess_engine.movement.piece_movement import get_available_moves
+from chess_engine.notation.forsyth_edwards_notation import Fen
+from chess_engine.notation.forsyth_edwards_notation import FenChars
 from config.pg_config import AVAILABLE_ALPHA
 from config.pg_config import AVAILABLE_MOVE_COLOR
 from config.pg_config import AVAILABLE_MOVE_SCALE

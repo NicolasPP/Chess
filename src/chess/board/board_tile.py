@@ -6,8 +6,8 @@ import pygame
 from chess.asset.asset_manager import AssetManager
 from chess.board.side import Side
 from chess.game.game_surface import GameSurface
-from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.notation.forsyth_edwards_notation import FenChars
+from chess_engine.notation.algebraic_notation import AlgebraicNotation
+from chess_engine.notation.forsyth_edwards_notation import FenChars
 from config.pg_config import BOARD_SIZE
 
 

@@ -12,9 +12,9 @@ from chess.board.side import Side
 from chess.game.chess_match import Match
 from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
-from chess.movement.piece_movement import is_pawn_promotion
-from chess.notation.forsyth_edwards_notation import Fen
-from chess.notation.forsyth_edwards_notation import FenChars
+from chess_engine.movement.piece_movement import is_pawn_promotion
+from chess_engine.notation.forsyth_edwards_notation import Fen
+from chess_engine.notation.forsyth_edwards_notation import FenChars
 from config.pg_config import DRAW_DOUBLE_CHECK_LABEL
 from config.pg_config import MOUSECLICK_LEFT
 from config.pg_config import MOUSECLICK_SCROLL_DOWN

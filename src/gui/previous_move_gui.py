@@ -6,7 +6,7 @@ from chess.asset.asset_manager import AssetManager
 from chess.board.board_tile import BoardTile
 from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
-from chess.notation.forsyth_edwards_notation import Fen
+from chess_engine.notation.forsyth_edwards_notation import Fen
 from config.pg_config import PREV_MOVE_ALPHA
 from config.pg_config import SQUARE_SIZE
 
