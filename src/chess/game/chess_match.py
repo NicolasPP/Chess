@@ -2,19 +2,19 @@ import datetime
 import enum
 
 from chess.board.side import Side
-from chess.movement.validate_move import is_check
-from chess.movement.validate_move import is_checkmate
-from chess.movement.validate_move import is_material_insufficient
-from chess.movement.validate_move import is_move_valid
-from chess.movement.validate_move import is_stale_mate
-from chess.movement.validate_move import is_take
-from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.notation.forsyth_edwards_notation import Fen
-from chess.notation.forsyth_edwards_notation import FenChars
-from chess.notation.forsyth_edwards_notation import encode_fen_data
-from chess.notation.forsyth_edwards_notation import validate_fen_castling_rights
-from chess.notation.forsyth_edwards_notation import validate_fen_en_passant_rights
-from chess.notation.forsyth_edwards_notation import validate_fen_piece_placement
+from chess_engine.movement.validate_move import is_check
+from chess_engine.movement.validate_move import is_checkmate
+from chess_engine.movement.validate_move import is_material_insufficient
+from chess_engine.movement.validate_move import is_move_valid
+from chess_engine.movement.validate_move import is_stale_mate
+from chess_engine.movement.validate_move import is_take
+from chess_engine.notation.algebraic_notation import AlgebraicNotation
+from chess_engine.notation.forsyth_edwards_notation import Fen
+from chess_engine.notation.forsyth_edwards_notation import FenChars
+from chess_engine.notation.forsyth_edwards_notation import encode_fen_data
+from chess_engine.notation.forsyth_edwards_notation import validate_fen_castling_rights
+from chess_engine.notation.forsyth_edwards_notation import validate_fen_en_passant_rights
+from chess_engine.notation.forsyth_edwards_notation import validate_fen_piece_placement
 from chess.timer.timer_config import TimerConfig
 from config.pg_config import HALF_MOVE_LIMIT
 from network.commands.client_commands import ClientGameCommand

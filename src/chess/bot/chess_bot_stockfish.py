@@ -9,9 +9,9 @@ from stockfish import Stockfish
 from chess.board.side import Side
 from chess.chess_player import Player
 from chess.chess_player import send_command
-from chess.movement.validate_move import is_checkmate
-from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.notation.forsyth_edwards_notation import Fen
+from chess_engine.movement.validate_move import is_checkmate
+from chess_engine.notation.algebraic_notation import AlgebraicNotation
+from chess_engine.notation.forsyth_edwards_notation import Fen
 from config.logging_manager import AppLoggers
 from config.logging_manager import LoggingManager
 from config.user_config import UserConfig
