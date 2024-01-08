@@ -38,7 +38,7 @@ MIN_SIZE: int = 3
 MAX_CONNECTIONS: int = 64
 
 CHESS_DB_INFO: tuple[str, str, str, int, str] = 'root', 'chess-database', '35.197.134.140', 3306, 'chess_db'
-LOCAL_CHESS_DB_INFO: tuple[str, str, str, int, str] = 'root', 'nicolas', '127.0.0.1', 3306, 'local_chess_db'
+LOCAL_CHESS_DB_INFO: tuple[str, str, str, int, str] = 'root', '3247', '127.0.0.1', 3306, 'local_chess_db'
 
 # -- Logging --
 SERVER_NAME: str = "server"
