@@ -7,8 +7,8 @@ from chess.asset.chess_assets import PieceSetAssets
 from chess.board.chess_board import Board
 from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
-from chess.movement.piece_movement import PieceMovement
-from chess.notation.forsyth_edwards_notation import FenChars
+from chess_engine.movement.piece_movement import PieceMovement
+from chess_engine.notation.forsyth_edwards_notation import FenChars
 from config.pg_config import GAME_SURFACE_SPACING
 from gui.board_axis_gui import AxisRects
 from gui.board_axis_gui import BoardAxisGui

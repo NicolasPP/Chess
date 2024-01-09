@@ -10,7 +10,7 @@ from chess.asset.chess_assets import Themes
 from chess.chess_init import init_chess
 from chess.chess_player import process_server_command, Player
 from chess.game.game_surface import GameSurface
-from chess.notation.forsyth_edwards_notation import Fen
+from chess_engine.notation.forsyth_edwards_notation import Fen
 from config.logging_manager import AppLoggers
 from config.logging_manager import LoggingManager
 from config.pg_config import DATA_SIZE

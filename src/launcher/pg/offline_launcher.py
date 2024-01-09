@@ -12,7 +12,7 @@ from chess.chess_player import State
 from chess.chess_player import process_command_local
 from chess.game.chess_match import Match
 from chess.game.game_surface import GameSurface
-from chess.notation.forsyth_edwards_notation import Fen
+from chess_engine.notation.forsyth_edwards_notation import Fen
 from chess.timer.timer_config import TimerConfig
 from config.pg_config import MOUSECLICK_SCROLL_DOWN
 from config.pg_config import MOUSECLICK_SCROLL_UP

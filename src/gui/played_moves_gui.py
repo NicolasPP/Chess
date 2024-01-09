@@ -5,9 +5,9 @@ import pygame
 from chess.asset.asset_manager import AssetManager
 from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
-from chess.notation.algebraic_notation import AlgebraicNotation
-from chess.notation.forsyth_edwards_notation import Fen
-from chess.notation.portable_game_notation import generate_move_text
+from chess_engine.notation.algebraic_notation import AlgebraicNotation
+from chess_engine.notation.forsyth_edwards_notation import Fen
+from chess_engine.notation.portable_game_notation import generate_move_text
 from config.pg_config import BOARD_OUTLINE_THICKNESS
 from config.pg_config import BOARD_SIZE
 from config.pg_config import FONT_FILE
