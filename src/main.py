@@ -16,7 +16,6 @@ from network.server.chess_server import ChessServer
 
 class AppType(enum.Enum):
     LAUNCHER = enum.auto()
-    CLIENT = enum.auto()
     SERVER = enum.auto()
     PLAYER_V_PLAYER = enum.auto()
 
@@ -60,7 +59,6 @@ def start_app(
 ) -> None:
     LoggingManager.load_configs()
     app: AppType = AppType[app_type]
-    pg_launcher: ChessPygameLauncher = ChessPygameLauncher()
     database_info: DataBaseInfo = DataBaseInfo(*LOCAL_CHESS_DB_INFO)
     ChessServer.set_database_info(database_info)
 
@@ -90,16 +88,13 @@ def start_app(
 
     if app is AppType.LAUNCHER:
         UserConfig.get().load_user_config()
-        ChessTkinterLauncher(database_info, pg_launcher).mainloop()
+        ChessTkinterLauncher(database_info).mainloop()
 
     elif app is AppType.SERVER:
-        pg_launcher.run_local_server()
+        ChessPygameLauncher.get().run_local_server()
 
     elif app is AppType.PLAYER_V_PLAYER:
-        pg_launcher.launch_single_player(SinglePlayerGameType.HUMAN_VS_HUMAN)
-
-    elif app is AppType.CLIENT:
-        pg_launcher.launch_multi_player_client()
+        ChessPygameLauncher.get().launch_single_player(SinglePlayerGameType.HUMAN_VS_HUMAN)
 
 
 if __name__ == "__main__":

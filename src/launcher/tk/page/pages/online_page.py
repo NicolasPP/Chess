@@ -2,14 +2,13 @@ import tkinter as tk
 from ttkbootstrap import ttk
 from launcher.tk.page.page_frame import PageFrame
 from launcher.tk.page.page_manager import PageManager
-from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.local_server_component import LocalServerComponent
 from launcher.tk.components.connect_component import ConnectComponent
 from config.tk_config import LAUNCHER_PAD
 
 
 class OnlinePage(PageFrame):
-    def __init__(self, parent_frame: tk.Frame, page_manager: PageManager, pg_launcher: ChessPygameLauncher) -> None:
+    def __init__(self, parent_frame: tk.Frame, page_manager: PageManager) -> None:
         super().__init__(parent_frame)
         self.back: ttk.Button = self.create_back_button(page_manager)
         started_server: tk.BooleanVar = tk.BooleanVar(value=False)
