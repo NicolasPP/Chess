@@ -3,8 +3,6 @@ import tkinter as tk
 from ttkbootstrap import ttk
 
 from config.tk_config import LAUNCHER_PAD
-from launcher.pg.pg_launcher import ChessPygameLauncher
-from launcher.tk.components.connected_users_component import ConnectedUsersComponent
 from launcher.tk.components.server_lobby_component import ServerLobbyComponent
 from launcher.tk.global_vars import GlobalUserVars
 from launcher.tk.launcher_user import LauncherUser
@@ -17,7 +15,6 @@ class ServerPage(PageFrame):
             self,
             parent_frame: tk.Frame,
             page_manager: PageManager,
-            pg_launcher: ChessPygameLauncher
     ) -> None:
         super().__init__(parent_frame)
         self.page_manager: PageManager = page_manager
@@ -25,18 +22,14 @@ class ServerPage(PageFrame):
         GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).trace_add(
             "write", lambda v, i, m: self.server_disconnect_callback()
         )
-        self.connected_users_comp: ConnectedUsersComponent = ConnectedUsersComponent(self)
         lobby_comp: ServerLobbyComponent = ServerLobbyComponent(self)
 
         self.grid_rowconfigure(0, weight=10)
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=10)
-        self.grid_columnconfigure(1, weight=1)
 
-        lobby_comp.get_frame().grid(row=0, column=0, rowspan=2, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD, sticky=tk.NSEW)
-        self.connected_users_comp.get_frame().grid(row=0, column=1, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD,
-                                                   sticky=tk.NSEW)
-        disconnect.grid(row=1, column=1, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD)
+        lobby_comp.get_frame().grid(row=0, column=0, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD, sticky=tk.NSEW)
+        disconnect.grid(row=1, column=0, padx=LAUNCHER_PAD, pady=LAUNCHER_PAD)
 
     def handle_disconnect(self) -> None:
         LauncherUser.get_client().disconnect()
@@ -48,4 +41,4 @@ class ServerPage(PageFrame):
             GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(False)
 
     def handle_exit(self) -> None:
-        self.connected_users_comp.handle_exit()
+        pass
