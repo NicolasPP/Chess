@@ -23,12 +23,11 @@ from launcher.tk.page.pages.start_page import StartPage
 
 class ChessTkinterLauncher(tk.Tk):
 
-    def __init__(self, database_info: DataBaseInfo, pg_launcher: ChessPygameLauncher, *args, **kwargs) -> None:
+    def __init__(self, database_info: DataBaseInfo, *args, **kwargs) -> None:
         tk.Tk.__init__(self, *args, **kwargs)
         self.style: ttk.Style = ttk.Style()
-        self.pg_launcher: ChessPygameLauncher = pg_launcher
-        self.pg_launcher.set_show_app(self.deiconify)
-        self.pg_launcher.set_hide_app(self.withdraw)
+        ChessPygameLauncher.get().set_hide_app(self.withdraw)
+        ChessPygameLauncher.get().set_show_app(self.deiconify)
         self.database: ChessDataBase = ChessDataBase(database_info)
 
         self.window_innit()
@@ -39,9 +38,9 @@ class ChessTkinterLauncher(tk.Tk):
 
         self.page_manager: PageManager = PageManager()
         self.page_manager.add_page(StartPage(self.root_frame, self.page_manager, self.database))
-        self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager, self.pg_launcher))
-        self.page_manager.add_page(OnlinePage(self.root_frame, self.page_manager, self.pg_launcher))
-        self.page_manager.add_page(ServerPage(self.root_frame, self.page_manager, self.pg_launcher))
+        self.page_manager.add_page(OfflinePage(self.root_frame, self.page_manager))
+        self.page_manager.add_page(OnlinePage(self.root_frame, self.page_manager))
+        self.page_manager.add_page(ServerPage(self.root_frame, self.page_manager))
         self.page_manager.show_page(StartPage.__name__)
 
         self.protocol("WM_DELETE_WINDOW", self.exit)
