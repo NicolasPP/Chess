@@ -12,6 +12,7 @@ class GlobalUserVars:
     connected_users: str = 'connected_users'
     connect_error: str = 'connect_error'
     is_bot_valid: str = 'is_bot_valid'
+    launch_game: str = 'launch_game'
 
     @staticmethod
     def get() -> GlobalUserVars:
@@ -24,10 +25,11 @@ class GlobalUserVars:
             GlobalUserVars.server_disconnect: tk.BooleanVar(value=False),
             GlobalUserVars.is_bot_valid: tk.BooleanVar(value=False),
             GlobalUserVars.connect_error: tk.StringVar(),
-            GlobalUserVars.connected_users: tk.StringVar()
+            GlobalUserVars.launch_game: tk.StringVar()
         }
 
     def get_var(self, name: str) -> possible_vars:
         var: possible_vars = self.vars.get(name)
-        if var is None: raise Exception(f"var with name: {name} not found")
+        if var is None:
+            raise Exception(f"var with name: {name} not found")
         return var
