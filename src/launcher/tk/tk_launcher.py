@@ -4,6 +4,7 @@ import ttkbootstrap as ttk
 
 from config.tk_config import BG_DARK
 from config.tk_config import BG_LIGHT
+from config.tk_config import CHECK_FOR_MATCH_DELAY
 from config.tk_config import DEFAULT_FONT_SIZE
 from config.tk_config import DEFAULT_WINDOW_HEIGHT
 from config.tk_config import DEFAULT_WINDOW_WIDTH
@@ -14,6 +15,8 @@ from config.tk_config import FRAME_FONT_SIZE
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo
 from launcher.pg.pg_launcher import ChessPygameLauncher
+from launcher.tk.global_vars import GlobalUserVars
+from launcher.tk.launcher_user import LauncherUser
 from launcher.tk.page.page_manager import PageManager
 from launcher.tk.page.pages.offline_page import OfflinePage
 from launcher.tk.page.pages.online_page import OnlinePage
@@ -44,6 +47,18 @@ class ChessTkinterLauncher(tk.Tk):
         self.page_manager.show_page(StartPage.__name__)
 
         self.protocol("WM_DELETE_WINDOW", self.exit)
+        self.check_for_multiplayer_game()
+
+    def check_for_multiplayer_game(self) -> None:
+        launch_game: tk.StringVar = GlobalUserVars.get().get_var(GlobalUserVars.launch_game)
+        launch_options: list[str] = launch_game.get().split("-")
+        if len(launch_options) == 3:
+            time_, side, match_id = launch_options
+            ChessPygameLauncher.get().launch_multi_player_client(
+                LauncherUser.get_client().socket, float(time_), side, int(match_id))
+            launch_game.set("")
+
+        self.after(CHECK_FOR_MATCH_DELAY, self.check_for_multiplayer_game)
 
     def exit(self) -> None:
         self.page_manager.get_page(ServerPage.__name__).handle_exit()
