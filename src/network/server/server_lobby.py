@@ -1,11 +1,11 @@
 import logging
+from random import shuffle
 
 from database.chess_db import ChessDataBase
 from database.models import User
 from network.commands.client_commands import ClientLauncherCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerLauncherCommand
 from network.server.server_user import ServerUser
 
 
@@ -13,11 +13,24 @@ class ServerLobby:
     def __init__(self, logger: logging.Logger, database: ChessDataBase) -> None:
         self.logger: logging.Logger = logger
         self.database: ChessDataBase = database
+        self.ready_to_play: list[ServerUser] = []
         self.users: set[ServerUser] = set()
+
+    def enter_queue(self, server_user: ServerUser) -> None:
+        self.ready_to_play.append(server_user)
 
     def add_user(self, server_user: ServerUser) -> None:
         assert server_user.db_user is not None, "user should already be verified"
         self.users.add(server_user)
+
+    def get_match_ups(self) -> list[tuple[ServerUser, ServerUser]]:
+        match_ups: list[tuple[ServerUser, ServerUser]] = []
+
+        while len(self.ready_to_play) >= 2:
+            shuffle(self.ready_to_play)
+            match_ups.append((self.ready_to_play.pop(), self.ready_to_play.pop()))
+
+        return match_ups
 
     def remove_user(self, server_user: ServerUser) -> None:
         if server_user not in self.users:
@@ -29,16 +42,14 @@ class ServerLobby:
     def get_connection_count(self) -> int:
         return len(self.users)
 
-    def send_all_users(self, command: Command) -> None:
-        for user in self.users:
-            user.socket.send(CommandManager.serialize_command(command))
-
     def verify_user(self, server_user: ServerUser, verification_bytes: bytes | None) -> bool:
-        if verification_bytes is None: return False
+        if verification_bytes is None:
+            return False
 
         verification_command: Command | None = CommandManager.deserialize_command_bytes(verification_bytes)
 
-        if verification_command is None: return False
+        if verification_command is None:
+            return False
         if verification_command.name != ClientLauncherCommand.VERIFICATION.name:
             self.logger.info("initial command cannot be : %s", verification_command.name)
             return False
@@ -55,20 +66,3 @@ class ServerLobby:
                 return False
 
         return server_user.set_db_user(verification_command.info, db_user)
-
-    def update_connected_users(self) -> None:
-        connected_users_info: list[str] = []
-        for user in self.users:
-            connected_users_info.append(f"{user.db_user.u_name}-{user.db_user.elo}")
-
-        update_connected_users_info: dict[str, str] = {
-            CommandManager.connected_users_info: " ".join(connected_users_info)
-        }
-
-        update_connected_users: Command = CommandManager.get(
-            ServerLauncherCommand.UPDATE_CONNECTED_USERS,
-            update_connected_users_info
-        )
-
-        self.send_all_users(update_connected_users)
-
