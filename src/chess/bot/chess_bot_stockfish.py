@@ -8,7 +8,7 @@ from stockfish import Stockfish
 
 from chess.board.side import Side
 from chess.chess_player import Player
-from chess.chess_player import send_command
+# from chess.chess_player import send_command
 from chess_engine.movement.validate_move import is_checkmate
 from chess_engine.notation.algebraic_notation import AlgebraicNotation
 from chess_engine.notation.forsyth_edwards_notation import Fen
@@ -72,7 +72,7 @@ class StockFishBot:
             return None
 
         # maybe change this to if the fen is invalid return None
-        # this might be cleaner but not too sure about the implications
+        # this might be cleaner but not so sure about the implications
         assert StockFishBot.get().is_fen_valid(self.fen.notation), "fen is not valid!"
         StockFishBot.get().set_fen_position(self.fen.notation)
 
@@ -85,7 +85,8 @@ class StockFishBot:
         return threading.Thread(target=self.make_move)
 
     def make_move(self, side: Side | None = None) -> None:
-        if side is None: side = self.side
+        if side is None:
+            side = self.side
         move: None | str = self.get_best_move()
         self.logger.info("before move fen : %s", self.fen.notation)
         self.logger.info("found move : %s", move)
@@ -94,7 +95,8 @@ class StockFishBot:
 
         # crashed once cause move was None so. ;)
         # crashed during bot v bot, checkmate move
-        if move is None: return
+        if move is None:
+            return
 
         # promotion
         if len(move) == 5:
@@ -124,17 +126,19 @@ class StockFishBot:
                                      CommandManager.target_fen: target_fen,
                                      CommandManager.time_iso: time_iso}
         move_command = CommandManager.get(ClientGameCommand.MOVE, move_info)
-        send_command(True, None, move_command)
+        self.player.send_command(move_command, None)
 
     def play_game(self) -> None:
-        if self.player.game_over: return
+        if self.player.game_over:
+            return
         if not self.player.turn and not self.move_thread.is_alive():
             new_thread: threading.Thread = self.get_move_thread()
             new_thread.start()
             self.move_thread = new_thread
 
     def play_both_sides(self) -> None:
-        if self.player.game_over: return
+        if self.player.game_over:
+            return
         if not self.move_thread.is_alive():
             side: Side = Side.WHITE if self.fen.is_white_turn() else Side.BLACK
             new_thread: threading.Thread = threading.Thread(target=self.make_move, args=(side,))
