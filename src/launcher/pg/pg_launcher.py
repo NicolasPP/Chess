@@ -1,12 +1,12 @@
+from __future__ import annotations
+
 import enum
+import socket
 import typing
+from typing import Optional
 
 from launcher.pg.offline_launcher import OfflineLauncher
 from launcher.pg.online_launcher import OnlineLauncher
-
-
-# from chess.timer.timer_config import TimerConfig
-# from config.user_config import UserConfig
 
 
 class SinglePlayerGameType(enum.Enum):
@@ -17,10 +17,18 @@ class SinglePlayerGameType(enum.Enum):
 
 class ChessPygameLauncher:
 
+    chess_launcher: Optional[ChessPygameLauncher] = None
+
+    @staticmethod
+    def get() -> ChessPygameLauncher:
+        if ChessPygameLauncher.chess_launcher is None:
+            ChessPygameLauncher.chess_launcher = ChessPygameLauncher()
+
+        return ChessPygameLauncher.chess_launcher
+
     def __init__(self):
         self.multi_player: OnlineLauncher = OnlineLauncher()
         self.single_player: OfflineLauncher = OfflineLauncher()
-        # self.server: Server = Server(TimerConfig.get_timer_config(UserConfig.get().data.timer_config_name))
         self.is_running: bool = False
         self.show_app: typing.Callable[[], None] | None = None
         self.hide_app: typing.Callable[[], None] | None = None
@@ -35,7 +43,8 @@ class ChessPygameLauncher:
         return self.is_running
 
     def launch_single_player(self, game_type: SinglePlayerGameType) -> None:
-        if self.get_is_running(): return
+        if self.get_is_running():
+            return
         self.is_running = True
         if self.hide_app is not None:
             self.hide_app()
@@ -49,14 +58,13 @@ class ChessPygameLauncher:
         if self.show_app is not None:
             self.show_app()
 
-    def launch_multi_player_client(self) -> None:
-        if self.get_is_running(): return
+    def launch_multi_player_client(self, connection: socket.socket, time: float, side: str, match_id: int) -> None:
+        if self.get_is_running():
+            return
         self.is_running = True
-        self.multi_player.launch()
+        if self.hide_app is not None:
+            self.hide_app()
+        self.multi_player.launch(connection, time, side, match_id)
         self.is_running = False
-
-    def run_local_server(self) -> None:
-        if self.get_is_running(): return
-        self.is_running = True
-        # self.server.run()
-        self.is_running = False
+        if self.show_app is not None:
+            self.show_app()
