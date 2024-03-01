@@ -3,7 +3,6 @@ import tkinter as tk
 from ttkbootstrap import ttk
 
 from config.tk_config import LAUNCHER_PAD
-from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.components.bot_config_comp import BotConfigComponent
 from launcher.tk.components.offline_play_comp import OfflinePlayComponent
 from launcher.tk.components.time_config_comp import TimeConfigComponent
@@ -13,11 +12,11 @@ from launcher.tk.page.page_manager import PageManager
 
 
 class OfflinePage(PageFrame):
-    def __init__(self, parent_frame: ttk.Frame, page_manager: PageManager, pg_launcher: ChessPygameLauncher) -> None:
+    def __init__(self, parent_frame: ttk.Frame, page_manager: PageManager) -> None:
         super().__init__(parent_frame)
 
         back_button: ttk.Button = ttk.Button(self, text="back", command=lambda: page_manager.show_page("StartPage"))
-        offline_play_comp: OfflinePlayComponent = OfflinePlayComponent(self, pg_launcher)
+        offline_play_comp: OfflinePlayComponent = OfflinePlayComponent(self)
         bot_config_comp: BotConfigComponent = BotConfigComponent(self)
         time_config_comp: TimeConfigComponent = TimeConfigComponent(self)
 
