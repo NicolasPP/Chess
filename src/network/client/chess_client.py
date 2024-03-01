@@ -3,15 +3,19 @@ import socket as skt
 import typing
 from _thread import start_new_thread
 
+from chess.chess_player import process_player_command
 from config.logging_manager import AppLoggers
 from config.logging_manager import LoggingManager
 from config.pg_config import DATA_SIZE
+from config.tk_config import SERVER_SHUT
 from database.models import User
+from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.global_vars import GlobalUserVars
 from network.chess_network import Net
 from network.commands.client_commands import ClientLauncherCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
+from network.commands.server_commands import ServerGameCommand
 from network.commands.server_commands import ServerLauncherCommand
 
 
@@ -72,9 +76,10 @@ class ChessClient(Net):
                 if data_b is None or not data_b:
                     break
 
-                command: Command = CommandManager.deserialize_command_bytes(data_b)
+                commands: list[Command] = CommandManager.deserialize_command_list_bytes(data_b)
 
-                parse_server_command(command)
+                for command in commands:
+                    parse_command(command)
 
                 self.logger.info("server sent %s command", command.name)
 
@@ -89,18 +94,59 @@ class ChessClient(Net):
         command: Command = CommandManager.get(ClientLauncherCommand.VERIFICATION, command_info)
         self.socket.send(CommandManager.serialize_command(command))
 
+    def send_queue_request(self) -> None:
+        command: Command = CommandManager.get(ClientLauncherCommand.ENTER_QUEUE)
+        self.socket.send(CommandManager.serialize_command(command))
 
-def parse_server_command(command: Command) -> None:
+
+def parse_command(command: Command) -> None:
+    if is_command_from(command, ServerLauncherCommand):
+        parse_server_launcher_command(command)
+
+    else:
+        parse_server_game_command(command)
+
+
+def parse_server_game_command(command: Command) -> None:
+    if (player := ChessPygameLauncher.get().multi_player.player) is None:
+        return
+    process_player_command(command, ChessPygameLauncher.get().multi_player.match_fen, player)
+
+    if command.name != ServerGameCommand.END_GAME.name:
+        return
+
+    if command.info[CommandManager.game_result_type] != SERVER_SHUT:
+        return
+
+    GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(SERVER_SHUT)
+    GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(True)
+
+
+def parse_server_launcher_command(command: Command) -> None:
+    if ChessPygameLauncher.get().is_running:
+        return
+
     if command.name == ServerLauncherCommand.DISCONNECT.name:
         GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(
             command.info[CommandManager.disconnect_reason]
         )
         GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(True)
 
-    elif command.name == ServerLauncherCommand.UPDATE_CONNECTED_USERS.name:
-        GlobalUserVars.get().get_var(GlobalUserVars.connected_users).set(
-            command.info[CommandManager.connected_users_info]
-        )
+    elif command.name == ServerLauncherCommand.LAUNCH_GAME.name:
+        time: str = command.info[CommandManager.time]
+        side: str = command.info[CommandManager.side]
+        match_id: str = command.info[CommandManager.match_id]
+        launch_string: str = "-".join([time, side, match_id])
+        GlobalUserVars.get().get_var(GlobalUserVars.launch_game).set(launch_string)
 
-    else:
-        raise Exception(f"command : {command} not recognised")
+
+def is_command_from(command: Command, source: typing.Any) -> bool:
+    try:
+        source[command.name]
+    except KeyError:
+        return False
+
+    except TypeError:
+        return False
+
+    return True

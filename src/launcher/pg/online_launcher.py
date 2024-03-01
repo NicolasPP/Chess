@@ -1,22 +1,20 @@
-import _thread as thread
-import socket as skt
-import sys
+import socket
 import time
+from typing import Optional
 
 import pygame
+from chess_engine.notation.forsyth_edwards_notation import Fen
 
 from chess.asset.chess_assets import PieceSetAssets
 from chess.asset.chess_assets import Themes
+from chess.board.side import Side
 from chess.chess_init import init_chess
-from chess.chess_player import process_server_command, Player
+from chess.chess_player import Player
 from chess.game.game_surface import GameSurface
-from chess_engine.notation.forsyth_edwards_notation import Fen
 from config.logging_manager import AppLoggers
 from config.logging_manager import LoggingManager
-from config.pg_config import DATA_SIZE
 from config.user_config import UserConfig
-from network.chess_network import ChessNetwork
-from network.commands.command import Command
+from network.commands.client_commands import ClientGameCommand
 from network.commands.command_manager import CommandManager
 
 
@@ -26,13 +24,27 @@ class OnlineLauncher:
         self.logger = LoggingManager.get_logger(AppLoggers.ONLINE_LAUNCHER)
         self.prev_time = time.time()
         self.delta_time: float = 0
+        self.player: Optional[Player] = None
+        self.match_fen: Fen = Fen()
 
     def set_delta_time(self) -> None:
         now = time.time()
         self.delta_time = now - self.prev_time
         self.prev_time = now
 
-    def launch(self) -> None:
+    def get_player(self) -> Optional[Player]:
+        return self.player
+
+    def reset_fen(self) -> None:
+        self.match_fen = Fen()
+
+    def create_player(self, side: str, time_: float, match_id: int, offset: pygame.rect.Rect) -> Player:
+        player: Player = Player(Side[side], time_, offset)
+        player.set_match_id(match_id)
+        self.player = player
+        return player
+
+    def launch(self, connection: socket.socket, time_: float, side: str, match_id: int) -> None:
         init_chess(
             Themes.get_theme(UserConfig.get().data.theme_id),
             PieceSetAssets.get_asset(UserConfig.get().data.asset_name),
@@ -40,48 +52,32 @@ class OnlineLauncher:
         )
         center = GameSurface.get().get_rect(center=pygame.display.get_surface().get_rect().center)
 
-        network = ChessNetwork(UserConfig.get().data.server_ip)
-        init_info: Command = network.connect()
+        self.reset_fen()
+        player: Player = self.create_player(side, time_, match_id, center)
 
-        player: Player = Player.get_player_client(init_info, center)
-        match_fen = Fen(init_info.info[CommandManager.fen_notation])
+        player.update_turn(self.match_fen)
+        player.update_pieces_location(self.match_fen)
 
-        player.update_turn(match_fen)
-        player.update_pieces_location(match_fen)
-
-        thread.start_new_thread(server_listener, (player, network.socket, match_fen, self.logger))
         done = False
         while not done:
             self.set_delta_time()
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT: done = True
-                player.parse_input(event, match_fen, network=network)
+                if event.type == pygame.QUIT:
+                    if not player.game_over:
+                        resign_info: dict[str, str] = {CommandManager.side: player.side.name}
+                        resign = CommandManager.get(ClientGameCommand.RESIGN, resign_info)
+                        player.send_command(resign, connection)
+                        pygame.quit()
+
+                    done = True
+
+                player.parse_input(event, self.match_fen, connection)
 
             player.render()
-            player.update(self.delta_time, network=network)
+            player.update(self.delta_time, connection)
+            if (screen := pygame.display.get_surface()) is None:
+                return
 
-            pygame.display.get_surface().blit(GameSurface.get(), center)
+            screen.blit(GameSurface.get(), center)
             pygame.display.flip()
-
-        pygame.quit()
-        sys.exit()
-
-
-def server_listener(player: Player, server_socket: skt.socket, match_fen: Fen, logger) -> None:
-    with server_socket:
-        while True:
-            data_b: bytes | None = None
-            try:
-                data_b = server_socket.recv(DATA_SIZE)
-            except ConnectionResetError as e:
-                logger.debug("%s", e)
-            if not data_b: break
-            commands = CommandManager.deserialize_command_list_bytes(data_b)
-            logger.debug("server sent commands :")
-            for command in commands:
-                logger.debug(" - %s ", command.name)
-                process_server_command(command, match_fen, player)
-
-        logger.debug("server disconnected")
-        return
