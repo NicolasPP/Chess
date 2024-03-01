@@ -13,3 +13,4 @@ class ClientGameCommand(enum.Enum):
 
 class ClientLauncherCommand(enum.Enum):
     VERIFICATION = enum.auto()
+    ENTER_QUEUE = enum.auto()
