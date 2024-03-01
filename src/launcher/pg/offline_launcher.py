@@ -1,6 +1,7 @@
 import time
 
 import pygame
+from chess_engine.notation.forsyth_edwards_notation import Fen
 
 from chess.asset.chess_assets import PieceSetAssets
 from chess.asset.chess_assets import Themes
@@ -12,7 +13,6 @@ from chess.chess_player import State
 from chess.chess_player import process_command_local
 from chess.game.chess_match import Match
 from chess.game.game_surface import GameSurface
-from chess_engine.notation.forsyth_edwards_notation import Fen
 from chess.timer.timer_config import TimerConfig
 from config.pg_config import MOUSECLICK_SCROLL_DOWN
 from config.pg_config import MOUSECLICK_SCROLL_UP
@@ -52,12 +52,12 @@ class OfflineLauncher:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
-                player.parse_input(event, game_fen, local=True)
+                player.parse_input(event, game_fen)
 
             stock_fish.play_game()
             match.process_local_move()
             process_command_local(game_fen, player)
-            player.update(self.delta_time, local=True)
+            player.update(self.delta_time)
             player.render()
 
             pygame.display.get_surface().blit(GameSurface.get(), center)
@@ -100,8 +100,8 @@ class OfflineLauncher:
             stock_fish.play_both_sides()
             match.process_local_move()
             process_command_local(game_fen, player, bot_player)
-            player.update(self.delta_time, local=True)
-            bot_player.update(self.delta_time, local=True)
+            player.update(self.delta_time)
+            bot_player.update(self.delta_time)
             player.render()
 
             pygame.display.get_surface().blit(GameSurface.get(), center)
@@ -131,23 +131,25 @@ class OfflineLauncher:
 
             for event in pygame.event.get():
                 keys = pygame.key.get_pressed()
-                if event.type == pygame.QUIT: done = True
+                if event.type == pygame.QUIT:
+                    done = True
                 if event.type == pygame.KEYDOWN:
                     if keys[pygame.K_SPACE] and current_player.state is not State.PICKING_PROMOTION:
                         is_white = not is_white
                         white_player.set_require_render(True)
                         black_player.set_require_render(True)
-                current_player.parse_input(event, game_fen, local=True)
+                current_player.parse_input(event, game_fen)
 
             match.process_local_move()
 
             process_command_local(game_fen, white_player, black_player)
 
-            white_player.update(self.delta_time, local=True)
-            black_player.update(self.delta_time, local=True)
+            white_player.update(self.delta_time)
+            black_player.update(self.delta_time)
             current_player.render()
 
-            if not pygame.get_init(): return
+            if not pygame.get_init():
+                return
             pygame.display.get_surface().blit(GameSurface.get(), center)
 
             pygame.display.flip()

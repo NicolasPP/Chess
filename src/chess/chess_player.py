@@ -2,8 +2,13 @@ from __future__ import annotations
 
 import datetime
 import enum
+import socket
+from typing import Optional
 
 import pygame
+from chess_engine.movement.piece_movement import is_pawn_promotion
+from chess_engine.notation.forsyth_edwards_notation import Fen
+from chess_engine.notation.forsyth_edwards_notation import FenChars
 
 from chess.asset.asset_manager import AssetManager
 from chess.board.board_tile import BoardTile
@@ -12,9 +17,6 @@ from chess.board.side import Side
 from chess.game.chess_match import Match
 from chess.game.game_size import GameSize
 from chess.game.game_surface import GameSurface
-from chess_engine.movement.piece_movement import is_pawn_promotion
-from chess_engine.notation.forsyth_edwards_notation import Fen
-from chess_engine.notation.forsyth_edwards_notation import FenChars
 from config.pg_config import DRAW_DOUBLE_CHECK_LABEL
 from config.pg_config import MOUSECLICK_LEFT
 from config.pg_config import MOUSECLICK_SCROLL_DOWN
@@ -32,7 +34,6 @@ from gui.promotion_gui import PromotionGui
 from gui.timer_gui import TimerGui
 from gui.timer_gui import TimerRects
 from gui.verify_gui import VerifyGui
-from network.chess_network import ChessNetwork
 from network.commands.client_commands import ClientGameCommand
 from network.commands.command import Command
 from network.commands.command_manager import CommandManager
@@ -57,11 +58,6 @@ class Player:
         player.update_pieces_location(match.fen)
         return player
 
-    @staticmethod
-    def get_player_client(init_command: Command, game_offset: pygame.rect.Rect) -> Player:
-        return Player(Side[init_command.info[CommandManager.side]], float(init_command.info[CommandManager.time]),
-                      game_offset)
-
     def __init__(self, side: Side, time_left: float, game_offset: pygame.rect.Rect):
 
         self.game_offset: pygame.rect.Rect = game_offset
@@ -71,7 +67,6 @@ class Player:
         self.state: State = State.PICK_PIECE
         self.prev_left_mouse_up: tuple[int, int] = 0, 0
         self.prev_time_iso: str | None = None
-
         self.turn: bool = side is Side.WHITE
         self.is_render_required: bool = True
         self.game_over: bool = False
@@ -79,6 +74,7 @@ class Player:
         self.opponent_promoting: bool = False
         self.timed_out: bool = False
         self.final_render: bool = True
+        self.match_id: Optional[int] = None
 
         self.promotion_gui: PromotionGui = PromotionGui(self.side, self.board.get_rect())
         self.captured_gui: CapturedGui = CapturedGui('', self.board.get_rect())
@@ -90,8 +86,10 @@ class Player:
         self.previous_move_gui: PreviousMoveGui = PreviousMoveGui(self.board.rect)
         self.played_moves_gui: PlayedMovesGui = PlayedMovesGui(self.board.rect)
 
-    def parse_input(self, event: pygame.event.Event, fen: Fen, network: ChessNetwork | None = None,
-                    local: bool = False) -> None:
+    def set_match_id(self, match_id: int) -> None:
+        self.match_id = match_id
+
+    def parse_input(self, event: pygame.event.Event, fen: Fen, connection: Optional[socket.socket] = None) -> None:
         if self.game_over:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == MOUSECLICK_LEFT:
@@ -99,24 +97,30 @@ class Player:
                         pygame.quit()
             return
 
-        if not self.read_input: return
+        if not self.read_input:
+            return
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSECLICK_SCROLL_UP:
                 self.played_moves_gui.scroll_up(self.game_offset)
             if event.button == MOUSECLICK_SCROLL_DOWN:
                 self.played_moves_gui.scroll_down(self.game_offset)
             if event.button == MOUSECLICK_LEFT:
-                self.handle_mouse_down_left(network, local)
+                self.handle_mouse_down_left(connection)
                 self.handle_end_game_mouse_down()
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == MOUSECLICK_LEFT:
-                self.handle_mouse_up_left(network, local, fen)
+                self.handle_mouse_up_left(connection, fen)
 
     def handle_end_game_mouse_down(self) -> None:
-        if self.state == State.RESPOND_DRAW: return
-        if self.state == State.OFFERED_DRAW: return
-        if self.state == State.RESIGN_DOUBLE_CHECK: return
-        if self.state == State.DRAW_DOUBLE_CHECK: return
+        if self.state == State.RESPOND_DRAW:
+            return
+        if self.state == State.OFFERED_DRAW:
+            return
+        if self.state == State.RESIGN_DOUBLE_CHECK:
+            return
+        if self.state == State.DRAW_DOUBLE_CHECK:
+            return
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos.x,
                                                           mouse_pos.y) and self.end_game_gui.offer_draw.enabled:
@@ -131,8 +135,9 @@ class Player:
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
 
-    def handle_mouse_up_left(self, network: ChessNetwork | None, local: bool, fen: Fen) -> None:
-        if self.state is not State.DROP_PIECE: return
+    def handle_mouse_up_left(self, connection: Optional[socket.socket], fen: Fen) -> None:
+        if self.state is not State.DROP_PIECE:
+            return
         self.end_game_gui.offer_draw.set_hover(True)
         self.end_game_gui.resign.set_hover(True)
         dest_tile = self.board.get_collided_tile(self.game_offset)
@@ -160,97 +165,127 @@ class Player:
             move = CommandManager.get(ClientGameCommand.MOVE, move_info)
 
         if not is_promotion:
-            send_command(local, network, move)
+            self.send_command(move, connection)
             self.set_read_input(False)
             self.state = State.PICK_PIECE
             self.board.reset_picked_up()
 
         else:
             self.state = State.PICKING_PROMOTION
-            if not local:
+            if connection is not None:
                 picking_promotion = CommandManager.get(ClientGameCommand.PICKING_PROMOTION)
-                send_command(local, network, picking_promotion)
+                self.send_command(picking_promotion, connection)
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
         self.prev_time_iso = time_iso
 
-    def handle_mouse_down_left(self, network: ChessNetwork | None, local: bool) -> None:
-        if self.state is State.DROP_PIECE: return
+    def handle_mouse_down_left(self, connection: Optional[socket.socket]) -> None:
+        if self.state is State.DROP_PIECE:
+            return
+
         if self.state is State.PICKING_PROMOTION:
-            self.handle_pick_promotion(local, network)
+            self.handle_pick_promotion(connection)
+
         elif self.state is State.PICK_PIECE:
             tile = self.board.get_collided_tile(self.game_offset)
-            if not tile: return
-            if tile.fen_val == FenChars.BLANK_PIECE: return
+            if not tile:
+                return
+
+            if tile.fen_val == FenChars.BLANK_PIECE:
+                return
+
             self.board.set_picked_up(tile)
             self.state = State.DROP_PIECE
             self.end_game_gui.offer_draw.set_hover(False)
             self.end_game_gui.resign.set_hover(False)
+
         elif self.state is State.RESPOND_DRAW:
             self.verify_gui.handle_response(self.game_offset)
-            if self.verify_gui.result is None: return
+            if self.verify_gui.result is None:
+                return
+
             draw_response_info: dict[str, str] = {CommandManager.draw_offer_result: str(int(self.verify_gui.result))}
             draw_response = CommandManager.get(ClientGameCommand.DRAW_RESPONSE, draw_response_info)
-            send_command(local, network, draw_response)
+            self.send_command(draw_response, connection)
             self.verify_gui.set_result(None)
+
         elif self.state is State.DRAW_DOUBLE_CHECK or self.state is State.RESIGN_DOUBLE_CHECK:
             self.verify_gui.handle_response(self.game_offset)
-            if self.verify_gui.result is None: return
+            if self.verify_gui.result is None:
+                return
+
             if not self.verify_gui.result:
                 self.state = State.PICK_PIECE
                 self.set_require_render(True)
                 self.end_game_gui.resign.set_hover(True)
                 self.end_game_gui.offer_draw.set_hover(True)
                 return
+
             if self.state is State.DRAW_DOUBLE_CHECK:
                 self.state = State.OFFERED_DRAW
                 draw_info: dict[str, str] = {CommandManager.side: self.side.name}
                 offer_draw = CommandManager.get(ClientGameCommand.OFFER_DRAW, draw_info)
-                send_command(local, network, offer_draw)
+                self.send_command(offer_draw, connection)
             else:
                 resign_info: dict[str, str] = {CommandManager.side: self.side.name}
                 resign = CommandManager.get(ClientGameCommand.RESIGN, resign_info)
-                send_command(local, network, resign)
+                self.send_command(resign, connection)
 
             self.verify_gui.set_result(None)
             self.set_require_render(True)
 
-    def handle_pick_promotion(self, local: bool, network: ChessNetwork | None) -> None:
+    def handle_pick_promotion(self, connection: Optional[socket.socket]) -> None:
         for surface, rect, val in self.promotion_gui.promotion_pieces:
             mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
-            if not rect.collidepoint(mouse_pos.x, mouse_pos.y): continue
+            if not rect.collidepoint(mouse_pos.x, mouse_pos.y):
+                continue
             from_tile = self.board.get_picked_up()
             dest_tile = self.board.get_collided_tile(self.game_offset, self.prev_left_mouse_up)
-            if dest_tile is None or from_tile is None: continue
+            if dest_tile is None or from_tile is None:
+                continue
             from_coordinates = from_tile.algebraic_notation.coordinates
             dest_coordinates = dest_tile.algebraic_notation.coordinates
 
-            if self.prev_time_iso is None: return
+            if self.prev_time_iso is None:
+                return
             move_info: dict[str, str] = {CommandManager.from_coordinates: from_coordinates,
                                          CommandManager.dest_coordinates: dest_coordinates,
                                          CommandManager.side: self.side.name, CommandManager.target_fen: val,
                                          CommandManager.time_iso: self.prev_time_iso}
             move = CommandManager.get(ClientGameCommand.MOVE, move_info)
 
-            send_command(local, network, move)
+            self.send_command(move, connection)
             self.board.reset_picked_up()
             self.state = State.PICK_PIECE
             self.set_require_render(True)
 
-    def update(self, delta_time: float, local: bool = False, network: ChessNetwork | None = None) -> None:
-        if self.game_over: return
-        if self.state == State.PICKING_PROMOTION: return
-        if self.state == State.OFFERED_DRAW: return
-        if self.state == State.RESPOND_DRAW: return
-        if self.opponent_promoting: return
-        if self.timed_out: return
+    def update(self, delta_time: float, connection: Optional[socket.socket] = None) -> None:
+        if self.game_over:
+            return
+
+        if self.state == State.PICKING_PROMOTION:
+            return
+
+        if self.state == State.OFFERED_DRAW:
+            return
+
+        if self.state == State.RESPOND_DRAW:
+            return
+
+        if self.opponent_promoting:
+            return
+
+        if self.timed_out:
+            return
+
         if self.state != State.DRAW_DOUBLE_CHECK and self.state != State.RESIGN_DOUBLE_CHECK:
             self.axis_gui.update_hover_highlight(self.board.get_collided_tile(self.game_offset))
+
         self.timer_gui.tick(delta_time)
         if self.timer_gui.own_timer.time_left <= 0:
             time_out_info: dict[str, str] = {CommandManager.side: self.side.name}
             time_out = CommandManager.get(ClientGameCommand.TIME_OUT, time_out_info)
-            send_command(local, network, time_out)
+            self.send_command(time_out, connection)
             self.set_timed_out(True)
 
     def handle_draw_offer(self, side: str) -> None:
@@ -268,7 +303,8 @@ class Player:
 
     def render(self) -> None:
         if self.game_over:
-            if not pygame.get_init(): return
+            if not pygame.get_init():
+                return
             self.end_game_gui.game_over_gui.quit_button.render(self.game_offset)
             return
 
@@ -358,8 +394,20 @@ class Player:
     def set_opponent_promoting(self, promoting: bool) -> None:
         self.opponent_promoting = promoting
 
+    def send_command(self, command: Command, connection: Optional[socket.socket]) -> None:
+        if connection is None:
+            CommandManager.send_to(CommandManager.MATCH, command)
+            return
 
-def process_server_command(command: Command, match_fen: Fen, *players: Player) -> None:
+        assert self.match_id is not None, "Must set match id before starting game"
+        command.info[CommandManager.match_id] = str(self.match_id)
+        connection.send(CommandManager.serialize_command(command))
+
+    def process_command(self):
+        pass
+
+
+def process_player_command(command: Command, match_fen: Fen, *players: Player) -> None:
     if command.name == ServerGameCommand.UPDATE_FEN.name:
         fen_notation: str = command.info[CommandManager.fen_notation]
         white_time: str = command.info[CommandManager.white_time_left]
@@ -407,12 +455,7 @@ def process_server_command(command: Command, match_fen: Fen, *players: Player) -
 
 def process_command_local(match_fen: Fen, *players: Player) -> None:
     command = CommandManager.read_from(CommandManager.PLAYER)
-    if command is None: return
-    process_server_command(command, match_fen, *players)
+    if command is None:
+        return
 
-
-def send_command(local: bool, network: ChessNetwork | None, command: Command) -> None:
-    if local:
-        CommandManager.send_to(CommandManager.MATCH, command)
-    else:
-        if network: network.socket.send(CommandManager.serialize_command(command))
+    process_player_command(command, match_fen, *players)
