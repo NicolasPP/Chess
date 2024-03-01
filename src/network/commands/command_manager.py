@@ -31,6 +31,7 @@ class CommandManager:
     user_id: str = 'user_id'
     disconnect_reason: str = 'disconnect_reason'
     connected_users_info: str = 'connected_users_info'
+    match_id: str = 'match_id'
 
     @staticmethod
     def serialize_command(command: Command) -> bytes:
