@@ -1,6 +1,7 @@
 import enum
 
 import click
+from chess_engine.movement.piece_movement import PieceMovement
 
 from config.logging_manager import AppLoggers
 from config.logging_manager import LoggingManager
@@ -91,7 +92,9 @@ def start_app(
         ChessTkinterLauncher(database_info).mainloop()
 
     elif app is AppType.SERVER:
-        ChessPygameLauncher.get().run_local_server()
+        PieceMovement.load()
+        ChessServer.get().start()
+        ChessServer.get().run()
 
     elif app is AppType.PLAYER_V_PLAYER:
         ChessPygameLauncher.get().launch_single_player(SinglePlayerGameType.HUMAN_VS_HUMAN)
