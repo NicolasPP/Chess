@@ -16,9 +16,9 @@ class OfflinePlayButtons(typing.NamedTuple):
 
 
 class OfflinePlayComponent(Component):
-    def __init__(self, parent: ttk.Frame, pg_launcher: ChessPygameLauncher) -> None:
+    def __init__(self, parent: ttk.Frame) -> None:
         super().__init__(parent, "Play")
-        self.buttons: OfflinePlayButtons = self.create_buttons(pg_launcher)
+        self.buttons: OfflinePlayButtons = self.create_buttons()
 
         self.set_bot_button_state(tk.NORMAL if GlobalUserVars.get().get_var(GlobalUserVars.is_bot_valid).get() else
                                   tk.DISABLED)
@@ -27,7 +27,8 @@ class OfflinePlayComponent(Component):
         self.buttons.vs_bot.pack(expand=True)
         self.buttons.bot_vs_bot.pack(expand=True)
 
-    def create_buttons(self, pg_launcher: ChessPygameLauncher) -> OfflinePlayButtons:
+    def create_buttons(self) -> OfflinePlayButtons:
+        pg_launcher: ChessPygameLauncher = ChessPygameLauncher.get()
         human_button: ttk.Button = ttk.Button(self.frame, text="vs Human", command=lambda:
                                               pg_launcher.launch_single_player(SinglePlayerGameType.HUMAN_VS_HUMAN))
         bot_button: ttk.Button = ttk.Button(self.frame, text="vs Bot", command=lambda: pg_launcher.launch_single_player(
