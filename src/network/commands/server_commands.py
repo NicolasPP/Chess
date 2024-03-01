@@ -16,4 +16,4 @@ class ServerGameCommand(enum.Enum):
 class ServerLauncherCommand(enum.Enum):
     # commands that the server can send to the client while in the launcher
     DISCONNECT = enum.auto()
-    UPDATE_CONNECTED_USERS = enum.auto()
+    LAUNCH_GAME = enum.auto()
