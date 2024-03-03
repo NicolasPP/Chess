@@ -29,7 +29,6 @@ class AppType(enum.Enum):
 @click.option('--launcher_log_stdout', is_flag=True, help='set launcher logging to stdout')
 @click.option('--app_type', default=AppType.LAUNCHER.name, help='select what to launch. LAUNCHER, CLIENT, '
                                                                 'SERVER or LOCAL')
-@click.option('--server_ip', default='127.0.0.1', help='set the server ip address default = 127.0.0.1')
 @click.option('--scale', default=3.5, help='size of chess game, lower than 3.5 will cause the fonts to be unclear')
 @click.option('--theme_id', default=1, help='game theme, possible ids (1 - 4), (-1 for random theme)')
 @click.option('--pieces_asset', default='RANDOM', help='piece assets, possible names SMALL, LARGE, RANDOM')
@@ -52,7 +51,6 @@ def start_app(
         database_log_stdout: bool,
         launcher_log_stdout: bool,
         app_type: str,
-        server_ip: str,
         scale: float,
         theme_id: int,
         pieces_asset: str,
@@ -69,7 +67,6 @@ def start_app(
         scale=scale,
         asset_name=pieces_asset,
         timer_config_name=timer,
-        server_ip=server_ip
     )
 
     if server_log_stdout:
