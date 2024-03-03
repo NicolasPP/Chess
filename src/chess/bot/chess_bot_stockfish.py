@@ -1,33 +1,24 @@
 from __future__ import annotations
 
 import datetime
-import logging
-import threading
+from threading import Thread
+from typing import Optional
 
-from stockfish import Stockfish
-
-from chess.board.side import Side
-from chess.chess_player import Player
-# from chess.chess_player import send_command
 from chess_engine.movement.validate_move import is_checkmate
 from chess_engine.notation.algebraic_notation import AlgebraicNotation
 from chess_engine.notation.forsyth_edwards_notation import Fen
-from config.logging_manager import AppLoggers
-from config.logging_manager import LoggingManager
+from stockfish import Stockfish
+from stockfish.models import StockfishException
+
+from chess.board.side import Side
+from chess.chess_player import Player
 from config.user_config import UserConfig
-from network.commands.client_commands import ClientGameCommand
-from network.commands.command_manager import CommandManager
+from event.game_events import MoveEvent
+from event.local_event_queue import LocalEvents
 
 
 class StockFishBot:
     stock_fish: Stockfish | None = None
-    logger: logging.Logger | None = None
-
-    @staticmethod
-    def get_logger() -> logging.Logger:
-        if StockFishBot.logger is None:
-            StockFishBot.logger = LoggingManager.get_logger(AppLoggers.BOT)
-        return StockFishBot.logger
 
     @staticmethod
     def create_bot(engine_path: str = "stockfish") -> bool:
@@ -40,21 +31,16 @@ class StockFishBot:
             return False
 
     @staticmethod
-    def is_created() -> bool:
-        return StockFishBot.stock_fish is not None
-
-    @staticmethod
     def get() -> Stockfish:
         if StockFishBot.stock_fish is None:
             raise Exception('stock fish bot not created')
         return StockFishBot.stock_fish
 
     def __init__(self, fen: Fen, side: Side, player: Player) -> None:
-        self.logger: logging.Logger = StockFishBot.get_logger()
         self.side: Side = side
         self.fen: Fen = fen
         self.player: Player = player
-        self.move_thread: threading.Thread = self.get_move_thread()
+        self.move_thread: Thread = self.get_move_thread()
         StockFishBot.get().update_engine_parameters(
             {
                 "UCI_Elo": UserConfig.get().data.bot_elo,
@@ -76,20 +62,26 @@ class StockFishBot:
         assert StockFishBot.get().is_fen_valid(self.fen.notation), "fen is not valid!"
         StockFishBot.get().set_fen_position(self.fen.notation)
 
-        if UserConfig.get().data.bot_use_time:
-            return StockFishBot.get().get_best_move(wtime=int(white_time * 1000), btime=int(black_time * 1000))
-        else:
-            return StockFishBot.get().get_best_move()
+        try:
+            if UserConfig.get().data.bot_use_time:
+                return StockFishBot.get().get_best_move(wtime=int(white_time * 1000), btime=int(black_time * 1000))
+            else:
+                return StockFishBot.get().get_best_move()
 
-    def get_move_thread(self) -> threading.Thread:
-        return threading.Thread(target=self.make_move)
+        except StockfishException:
+            return None
+
+    def get_move_thread(self, side: Optional[Side] = None) -> Thread:
+        if side is None:
+            return Thread(target=self.make_move, daemon=True)
+
+        return Thread(target=self.make_move, args=(side,), daemon=True)
 
     def make_move(self, side: Side | None = None) -> None:
         if side is None:
             side = self.side
+
         move: None | str = self.get_best_move()
-        self.logger.info("before move fen : %s", self.fen.notation)
-        self.logger.info("found move : %s", move)
         time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
         target_fen: str | None = None
 
@@ -120,27 +112,29 @@ class StockFishBot:
             elif dest_an.index == qs_king_index:
                 dest_an = AlgebraicNotation.get_an_from_index(dest_an.index - 1)
 
-        move_info: dict[str, str] = {CommandManager.from_coordinates: from_an.coordinates,
-                                     CommandManager.dest_coordinates: dest_an.coordinates,
-                                     CommandManager.side: side.name,
-                                     CommandManager.target_fen: target_fen,
-                                     CommandManager.time_iso: time_iso}
-        move_command = CommandManager.get(ClientGameCommand.MOVE, move_info)
-        self.player.send_command(move_command, None)
+        move_event: MoveEvent = MoveEvent(-1, (from_an.file, from_an.rank), (dest_an.file, dest_an.rank),
+                                          side.name, target_fen, time_iso)
+        LocalEvents.get().add_match_event(move_event)
 
     def play_game(self) -> None:
         if self.player.game_over:
             return
-        if not self.player.turn and not self.move_thread.is_alive():
-            new_thread: threading.Thread = self.get_move_thread()
-            new_thread.start()
-            self.move_thread = new_thread
+
+        if self.player.turn:
+            return
+
+        if self.move_thread.is_alive():
+            return
+
+        self.move_thread = self.get_move_thread()
+        self.move_thread.start()
 
     def play_both_sides(self) -> None:
         if self.player.game_over:
             return
-        if not self.move_thread.is_alive():
-            side: Side = Side.WHITE if self.fen.is_white_turn() else Side.BLACK
-            new_thread: threading.Thread = threading.Thread(target=self.make_move, args=(side,))
-            new_thread.start()
-            self.move_thread = new_thread
+
+        if self.move_thread.is_alive():
+            return
+
+        self.move_thread = self.get_move_thread(Side.WHITE if self.fen.is_white_turn() else Side.BLACK)
+        self.move_thread.start()

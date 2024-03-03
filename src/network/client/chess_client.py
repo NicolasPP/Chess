@@ -3,20 +3,26 @@ import socket as skt
 import typing
 from _thread import start_new_thread
 
-from chess.chess_player import process_player_command
+from chess.chess_player import Player
 from config.logging_manager import AppLoggers
 from config.logging_manager import LoggingManager
 from config.pg_config import DATA_SIZE
 from config.tk_config import SERVER_SHUT
 from database.models import User
+from event.event import Event
+from event.event import EventContext
+from event.event import EventType
+from event.event_manager import EventManager
+from event.game_events import EndGameEvent
+from event.game_events import GameEvent
+from event.launcher_events import DisconnectEvent
+from event.launcher_events import EnterQueueEvent
+from event.launcher_events import LaunchGameEvent
+from event.launcher_events import LauncherEvent
+from event.launcher_events import ServerVerificationEvent
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.global_vars import GlobalUserVars
 from network.chess_network import Net
-from network.commands.client_commands import ClientLauncherCommand
-from network.commands.command import Command
-from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerGameCommand
-from network.commands.server_commands import ServerLauncherCommand
 
 
 class ClientConnectResult(typing.NamedTuple):
@@ -67,86 +73,67 @@ class ChessClient(Net):
     def set_is_connected(self, is_connected: bool) -> None:
         self.is_connected = is_connected
 
+    def run(self) -> None:
+        while self.get_is_connected():
+            event_bytes: bytes | None = self.read()
+            if event_bytes is None or not event_bytes:
+                break
+
+            events: list[Event] = EventManager.load_events(event_bytes)
+            for event in events:
+                if event.context is EventContext.LAUNCHER:
+                    process_launcher_events(event)
+
+                elif event.context is EventContext.GAME:
+                    process_game_events(event)
+
+                self.logger.info("server sent %s command", event.type.name)
+
     def server_listener(self) -> None:
         with self.socket:
             self.send_verification()
-            while self.get_is_connected():
-                data_b: bytes | None = self.read()
-
-                if data_b is None or not data_b:
-                    break
-
-                commands: list[Command] = CommandManager.deserialize_command_list_bytes(data_b)
-
-                for command in commands:
-                    parse_command(command)
-
-                self.logger.info("server sent %s command", command.name)
-
-            self.logger.info("server disconnected")
-            return
+            self.run()
+        self.logger.info("server disconnected")
 
     def send_verification(self) -> None:
-        command_info: dict[str, str] = {CommandManager.user_name: self.user.u_name,
-                                        CommandManager.user_elo: str(self.user.elo),
-                                        CommandManager.user_id: str(self.user.u_id),
-                                        CommandManager.user_pass: self.user.u_pass}
-        command: Command = CommandManager.get(ClientLauncherCommand.VERIFICATION, command_info)
-        self.socket.send(CommandManager.serialize_command(command))
+        EventManager.dispatch(self.socket,
+                              ServerVerificationEvent(self.user.u_name, self.user.elo, self.user.u_id,
+                                                      self.user.u_pass))
 
     def send_queue_request(self) -> None:
-        command: Command = CommandManager.get(ClientLauncherCommand.ENTER_QUEUE)
-        self.socket.send(CommandManager.serialize_command(command))
+        EventManager.dispatch(self.socket, EnterQueueEvent())
 
 
-def parse_command(command: Command) -> None:
-    if is_command_from(command, ServerLauncherCommand):
-        parse_server_launcher_command(command)
+def process_launcher_events(launcher_event: Event) -> None:
+    if ChessPygameLauncher.get().is_running:
+        return
 
-    else:
-        parse_server_game_command(command)
+    assert isinstance(launcher_event, LauncherEvent)
+
+    if launcher_event.type is EventType.DISCONNECT:
+        assert isinstance(launcher_event, DisconnectEvent)
+        GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(launcher_event.reason)
+        GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(True)
+
+    elif launcher_event.type is EventType.LAUNCH_GAME:
+        assert isinstance(launcher_event, LaunchGameEvent)
+        launch_string: str = "-".join([str(launcher_event.time), launcher_event.side, str(launcher_event.match_id)])
+        GlobalUserVars.get().get_var(GlobalUserVars.launch_game).set(launch_string)
 
 
-def parse_server_game_command(command: Command) -> None:
+def process_game_events(game_event: Event) -> None:
     if (player := ChessPygameLauncher.get().multi_player.player) is None:
         return
-    process_player_command(command, ChessPygameLauncher.get().multi_player.match_fen, player)
 
-    if command.name != ServerGameCommand.END_GAME.name:
+    assert isinstance(game_event, GameEvent)
+
+    Player.process_game_event(game_event, ChessPygameLauncher.get().multi_player.match_fen, player)
+
+    if not isinstance(game_event, EndGameEvent):
         return
 
-    if command.info[CommandManager.game_result_type] != SERVER_SHUT:
+    if game_event.reason != SERVER_SHUT:
         return
 
     GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(SERVER_SHUT)
     GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(True)
-
-
-def parse_server_launcher_command(command: Command) -> None:
-    if ChessPygameLauncher.get().is_running:
-        return
-
-    if command.name == ServerLauncherCommand.DISCONNECT.name:
-        GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(
-            command.info[CommandManager.disconnect_reason]
-        )
-        GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(True)
-
-    elif command.name == ServerLauncherCommand.LAUNCH_GAME.name:
-        time: str = command.info[CommandManager.time]
-        side: str = command.info[CommandManager.side]
-        match_id: str = command.info[CommandManager.match_id]
-        launch_string: str = "-".join([time, side, match_id])
-        GlobalUserVars.get().get_var(GlobalUserVars.launch_game).set(launch_string)
-
-
-def is_command_from(command: Command, source: typing.Any) -> bool:
-    try:
-        source[command.name]
-    except KeyError:
-        return False
-
-    except TypeError:
-        return False
-
-    return True

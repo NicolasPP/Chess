@@ -14,8 +14,8 @@ from chess.game.game_surface import GameSurface
 from config.logging_manager import AppLoggers
 from config.logging_manager import LoggingManager
 from config.user_config import UserConfig
-from network.commands.client_commands import ClientGameCommand
-from network.commands.command_manager import CommandManager
+from event.event_manager import EventManager
+from event.game_events import ResignEvent
 
 
 class OnlineLauncher:
@@ -65,9 +65,7 @@ class OnlineLauncher:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     if not player.game_over:
-                        resign_info: dict[str, str] = {CommandManager.side: player.side.name}
-                        resign = CommandManager.get(ClientGameCommand.RESIGN, resign_info)
-                        player.send_command(resign, connection)
+                        EventManager.dispatch(connection, ResignEvent(player.get_match_id(), player.side.name))
                         pygame.quit()
 
                     done = True

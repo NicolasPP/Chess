@@ -10,7 +10,6 @@ from chess.bot.chess_bot_stockfish import StockFishBot
 from chess.chess_init import init_chess
 from chess.chess_player import Player
 from chess.chess_player import State
-from chess.chess_player import process_command_local
 from chess.game.chess_match import Match
 from chess.game.game_surface import GameSurface
 from chess.timer.timer_config import TimerConfig
@@ -56,7 +55,7 @@ class OfflineLauncher:
 
             stock_fish.play_game()
             match.process_local_move()
-            process_command_local(game_fen, player)
+            Player.local_game_process(game_fen, player)
             player.update(self.delta_time)
             player.render()
 
@@ -99,7 +98,7 @@ class OfflineLauncher:
 
             stock_fish.play_both_sides()
             match.process_local_move()
-            process_command_local(game_fen, player, bot_player)
+            Player.local_game_process(game_fen, player, bot_player)
             player.update(self.delta_time)
             bot_player.update(self.delta_time)
             player.render()
@@ -109,6 +108,8 @@ class OfflineLauncher:
             pygame.display.flip()
 
         pygame.quit()
+        # FIXME: not the best solution
+        stock_fish.move_thread.join()
 
     def launch_against_human(self) -> None:
         done = False
@@ -141,8 +142,7 @@ class OfflineLauncher:
                 current_player.parse_input(event, game_fen)
 
             match.process_local_move()
-
-            process_command_local(game_fen, white_player, black_player)
+            Player.local_game_process(game_fen, white_player, black_player)
 
             white_player.update(self.delta_time)
             black_player.update(self.delta_time)
