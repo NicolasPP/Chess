@@ -3,6 +3,8 @@ from __future__ import annotations
 import datetime
 import enum
 import socket
+from collections import deque
+from typing import Callable
 from typing import Optional
 
 import pygame
@@ -24,6 +26,22 @@ from config.pg_config import MOUSECLICK_SCROLL_UP
 from config.pg_config import RESIGN_DOUBLE_CHECK_LABEL
 from config.pg_config import RESPOND_DRAW_LABEL
 from config.pg_config import Y_AXIS_WIDTH
+from event.event_manager import EventManager
+from event.game_events import ContinueGameEvent
+from event.game_events import DrawResponseEvent
+from event.game_events import EndGameEvent
+from event.game_events import GameEvent
+from event.game_events import InvalidMoveEvent
+from event.game_events import MoveEvent
+from event.game_events import OfferDrawEvent
+from event.game_events import OpponentDrawOfferEvent
+from event.game_events import OpponentPromotionEvent
+from event.game_events import PromotionEvent
+from event.game_events import ResignEvent
+from event.game_events import TimeOutEvent
+from event.game_events import UpdateCapturedPiecesEvent
+from event.game_events import UpdateFenEvent
+from event.local_event_queue import LocalEvents
 from gui.available_moves_gui import AvailableMovesGui
 from gui.board_axis_gui import BoardAxisGui
 from gui.captured_gui import CapturedGui
@@ -34,10 +52,6 @@ from gui.promotion_gui import PromotionGui
 from gui.timer_gui import TimerGui
 from gui.timer_gui import TimerRects
 from gui.verify_gui import VerifyGui
-from network.commands.client_commands import ClientGameCommand
-from network.commands.command import Command
-from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerGameCommand
 
 
 class State(enum.Enum):
@@ -89,6 +103,9 @@ class Player:
     def set_match_id(self, match_id: int) -> None:
         self.match_id = match_id
 
+    def get_match_id(self) -> int:
+        return -1 if self.match_id is None else self.match_id
+
     def parse_input(self, event: pygame.event.Event, fen: Fen, connection: Optional[socket.socket] = None) -> None:
         if self.game_over:
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -113,14 +130,10 @@ class Player:
                 self.handle_mouse_up_left(connection, fen)
 
     def handle_end_game_mouse_down(self) -> None:
-        if self.state == State.RESPOND_DRAW:
+        if any([self.state == State.RESPOND_DRAW, self.state == State.OFFERED_DRAW,
+                self.state == State.RESIGN_DOUBLE_CHECK, self.state == State.DRAW_DOUBLE_CHECK]):
             return
-        if self.state == State.OFFERED_DRAW:
-            return
-        if self.state == State.RESIGN_DOUBLE_CHECK:
-            return
-        if self.state == State.DRAW_DOUBLE_CHECK:
-            return
+
         mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
         if self.end_game_gui.offer_draw.rect.collidepoint(mouse_pos.x,
                                                           mouse_pos.y) and self.end_game_gui.offer_draw.enabled:
@@ -138,34 +151,27 @@ class Player:
     def handle_mouse_up_left(self, connection: Optional[socket.socket], fen: Fen) -> None:
         if self.state is not State.DROP_PIECE:
             return
+
         self.end_game_gui.offer_draw.set_hover(True)
         self.end_game_gui.resign.set_hover(True)
-        dest_tile = self.board.get_collided_tile(self.game_offset)
-        from_tile = self.board.get_picked_up()
 
-        from_coordinates = from_tile.algebraic_notation.coordinates
-        target_fen = from_tile.fen_val
-        time_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        from_tile: BoardTile = self.board.get_picked_up()
+        dest_tile: BoardTile | None = self.board.get_collided_tile(self.game_offset)
+        is_promotion: bool = False
 
-        # invalid move
-        invalid_move_info: dict[str, str] = {CommandManager.from_coordinates: from_coordinates,
-                                             CommandManager.dest_coordinates: from_coordinates,
-                                             CommandManager.side: self.side.name, CommandManager.target_fen: target_fen,
-                                             CommandManager.time_iso: time_iso}
-        move = CommandManager.get(ClientGameCommand.MOVE, invalid_move_info)
-        is_promotion = False
+        from_coordinates: tuple[str, str] = from_tile.algebraic_notation.file, from_tile.algebraic_notation.rank
+        time_iso: str = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+        # Defining the base move as invalid
+        move_event: MoveEvent = MoveEvent(self.get_match_id(), from_coordinates, from_coordinates, self.side.name,
+                                          from_tile.fen_val, time_iso)
 
         if dest_tile:
-            is_promotion = is_pawn_promotion(from_tile.algebraic_notation, dest_tile.algebraic_notation, fen)
-            dest_coordinates = dest_tile.algebraic_notation.coordinates
-            move_info: dict[str, str] = {CommandManager.from_coordinates: from_coordinates,
-                                         CommandManager.dest_coordinates: dest_coordinates,
-                                         CommandManager.side: self.side.name, CommandManager.target_fen: target_fen,
-                                         CommandManager.time_iso: time_iso}
-            move = CommandManager.get(ClientGameCommand.MOVE, move_info)
+            is_promotion: bool = is_pawn_promotion(from_tile.algebraic_notation, dest_tile.algebraic_notation, fen)
+            move_event.dest = dest_tile.algebraic_notation.file, dest_tile.algebraic_notation.rank
 
         if not is_promotion:
-            self.send_command(move, connection)
+            dispatch_event(connection, move_event)
             self.set_read_input(False)
             self.state = State.PICK_PIECE
             self.board.reset_picked_up()
@@ -173,8 +179,7 @@ class Player:
         else:
             self.state = State.PICKING_PROMOTION
             if connection is not None:
-                picking_promotion = CommandManager.get(ClientGameCommand.PICKING_PROMOTION)
-                self.send_command(picking_promotion, connection)
+                dispatch_event(connection, PromotionEvent(self.get_match_id()))
 
         self.prev_left_mouse_up = pygame.mouse.get_pos()
         self.prev_time_iso = time_iso
@@ -204,9 +209,7 @@ class Player:
             if self.verify_gui.result is None:
                 return
 
-            draw_response_info: dict[str, str] = {CommandManager.draw_offer_result: str(int(self.verify_gui.result))}
-            draw_response = CommandManager.get(ClientGameCommand.DRAW_RESPONSE, draw_response_info)
-            self.send_command(draw_response, connection)
+            dispatch_event(connection, DrawResponseEvent(self.get_match_id(), self.verify_gui.result))
             self.verify_gui.set_result(None)
 
         elif self.state is State.DRAW_DOUBLE_CHECK or self.state is State.RESIGN_DOUBLE_CHECK:
@@ -223,59 +226,42 @@ class Player:
 
             if self.state is State.DRAW_DOUBLE_CHECK:
                 self.state = State.OFFERED_DRAW
-                draw_info: dict[str, str] = {CommandManager.side: self.side.name}
-                offer_draw = CommandManager.get(ClientGameCommand.OFFER_DRAW, draw_info)
-                self.send_command(offer_draw, connection)
+                dispatch_event(connection, OfferDrawEvent(self.get_match_id(), self.side.name))
             else:
-                resign_info: dict[str, str] = {CommandManager.side: self.side.name}
-                resign = CommandManager.get(ClientGameCommand.RESIGN, resign_info)
-                self.send_command(resign, connection)
+                dispatch_event(connection, ResignEvent(self.get_match_id(), self.side.name))
 
             self.verify_gui.set_result(None)
             self.set_require_render(True)
 
     def handle_pick_promotion(self, connection: Optional[socket.socket]) -> None:
+        if self.prev_time_iso is None:
+            return
+
         for surface, rect, val in self.promotion_gui.promotion_pieces:
             mouse_pos = pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(self.game_offset.topleft)
             if not rect.collidepoint(mouse_pos.x, mouse_pos.y):
                 continue
-            from_tile = self.board.get_picked_up()
-            dest_tile = self.board.get_collided_tile(self.game_offset, self.prev_left_mouse_up)
-            if dest_tile is None or from_tile is None:
+
+            if (dest_tile := self.board.get_collided_tile(self.game_offset, self.prev_left_mouse_up)) is None:
                 continue
-            from_coordinates = from_tile.algebraic_notation.coordinates
-            dest_coordinates = dest_tile.algebraic_notation.coordinates
 
-            if self.prev_time_iso is None:
-                return
-            move_info: dict[str, str] = {CommandManager.from_coordinates: from_coordinates,
-                                         CommandManager.dest_coordinates: dest_coordinates,
-                                         CommandManager.side: self.side.name, CommandManager.target_fen: val,
-                                         CommandManager.time_iso: self.prev_time_iso}
-            move = CommandManager.get(ClientGameCommand.MOVE, move_info)
+            if (from_tile := self.board.get_picked_up()) is None:
+                continue
 
-            self.send_command(move, connection)
+            from_coordinates: tuple[str, str] = from_tile.algebraic_notation.file, from_tile.algebraic_notation.rank
+            dest_coordinates: tuple[str, str] = dest_tile.algebraic_notation.file, dest_tile.algebraic_notation.rank
+
+            move_event: MoveEvent = MoveEvent(self.get_match_id(), from_coordinates, dest_coordinates, self.side.name,
+                                              val, self.prev_time_iso)
+
+            dispatch_event(connection, move_event)
             self.board.reset_picked_up()
             self.state = State.PICK_PIECE
             self.set_require_render(True)
 
     def update(self, delta_time: float, connection: Optional[socket.socket] = None) -> None:
-        if self.game_over:
-            return
-
-        if self.state == State.PICKING_PROMOTION:
-            return
-
-        if self.state == State.OFFERED_DRAW:
-            return
-
-        if self.state == State.RESPOND_DRAW:
-            return
-
-        if self.opponent_promoting:
-            return
-
-        if self.timed_out:
+        if any([self.game_over, self.opponent_promoting, self.timed_out, self.state == State.PICKING_PROMOTION,
+                self.state == State.OFFERED_DRAW, self.state == State.RESPOND_DRAW]):
             return
 
         if self.state != State.DRAW_DOUBLE_CHECK and self.state != State.RESIGN_DOUBLE_CHECK:
@@ -283,9 +269,7 @@ class Player:
 
         self.timer_gui.tick(delta_time)
         if self.timer_gui.own_timer.time_left <= 0:
-            time_out_info: dict[str, str] = {CommandManager.side: self.side.name}
-            time_out = CommandManager.get(ClientGameCommand.TIME_OUT, time_out_info)
-            self.send_command(time_out, connection)
+            dispatch_event(connection, TimeOutEvent(self.get_match_id(), self.side.name))
             self.set_timed_out(True)
 
     def handle_draw_offer(self, side: str) -> None:
@@ -394,68 +378,73 @@ class Player:
     def set_opponent_promoting(self, promoting: bool) -> None:
         self.opponent_promoting = promoting
 
-    def send_command(self, command: Command, connection: Optional[socket.socket]) -> None:
-        if connection is None:
-            CommandManager.send_to(CommandManager.MATCH, command)
+    @staticmethod
+    def process_game_event(game_event: GameEvent, fen: Fen, *players: Player) -> None:
+        def exec_player(func: Callable[[Player], None]) -> None:
+            deque(map(func, players))
+
+        def process_update_fen(update_fen: UpdateFenEvent) -> None:
+            pre_move_fen: Fen = Fen(fen.notation)
+            fen.notation = update_fen.notation
+
+            exec_player(lambda player: player.update_pieces_location(fen))
+            exec_player(lambda player: player.update_turn(fen))
+            exec_player(
+                lambda player: player.timer_gui.update(player.side, fen.data.active_color, update_fen.white_time,
+                                                       update_fen.black_time))
+            exec_player(lambda player: player.set_read_input(True))
+            exec_player(lambda player: player.set_opponent_promoting(False))
+            exec_player(lambda player: player.previous_move_gui.set_prev_move(update_fen.from_, update_fen.dest,
+                                                                              pre_move_fen, player.board.grid))
+            exec_player(lambda player: player.played_moves_gui.add_played_move(update_fen.from_, update_fen.dest,
+                                                                               pre_move_fen, fen[update_fen.dest]))
+
+        def process_end_game(end_game: EndGameEvent) -> None:
+            exec_player(lambda player: player.end_game(end_game.result, end_game.reason))
+
+        def process_update_captured_pieces(cap_pieces: UpdateCapturedPiecesEvent) -> None:
+            exec_player(lambda player: player.captured_gui.set_captured_pieces(cap_pieces.captured_pieces))
+
+        def process_opponent_draw_offer(draw_offer: OpponentDrawOfferEvent) -> None:
+            exec_player(lambda player: player.handle_draw_offer(draw_offer.side))
+
+        if isinstance(game_event, UpdateFenEvent):
+            process_update_fen(game_event)
+
+        elif isinstance(game_event, EndGameEvent):
+            process_end_game(game_event)
+
+        elif isinstance(game_event, InvalidMoveEvent):
+            exec_player(lambda player: player.set_require_render(True))
+            exec_player(lambda player: player.set_read_input(True))
+
+        elif isinstance(game_event, UpdateCapturedPiecesEvent):
+            process_update_captured_pieces(game_event)
+
+        elif isinstance(game_event, OpponentPromotionEvent):
+            exec_player(lambda player: player.set_opponent_promoting(True))
+
+        elif isinstance(game_event, OpponentDrawOfferEvent):
+            process_opponent_draw_offer(game_event)
+
+        elif isinstance(game_event, ContinueGameEvent):
+            exec_player(lambda player: player.continue_game())
+            exec_player(lambda player: player.set_require_render(True))
+
+        else:
+            assert False, f" {game_event.type.name} : Command not recognised"
+
+    @staticmethod
+    def local_game_process(fen: Fen, *players: Player) -> None:
+        if (game_event := LocalEvents.get().get_player_event()) is None:
             return
 
-        assert self.match_id is not None, "Must set match id before starting game"
-        command.info[CommandManager.match_id] = str(self.match_id)
-        connection.send(CommandManager.serialize_command(command))
-
-    def process_command(self):
-        pass
+        Player.process_game_event(game_event, fen, *players)
 
 
-def process_player_command(command: Command, match_fen: Fen, *players: Player) -> None:
-    if command.name == ServerGameCommand.UPDATE_FEN.name:
-        fen_notation: str = command.info[CommandManager.fen_notation]
-        white_time: str = command.info[CommandManager.white_time_left]
-        black_time: str = command.info[CommandManager.black_time_left]
-        from_index: str = command.info[CommandManager.from_index]
-        dest_index: str = command.info[CommandManager.dest_index]
-        pre_move_fen: Fen = Fen(match_fen.notation)
-        match_fen.notation = fen_notation
-        list(map(lambda player: player.update_pieces_location(match_fen), players))
-        list(map(lambda player: player.update_turn(match_fen), players))
-        list(map(lambda player: player.timer_gui.update(player.side, match_fen.data.active_color, float(white_time),
-                                                        float(black_time)), players))
-        list(map(lambda player: player.set_read_input(True), players))
-        list(map(lambda player: player.set_opponent_promoting(False), players))
-        list(map(lambda player: player.previous_move_gui.set_prev_move(int(from_index), int(dest_index), pre_move_fen,
-                                                                       player.board.grid), players))
-        list(map(lambda player: player.played_moves_gui.add_played_move(int(from_index), int(dest_index), pre_move_fen,
-                                                                        match_fen[int(dest_index)]), players))
-
-    elif command.name == ServerGameCommand.END_GAME.name:
-        list(map(lambda player: player.end_game(command.info[CommandManager.game_result],
-                                                command.info[CommandManager.game_result_type]), players))
-
-    elif command.name == ServerGameCommand.INVALID_MOVE.name:
-        list(map(lambda player: player.set_require_render(True), players))
-        list(map(lambda player: player.set_read_input(True), players))
-
-    elif command.name == ServerGameCommand.UPDATE_CAP_PIECES.name:
-        captured_pieces: str = command.info[CommandManager.captured_pieces]
-        list(map(lambda player: player.captured_gui.set_captured_pieces(captured_pieces), players))
-
-    elif command.name == ServerGameCommand.CLIENT_PROMOTING.name:
-        list(map(lambda player: player.set_opponent_promoting(True), players))
-
-    elif command.name == ServerGameCommand.CLIENT_DRAW_OFFER.name:
-        list(map(lambda player: player.handle_draw_offer(command.info[CommandManager.side]), players))
-
-    elif command.name == ServerGameCommand.CONTINUE.name:
-        list(map(lambda player: player.continue_game(), players))
-        list(map(lambda player: player.set_require_render(True), players))
-
-    else:
-        assert False, f" {command.name} : Command not recognised"
-
-
-def process_command_local(match_fen: Fen, *players: Player) -> None:
-    command = CommandManager.read_from(CommandManager.PLAYER)
-    if command is None:
+def dispatch_event(connection: Optional[socket.socket], game_event: GameEvent) -> None:
+    if connection is None:
+        LocalEvents.get().add_match_event(game_event)
         return
 
-    process_player_command(command, match_fen, *players)
+    EventManager.dispatch(connection, game_event)

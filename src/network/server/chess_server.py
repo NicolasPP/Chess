@@ -5,8 +5,11 @@ import logging
 import socket as skt
 import threading
 from _thread import start_new_thread
+from pickle import UnpicklingError
+from typing import Optional
 from uuid import uuid1
 
+from chess.board.side import Side
 from chess.game.chess_match import Match
 from chess.game.chess_match import MatchResult
 from chess.timer.timer_config import DefaultConfigs
@@ -19,12 +22,15 @@ from config.tk_config import MAX_CONNECTIONS
 from config.tk_config import SERVER_SHUT
 from database.chess_db import ChessDataBase
 from database.chess_db import DataBaseInfo
+from event.event import Event
+from event.event import EventContext
+from event.event import EventType
+from event.event_manager import EventManager
+from event.game_events import EndGameEvent
+from event.game_events import GameEvent
+from event.launcher_events import DisconnectEvent
+from event.launcher_events import LaunchGameEvent
 from network.chess_network import Net
-from network.commands.client_commands import ClientLauncherCommand
-from network.commands.command import Command
-from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerGameCommand
-from network.commands.server_commands import ServerLauncherCommand
 from network.server.server_lobby import ServerLobby
 from network.server.server_user import ServerUser
 
@@ -39,8 +45,9 @@ class ServerMatch:
         self.match: Match = Match(timer_config)
         self.players: tuple[ServerUser, ServerUser] = players
 
-    def get_sockets(self) -> list[skt.socket]:
-        return [player.socket for player in self.players]
+    def get_sockets(self) -> tuple[skt.socket, skt.socket]:
+        white, black = self.players
+        return white.socket, black.socket
 
 
 class ChessServer(Net):
@@ -139,26 +146,18 @@ class ChessServer(Net):
             if server_user is None:
                 return
 
-            ver_bytes: bytes | None = self.receive_verification(server_user)
-
-            disconnect_info: dict[str, str] = {}
+            verification: Optional[Event] = self.receive_verification(server_user)
 
             if self.lobby.get_connection_count() >= MAX_CONNECTIONS:
-                disconnect_info[CommandManager.disconnect_reason] = "Too Many Connections"
-                server_user.socket.send(CommandManager.serialize_command_list(
-                    [CommandManager.get(ServerLauncherCommand.DISCONNECT, disconnect_info)]
-                ))
+                EventManager.dispatch(server_user.socket, [DisconnectEvent("Too Many Connections")])
 
-            elif self.lobby.verify_user(server_user, ver_bytes):
+            elif self.lobby.verify_user(server_user, verification):
                 self.lobby.add_user(server_user)
                 self.logger.info("client: %s connected", server_user.get_db_user().u_name)
                 start_new_thread(self.user_listener, (server_user,))
 
             else:
-                disconnect_info[CommandManager.disconnect_reason] = "Could not verify user"
-                server_user.socket.send(CommandManager.serialize_command_list(
-                    [CommandManager.get(ServerLauncherCommand.DISCONNECT, disconnect_info)]
-                ))
+                EventManager.dispatch(server_user.socket, [DisconnectEvent("Could not verify user")])
                 server_user.socket.close()
                 self.logger.info("could not verify user")
 
@@ -189,16 +188,11 @@ class ChessServer(Net):
                     self.logger.debug("invalid data")
                     break
 
-                command: Command = CommandManager.deserialize_command_bytes(data)
-                self.logger.info("command : %s received from client %s", command.name,
+                event: Event = EventManager.load_event(data)
+                self.logger.info("command : %s received from client %s", event.type.name,
                                  server_user.get_db_user().u_name)
 
-                if command.name == ClientLauncherCommand.ENTER_QUEUE.name:
-                    self.lobby.enter_queue(server_user)
-                    self.start_matches()
-
-                else:
-                    self.process_game_command(command)
+                self.process_event(event, server_user)
 
         self.lobby.remove_user(server_user)
         server_user.socket.close()
@@ -206,34 +200,40 @@ class ChessServer(Net):
         self.logger.info("client: %s disconnected", server_user.db_user.u_name)
         return
 
-    def process_game_command(self, command: Command) -> None:
-        match_id: int = int(command.info[CommandManager.match_id])
-        server_match: ServerMatch = self.matches[match_id]
+    def process_event(self, event: Event, server_user: ServerUser) -> None:
+        if event.context is EventContext.LAUNCHER:
+            self.process_in_launcher_event(event, server_user)
 
-        response: list[Command] = []
-        response = server_match.match.process_client_command(command, response)
+        elif event.context is EventContext.GAME:
+            self.process_in_game_event(event)
+
+    def process_in_launcher_event(self, event: Event, server_user: ServerUser) -> None:
+        if event.type is EventType.ENTER_QUEUE:
+            self.lobby.enter_queue(server_user)
+
+            for players in self.lobby.get_match_ups():
+                self.begin_match(uuid1(), *players)
+
+        else:
+            raise Exception(f"received unexpected event: {event.type}")
+
+    def process_in_game_event(self, game_event: Event) -> None:
+        assert isinstance(game_event, GameEvent), f"expected GAME context instead got: {game_event.context}"
+        server_match: ServerMatch = self.matches[game_event.match_id]
+
+        response: list[GameEvent] = server_match.match.process_game_event(game_event)
 
         for sock in server_match.get_sockets():
-            sock.send(CommandManager.serialize_command_list(response))
+            EventManager.dispatch(sock, response)
 
-    def start_matches(self) -> None:
-        for players in self.lobby.get_match_ups():
-            match_id: int = uuid1().int
-            server_match: ServerMatch = ServerMatch(DefaultConfigs.BLITZ_5_0, players)
-            self.matches[match_id] = server_match
+    def begin_match(self, match_id: uuid1, white_player: ServerUser, black_player: ServerUser) -> None:
+        server_match: ServerMatch = ServerMatch(DefaultConfigs.BLITZ_5_0, (white_player, black_player))
+        self.matches[match_id.int] = server_match
 
-            init_info: dict[str, str] = {
-                CommandManager.match_id: match_id,
-                CommandManager.time: str(int(server_match.match.timer_config.time)),
-                CommandManager.side: "WHITE"
-            }
-            white_init: Command = CommandManager.get(ServerLauncherCommand.LAUNCH_GAME, init_info)
-            init_info[CommandManager.side] = "BLACK"
-            black_init: Command = CommandManager.get(ServerLauncherCommand.LAUNCH_GAME, init_info)
-
-            white, black = server_match.get_sockets()
-            white.send(CommandManager.serialize_command_list([white_init]))
-            black.send(CommandManager.serialize_command_list([black_init]))
+        EventManager.dispatch(white_player.socket,
+                              [LaunchGameEvent(match_id.int, server_match.match.timer_config.time, Side.WHITE.name)])
+        EventManager.dispatch(black_player.socket,
+                              [LaunchGameEvent(match_id.int, server_match.match.timer_config.time, Side.BLACK.name)])
 
     def shut_down(self) -> None:
         self.set_is_running(False)
@@ -242,32 +242,28 @@ class ChessServer(Net):
         except OSError:
             pass
         self.reset_socket()
-        disconnect_info: dict[str, str] = {
-            CommandManager.disconnect_reason: SERVER_SHUT
-        }
-        abort_info: dict[str, str] = {
-            CommandManager.game_result: MatchResult.DRAW.name,
-            CommandManager.game_result_type: SERVER_SHUT
-        }
-        disconnect: Command = CommandManager.get(ServerLauncherCommand.DISCONNECT, disconnect_info)
-        abort: Command = CommandManager.get(ServerGameCommand.END_GAME, abort_info)
+
+        disconnect: DisconnectEvent = DisconnectEvent(SERVER_SHUT)
+        end_game: EndGameEvent = EndGameEvent(-1, MatchResult.DRAW.name, SERVER_SHUT)
         for user in self.lobby.users:
-            user.socket.send(CommandManager.serialize_command_list([disconnect, abort]))
+            EventManager.dispatch(user.socket, [disconnect, end_game])
         self.logger.info("telling clients to disconnect")
         self.logger.info("shutting down server")
 
-    def receive_verification(self, user: ServerUser) -> bytes | None:
+    def receive_verification(self, user: ServerUser) -> Optional[Event]:
         try:
             data: bytes = user.socket.recv(DATA_SIZE)
         except ConnectionResetError as error:
             self.logger.debug("connection error: %s", error)
             return None
 
-        if not data:
-            self.logger.debug("invalid data")
+        try:
+            return EventManager.load_event(data)
+        except UnpicklingError:
             return None
 
-        return data
+        except EOFError:
+            return None
 
 
 class ServerControlCommands(enum.Enum):

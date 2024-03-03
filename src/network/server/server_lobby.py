@@ -1,11 +1,11 @@
 import logging
 from random import shuffle
+from typing import Optional
 
 from database.chess_db import ChessDataBase
 from database.models import User
-from network.commands.client_commands import ClientLauncherCommand
-from network.commands.command import Command
-from network.commands.command_manager import CommandManager
+from event.event import Event
+from event.launcher_events import ServerVerificationEvent
 from network.server.server_user import ServerUser
 
 
@@ -42,22 +42,17 @@ class ServerLobby:
     def get_connection_count(self) -> int:
         return len(self.users)
 
-    def verify_user(self, server_user: ServerUser, verification_bytes: bytes | None) -> bool:
-        if verification_bytes is None:
+    def verify_user(self, server_user: ServerUser, verification: Optional[Event]) -> bool:
+        if verification is None:
             return False
 
-        verification_command: Command | None = CommandManager.deserialize_command_bytes(verification_bytes)
-
-        if verification_command is None:
-            return False
-        if verification_command.name != ClientLauncherCommand.VERIFICATION.name:
-            self.logger.info("initial command cannot be : %s", verification_command.name)
+        if not isinstance(verification, ServerVerificationEvent):
+            self.logger.info("Expected ServerVerificationEvent instead got : %s", verification.type.name)
             return False
 
-        db_user_name: str = verification_command.info[CommandManager.user_name]
-        db_user: User | None = self.database.get_user(db_user_name)
+        db_user: User | None = self.database.get_user(verification.user_name)
         if db_user is None:
-            self.logger.info("database could not find user : %s", db_user_name)
+            self.logger.info("database could not find user : %s", verification.user_name)
             return False
 
         for server_users in self.users:
@@ -65,4 +60,4 @@ class ServerLobby:
                 self.logger.info("user : %s is already connected", db_user.u_name)
                 return False
 
-        return server_user.set_db_user(verification_command.info, db_user)
+        return server_user.set_db_user(verification, db_user)

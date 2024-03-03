@@ -1,8 +1,6 @@
 import datetime
 import enum
 
-from chess.board.side import Side
-from chess_engine.movement.validate_move import is_check
 from chess_engine.movement.validate_move import is_checkmate
 from chess_engine.movement.validate_move import is_material_insufficient
 from chess_engine.movement.validate_move import is_move_valid
@@ -15,37 +13,40 @@ from chess_engine.notation.forsyth_edwards_notation import encode_fen_data
 from chess_engine.notation.forsyth_edwards_notation import validate_fen_castling_rights
 from chess_engine.notation.forsyth_edwards_notation import validate_fen_en_passant_rights
 from chess_engine.notation.forsyth_edwards_notation import validate_fen_piece_placement
+
+from chess.board.side import Side
 from chess.timer.timer_config import TimerConfig
+from config.pg_config import AGREEMENT
+from config.pg_config import CHECKMATE
+from config.pg_config import FIFTY_MOVE_RULE
 from config.pg_config import HALF_MOVE_LIMIT
-from network.commands.client_commands import ClientGameCommand
-from network.commands.command import Command
-from network.commands.command_manager import CommandManager
-from network.commands.server_commands import ServerGameCommand
-
-
-class MoveTags(enum.Enum):
-    CHECK = enum.auto()
-    CHECKMATE = enum.auto()
-    REGULAR = enum.auto()
-    INVALID = enum.auto()
-    TAKE = enum.auto()
+from config.pg_config import INSUFFICIENT_MATERIAL
+from config.pg_config import REPETITION
+from config.pg_config import RESIGNATION
+from config.pg_config import STALEMATE
+from config.pg_config import TIMEOUT
+from event.event import EventType
+from event.game_events import ContinueGameEvent
+from event.game_events import DrawResponseEvent
+from event.game_events import EndGameEvent
+from event.game_events import GameEvent
+from event.game_events import InvalidMoveEvent
+from event.game_events import MoveEvent
+from event.game_events import OfferDrawEvent
+from event.game_events import OpponentDrawOfferEvent
+from event.game_events import PromotionEvent
+from event.game_events import ResignEvent
+from event.game_events import TimeOutEvent
+from event.game_events import UpdateCapturedPiecesEvent
+from event.game_events import OpponentPromotionEvent
+from event.game_events import UpdateFenEvent
+from event.local_event_queue import LocalEvents
 
 
 class MatchResult(enum.Enum):
     WHITE = enum.auto()
     BLACK = enum.auto()
     DRAW = enum.auto()
-
-
-class MatchResultType(enum.Enum):
-    CHECKMATE = enum.auto()
-    RESIGNATION = enum.auto()
-    TIMEOUT = enum.auto()
-    AGREEMENT = enum.auto()
-    STALEMATE = enum.auto()
-    INSUFFICIENT_MATERIAL = enum.auto()
-    FIFTY_MOVE_RULE = enum.auto()
-    REPETITION = enum.auto()
 
 
 class RepetitionCounter:
@@ -67,91 +68,68 @@ class RepetitionCounter:
         else:
             self.reached_positions[position] += 1
 
-    def is_three_fold_repetition(self) -> bool: return self.three_fold_repetition
+    def is_three_fold_repetition(self) -> bool:
+        return self.three_fold_repetition
 
 
 class Match:
     def __init__(self, timer_config: TimerConfig):
         self.fen: Fen = Fen()
         self.captured_pieces: str = ''
-        self.commands: list[Command] = []
-        self.update_fen: bool = False
         self.timer_config = timer_config
         self.prev_time: datetime.datetime | None = None
         self.white_time_left: float = timer_config.time
         self.black_time_left: float = timer_config.time
         self.repetition_counter: RepetitionCounter = RepetitionCounter()
 
-    def process_client_command(self, command: Command, commands: list[Command]) -> list[Command]:
-        end_game_info: dict[str, str] = {}
-        move_tags: list[MoveTags] = []
-        before_move_fen: Fen = Fen(encode_fen_data(self.fen.data))
-        if command.name == ClientGameCommand.PICKING_PROMOTION.name:
-            commands.append(CommandManager.get(ServerGameCommand.CLIENT_PROMOTING))
+    def process_game_event(self, game_event: GameEvent) -> list[GameEvent]:
+        response: list[GameEvent] = []
 
-        elif command.name == ClientGameCommand.MOVE.name:
-            move_tags = self.process_move(command, before_move_fen)
+        if isinstance(game_event, PromotionEvent):
+            response.append(OpponentPromotionEvent(-1))
 
-        elif command.name == ClientGameCommand.RESIGN.name:
-            side = command.info[CommandManager.side]
-            result = MatchResult.BLACK.name if side == Side.WHITE.name else MatchResult.WHITE.name
-            end_game_info[CommandManager.game_result_type] = MatchResultType.RESIGNATION.name
-            end_game_info[CommandManager.game_result] = result
-            commands.append(CommandManager.get(ServerGameCommand.END_GAME, end_game_info))
+        elif isinstance(game_event, MoveEvent):
+            response.extend(self.process_move_event(game_event, Fen(encode_fen_data(self.fen.data))))
 
-        elif command.name == ClientGameCommand.OFFER_DRAW.name:
-            commands.append(CommandManager.get(ServerGameCommand.CLIENT_DRAW_OFFER, command.info))
+        elif isinstance(game_event, ResignEvent):
+            response.append(EndGameEvent(-1, Side[game_event.side].get_opposite().name, RESIGNATION))
 
-        elif command.name == ClientGameCommand.DRAW_RESPONSE.name:
-            if bool(int(command.info[CommandManager.draw_offer_result])):
-                end_game_info[CommandManager.game_result_type] = MatchResultType.AGREEMENT.name
-                end_game_info[CommandManager.game_result] = MatchResult.DRAW.name
-                commands.append(CommandManager.get(ServerGameCommand.END_GAME, end_game_info))
+        elif isinstance(game_event, OfferDrawEvent):
+            response.append(OpponentDrawOfferEvent(-1, game_event.side))
+
+        elif isinstance(game_event, DrawResponseEvent):
+            if game_event.result:
+                response.append(EndGameEvent(-1, MatchResult.DRAW.name, AGREEMENT))
             else:
-                commands.append(CommandManager.get(ServerGameCommand.CONTINUE))
+                response.append(ContinueGameEvent(-1))
 
-        elif command.name == ClientGameCommand.TIME_OUT.name:
-            side = command.info[CommandManager.side]
-            result = MatchResult.BLACK.name if side == Side.WHITE.name else MatchResult.WHITE.name
-            end_game_info[CommandManager.game_result_type] = MatchResultType.TIMEOUT.name
-            end_game_info[CommandManager.game_result] = result
-            commands.append(CommandManager.get(ServerGameCommand.END_GAME, end_game_info))
+        elif isinstance(game_event, TimeOutEvent):
+            response.append(EndGameEvent(-1, Side[game_event.side].get_opposite().name, TIMEOUT))
 
         else:
-            assert False, f" {command.name} : Command not recognised"
+            assert False, f" {game_event.type.name} : event not recognised"
 
-        if command.name == ClientGameCommand.MOVE.name:
-            from_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.from_coordinates])
-            dest_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.dest_coordinates])
+        response.extend(self.check_for_draws(response))
 
-            for tag in move_tags:
-                commands.extend(self.process_tag(tag, from_index, dest_index))
-
-        commands.extend(self.process_match_state(commands))
-
-        return commands
+        return response
 
     def process_local_move(self) -> None:
-        command: Command | None = CommandManager.read_from(CommandManager.MATCH)
-        if command is None: return
-        commands: list[Command] = []
-        commands = self.process_client_command(command, commands)
+        local_events: LocalEvents = LocalEvents.get()
+        if (event := local_events.get_match_event()) is None:
+            return
 
-        list(map(lambda cmd: CommandManager.send_to(CommandManager.PLAYER, cmd), commands))
+        for game_event in self.process_game_event(event):
+            local_events.add_player_event(game_event)
 
-    def process_move(self, command: Command, before_move_fen: Fen) -> list[MoveTags]:
-        from_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.from_coordinates])
-        dest_index = AlgebraicNotation.get_index_from_an(*command.info[CommandManager.dest_coordinates])
-        side = command.info[CommandManager.side]
-        target_fen = command.info[CommandManager.target_fen]
-        time_iso = command.info[CommandManager.time_iso]
+    def process_move_event(self, move: MoveEvent, before_move_fen: Fen) -> list[GameEvent]:
+        from_index: int = AlgebraicNotation.get_index_from_an(*move.from_)
+        dest_index: int = AlgebraicNotation.get_index_from_an(*move.dest)
 
-        valid_side = is_side_valid(side, self.fen.is_white_turn())
-        valid_move = is_move_valid(from_index, dest_index, self.fen)
+        if not is_side_valid(move.side, self.fen.is_white_turn()) or \
+                not is_move_valid(from_index, dest_index, self.fen):
+            return [InvalidMoveEvent(-1)]
 
-        if not valid_side or not valid_move: return [MoveTags.INVALID]
-
-        time = datetime.datetime.fromisoformat(time_iso)
+        time: datetime.datetime = datetime.datetime.fromisoformat(move.time_iso)
         if self.prev_time is not None:
             diff = time - self.prev_time
             if self.fen.data.active_color == FenChars.WHITE_ACTIVE_COLOR:
@@ -162,105 +140,59 @@ class Match:
                 self.black_time_left += self.timer_config.increment
 
         self.prev_time = time
-        self.fen.make_move(from_index, dest_index, target_fen)
-        self.repetition_counter.add_position(
-            self.fen.data.piece_placement,
-            self.fen.data.en_passant_rights,
-            self.fen.data.castling_rights
-        )
-        return self.get_move_tags(before_move_fen, from_index, dest_index)
+        self.fen.make_move(from_index, dest_index, move.target_fen)
+        self.repetition_counter.add_position(self.fen.data.piece_placement, self.fen.data.en_passant_rights,
+                                             self.fen.data.castling_rights)
 
-    def get_move_tags(self, before_move_fen: Fen, from_index: int, dest_index: int) -> list[MoveTags]:
-        tags = []
+        response: list[GameEvent] = [UpdateFenEvent(-1, self.fen.notation, self.white_time_left, self.black_time_left,
+                                                    from_index, dest_index)]
 
-        is_en_passant = before_move_fen.is_move_en_passant(from_index, dest_index)
-        is_castle = before_move_fen.is_move_castle(from_index, dest_index)
-        opponent_pawn_fen = FenChars.get_piece_fen(FenChars.DEFAULT_PAWN, not before_move_fen.is_white_turn())
+        is_en_passant: bool = before_move_fen.is_move_en_passant(from_index, dest_index)
+        opponent_pawn_fen: str = FenChars.get_piece_fen(FenChars.DEFAULT_PAWN, not before_move_fen.is_white_turn())
 
-        if is_take(before_move_fen, dest_index, is_en_passant, is_castle):
+        if is_take(before_move_fen, dest_index, is_en_passant, before_move_fen.is_move_castle(from_index, dest_index)):
             if is_en_passant:
                 self.captured_pieces += opponent_pawn_fen
             else:
                 self.captured_pieces += before_move_fen[dest_index]
-            tags.append(MoveTags.TAKE)
+            response.append(UpdateCapturedPiecesEvent(-1, self.captured_pieces))
 
         if is_checkmate(self.fen, self.fen.is_white_turn()):
-            tags.append(MoveTags.CHECKMATE)
-        elif is_check(self.fen, self.fen.is_white_turn()):
-            tags.append(MoveTags.CHECK)
-        else:
-            tags.append(MoveTags.REGULAR)
+            result: str = MatchResult.BLACK.name if self.fen.is_white_turn() else MatchResult.WHITE.name
+            end_game: EndGameEvent = EndGameEvent(-1, result, CHECKMATE)
+            response.append(end_game)
 
-        return tags
+        return response
 
-    def process_tag(self, tag: MoveTags, from_index: int, dest_index: int) -> list[Command]:
-        ext_commands = []
-        update_fen_info: dict[str, str] = {
-            CommandManager.fen_notation: self.fen.notation,
-            CommandManager.white_time_left: str(self.white_time_left),
-            CommandManager.black_time_left: str(self.black_time_left),
-            CommandManager.from_index: str(from_index),
-            CommandManager.dest_index: str(dest_index)
-        }
-        update_fen_command: Command = CommandManager.get(ServerGameCommand.UPDATE_FEN, update_fen_info)
-        if tag == MoveTags.CHECK:
-            ext_commands.append(update_fen_command)
-        elif tag == MoveTags.CHECKMATE:
-            result = MatchResult.BLACK.name if self.fen.is_white_turn() else MatchResult.WHITE.name
-            end_game_info: dict[str, str] = {
-                CommandManager.game_result_type: MatchResultType.CHECKMATE.name,
-                CommandManager.game_result: result
-            }
-            end_game_command: Command = CommandManager.get(ServerGameCommand.END_GAME, end_game_info)
-            ext_commands.append(update_fen_command)
-            ext_commands.append(end_game_command)
-        elif tag == MoveTags.REGULAR:
-            ext_commands.append(update_fen_command)
-        elif tag == MoveTags.INVALID:
-            invalid_move_command: Command = CommandManager.get(ServerGameCommand.INVALID_MOVE)
-            ext_commands.append(invalid_move_command)
-        elif tag == MoveTags.TAKE:
-            update_captured_info: dict[str, str] = {CommandManager.captured_pieces: self.captured_pieces}
-            update_captured_pieces = CommandManager.get(ServerGameCommand.UPDATE_CAP_PIECES, update_captured_info)
-            ext_commands.append(update_captured_pieces)
-        else:
-            assert False, "INVALID MATCH.MOVE_TAG"
-        return ext_commands
+    def check_for_draws(self, response: list[GameEvent]) -> list[GameEvent]:
+        for event in response:
+            if event.type is EventType.END_GAME:
+                return []
 
-    def process_match_state(self, commands: list[Command]) -> list[Command]:
-        # -- WIN / LOOSE --
-
-        # Checkmate
-        for command in commands:
-            if command.name == ServerGameCommand.END_GAME.name: return []
-
-        # -- DRAW --
         # Stalemate
-        draw_info: dict[str, str] = {CommandManager.game_result: MatchResult.DRAW.name}
-
         if is_stale_mate(self.fen):
-            draw_info[CommandManager.game_result_type] = MatchResultType.STALEMATE.name
-            return [CommandManager.get(ServerGameCommand.END_GAME, draw_info)]
+            return [EndGameEvent(-1, MatchResult.DRAW.name, STALEMATE)]
 
         # Insufficient Material
         if is_material_insufficient(self.fen):
-            draw_info[CommandManager.game_result_type] = MatchResultType.INSUFFICIENT_MATERIAL.name
-            return [CommandManager.get(ServerGameCommand.END_GAME, draw_info)]
+            return [EndGameEvent(-1, MatchResult.DRAW.name, INSUFFICIENT_MATERIAL)]
 
         # 50 move-rule
         if int(self.fen.data.half_move_clock) >= HALF_MOVE_LIMIT:
-            draw_info[CommandManager.game_result_type] = MatchResultType.FIFTY_MOVE_RULE.name
-            return [CommandManager.get(ServerGameCommand.END_GAME, draw_info)]
+            return [EndGameEvent(-1, MatchResult.DRAW.name, FIFTY_MOVE_RULE)]
 
         # Repetition
         if self.repetition_counter.is_three_fold_repetition():
-            draw_info[CommandManager.game_result_type] = MatchResultType.REPETITION.name
-            return [CommandManager.get(ServerGameCommand.END_GAME, draw_info)]
+            return [EndGameEvent(-1, MatchResult.DRAW.name, REPETITION)]
 
         return []
 
 
 def is_side_valid(side: str, is_white: bool) -> bool:
-    if side == Side.WHITE.name and is_white: return True
-    if side == Side.BLACK.name and not is_white: return True
+    if side == Side.WHITE.name and is_white:
+        return True
+
+    if side == Side.BLACK.name and not is_white:
+        return True
+
     return False
