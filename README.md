@@ -24,21 +24,8 @@ bot path entry inside the launcher
 # start launcher
 python src/main.py
 
-# all features are accessible from the launcher
-# Also able to use features from the terminal
-
 #start server
 python src/main.py --app_type "SERVER"
-    options:
-        -- timer
-
-#start client
-python src/main.py --app_type "CLIENT"
-    options:
-        --server_ip
-        --scale
-        --theme_id
-        --pieces_asset
 
 #start player vs player on same machine
 python src/main.py --app_type "PLAYER_V_PLAYER"
@@ -52,7 +39,7 @@ python src/main.py --app_type "PLAYER_V_PLAYER"
 # Options description
 ```
 --app_type : select what to launch. 
-    LAUNCHER, CLIENT, SERVER, PLAYER_V_PLAYER
+    LAUNCHER, SERVER, PLAYER_V_PLAYER
     default = LAUNCHER
 
 --timer  :  Choose timer settings.
@@ -71,9 +58,6 @@ python src/main.py --app_type "PLAYER_V_PLAYER"
         RAPID_30_0 
         RAPID_60_0
   
---server_ip  :  specify server ip for client
-    Default server ip = 127.0.0.1
-
 --scale  :  specify size of application
     default size = 3.5
     not recommended to go below 2, font will become unreadable
@@ -82,7 +66,6 @@ python src/main.py --app_type "PLAYER_V_PLAYER"
     possible theme_id: 1, 2, 3, 4, -1
     -1 = Random theme
         
-
 --pieces_asset  :  Choose Pieces Asset
     possible pieces Asset: SMALL, LARGE, RANDOM
 
