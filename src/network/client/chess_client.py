@@ -4,22 +4,15 @@ import typing
 from _thread import start_new_thread
 
 from chess.chess_player import Player
-from config.logging_manager import AppLoggers
-from config.logging_manager import LoggingManager
+from config.logging_manager import AppLoggers, LoggingManager
 from config.pg_config import DATA_SIZE
 from config.tk_config import SERVER_SHUT
 from database.models import User
-from event.event import Event
-from event.event import EventContext
-from event.event import EventType
+from event.event import Event, EventContext, EventType
 from event.event_manager import EventManager
-from event.game_events import EndGameEvent
-from event.game_events import GameEvent
-from event.launcher_events import DisconnectEvent
-from event.launcher_events import EnterQueueEvent
-from event.launcher_events import LaunchGameEvent
-from event.launcher_events import LauncherEvent
-from event.launcher_events import ServerVerificationEvent
+from event.game_events import EndGameEvent, GameEvent
+from event.launcher_events import DisconnectEvent, EnterQueueEvent, LaunchGameEvent, LauncherEvent, \
+    ServerVerificationEvent
 from launcher.pg.pg_launcher import ChessPygameLauncher
 from launcher.tk.global_vars import GlobalUserVars
 from network.chess_network import Net
@@ -36,6 +29,7 @@ class ChessClient(Net):
         self.user: User = user
         self.logger: logging.Logger = LoggingManager.get_logger(AppLoggers.CLIENT)
         self.is_connected: bool = False
+        self._update_stats = None
 
     def start(self) -> ClientConnectResult:
         connect_result: ClientConnectResult = self.connect()
@@ -85,9 +79,12 @@ class ChessClient(Net):
                     process_launcher_events(event)
 
                 elif event.context is EventContext.GAME:
-                    process_game_events(event)
+                    self.process_game_events(event)
 
                 self.logger.info("server sent %s command", event.type.name)
+
+    def set_update_stats(self, func) -> None:
+        self._update_stats = func
 
     def server_listener(self) -> None:
         with self.socket:
@@ -102,6 +99,27 @@ class ChessClient(Net):
 
     def send_queue_request(self) -> None:
         EventManager.dispatch(self.socket, EnterQueueEvent())
+
+    def process_game_events(self, game_event: Event) -> None:
+
+        if (player := ChessPygameLauncher.get().multi_player.player) is None:
+            return
+
+        assert isinstance(game_event, GameEvent)
+
+        Player.process_game_event(game_event, ChessPygameLauncher.get().multi_player.match_fen, player)
+
+        if not isinstance(game_event, EndGameEvent):
+            return
+
+        if self._update_stats is not None:
+            self._update_stats()
+
+        if game_event.reason != SERVER_SHUT:
+            return
+
+        GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(SERVER_SHUT)
+        GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(True)
 
 
 def process_launcher_events(launcher_event: Event) -> None:
@@ -119,21 +137,3 @@ def process_launcher_events(launcher_event: Event) -> None:
         assert isinstance(launcher_event, LaunchGameEvent)
         launch_string: str = "-".join([str(launcher_event.time), launcher_event.side, str(launcher_event.match_id)])
         GlobalUserVars.get().get_var(GlobalUserVars.launch_game).set(launch_string)
-
-
-def process_game_events(game_event: Event) -> None:
-    if (player := ChessPygameLauncher.get().multi_player.player) is None:
-        return
-
-    assert isinstance(game_event, GameEvent)
-
-    Player.process_game_event(game_event, ChessPygameLauncher.get().multi_player.match_fen, player)
-
-    if not isinstance(game_event, EndGameEvent):
-        return
-
-    if game_event.reason != SERVER_SHUT:
-        return
-
-    GlobalUserVars.get().get_var(GlobalUserVars.connect_error).set(SERVER_SHUT)
-    GlobalUserVars.get().get_var(GlobalUserVars.server_disconnect).set(True)

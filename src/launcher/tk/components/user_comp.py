@@ -5,8 +5,7 @@ import typing
 from ttkbootstrap import ttk
 
 from config.tk_config import SETTINGS_PAD
-from database.chess_db import ChessDataBase
-from database.chess_db import CreateUserResult
+from database.chess_db import ChessDataBase, CreateUserResult
 from database.models import User
 from launcher.tk.components.tk_component import Component
 from launcher.tk.launcher_user import LauncherUser
@@ -144,14 +143,18 @@ class UserComponent(Component):
                            log_out_button, error_label, elo_label, games_played_label)
 
     def handle_log_in(self, database: ChessDataBase, is_logged_in: tk.BooleanVar) -> None:
-        if self.state is not UserComponentState.LOG_IN: return
-        if len(self.vars.user_name_var.get()) == 0: return
-        if len(self.vars.user_password_var.get()) == 0: return
+        if self.state is not UserComponentState.LOG_IN:
+            return
+        if len(self.vars.user_name_var.get()) == 0:
+            return
+        if len(self.vars.user_password_var.get()) == 0:
+            return
 
         if not self.vars.is_database_up.get():
             self.vars.is_database_up.set(database.test_connection())
 
-        if not self.vars.is_database_up.get(): return
+        if not self.vars.is_database_up.get():
+            return
 
         user: User | None = database.log_in(self.vars.user_name_var.get(), self.vars.user_password_var.get())
 
@@ -166,15 +169,20 @@ class UserComponent(Component):
             self.widgets.place_forget()
             self.widgets.error_label.pack_forget()
             self.widgets.place_logged_in()
-            set_elo_label(self.vars)
-            set_game_stats(self.vars, database)
+            self._update_stats(database)
+            LauncherUser.get_client().set_update_stats(lambda: self._update_stats(database))
             self.set_title(user.u_name)
 
         self.vars.user_name_var.set("")
         self.vars.user_password_var.set("")
 
+    def _update_stats(self, database) -> None:
+        set_elo_label(self.vars, database)
+        set_game_stats(self.vars, database)
+
     def handle_log_out(self, is_logged_in: tk.BooleanVar) -> None:
-        if self.state is not UserComponentState.LOG_OUT: return
+        if self.state is not UserComponentState.LOG_OUT:
+            return
         self.widgets.place_forget_logged_in()
         self.widgets.place_log_in_buttons()
         self.widgets.place()
@@ -184,12 +192,14 @@ class UserComponent(Component):
         self.state = UserComponentState.LOG_IN
 
     def handle_register(self, database: ChessDataBase) -> None:
-        if self.state is not UserComponentState.LOG_IN: return
+        if self.state is not UserComponentState.LOG_IN:
+            return
 
         if not self.vars.is_database_up.get():
             self.vars.is_database_up.set(database.test_connection())
 
-        if not self.vars.is_database_up.get(): return
+        if not self.vars.is_database_up.get():
+            return
 
         self.state = UserComponentState.CREATE_USER
         self.widgets.place_forget_button()
@@ -199,7 +209,8 @@ class UserComponent(Component):
         self.frame.configure(text="Create User")
 
     def handle_cancel(self) -> None:
-        if self.state is not UserComponentState.CREATE_USER: return
+        if self.state is not UserComponentState.CREATE_USER:
+            return
         self.state = UserComponentState.LOG_IN
         self.widgets.place_forget_button()
         self.widgets.error_label.pack_forget()
@@ -250,8 +261,8 @@ def is_database_up_callback(user_widgets: UserWidgets, user_vars: UserVars) -> N
     user_widgets.error_label.pack(expand=True)
 
 
-def set_elo_label(user_vars: UserVars) -> None:
-    user_vars.elo_var.set(f"elo : {LauncherUser.get_user().elo}")
+def set_elo_label(user_vars: UserVars, database: ChessDataBase) -> None:
+    user_vars.elo_var.set(f"elo : {database.get_user(LauncherUser.get_user().u_name).elo}")
 
 
 def set_game_stats(user_var: UserVars, database: ChessDataBase) -> None:

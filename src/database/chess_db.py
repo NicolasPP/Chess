@@ -4,17 +4,12 @@ import hashlib
 import logging
 
 import sqlalchemy
-from sqlalchemy import Select
-from sqlalchemy import and_
-from sqlalchemy import or_
-from sqlalchemy.exc import DatabaseError
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy import Select, and_, or_, text
+from sqlalchemy.exc import DatabaseError, NoResultFound
 from sqlalchemy.orm import Session
 
-from config.logging_manager import AppLoggers
-from config.logging_manager import LoggingManager
-from database.models import Game
-from database.models import User
+from config.logging_manager import AppLoggers, LoggingManager
+from database.models import Game, User
 
 
 @dataclasses.dataclass
@@ -24,6 +19,11 @@ class DataBaseInfo:
     host: str
     port: int
     database: str
+
+
+'''
+can restart mysql with WINDOWS + r services.msc
+'''
 
 
 class CreateUserResult(enum.Enum):
@@ -95,6 +95,15 @@ class ChessDataBase:
         with Session(self.get_engine()) as session:
             game: Game = Game(white_id=white.u_id, black_id=black.u_id, moves=moves, result=result,
                               time_config=time_config)
+            winner, looser = get_winner_looser(result, white, black)
+
+            queries: list[text] = [
+                text(f"UPDATE users SET elo = {winner.elo + 10} WHERE u_id = {winner.u_id};"),
+                text(f"UPDATE users SET elo = {looser.elo - 10} WHERE u_id = {looser.u_id};"),
+            ]
+            for query in queries:
+                session.execute(query)
+
             session.add(game)
             session.commit()
 
@@ -133,3 +142,13 @@ def is_user_name_valid(user_name: str) -> bool:
 
 def is_user_password_valid(user_password: str) -> bool:
     return len(user_password) > 0
+
+
+def get_winner_looser(result: str, white: User, black: User) -> tuple[User, User]:
+    if result == "WHITE":
+        return white, black
+
+    elif result == "BLACK":
+        return black, white
+
+    raise ValueError(f"Unexpected result: {result}")

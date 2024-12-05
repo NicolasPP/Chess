@@ -41,13 +41,13 @@ you can get the process ID with port with this command : sudo lsof -i:PORT
 
 
 class ServerMatch:
-    def __init__(self, timer_config: TimerConfig, players: tuple[ServerUser, ServerUser]) -> None:
+    def __init__(self, timer_config: TimerConfig, white: ServerUser, black: ServerUser) -> None:
         self.match: Match = Match(timer_config)
-        self.players: tuple[ServerUser, ServerUser] = players
+        self.white: ServerUser = white
+        self.black: ServerUser = black
 
     def get_sockets(self) -> tuple[skt.socket, skt.socket]:
-        white, black = self.players
-        return white.socket, black.socket
+        return self.white.socket, self.black.socket
 
 
 class ChessServer(Net):
@@ -222,12 +222,21 @@ class ChessServer(Net):
         server_match: ServerMatch = self.matches[game_event.match_id]
 
         response: list[GameEvent] = server_match.match.process_game_event(game_event)
+        for event in response.copy():
+            if isinstance(event, EndGameEvent):
+                result = self.database.create_game(
+                    server_match.white.db_user,
+                    server_match.black.db_user,
+                    "NO MOVES SORRY",
+                    event.result,
+                    server_match.match.timer_config.get_value_str()
+                )
 
         for sock in server_match.get_sockets():
             EventManager.dispatch(sock, response)
 
     def begin_match(self, match_id: uuid1, white_player: ServerUser, black_player: ServerUser) -> None:
-        server_match: ServerMatch = ServerMatch(DefaultConfigs.BLITZ_5_0, (white_player, black_player))
+        server_match: ServerMatch = ServerMatch(DefaultConfigs.BLITZ_5_0, white_player, black_player)
         self.matches[match_id.int] = server_match
 
         EventManager.dispatch(white_player.socket,
